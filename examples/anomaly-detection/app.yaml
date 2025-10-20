@@ -1,0 +1,7 @@
+name: Concrete crack detector
+icon: 🧱
+description: Detect anomalies (cracks, defects on concrete walls) in images
+
+bricks:
+  - arduino:web_ui
+  - arduino:visual_anomaly_detection

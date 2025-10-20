@@ -1,0 +1,450 @@
+/*
+ * SPDX-FileCopyrightText: Copyright (C) 2025 ARDUINO SA <http://www.arduino.cc>
+ *
+ * SPDX-License-Identifier: MPL-2.0
+ */
+
+@import url("fonts/fonts.css");
+
+/*
+ * This CSS is used to center the various elements on the screen
+ */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;    margin: 0;
+    padding: 20px;
+    background-color: #DAE3E3;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.main-content {
+    display: flex;
+    gap: 32px;
+    align-items: stretch;
+    justify-content: center;
+    width: 100%;
+    max-width: 1200px;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+}
+
+.container {
+    width: 100%;
+    max-width: 550px;
+    min-width: 300px;
+    height: auto;
+    min-height: 520px;
+    border-radius: 16px;
+    background: #FFF;
+    padding: 24px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.container-scans {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/*
+ * Components styling
+ */
+
+#videoFeedContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#videoCanvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    background-color: #333;
+}
+
+.camera-status {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #2C353A;
+    font-family: "Roboto Mono", monospace;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 170%;
+    letter-spacing: 1.92px;
+}
+
+.search-small {
+    color: #2C353A;
+    text-align: center;
+    font-family: "Open Sans";
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+}
+
+#scanInfo {
+    text-align: center;
+    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-self: stretch;
+    border-radius: 8px;
+    background: #FFF;
+}
+
+#scanMessage {
+    text-align: center;
+    font-family: "Open Sans";
+    font-size: 10px;
+    color: #2C353A;
+    line-height: 160%;
+    letter-spacing: 0.5px;
+}
+
+#recentScansList {
+    list-style-type: none;
+    padding: 0;
+    flex: 1;
+}
+
+#recentScansList li {
+    background-color: #e9ecef;
+    border: 1px solid #dee2e6;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    word-break: break-all;
+}
+
+.error-message {
+    color: red;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 10px;
+}
+
+#rescan-button-container {
+    display: flex;
+    justify-content: flex-end;
+}
+
+#rescanButton {
+    background-color: #008184;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    outline: none;
+    box-shadow: none;
+    font-family: "Open Sans";
+    font-size: 14px;
+    font-style: normal;
+    line-height: 160%;
+}
+
+.arduino-text {
+    color: #008184;
+    font-family: "Roboto Mono", monospace;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+    font-style: normal;
+    line-height: 170%;
+    letter-spacing: 0.28px;
+}
+
+.icon-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+    position: relative;
+}
+
+.icon-wrapper:hover {
+    background-color: rgba(0, 129, 132, 0.1);
+    cursor: pointer;
+}
+
+.icon-wrapper::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-family: "Open Sans", sans-serif;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+    z-index: 1000;
+    margin-bottom: 5px;
+}
+
+.icon-wrapper::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: #333;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+    z-index: 1000;
+    margin-bottom: 1px;
+}
+
+.icon-wrapper:hover::after,
+.icon-wrapper:hover::before {
+    opacity: 1;
+    visibility: visible;
+}
+
+.icon-wrapper.tooltip-success::after {
+    background-color: #16A588;
+    color: #FFF;
+    opacity: 1;
+    visibility: visible;
+}
+
+.icon-wrapper.tooltip-success::before {
+    border-top-color: #16A588;
+    opacity: 1;
+    visibility: visible;
+}
+
+.icon {
+    width: 12px;
+    height: 12px;
+    display: block;
+}
+
+.delete-scan-logo:hover {
+    cursor: pointer;
+    background-color: rgba(0, 129, 132, 0.1);
+    padding: 4px;
+    border-radius: 50%;
+}
+
+.arduino-logo {
+    height: 24px;
+    width: auto;
+}
+
+.delete-scan-logo {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+    padding: 4px;
+
+}
+
+.recent-scans-title-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: space-between;
+}
+
+.recent-scans-title {
+    color: #2C353A;
+    font-family: "Roboto Mono", monospace;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 700;
+    margin: 0;
+}
+
+.no-recent-scans {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: #888;
+    gap: 8px;
+}
+
+.scan-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#scan-message {
+    font-family: "Open Sans";
+    font-size: 10px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 160%;
+    letter-spacing: 0.1px;
+    color: #2C353A;
+    text-align: center;
+
+}
+
+.scan-header {
+    color: #2C353A;
+    font-family: "Open Sans";
+    font-size: 10px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 160%;
+    letter-spacing: 0.5px;
+    align-self: stretch;
+}
+
+.scan-content,
+.scan-content-time {
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 160%;
+    color: #2C353A;
+    font-family: "Open Sans";
+    letter-spacing: 0.5px;
+}
+
+.scan-content-time {
+    font-weight: 400;
+}
+
+.cell-border {
+    border-top: 1px solid #ccc;
+}
+
+.scan-cell-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    padding: 16px 0;
+}
+
+/*
+ * Responsive design
+ */
+
+@media (max-width: 1024px) {
+    .main-content {
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+    }
+
+    .container {
+        max-width: 800px;
+        width: 90%;
+    }
+}
+
+.scan-header {
+    font-family: "Open Sans";
+    font-size: 10px;
+    font-style: normal;
+    font-weight: 400;
+    color: #2C353A;
+}
+
+.scan-content {
+    position: relative;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.error-message {
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+
+/*
+ * Responsive design
+ */
+
+ @media (max-width: 768px) {
+    body {
+        padding: 12px 16px;
+    }
+
+    .container {
+        max-width: none;
+        width: 100%;
+        padding: 20px;
+        min-height: 400px;
+    }
+
+    .arduino-text {
+        font-size: 24px;
+    }
+
+    .main-content {
+        gap: 20px;
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 8px 12px;
+    }
+
+    .container {
+        padding: 16px;
+    }
+
+    .arduino-logo {
+        height: 16px;
+        width: auto;
+    }
+
+    #rescanButton {
+        font-size: 12px;
+    }
+}

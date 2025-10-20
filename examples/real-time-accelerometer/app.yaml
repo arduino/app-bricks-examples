@@ -1,0 +1,7 @@
+name: Real-time Accelerometer
+icon: 🐍
+description: Real-time Accelerometer data visualization and movement detection using Modulino Movement sensor
+
+bricks:
+  - arduino:web_ui
+  - arduino:motion_detection

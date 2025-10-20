@@ -1,0 +1,12 @@
+/*
+ * SPDX-FileCopyrightText: Copyright (C) 2025 ARDUINO SA <http://www.arduino.cc>
+ *
+ * SPDX-License-Identifier: MPL-2.0
+ */
+
+@font-face {
+    font-family: 'Roboto Mono';
+    font-style: normal;
+    font-display: swap;
+    src: url('RobotoMono-VariableFont_wght.ttf') format('truetype');
+}

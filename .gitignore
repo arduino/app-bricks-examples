@@ -1,0 +1,20 @@
+# ASDF
+.tool-versions
+
+# Python
+.venv
+
+# Taskfile
+.task/
+Taskfile.yml
+
+# Examples
+*.db
+*.pem
+.cache/
+__pycache__/
+**/.DS_Store
+
+# IDEs
+.vscode/*
+.idea/*

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="./img/toggle.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UNO Q Pin Toggle</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div>
+    <header class="header">
+      <h1 class="arduino-text">UNO Q Pin Toggle</h1>
+      <img class="arduino-logo" src="./img/logo.svg" alt="Arduino Logo">
+    </header>
+    <div class="main-content">
+      <div class="container">
+        <div id="boardContainer">
+          <div class="board">
+            <img id="boardImage" src="./img/arduino-toggle.svg" alt="Arduino board">
+            <!-- switches are injected here by app.js -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="libs/socket.io.min.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>

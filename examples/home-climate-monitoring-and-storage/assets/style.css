@@ -1,0 +1,333 @@
+/*
+ * SPDX-FileCopyrightText: Copyright (C) 2025 ARDUINO SA <http://www.arduino.cc>
+ *
+ * SPDX-License-Identifier: MPL-2.0
+ */
+
+ @import url('fonts/fonts.css');
+
+/*
+ * This CSS is used to center the various elements on the screen
+ */
+
+body {
+    margin: 0;
+    padding: 20px;
+    background-color: #DAE3E3;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.app-container {
+    max-width: 1300px;
+}
+
+.main-content {
+    gap: 32px;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 24px;
+    box-sizing: border-box;
+}
+
+.header h1 { margin: 0; }
+
+.container {
+    display: flex;
+    width: 550px;
+    min-width: 550px;
+    padding: 16px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 16px;
+    border-radius: 8px;
+    background: #ECF1F1;
+    position: relative;
+}
+
+h1, h2 {
+    color: #2c3e50;
+    text-align: center;
+}
+
+.arduino-text {
+    color: #008184;
+    font-family: "Roboto Mono", monospace;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 170%;
+    margin: 0;
+    letter-spacing: 2.4px;
+}
+
+.arduino-logo {
+    height: 24px;
+    width: auto;
+}
+
+/*
+ * Styles for specific components required by Data Logger
+ */
+
+.tabs {
+    display: inline-flex;
+    width: auto;
+    justify-content: center;
+    gap: 8px;
+    align-self: stretch;
+    border-radius: 8px;
+    background: #ECF1F1;
+    margin-bottom: 1em;
+    overflow: hidden;
+    height: 27px;
+    border: 1px solid #C9D2D2;
+    padding: 2px;
+}
+
+.tab {
+    color: #2C353A;
+    text-align: center;
+    font-family: "Open Sans", serif;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 160%;
+    letter-spacing: 0.14px;
+}
+
+.tab,
+.tab.active {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 148px;
+    height: 27px;
+    gap: 8px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+}
+
+.tab.active {
+    background: #FFF;
+    color: #008184;
+    text-align: center;
+    font-family: "Open Sans", serif;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 160%;
+    border-radius: 6px;
+    border: 1px solid #C9D2D2;
+}
+
+.tab-content {
+    display: none;
+    gap: 24px;
+    align-items: flex-start; /* prevent children from stretching to full height */
+    flex-wrap: wrap; /* allow children to wrap to next line */
+}
+.tab-content.active {
+    display: flex;
+}
+
+.tab-with-circle {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Add space between text and circle */
+}
+
+#live-circle {
+    display: flex;
+    width: 8px;
+    height: 8px;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    border-radius: 33px;
+    background: #AA4335;
+}
+#live-circle.flash {
+    animation: flash-circle 1s infinite alternate;
+}
+
+@keyframes flash-circle {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+.graph-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #2C353A;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 700;
+    letter-spacing: 1.6px;
+    padding-top: 0;
+    padding-bottom: 20px;
+    text-align: left;
+    position: relative;
+}
+
+.info-btn {
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+    border-radius: 50%;
+    background-color: #C9D2D2;
+    padding: 2px;
+    transition: background 0.2s;
+    position: relative;
+}
+
+.popover {
+    position: absolute;
+    left: 0%;
+    top: 70%;
+    margin-left: 8px;
+    display: none;
+    background: #fff;
+    padding: 16px 24px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    z-index: 10;
+    width: 300px;
+    color: #2C353A;
+    font-weight: 100;
+    font-family: "Open Sans";
+    font-size: 12px;
+    line-height: 170%;
+    letter-spacing: 0.12px;
+}
+
+.popover.active {
+    display: block;
+}
+
+.nodata-container {
+    position: absolute;
+    top: 56px;
+    left: 0;
+    width: 100%;
+    height: calc(100% - 56px);
+    background: #ECF1F1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    z-index: 2;
+    font-family: "Open Sans", serif;
+}
+
+.nodata-img {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 8px;
+}
+
+.no-data {
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    color: #2C353A;
+}
+
+/* Layout for the derived metrics row (three charts side-by-side) */
+.derived-row {
+    flex: 1 1 100%; /* take full row below main containers */
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    align-items: stretch;
+    flex-wrap: wrap; /* allow wrapping on very small screens */
+    margin-top: 16px;
+}
+
+/* Make derived metric containers smaller so three can fit side-by-side */
+.derived-row .derived-container {
+    min-width: 220px;
+    max-width: 420px;
+    box-sizing: border-box;
+}
+
+/* Top row: keep the two main charts side-by-side */
+.top-row {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* When containers are inside .top-row make them take about half the available width so they sit side-by-side */
+.top-row .container {
+    width: calc(50% - 8px);
+    min-width: 280px; /* allow stacking on narrow screens */
+    max-width: 620px;
+}
+
+.error-message {
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+
+/*
+ * Responsive design
+ */
+
+@media (max-width: 1200px) {
+    .tab-content.active {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 768px) {
+    .arduino-text {
+        font-size: 14px;
+    }
+
+    .arduino-logo {
+        height: 16px;
+        width: auto;
+    }
+}
+
+@media (max-width: 980px) {
+    .derived-row .derived-container {
+        width: 100%;
+        min-width: unset;
+        max-width: unset;
+    }
+}
+
+@media (max-width: 980px) {
+    .top-row {
+        flex-wrap: wrap;
+    }
+
+    .top-row .container {
+        width: 100%;
+        min-width: unset;
+        max-width: unset;
+    }
+}

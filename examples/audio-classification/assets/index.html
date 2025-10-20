@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glass breaking sensor</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="icon" type="image/png" href="img/favicon.png">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="arduino-text">Glass breaking sensor</h1>
+            <img class="arduino-logo" src="img/RGB-Arduino-Logo_Color Inline Loop.svg" alt="Arduino Logo">
+        </div>
+
+        <div class="main-content">
+            <div class="upload-section">
+                <div class="controls-section-left">
+                    <div class="image-source-selection">
+                        <button id="sampleAudioBtn" class="source-btn active">
+                            <img src="img/sample.svg" alt="Sample" class="sample-icon">
+                            Audio from sample
+                        </button>
+                        <button id="uploadAudioBtn" class="source-btn">
+                            <img src="img/upload-icon.svg" alt="Upload" class="upload-icon">
+                            Upload Audio
+                        </button>
+                    </div>
+
+                    <div class="audio-container">
+                        <div id="sampleAudiosGrid" class="sample-audios-grid"></div>
+
+                        <div id="audioPreview" class="image-preview" style="display: none;">
+                            <div class="upload-placeholder">
+                                <p class="drag-and-drop">Drag & drop an audio file here, or</p>
+                                <button class="drag-and-drop-button">
+                                    <img src="img/upload.svg" alt="Upload" class="upload-icon">
+                                    Upload
+                                </button>
+                                <div>
+                                    <span class="drag-and-drop-text border">File WAV</span><span class="drag-and-drop-text">Max 10MB</span>
+                                </div>
+                                <input type="file" id="audioInput" accept=".wav,audio/wav" style="display: none;">
+                            </div>
+                        </div>
+                        <div id="audioPlayerContainer" style="display: none;">
+                            <audio id="audioPlayer" controls style="width: 100%">
+                                Your browser does not support the audio element.
+                            </audio>
+                            <div id="audioInfo" class="audio-info"></div>
+                        </div>
+                    </div>
+
+                    <div id="classificationResults" style="display: none; margin-top: 20px;">
+                        <div id="classificationContent" class="classification-content">
+                            <div class="classification-item">
+                                <span class="classification-label">Class:</span>
+                                <span id="detectedClass" class="classification-value"></span>
+                            </div>
+                            <div class="classification-item">
+                                <span class="classification-label">Confidence</span>
+                                <span id="detectedConfidence" class="classification-value"></span>
+                            </div>
+                            <div class="classification-item">
+                                <span class="classification-label">Processing Time:</span>
+                                <span id="processingTime" class="classification-value"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="controls-section-right">
+                    <div class="controls-section">
+                        <div class="control-group">
+                            <div class="control-confidence">
+                                <div style="display: flex; align-items: center; gap: 8px; position: relative;">
+                                    <label id="confidence-label" for="confidenceSlider">Confidence</label>
+                                    <img src="./img/info.svg" alt="Info" class="info-btn confidence"/>
+                                    <div class="popover"></div>
+                                </div>
+                                <button id="confidenceResetButton" class="btn-tertiary">
+                                    <input type="number" id="confidenceInput" class="confidence-input" min="0" max="1" step="0.05" value="0.50">
+                                    <img src="img/icon-reset.svg" alt="Reset" class="reset-icon">
+                                </button>
+                            </div>
+                            <div class="slider-box">
+                                <span class="confidence-limits">0</span>
+                                <div class="slider-container">
+                                    <div class="slider-progress" id="sliderProgress"></div>
+                                    <div class="confidence-value-display" id="confidenceValueDisplay">0.8</div>
+                                    <input type="range" id="confidenceSlider" min="0" max="1" step="0.05" value="0.8">
+                                </div>
+                                <span class="confidence-limits">1</span>
+                            </div>
+                        </div>
+                        <div id="statusMessage" class="status-message"></div>
+                        <div id="error-container" class="error-message" style="display: none;"></div>
+                    </div>
+                    <div class="buttons">
+                        <button id="uploadNewButton" class="btn-secondary" style="display: none;">
+                            <img src="img/clear.svg" alt="Change">
+                                Clear and upload
+                        </button>
+                        <button id="classifyButton" class="btn-primary" style="display: none;">Run Classification ▶</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="libs/socket.io.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

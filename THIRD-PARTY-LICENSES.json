@@ -1,0 +1,97 @@
+[
+  {
+    "License": "BSD License",
+    "Name": "Jinja2",
+    "Version": "3.1.6"
+  },
+  {
+    "License": "BSD-3-Clause",
+    "Name": "MarkupSafe",
+    "Version": "3.0.3"
+  },
+  {
+    "License": "MIT License",
+    "Name": "PyYAML",
+    "Version": "6.0.3"
+  },
+  {
+    "License": "MPL-2.0",
+    "Name": "arduino_app_bricks",
+    "Version": "0.4.8"
+  },
+  {
+    "License": "MIT",
+    "Name": "attrs",
+    "Version": "25.4.0"
+  },
+  {
+    "License": "BSD-2-Clause",
+    "Name": "boolean.py",
+    "Version": "5.0"
+  },
+  {
+    "License": "Mozilla Public License 2.0 (MPL 2.0)",
+    "Name": "certifi",
+    "Version": "2025.10.5"
+  },
+  {
+    "License": "MIT",
+    "Name": "charset-normalizer",
+    "Version": "3.4.4"
+  },
+  {
+    "License": "BSD-3-Clause",
+    "Name": "click",
+    "Version": "8.3.0"
+  },
+  {
+    "License": "BSD-3-Clause",
+    "Name": "idna",
+    "Version": "3.11"
+  },
+  {
+    "License": "Apache-2.0",
+    "Name": "license-expression",
+    "Version": "30.4.4"
+  },
+  {
+    "License": "Apache-2.0",
+    "Name": "msgpack",
+    "Version": "1.1.2"
+  },
+  {
+    "License": "MIT-CMU",
+    "Name": "pillow",
+    "Version": "12.0.0"
+  },
+  {
+    "License": "DFSG approved; GNU General Public License v2 or later (GPLv2+)",
+    "Name": "python-debian",
+    "Version": "1.0.1"
+  },
+  {
+    "License": "MIT License",
+    "Name": "python-magic",
+    "Version": "0.4.27"
+  },
+  {
+    "License": "Apache Software License",
+    "Name": "requests",
+    "Version": "2.32.5"
+  },
+  {
+    "License": "Apache Software License; CC0 1.0 Universal (CC0 1.0) Public Domain Dedication; DFSG approved; GNU General Public License v3 or later (GPLv3+); Other/Proprietary License",
+    "Name": "reuse",
+    "Version": "6.1.2"
+  },
+  {
+    "License": "MIT License",
+    "Name": "tomlkit",
+    "Version": "0.13.3"
+  },
+  {
+    "License": "MIT",
+    "Name": "urllib3",
+    "Version": "2.5.0"
+  }
+]

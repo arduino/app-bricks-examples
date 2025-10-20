@@ -1,0 +1,38 @@
+name: Check licensing information
+description: |
+  This workflow checks that the license headers and files are up to date.
+  It runs on pull requests to ensure that any changes to the codebase maintain the required licensing information.
+
+on:
+  pull_request:
+
+jobs:
+  check-license-headers:
+    runs-on: ubuntu-latest
+    env:
+      PYTHON_VERSION: '3.13'
+      TASKFILE_VERSION: 'v3.44.0'
+      TASKFILE_PATH: '/home/runner/go/bin'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Check license headers and files
+        run: |
+          python -m venv .venv
+          . .venv/bin/activate
+          which task || curl -sSfL https://taskfile.dev/install.sh | sh -s -- -b ${{ env.TASKFILE_PATH }} ${{ env.TASKFILE_VERSION }}
+          export PATH="${{ env.TASKFILE_PATH }}:$PATH"
+          task license
+          if git diff --quiet; then
+            echo "License data is up to date!"
+          else
+            echo "Please update license headers and files by running 'task license'. Found the following differences:"
+            echo "$(git diff)"
+            exit 1
+          fi

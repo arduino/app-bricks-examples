@@ -1,0 +1,6 @@
+name: UNO Q Pin Toggle
+icon: 📌
+description: Control each Arduino UNO Q pin through a visual UI 
+
+bricks:
+  - arduino:web_ui

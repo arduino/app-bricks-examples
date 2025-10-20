@@ -1,0 +1,6 @@
+name: System resources logger
+icon: 📈
+description: A simple data logger that gets system resources usage from the board and stores them in a database.
+bricks:
+  - arduino:dbstorage_tsstore
+  - arduino:web_ui

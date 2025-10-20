@@ -1,0 +1,6 @@
+name: Blinking LED from Arduino Cloud
+icon: ☁️
+description: Control the LED from the Arduino IoT Cloud using RPC calls
+
+bricks:
+  - arduino:arduino_cloud

@@ -1,0 +1,6 @@
+name: Home climate monitoring and storage
+icon: 🎛️
+description: A simple data logger that gets temperature and humidity from the board via Modulino Thermo and stores them in a database.
+bricks:
+  - arduino:dbstorage_tsstore
+  - arduino:web_ui

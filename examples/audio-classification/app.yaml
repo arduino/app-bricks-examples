@@ -1,0 +1,7 @@
+name: Glass breaking sensor
+icon: 🪟
+description: Use a pre-trained model to classify audio files in the browser.
+
+bricks:
+  - arduino:web_ui
+  - arduino:audio_classification

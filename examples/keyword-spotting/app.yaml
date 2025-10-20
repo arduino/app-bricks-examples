@@ -1,0 +1,6 @@
+name: Hey Arduino!
+icon: ❤️
+description: When "Hey Arduino!" keyword is detected by the microphone, the led matrix will react
+
+bricks:
+  - arduino:keyword_spotting

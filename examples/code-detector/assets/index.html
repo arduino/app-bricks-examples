@@ -1,0 +1,60 @@
+<!--
+SPDX-FileCopyrightText: Copyright (C) 2025 ARDUINO SA <http://www.arduino.cc>
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Scanner</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+    <div>
+        <div class="header">
+            <h1 class="arduino-text">QR and Barcode Scanner</h1>
+            <img class="arduino-logo" src="./img/logo.svg" alt="Arduino Logo">
+        </div>
+
+        <div class="main-content">
+            <div class="container">
+                <div id="videoFeedContainer">
+                    <canvas id="videoCanvas" width="640" height="360">
+                        Your browser does not support the HTML5 canvas tag.
+                    </canvas>
+                </div>
+                <!-- Camera Status Banner -->
+                <div id="cameraStatus" class="camera-status">
+                    <div class="search">
+                        <img class="icon" src="./img/lens.svg" alt="Lens">
+                        <span>Searching for QR or Barcodes</span>
+                    </div>
+                    <div class="search-small">Hold it in front of the cam</div>
+                </div>
+                <div id="scanInfo"></div>
+                <div id="rescan-button-container" style="display: none;">
+                    <button id="rescanButton" onclick="rescan()">Scan another</button>
+                </div>
+            </div>
+
+            <div class="container container-scans">
+                <div class="recent-scans-title-container">
+                    <h2 class="recent-scans-title">Recent scans</h2>
+                    <img id="delete-scan" class="delete-scan-logo" style="display:none;" src="./img/delete-scan.svg" alt="Delete Scan" onclick="clearRecentScans()">
+                </div>
+                <ul id="recentScansList"></ul>
+                <div id="initialListError" class="error-message" style="display:none;"></div>
+                <div id="scanMessage" style="display:none;">only the last 5 scans are saved</div>
+            </div>
+        </div>
+        <div id="error-container" class="error-message" style="display: none;"></div>
+    </div>
+    <div id="error-container" class="error-message" style="display: none;"></div>
+
+    <script src="libs/socket.io.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+name: Person classifier on camera
+icon: 🚶‍♂️
+description: This example showcases person classification on camera, using a camera stream from USB camera
+
+bricks:
+  - arduino:video_image_classification:
+     model: person-classification
+  - arduino:web_ui

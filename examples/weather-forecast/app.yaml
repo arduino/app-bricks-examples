@@ -1,0 +1,6 @@
+name: Weather forecast on LED matrix
+icon: ☀️
+description: A weather forecast system that get the current weather and display it on LED matrix.
+
+bricks:
+  - arduino:weather_forecast

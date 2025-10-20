@@ -1,0 +1,7 @@
+name: Classify images
+icon: 📊
+description: Image classification in the browser using a web-based interface.
+
+bricks:
+  - arduino:web_ui
+  - arduino:image_classification

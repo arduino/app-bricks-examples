@@ -1,0 +1,118 @@
+<!--
+SPDX-FileCopyrightText: Copyright (C) 2025 ARDUINO SA <http://www.arduino.cc>
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System resources logger</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="libs/socket.io.min.js"></script>
+    <script src="app.js"></script>
+</head>
+<body>
+<div class="app-container">
+    <div class="header">
+        <h1 class="arduino-text">System resources logger</h1>
+        <img class="arduino-logo" src="./img/RGB-Arduino-Logo_Color Inline Loop.svg" alt="Arduino Logo">
+    </div>
+
+    <div class="tabs">
+        <button class="tab" data-tab="historical-1d">1 D</button>
+        <button class="tab" data-tab="historical-1h">1 h</button>
+        <button class="tab-with-circle tab active" data-tab="live">
+            <span id="live-circle"></span>
+            Live
+        </button>
+    </div>
+
+    <div class="main-content">
+        <div id="historical-1d" class="tab-content">
+            <div class="container">
+                <div class="graph-header">
+                    <span>CPU Usage (%)</span>
+                    <img src="./img/info.svg" alt="Info" class="info-btn cpu"/>
+                    <div class="popover"></div>
+                </div>
+                <canvas id="cpu-usage-1d-chart"></canvas>
+                <div id="cpu-usage-1d-chart-nodata" class="nodata-container">
+                    <img src="./img/nodata.svg" class="nodata-img">
+                    <span class="no-data">No data</span>
+                </div>
+            </div>
+            <div class="container">
+                <div class="graph-header">
+                    <span>Memory Usage (%)</span>
+                    <img src="./img/info.svg" alt="Info" class="info-btn memory"/>
+                    <div class="popover"></div>
+                </div>
+                <canvas id="memory-usage-1d-chart"></canvas>
+                <div id="memory-usage-1d-chart-nodata" class="nodata-container">
+                    <img src="./img/nodata.svg" class="nodata-img">
+                    <span class="no-data">No data</span>
+                </div>
+            </div>
+        </div>
+        <div id="historical-1h" class="tab-content">
+            <div class="container">
+                <div class="graph-header">
+                    <span>CPU Usage (%)</span>
+                    <img src="./img/info.svg" alt="Info" class="info-btn cpu"/>
+                    <div class="popover"></div>
+                </div>
+                <canvas id="cpu-usage-1h-chart"></canvas>
+                <div id="cpu-usage-1h-chart-nodata" class="nodata-container">
+                    <img src="./img/nodata.svg" class="nodata-img">
+                    <span class="no-data">No data</span>
+                </div>
+            </div>
+            <div class="container">
+                <div class="graph-header">
+                    <span>Memory Usage (%)</span>
+                    <img src="./img/info.svg" alt="Info" class="info-btn memory"/>
+                    <div class="popover"></div>
+                </div>
+                <canvas id="memory-usage-1h-chart"></canvas>
+                <div id="memory-usage-1h-chart-nodata" class="nodata-container">
+                    <img src="./img/nodata.svg" class="nodata-img">
+                    <span class="no-data">No data</span>
+                </div>
+            </div>
+        </div>
+        <div id="live" class="tab-content active">
+            <div class="container">
+                <div class="graph-header">
+                    <span>CPU Usage (%)</span>
+                    <img src="./img/info.svg" alt="Info" class="info-btn cpu"/>
+                    <div class="popover"></div>
+                </div>
+                <canvas id="cpu-usage-live-chart"></canvas>
+                <div id="cpu-usage-live-chart-nodata" class="nodata-container">
+                    <img src="./img/nodata.svg" class="nodata-img">
+                    <span class="no-data">No data</span>
+                </div>
+            </div>
+            <div class="container">
+                <div class="graph-header">
+                    <span>Memory Usage (%)</span>
+                    <img src="./img/info.svg" alt="Info" class="info-btn memory"/>
+                    <div class="popover"></div>
+                </div>
+                <canvas id="memory-usage-live-chart"></canvas>
+                <div id="memory-usage-live-chart-nodata" class="nodata-container">
+                    <img src="./img/nodata.svg" class="nodata-img">
+                    <span class="no-data">No data</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="error-container" class="error-message" style="display: none;"></div>
+</div>
+
+</body>
+</html>

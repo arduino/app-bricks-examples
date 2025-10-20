@@ -1,0 +1,11 @@
+name: QR and Barcode Scanner
+icon: 📦
+description: >
+  This example showcases how to use the Camera Code Detector Brick to detect barcodes and
+  QR codes and display the results in a web application as well as saving the results to an
+  SQL database.
+
+bricks:
+  - arduino:camera_code_detection
+  - arduino:dbstorage_sqlstore
+  - arduino:web_ui

@@ -1,0 +1,3 @@
+name: Blink LED
+icon: 🔴
+description: This example shows how to make the LED blink alternately.

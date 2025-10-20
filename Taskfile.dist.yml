@@ -1,0 +1,35 @@
+version: "3"
+
+tasks:
+  init:ci:
+    desc: Initialize CI environment
+    cmds:
+      - pip install libs/arduino_app_bricks-0.4.8-py3-none-any.whl reuse pip-licenses
+
+  license:
+    deps:
+      - init:ci
+    desc: Update license headers and files
+    cmds:
+      - |
+        git ls-files |
+        grep -Ev "(^|/)(libs|sketch-libraries|assets)/|\.(md|txt|yml|yaml|toml|gitignore|gitmodules)$" |
+        sed 's/ /\\ /g' |
+        xargs reuse annotate -r --skip-unrecognized --copyright-prefix 'spdx-string-c' --copyright 'ARDUINO SA <http://www.arduino.cc>' --year '2025' --license 'MPL-2.0'
+      - reuse download --all
+      - |
+        licenses_dir="LICENSES"
+        if [ -d "$licenses_dir" ]; then
+          count=$(find "$licenses_dir" -type f | wc -l)
+          if [ "$count" -gt 1 ]; then
+            for f in "$licenses_dir"/*; do
+              base=$(basename "$f")
+              mv "$f" "LICENSE-${base}"
+            done
+          elif [ "$count" -eq 1 ]; then
+            f=$(find "$licenses_dir" -type f | head -n1)
+            mv "$f" LICENSE.txt
+          fi
+          rmdir "$licenses_dir"
+        fi
+      - pip-licenses --format=json --output-file=THIRD-PARTY-LICENSES.json
