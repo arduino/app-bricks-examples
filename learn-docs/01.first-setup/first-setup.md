@@ -5,7 +5,6 @@ author: Karl Söderby
 tags: [Apps, Bricks, Sketches, Python, SBC]
 icon: Settings
 category: basic
-last_revised: 2025/10/01
 ---
 
 ![Hero Image](assets/first-setup-hero.png)
