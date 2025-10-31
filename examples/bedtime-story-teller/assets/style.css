@@ -1,0 +1,226 @@
+/*
+ * SPDX-FileCopyrightText: Copyright (C) 2025 ARDUINO SA <http://www.arduino.cc>
+ *
+ * SPDX-License-Identifier: MPL-2.0
+ */
+
+@import url("fonts/fonts.css");
+
+/*
+ * This CSS is used to center the various elements on the screen
+ */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;    margin: 0;
+    padding: 0;
+    background-color: transparent;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    justify-content: center;
+}
+
+.content-wrapper {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.play-area {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('./img/storyteller-background.png');
+    background-size: cover;
+    background-position: center;
+    z-index: -1;
+}
+
+.main-content {
+    display: grid;
+    grid-template-columns: minmax(auto, 455px) 24px 1fr;
+    grid-template-rows: auto 1fr;
+    align-items: start;
+    width: 100%;
+    max-width: 1280px;
+    border: 1px solid red;
+}
+
+.column-title {
+    font-family: "Open Sans";
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 160%;
+    letter-spacing: 0.16px;
+    color: white;
+    margin-bottom: 16px;
+}
+
+.main-content > .column-title:nth-child(1) {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+}
+
+.main-content > .column-title:nth-child(3) {
+    grid-column: 3 / 4;
+    grid-row: 1 / 2;
+}
+
+.main-content > .container {
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+}
+
+.story-output-container {
+    grid-column: 3 / 4;
+    grid-row: 2 / 3;
+    background-color: #FFF; /* Placeholder background */
+    border-radius: 16px;
+    padding: 24px;
+    box-sizing: border-box;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+}
+
+.container {
+    width: 100%;
+    max-width: 550px;
+    min-width: 300px;
+    height: auto;
+    min-height: 520px;
+    border-radius: 16px;
+    background: #FFF;
+    padding: 24px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.arduino-text {
+    color: #008184;
+    font-family: "Roboto Mono", monospace;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+    font-style: normal;
+    line-height: 170%;
+    letter-spacing: 0.28px;
+}
+
+.arduino-logo {
+    height: 48px;
+    width: auto;
+}
+
+/*
+ * Components styling
+ */
+
+.parameter-container {
+    border-radius: 8px;
+    background-color: #ECF1F1;
+    margin-bottom: 8px;
+    padding: 16px;
+}
+
+.parameter-title {
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 160%; /* 22.4px */
+    letter-spacing: 0.14px;
+    color: #2C353A;
+    margin: 0;
+}
+
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    animation: spin 1s linear infinite;
+    margin-left: 10px;
+    display: inline-block;
+    vertical-align: middle;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
+
+/*
+ * Responsive design
+ */
+
+@media (max-width: 1024px) {
+    .main-content {
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+    }
+
+    .container {
+        max-width: 800px;
+        width: 90%;
+    }
+}
+
+/*
+ * Responsive design
+ */
+
+@media (max-width: 768px) {
+    body {
+        padding: 12px 16px;
+    }
+
+    .container {
+        max-width: none;
+        width: 100%;
+        padding: 20px;
+        min-height: 400px;
+    }
+
+    .arduino-text {
+        font-size: 24px;
+    }
+
+    .main-content {
+        gap: 20px;
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 8px 12px;
+    }
+
+    .container {
+        padding: 16px;
+    }
+
+    .arduino-logo {
+        height: 20px;
+        width: auto;
+    }
+
+    #rescanButton {
+        font-size: 12px;
+    }
+}

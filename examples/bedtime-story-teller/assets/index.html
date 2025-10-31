@@ -1,0 +1,74 @@
+<!--
+SPDX-FileCopyrightText: Copyright (C) 2025 ARDUINO SA <http://www.arduino.cc>
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bedtime Story Teller</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+    <div class="play-area">
+        <div class="content-wrapper">
+            <div class="header">
+                <h1 class="arduino-text">Bedtime Story Teller</h1>
+                <img class="arduino-logo" src="./img/logo.svg" alt="Arduino Logo">
+            </div>
+
+            <div class="main-content">
+
+                        <h2 class="column-title">Set parameters</h2>
+
+                        <div></div> <!-- This is for the gap -->
+
+                        <h2 class="column-title">Your story</h2>
+
+                        <div class="container">
+
+                                        <div class="parameter-container">
+
+                                            <h3 class="parameter-title">Age</h3>
+
+                                        </div>
+
+                                        <div class="parameter-container">
+
+                                            <h3 class="parameter-title">Theme</h3>
+
+                                        </div>
+
+                                        <div class="parameter-container">
+
+                                            <h3 class="parameter-title">Story type</h3>
+
+                                        </div>
+
+                                        <div class="parameter-container">
+
+                                            <h3 class="parameter-title">Characters</h3>
+
+                                        </div>
+
+                                        <div class="parameter-container">
+
+                                            <h3 class="parameter-title">Other</h3>
+
+                                        </div>
+
+                                    </div>
+
+                        <div class="story-output-container"></div>
+
+                    </div>
+        </div>
+    </div>
+
+    <script src="libs/socket.io.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
