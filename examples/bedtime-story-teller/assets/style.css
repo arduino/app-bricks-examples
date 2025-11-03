@@ -30,11 +30,11 @@ body {
 }
 
 .play-area {
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
+    min-height: 100%;
     background-image: url('./img/storyteller-background.png');
     background-size: cover;
     background-position: center;
@@ -48,7 +48,6 @@ body {
     align-items: start;
     width: 100%;
     max-width: 1280px;
-    border: 1px solid red;
 }
 
 .column-title {
@@ -80,17 +79,19 @@ body {
 .story-output-container {
     grid-column: 3 / 4;
     grid-row: 2 / 3;
-    background-color: #FFF; /* Placeholder background */
-    border-radius: 16px;
+    background-color: transparent;
+    border-radius: 8px;
     padding: 24px;
     box-sizing: border-box;
+    border: 2px solid #C9D2D2;
+    height: 100%;
 }
 
 .header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 32px;
+    margin-bottom: 16px;
 }
 
 .container {
@@ -98,7 +99,6 @@ body {
     max-width: 550px;
     min-width: 300px;
     height: auto;
-    min-height: 520px;
     border-radius: 16px;
     background: #FFF;
     padding: 24px;
@@ -133,6 +133,20 @@ body {
     background-color: #ECF1F1;
     margin-bottom: 8px;
     padding: 16px;
+    cursor: pointer;
+}
+
+.parameter-header {
+    display: flex;
+    align-items: center;
+}
+
+.parameter-header .parameter-title {
+    margin-right: 8px; /* Gap between title and optional text/selected value */
+}
+
+.parameter-header .arrow-icon {
+    margin-left: auto; /* Push the arrow to the far right */
 }
 
 .parameter-title {
@@ -143,6 +157,134 @@ body {
     letter-spacing: 0.14px;
     color: #2C353A;
     margin: 0;
+}
+
+.arrow-icon {
+    transition: transform 0.3s ease;
+}
+
+.arrow-icon.rotated {
+    transform: rotate(90deg);
+}
+
+.parameter-content {
+    margin-top: 16px;
+}
+
+.chips-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.chip {
+    border-radius: 200px;
+    border: 1px solid #C9D2D2;
+    background: #FFF;
+    color: #2C353A;
+    font-family: "Open Sans";
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 160%;
+    letter-spacing: 0.12px;
+    padding: 4px 12px;
+    white-space: nowrap;
+    cursor: pointer;
+    display: inline-flex; /* Use inline-flex for alignment */
+    align-items: center; /* Center items vertically */
+}
+
+.chip img {
+    margin-right: 8px; /* 8px gap */
+}
+
+.chip.selected {
+    background: #008184;
+    color: #FFF;
+    border-color: #008184;
+}
+
+.selected-value,
+.plus-x {
+    display: none;
+    border-radius: 4px;
+    border: 1px solid #C9D2D2;
+    background: #ECF1F1;
+    padding: 2px 8px;
+    font-family: "Open Sans";
+    font-size: 12px;
+    font-weight: 600;
+    color: #2C353A;
+    margin-left: 8px; /* Add some space from the title */
+}
+
+.optional-text {
+    color: #5D6A6B;
+    font-family: "Open Sans";
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 160%;
+    letter-spacing: 0.12px;
+}
+
+.story-type-paragraph {
+    margin-bottom: 16px;
+}
+
+.paragraph-title {
+    color: #2C353A;
+    font-family: "Open Sans";
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 160%;
+    letter-spacing: 0.12px;
+    margin: 0 0 8px 0;
+}
+
+.other-textarea {
+    width: 100%;
+    min-height: 100px;
+    border-radius: 4px;
+    border: 1px solid #C9D2D2;
+    background: #FFF;
+    padding: 8px;
+    font-family: "Open Sans";
+    font-size: 12px;
+    resize: vertical; /* Allow vertical resize */
+    box-sizing: border-box; /* Fix padding issue */
+}
+
+.char-counter {
+    text-align: right;
+    color: #5D6A6B;
+    font-family: "Open Sans";
+    font-size: 10px;
+    margin-top: 4px;
+}
+
+.generate-story-button {
+    border-radius: 8px;
+    background: #25C2C7;
+    color: #171E21;
+    font-family: "Open Sans";
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 160%;
+    letter-spacing: 0.12px;
+    padding: 8px 16px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px; /* Space from the last parameter container */
+    margin-left: auto; /* Push to the right */
+    width: fit-content; /* Make it not full width */
 }
 
 .spinner {
