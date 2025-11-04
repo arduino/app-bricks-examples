@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-#include <Modulino.h>
+#include <Arduino_Modulino.h>
 #include <Arduino_RouterBridge.h>
 
 // Create object instance
@@ -16,7 +16,6 @@ void setup() {
 
   // Initialize Modulino I2C communication
   Modulino.begin(Wire1);
-  
   // Detect and connect to temperature/humidity sensor module
   thermo.begin();
 }
