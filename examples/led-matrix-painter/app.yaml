@@ -1,0 +1,9 @@
+name: Led Matrix Painter
+icon: 🟦
+description:
+  This example shows how to create a tool to design frames for an LED matrix using Arduino.
+  It provides a web interface where users can design frames and animations and export them as C/C++ code.
+
+bricks:
+  - arduino:web_ui
+  - arduino:dbstorage_sqlstore
