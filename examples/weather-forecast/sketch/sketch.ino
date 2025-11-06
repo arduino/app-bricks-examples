@@ -22,20 +22,20 @@ void loop() {
   String weather_forecast;
   bool ok = Bridge.call("get_weather_forecast", city).result(weather_forecast);
   if (ok) {
-    if ("sunny" == sequence_name) {
-      matrix.loadSequence(Sunny);
+    if (sequence_name == "sunny") {
+      matrix.loadSequence(sunny);
       playRepeat(10);
-    } else if ("cloudy" == sequence_name) {
-      matrix.loadSequence(Cloudy);
+    } else if (sequence_name == "cloudy") {
+      matrix.loadSequence(cloudy);
       playRepeat(10);
-    } else if ("rainy" == sequence_name) {
-      matrix.loadSequence(Rainy);
+    } else if (sequence_name == "rainy") {
+      matrix.loadSequence(rainy);
       playRepeat(20);
-    } else if ("snowy" == sequence_name) {
-      matrix.loadSequence(Snowy);
+    } else if (sequence_name == "snowy") {
+      matrix.loadSequence(snowy);
       playRepeat(10);
-    } else if ("foggy" == sequence_name) {
-      matrix.loadSequence(Foggy);
+    } else if (sequence_name == "foggy") {
+      matrix.loadSequence(foggy);
       playRepeat(5);
     }
   }
