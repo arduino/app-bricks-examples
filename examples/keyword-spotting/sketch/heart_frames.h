@@ -4,8 +4,12 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-const uint32_t HeartStatic[4] = {0x00006c04, 0x90208088, 0x02800800,
-                                 0x00000000};
+const uint32_t HeartStatic[4] = {
+    0x00006c04,
+    0x90208088,
+    0x02800800,
+    0x00000000,
+};
 
 const uint32_t HeartAnim[][5] = {
     {0x1dc11108, 0x08404104, 0x04401400, 0x40000000, 55}, // 1

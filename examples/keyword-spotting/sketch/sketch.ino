@@ -9,26 +9,22 @@
 
 Arduino_LED_Matrix matrix;
 
-bool awake = false;
-
 void setup() {
   matrix.begin();
   matrix.clear();
-
   matrix.loadFrame(HeartStatic);
 
   Bridge.begin();
   Bridge.provide("keyword_detected", wake_up);
 }
 
-void loop() {
-  if (awake) {
-    matrix.loadSequence(HeartAnim);
-    matrix.playSequence();
-    delay(1000);
-    matrix.loadFrame(HeartStatic);
-    awake = false;
-  }
-}
+void loop() {}
 
-void wake_up() { awake = true; }
+void wake_up() {
+  matrix.loadSequence(HeartAnim);
+  matrix.playSequence();
+
+  delay(1000);
+
+  matrix.loadFrame(HeartStatic);
+}
