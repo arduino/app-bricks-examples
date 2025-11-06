@@ -2,45 +2,47 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
+#include <Arduino_LED_Matrix.h>
 #include <Arduino_RouterBridge.h>
 
 #include "weather_frames.h"
 
-// TODO: those will go into an header file.
-extern "C" void matrixWrite(const uint32_t* buf);
-extern "C" void matrixBegin();
+String city = "Turin";
+
+Arduino_LED_Matrix matrix;
 
 void setup() {
-  matrixBegin();
+  matrix.begin();
+  matrix.clear();
 
   Bridge.begin();
 }
 
-void playAnimation(const uint32_t* frames[], int frameCount, int repeat, int frameDelay) {
-  for (int r = 0; r < repeat; r++) {
-    for (int i = 0; i < frameCount; i++) {
-      matrixWrite(frames[i]);
-      delay(frameDelay);
+void loop() {
+  String weather_forecast;
+  bool ok = Bridge.call("get_weather_forecast", city).result(weather_forecast);
+  if (ok) {
+    if ("sunny" == sequence_name) {
+      matrix.loadSequence(Sunny);
+      playRepeat(10);
+    } else if ("cloudy" == sequence_name) {
+      matrix.loadSequence(Cloudy);
+      playRepeat(10);
+    } else if ("rainy" == sequence_name) {
+      matrix.loadSequence(Rainy);
+      playRepeat(20);
+    } else if ("snowy" == sequence_name) {
+      matrix.loadSequence(Snowy);
+      playRepeat(10);
+    } else if ("foggy" == sequence_name) {
+      matrix.loadSequence(Foggy);
+      playRepeat(5);
     }
   }
 }
 
-String city = "Turin";
-
-void loop() {
-  String weather_forecast;
-  bool ok =  Bridge.call("get_weather_forecast", city).result(weather_forecast);
-  if (ok) {
-    if (weather_forecast == "sunny") {
-      playAnimation(SunnyFrames, 2, 20, 500);
-    } else if (weather_forecast == "cloudy") {
-      playAnimation(CloudyFrames, 4, 20, 500);
-    } else if (weather_forecast == "rainy") {
-      playAnimation(RainyFrames, 3, 16, 200);
-    } else if (weather_forecast == "snowy") {
-      playAnimation(SnowyFrames, 3, 5, 650);
-    } else if (weather_forecast == "foggy") {
-      playAnimation(FoggyFrames, 2, 5, 660);
-    }
+void playRepeat(int repeat_count) {
+  for (int i = 0; i < repeat_count; i++) {
+    matrix.playSequence();
   }
 }

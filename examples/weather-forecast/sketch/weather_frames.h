@@ -4,97 +4,33 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-const uint32_t Sunny[] = {
-    0xa0148120,
-    0x9c1c801,
-    0x409402c0,
-    0x2
-};
-const uint32_t Sunny2[] = {
-    0x804a0048,
-    0x39004e05,
-    0x2900d0,
-    0x9
-};
-const uint32_t* SunnyFrames[] = { Sunny, Sunny2 };
-
-const uint32_t Cloudy[] = {
-    0x701c0000,
-    0x20211104,
-    0x7f0404,
-    0x0
-};
-const uint32_t Cloudy2[] = {
-    0xe0380000,
-    0x40422208,
-    0xfe0808,
-    0x0
-};
-const uint32_t Cloudy3[] = {
-    0xc0700000,
-    0x80844411,
-    0x1fc1010,
-    0x0
-};
-const uint32_t Cloudy4[] = {
-    0xe0380000,
-    0x40422208,
-    0xfe0808,
-    0x0
-};
-const uint32_t* CloudyFrames[] = { Cloudy, Cloudy2, Cloudy3, Cloudy4 };
-
-const uint32_t Rainy[]  = {
-    0x104301e0,
-    0x3f820210,
-    0x8a0510,
-    0x5
-};
-const uint32_t Rainy2[] = {
-    0x104301e0,
-    0x3f820210,
-    0x40a20140,
-    0x11
-};
-const uint32_t Rainy3[] = {
-    0x104301e0,
-    0x3f820210,
-    0x40280450,
-    0x14
-};
-const uint32_t* RainyFrames[] = { Rainy, Rainy2, Rainy3 };
-
-const uint32_t Snowy[]  = {
-    0x104301e0,
-    0x3f820210,
-    0x220040,
-    0x11
-};
-const uint32_t Snowy2[] = {
-    0x104301e0,
-    0x3f820210,
-    0x40080400,
-    0x4
-};
-const uint32_t Snowy3[] = {
-    0x104301e0,
-    0x3f820210,
-    0x800110,
-    0x1
-};
-const uint32_t* SnowyFrames[] = { Snowy, Snowy2, Snowy3 };
-
-const uint32_t Foggy[] = {
-    0xdf8000,
-    0x3f600,
-    0xef8,
-    0x0
-};
-const uint32_t Foggy2[] = {
-    0xf78000,
-    0x3ee00,
-    0xdf8,
-    0x0
+const uint32_t Sunny[][5] = {
+    {0x04812805, 0x80138390, 0x03402902, 0x40000000, 500},
+    {0x12005201, 0xa072009c, 0x0b009400, 0x90000000, 500},
+    {0x04812805, 0x80138390, 0x03402902, 0x40000000, 500},
 };
 
-const uint32_t* FoggyFrames[] = { Foggy, Foggy2 };
+const uint32_t Cloudy[][5] = {
+    {0x0000380e, 0x20888404, 0x2020fe00, 0x00000000, 500},
+    {0x00001c07, 0x10444202, 0x10107f00, 0x00000000, 500},
+    {0x00000e03, 0x88222101, 0x08083f80, 0x00000000, 500},
+    {0x00001c07, 0x10444202, 0x10107f00, 0x00000000, 500},
+};
+
+const uint32_t Rainy[][5] = {
+    {0x0780c208, 0x084041fc, 0x08a05100, 0xa0000000, 200},
+    {0x0780c208, 0x084041fc, 0x02804502, 0x88000000, 200},
+    {0x0780c208, 0x084041fc, 0x0a201402, 0x28000000, 200},
+};
+
+const uint32_t Snowy[][5] = {
+    {0x0780c208, 0x084041fc, 0x02004400, 0x88000000, 650},
+    {0x0780c208, 0x084041fc, 0x00201002, 0x20000000, 650},
+    {0x0780c208, 0x084041fc, 0x08800100, 0x80000000, 650},
+};
+
+const uint32_t Foggy[][5] = {
+    {0x0001fb00, 0x006fc000, 0x1f700000, 0x00000000, 660},
+    {0x0001ef00, 0x0077c000, 0x1fb00000, 0x00000000, 660},
+    {0x0001fb00, 0x006fc000, 0x1f700000, 0x00000000, 660},
+};
