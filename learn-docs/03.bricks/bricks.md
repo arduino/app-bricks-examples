@@ -5,7 +5,6 @@ author: Karl Söderby
 tags: [Bricks, AI Models]
 icon: Brick
 category: basic
-last_revised: 2025/10/01
 ---
 
 ![Bricks in the Arduino App Lab](assets/brick-hero.png)

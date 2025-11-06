@@ -5,7 +5,6 @@ author: Karl Söderby
 tags: [Apps, Bricks, Sketches, Python]
 icon: Group
 category: basic
-last_revised: 2025/10/01
 ---
 
 ![Apps.](assets/app-hero.png)
@@ -55,7 +54,7 @@ This function does the following:
 
 The App can also run a **user-defined loop**, using the `user_loop` parameter that receives a function name to be looped:
 
-```arduino
+```python
 def loop():
     global led_state
     time.sleep(1)
@@ -70,7 +69,7 @@ App.run(user_loop=loop)
 
 >**Important Note:** always place the `App.run()` at the very bottom of the `main.py` script, as any code added after will be ignored.
 
-This is used in the [example provided](#understand-the-code-the-blink-example) further down in this tutorial.
+This is used in the [example provided](/learn/apps#understand-the-code-the-blink-example) further down in this tutorial.
 
 ## Create a New App
 

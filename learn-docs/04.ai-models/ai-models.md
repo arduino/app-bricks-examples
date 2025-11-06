@@ -5,7 +5,6 @@ author: Karl Söderby
 tags: [AI, ML, Models]
 icon: AI
 category: basic
-last_revised: 2025/10/01
 ---
 
 ![AI Models in the Arduino App Lab](assets/ai-hero.png)
