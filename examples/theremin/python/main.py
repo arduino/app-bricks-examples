@@ -4,8 +4,10 @@
 
 from arduino.app_bricks.web_ui import WebUI
 from arduino.app_bricks.wave_generator import WaveGenerator
-from arduino.app_utils import App
+from arduino.app_utils import App, Logger
+import logging
 
+logger = Logger("theremin", logging.DEBUG)
 
 # configuration
 SAMPLE_RATE = 16000
@@ -23,7 +25,6 @@ wave_gen = WaveGenerator(
 # Set initial state
 wave_gen.set_frequency(440.0)
 wave_gen.set_amplitude(0.0)
-wave_gen.set_volume(0.8)
 
 
 # --- Web UI and event handlers -----------------------------------------------------
@@ -35,7 +36,7 @@ ui = WebUI()
 def on_connect(sid, data=None):
     state = wave_gen.get_state()
     ui.send_message("theremin:state", {"freq": state["frequency"], "amp": state["amplitude"]})
-    ui.send_message("theremin:volume", {"volume": state["master_volume"]})
+    ui.send_message("theremin:volume", {"volume": state["volume"]})
 
 
 def _freq_from_x(x):
@@ -55,6 +56,8 @@ def on_move(sid, data=None):
     freq = float(freq) if freq is not None else _freq_from_x(x)
     amp = max(0.0, min(1.0, 1.0 - float(y)))
 
+    logger.debug(f"on_move: x={x:.3f}, y={y:.3f} -> freq={freq:.1f}Hz, amp={amp:.3f}")
+
     # Update wave generator state
     wave_gen.set_frequency(freq)
     wave_gen.set_amplitude(amp)
@@ -71,11 +74,10 @@ def on_power(sid, data=None):
 
 def on_set_volume(sid, data=None):
     d = data or {}
-    state = wave_gen.get_state()
-    v = float(d.get("volume", state["master_volume"]))
-    v = max(0.0, min(1.0, v))
-    wave_gen.set_volume(v)
-    ui.send_message("theremin:volume", {"volume": v})
+    volume = int(d.get("volume", 100))
+    volume = max(0, min(100, volume))
+    wave_gen.set_volume(volume)
+    ui.send_message("theremin:volume", {"volume": volume})
 
 
 ui.on_connect(on_connect)

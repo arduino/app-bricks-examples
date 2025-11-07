@@ -84,7 +84,7 @@ The web interface provides the interactive play area and controls for the user.
 - **Event listeners** capture `mousedown`, `mousemove`, `mouseup` (and touch equivalents) to track user interaction in the play area.
 - `socket.emit('theremin:move', { x, y })` – Sends normalized (0.0–1.0) X and Y coordinates to the backend; emissions are **throttled to ~80 Hz (≈12 ms)** to avoid overload.
 - `socket.on('theremin:state', ...)` – Receives state updates from the backend (like the calculated frequency and amplitude) and updates the values displayed on the webpage.
-- `socket.emit('theremin:set_volume', { volume })` – Sends a **0.0–1.0** master volume value and updates a progress bar in the UI.
+- `socket.emit('theremin:set_volume', { volume })` – Sends a **0-100** hardware volume value to control the USB speaker's output level.
 - `socket.emit('theremin:power', { on })` – Toggles synth power (**On/Off**). After turning **On**, move/tap in the play area to resume sound.
 
 
