@@ -12,6 +12,7 @@ This example generates real-time audio by creating sine waves at varying frequen
 ## Bricks Used
 
 - `web_ui`: Brick that provides the web interface and a WebSocket channel for real-time control of the theremin.
+- `wave_generator`: Brick that generates continuous audio waveforms and streams them to the USB speaker with smooth frequency and amplitude transitions.
 
 
 ## Hardware and Software Requirements
@@ -51,16 +52,16 @@ This example generates real-time audio by creating sine waves at varying frequen
 
 ## How it Works
 
-The application creates a real-time audio synthesizer controlled by a web interface. User interactions on the webpage are sent to the Python backend via a WebSocket. The backend then calculates the audio parameters, generates a sine wave, and streams the audio data directly to the connected **USB** audio device.
+The application creates a real-time audio synthesizer controlled by a web interface. User interactions on the webpage are sent to the Python backend via a WebSocket. The backend uses the `wave_generator` brick to continuously generate and stream audio to the connected **USB** audio device with smooth transitions.
 
 - **User Interaction**: The frontend captures mouse or touch coordinates within a designated "play area".
 - **Real-time Communication**: These coordinates are sent to the Python backend in real-time using the `web_ui` Brick's WebSocket channel.
-- **Audio Synthesis**: The backend maps the X-coordinate to **frequency** and the Y-coordinate to **amplitude**. It uses a sine wave generator to create small blocks of audio data based on these parameters.
-- **Audio Output**: The generated audio blocks are continuously streamed to the **USB** audio device, creating a smooth and responsive sound.
+- **Audio Synthesis**: The backend maps the X-coordinate to **frequency** and the Y-coordinate to **amplitude**, then updates the `wave_generator` brick's state. The brick handles smooth transitions using configurable envelope parameters (attack, release, glide).
+- **Audio Output**: The `wave_generator` brick runs continuously in a background thread, generating audio blocks and streaming them to the **USB** audio device with minimal latency.
 
 High-level data flow:
 ```
-Web Browser Interaction → WebSocket → Python Backend → Sine Wave Generation → USB Audio Device Output
+Web Browser Interaction → WebSocket → Python Backend → WaveGenerator Brick → USB Audio Device Output
 ```
 
 
@@ -68,13 +69,12 @@ Web Browser Interaction → WebSocket → Python Backend → Sine Wave Generatio
 
 ### 🔧 Backend (`main.py`)
 
-The Python code manages the web server, handles real-time user input, and performs all audio generation and playback.
+The Python code manages the web server, handles real-time user input, and controls the audio generation brick.
 
 - `ui = WebUI()` – Initializes the web server that serves the HTML interface and handles WebSocket communication.
-- `speaker = Speaker(...)` – Initializes the connection to the USB audio device. This will raise an error if no compatible device is found.
-- `sine_gen = SineGenerator(...)` – Creates an instance of the audio synthesis engine.
-- `ui.on_message('theremin:move', on_move)` – Registers a handler that fires whenever the frontend sends new coordinates. This function updates the target frequency and amplitude.
-- `theremin_producer_loop()` – Core audio engine. Runs continuously, generating ~**30 ms** blocks of audio based on the current frequency and amplitude, and streams them to the audio device for playback. This non-blocking, continuous stream ensures smooth audio without cracks or pops.
+- `wave_gen = WaveGenerator(...)` – Creates the wave generator brick with configured envelope parameters (attack=0.01s, release=0.03s, glide=0.02s). The brick automatically manages the USB speaker connection and audio streaming in a background thread.
+- `ui.on_message('theremin:move', on_move)` – Registers a handler that fires whenever the frontend sends new coordinates. This function updates the wave generator's frequency and amplitude using `wave_gen.set_frequency()` and `wave_gen.set_amplitude()`.
+- The `wave_generator` brick handles all audio generation and streaming automatically, including smooth transitions between frequency and amplitude changes, continuous audio output with ~**30 ms** blocks, and non-blocking playback without cracks or pops.
 
 ### 💻 Frontend (`main.js`)
 
@@ -84,7 +84,7 @@ The web interface provides the interactive play area and controls for the user.
 - **Event listeners** capture `mousedown`, `mousemove`, `mouseup` (and touch equivalents) to track user interaction in the play area.
 - `socket.emit('theremin:move', { x, y })` – Sends normalized (0.0–1.0) X and Y coordinates to the backend; emissions are **throttled to ~80 Hz (≈12 ms)** to avoid overload.
 - `socket.on('theremin:state', ...)` – Receives state updates from the backend (like the calculated frequency and amplitude) and updates the values displayed on the webpage.
-- `socket.emit('theremin:set_volume', { volume })` – Sends a **0.0–1.0** master volume value and updates a progress bar in the UI.
+- `socket.emit('theremin:set_volume', { volume })` – Sends a **0-100** hardware volume value to control the USB speaker's output level.
 - `socket.emit('theremin:power', { on })` – Toggles synth power (**On/Off**). After turning **On**, move/tap in the play area to resume sound.
 
 

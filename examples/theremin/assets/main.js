@@ -20,7 +20,7 @@
 
   const thereminSvg = document.getElementById('theremin-svg');
 
-  let currentVolume = 0.8; // Default volume
+  let currentVolume = 80; // Default volume (0-100)
   let powerOn = false;
   let accessOn = false;
   let isGridOn = false;
@@ -97,9 +97,9 @@
       let newVolume = currentVolume;
 
       if (plusBtn) {
-        newVolume = Math.min(1.0, currentVolume + 0.1);
+        newVolume = Math.min(100, currentVolume + 10);
       } else if (minusBtn) {
-        newVolume = Math.max(0.0, currentVolume - 0.1);
+        newVolume = Math.max(0, currentVolume - 10);
       }
 
       if (newVolume !== currentVolume) {
@@ -274,7 +274,7 @@
   function updateVolumeIndicator(volume) {
     const indicator = document.getElementById('volume-indicator');
     if (indicator) {
-      const angle = (volume - 0.5) * 180; // -90 to +90 degrees
+      const angle = ((volume / 100.0) - 0.5) * 180; // -90 to +90 degrees
       indicator.style.transform = `rotate(${angle}deg)`;
     }
   }
