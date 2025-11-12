@@ -1,0 +1,138 @@
+/* Basic shell */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #DAE3E3;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.main-content {
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 12px 0;
+}
+
+.arduino-text {
+    color: #008184;
+    font-family: "Roboto Mono", monospace;
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+    font-style: normal;
+    line-height: 170%;
+    letter-spacing: 2.4px;
+}
+
+.arduino-logo {
+    height: 32px;
+    width: auto;
+}
+
+.container {
+    height: 75%;
+    border-radius: 16px;
+    background: #FFF;
+    padding: 24px;
+}
+
+h1, h2 {
+    color: #2c3e50;
+    text-align: center;
+}
+
+#boardContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #ffffff;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Basic shell … (unchanged) */
+
+.stage { display:grid; place-items:center; padding:16px; }
+
+.board {
+  position: relative;
+  width: min(92vw, 920px);
+  margin: 0 auto;
+}
+.board img {
+  position: relative;
+  display:block; width:100%; height:auto;
+  user-select:none; -webkit-user-drag:none;
+  z-index: 1;
+}
+
+/* Wrapper equals the CONTROL slot (47×12), scales with image */
+.toggle-wrap{
+  position:absolute;                /* we set top/left inline */
+  width:calc(47px * var(--img-scale,1));
+  height:calc(12px * var(--img-scale,1));
+  display:grid; place-items:center;
+  cursor:pointer; -webkit-tap-highlight-color:transparent;
+  transform: translate(-50%,-50%);  /* center on the coords */
+  z-index: 2;
+}
+
+/* Native-hidden checkbox */
+.switch-input{
+  position:absolute; inline-size:1px; block-size:1px;
+  margin:-1px; padding:0; border:0; clip:rect(0 0 0 0); overflow:hidden;
+}
+
+/* iOS/Android-style visual */
+.switch-ios{
+  position:relative;
+  width:calc(22px * var(--img-scale,1));
+  height:calc(12px * var(--img-scale,1));
+  background:#c9d4d4; border-radius:999px;
+  box-shadow:inset 0 0 0 calc(1px * var(--img-scale,1)) #0000000f;
+  transition:background .18s ease, box-shadow .18s ease;
+}
+.switch-ios::after{
+  content:"";
+  position:absolute;
+  width:calc(10px * var(--img-scale,1)); height:calc(10px * var(--img-scale,1));
+  top:calc(1px * var(--img-scale,1)); left:calc(1px * var(--img-scale,1));
+  background:#fff; border-radius:50%; box-shadow:0 1px 2px #0003;
+  transition:transform .18s ease;
+}
+.switch-input:checked + .switch-ios{ background:#008184; }
+.switch-input:checked + .switch-ios::after{ transform:translateX(calc(10px * var(--img-scale,1))); }
+.toggle-wrap:has(.switch-input:focus-visible) .switch-ios{
+  outline:calc(2px * var(--img-scale,1)) solid #34C75955;
+  outline-offset:calc(2px * var(--img-scale,1));
+}
+.switch-ios:hover{ box-shadow:inset 0 0 0 calc(1px * var(--img-scale,1)) #0000001a; }
+
+/*
+ * Responsive design
+ */
+@media (max-width: 768px) {
+    .arduino-text {
+        font-size: 14px;
+    }
+
+    .arduino-logo {
+        height: 20px;
+        width: auto;
+    }
+}
