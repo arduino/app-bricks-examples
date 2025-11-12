@@ -1,0 +1,6 @@
+name: Mascot Jump Game
+icon: 🏃
+description: An endless runner game where you jump over electronic components with the LED character
+
+bricks:
+  - arduino:web_ui

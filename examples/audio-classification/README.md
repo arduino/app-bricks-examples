@@ -29,7 +29,7 @@ The glass breaking sensor example uses the following Bricks:
 
 - Arduino App Lab
 
-**Note:** You can also run this example using your Arduino UNO Q as a Single Board Computer (SBC) using a [USB-C hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and display attached.
+**Note:** This example works with pre-loaded sample audio files and uploaded audio files. No external hardware peripherals are required. The example works in [Network Mode](https://docs.arduino.cc/tutorials/uno-q/user-manual/#network-mode) as well.
 
 ## How to Use the Example
 
@@ -37,7 +37,7 @@ The glass breaking sensor example uses the following Bricks:
 
 ![Run the App](assets/docs_assets/launch-app.png)
 
-2. The App should open automatically in the web browser. You can open it manually via `<board-name>.local:7000`.
+2. The App should open automatically in the web browser. You can also open it manually via `<board-name>.local:7000` or `http://<board-ip-address>:7000` (Network Mode).
 3. Choose your audio input method:
 
 - **Audio from sample**: Select from pre-loaded sample audio files (includes glass breaking examples and background noise)
@@ -125,7 +125,7 @@ Here is a brief explanation of the application components:
 
 The Python® component handles audio classification and web service functionality.
 
-- **`AudioClassification` integration**: Initializes the audio classification model with lazy loading and fallback mock microphone support for file-based classification scenarios.
+- **`AudioClassification` integration**: Initializes the audio classification model for file-based classification. The example processes pre-recorded audio files (uploaded or from samples).
 
 - **`parse_data()` function**: Handles WebSocket message parsing, supporting both JSON string and dictionary formats for flexible client communication.
 
