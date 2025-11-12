@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="./img/toggle.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LED Color Control</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div>
+    <header class="header">
+      <h1 class="arduino-text">LED Color Control</h1>
+      <img class="arduino-logo" src="./img/logo.svg" alt="Arduino Logo">
+    </header>
+    <div class="main-content">
+      <div class="container">
+        <div class="color-picker-section">
+          <h2>LED Color Control</h2>
+          <div class="color-picker-group">
+              <div class="color-picker-item">
+              <label for="led1-color">LED 1 Color:</label>
+              <input type="color" id="led1-color" name="led1-color" value="#000000">
+              <span id="led1-hex">#000000</span>
+            </div>
+            <div class="color-picker-item">
+              <label for="led2-color">LED 2 Color:</label>
+              <input type="color" id="led2-color" name="led2-color" value="#000000">
+              <span id="led2-hex">#000000</span>
+            </div>
+            <div class="color-picker-item">
+              <label for="led3-color">LED 3 Color:</label>
+              <input type="color" id="led3-color" name="led3-color" value="#000000">
+              <span id="led3-hex">#000000</span>
+            </div>
+            <div class="color-picker-item">
+              <label for="led4-color">LED 4 Color:</label>
+              <input type="color" id="led4-color" name="led4-color" value="#000000">
+              <span id="led4-hex">#000000</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="libs/socket.io.min.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>
