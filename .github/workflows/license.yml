@@ -6,6 +6,9 @@ description: |
 on:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   check-license-headers:
     runs-on: ubuntu-latest
