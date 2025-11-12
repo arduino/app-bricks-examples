@@ -1,0 +1,72 @@
+<!--
+SPDX-FileCopyrightText: Copyright (C) 2025 ARDUINO SA <http://www.arduino.cc>
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>LED Matrix Painter</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="body-wrapper">
+  <main>
+    <h1>LED Matrix Painter</h1>
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="sidebar-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <h3 style="margin:0;font-size:0.9rem;color:#666">Frames (auto-saved)</h3>
+          <button id="new-frame" title="Create new frame" style="font-size:1.2rem;padding:4px 12px;background:#0b76ff;color:white;border:none;border-radius:4px;cursor:pointer">+</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
+          <label><input type="radio" name="mode" value="frames" checked> Frames</label>
+          <label><input type="radio" name="mode" value="anim"> Animations</label>
+        </div>
+        <div id="anim-controls" style="display:none;gap:8px;margin-bottom:8px">
+          <input id="anim-name" placeholder="Animation name" style="flex:1;padding:6px" />
+        </div>
+        <!-- Frame name goes above the list of frames and below animation name (if present) -->
+        <div style="margin-bottom:8px;display:flex;gap:8px;align-items:center">
+          <input id="name" placeholder="Frame name (optional)" style="flex:1;padding:6px" />
+          <input id="duration" type="number" min="0" step="10" value="1000" title="Duration in ms" style="width:110px;padding:6px" />
+        </div>
+        <div id="frames" class="frames" draggable="false"></div>
+      </aside>
+
+      <section class="maincol">
+        <div id="grid" class="grid"></div>
+
+        <div id="transform-tools" style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+          <button id="clear">Clear</button>
+          <button id="invert" class="transform-btn">Invert</button>
+          <button id="invert-not-null" class="transform-btn">Invert Brightness</button>
+          <button id="rotate180" class="transform-btn">Rotate 180</button>
+          <button id="flip-h" class="transform-btn">Flip H</button>
+          <button id="flip-v" class="transform-btn">Flip V</button>
+        </div>
+
+        <div id="export-tools" style="margin-top:8px;display:flex;gap:8px">
+          <button id="export" style="flex:1">Export .h</button>
+          <button id="play-animation" style="flex:1;background:#28a745;color:white">Play Animation</button>
+        </div>
+
+        <!-- floating brightness slider -->
+        <div id="cell-slider" style="display:none;position:fixed;z-index:1000;align-items:center;gap:8px;padding:8px;background:#fff;border:1px solid #ddd;border-radius:6px">
+          <input id="brightness-slider" type="range" min="0" max="7" value="7" />
+          <div id="brightness-value" style="min-width:28px;text-align:center;font-weight:600">7</div>
+        </div>
+      </section>
+
+      <aside class="rightcol" style="padding-left:12px;min-width:220px;">
+        <pre id="vector" class="out" style="white-space:pre-wrap;word-break:break-word;max-height:480px;overflow:auto;padding:8px;background:#f7f7f7;border:1px solid #ddd"></pre>
+      </aside>
+    </div>
+  </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
