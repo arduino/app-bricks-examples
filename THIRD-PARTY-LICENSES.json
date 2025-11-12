@@ -1,63 +1,18 @@
 [
   {
-    "License": "BSD-3-Clause",
-    "Name": "Flask",
-    "Version": "3.1.1"
-  },
-  {
-    "License": "MIT License",
-    "Name": "Flask-SocketIO",
-    "Version": "5.5.1"
-  },
-  {
-    "License": "BSD License",
-    "Name": "GitPython",
-    "Version": "3.1.44"
-  },
-  {
     "License": "BSD License",
     "Name": "Jinja2",
     "Version": "3.1.6"
   },
   {
-    "License": "BSD License",
+    "License": "BSD-3-Clause",
     "Name": "MarkupSafe",
-    "Version": "3.0.2"
+    "Version": "3.0.3"
   },
   {
     "License": "MIT License",
     "Name": "PyYAML",
-    "Version": "6.0.2"
-  },
-  {
-    "License": "BSD License",
-    "Name": "Werkzeug",
-    "Version": "3.1.3"
-  },
-  {
-    "License": "BSD License",
-    "Name": "altair",
-    "Version": "5.5.0"
-  },
-  {
-    "License": "MIT License",
-    "Name": "annotated-types",
-    "Version": "0.7.0"
-  },
-  {
-    "License": "MIT License",
-    "Name": "anyio",
-    "Version": "4.9.0"
-  },
-  {
-    "License": "MPL-2.0",
-    "Name": "appslab_modules",
-    "Version": "0.0"
-  },
-  {
-    "License": "UNKNOWN",
-    "Name": "arduino-iot-client",
-    "Version": "3.0.0"
+    "Version": "6.0.3"
   },
   {
     "License": "MPL-2.0",
@@ -65,34 +20,9 @@
     "Version": "0.4.8"
   },
   {
-    "License": "Mozilla Public License 2.0 (MPL 2.0)",
-    "Name": "arduino_iot_cloud",
-    "Version": "0.1.dev226+gc3827d3"
-  },
-  {
-    "License": "Mozilla Public License 2.0 (MPL 2.0)",
-    "Name": "arduino_iot_cloud",
-    "Version": "0.1.dev226+gc3827d3"
-  },
-  {
     "License": "MIT",
     "Name": "attrs",
-    "Version": "25.3.0"
-  },
-  {
-    "License": "Mozilla Public License 2.0 (MPL 2.0)",
-    "Name": "bidict",
-    "Version": "0.23.1"
-  },
-  {
-    "License": "BSD License",
-    "Name": "binaryornot",
-    "Version": "0.4.4"
-  },
-  {
-    "License": "MIT License",
-    "Name": "blinker",
-    "Version": "1.9.0"
+    "Version": "25.4.0"
   },
   {
     "License": "BSD-2-Clause",
@@ -100,114 +30,24 @@
     "Version": "5.0"
   },
   {
-    "License": "MIT License",
-    "Name": "build",
-    "Version": "1.2.2.post1"
-  },
-  {
-    "License": "MIT License",
-    "Name": "cachetools",
-    "Version": "5.5.2"
-  },
-  {
-    "License": "MIT License",
-    "Name": "cbor2",
-    "Version": "5.6.5"
-  },
-  {
     "License": "Mozilla Public License 2.0 (MPL 2.0)",
     "Name": "certifi",
-    "Version": "2025.4.26"
+    "Version": "2025.11.12"
   },
   {
-    "License": "GNU Lesser General Public License v2 or later (LGPLv2+)",
-    "Name": "chardet",
-    "Version": "5.2.0"
-  },
-  {
-    "License": "MIT License",
+    "License": "MIT",
     "Name": "charset-normalizer",
-    "Version": "3.4.2"
+    "Version": "3.4.4"
   },
   {
     "License": "BSD-3-Clause",
     "Name": "click",
-    "Version": "8.2.1"
+    "Version": "8.3.0"
   },
   {
-    "License": "MIT License",
-    "Name": "docstring_parser",
-    "Version": "0.16"
-  },
-  {
-    "License": "MIT License",
-    "Name": "et_xmlfile",
-    "Version": "2.0.0"
-  },
-  {
-    "License": "MIT License",
-    "Name": "fastapi",
-    "Version": "0.115.13"
-  },
-  {
-    "License": "Apache License, Version 2.0",
-    "Name": "fastapi-socketio",
-    "Version": "0.0.10"
-  },
-  {
-    "License": "MIT",
-    "Name": "gevent",
-    "Version": "25.5.1"
-  },
-  {
-    "License": "BSD License",
-    "Name": "gitdb",
-    "Version": "4.0.12"
-  },
-  {
-    "License": "MIT AND Python-2.0",
-    "Name": "greenlet",
-    "Version": "3.2.3"
-  },
-  {
-    "License": "MIT License",
-    "Name": "h11",
-    "Version": "0.16.0"
-  },
-  {
-    "License": "MIT License",
-    "Name": "httptools",
-    "Version": "0.6.4"
-  },
-  {
-    "License": "BSD License",
+    "License": "BSD-3-Clause",
     "Name": "idna",
-    "Version": "3.10"
-  },
-  {
-    "License": "MIT License",
-    "Name": "influxdb-client",
-    "Version": "1.48.0"
-  },
-  {
-    "License": "MIT",
-    "Name": "iniconfig",
-    "Version": "2.1.0"
-  },
-  {
-    "License": "BSD License",
-    "Name": "itsdangerous",
-    "Version": "2.2.0"
-  },
-  {
-    "License": "MIT",
-    "Name": "jsonschema",
-    "Version": "4.24.0"
-  },
-  {
-    "License": "MIT",
-    "Name": "jsonschema-specifications",
-    "Version": "2025.4.1"
+    "Version": "3.11"
   },
   {
     "License": "Apache-2.0",
@@ -215,104 +55,14 @@
     "Version": "30.4.4"
   },
   {
-    "License": "MIT",
-    "Name": "micropython-senml",
-    "Version": "0.1.1"
-  },
-  {
-    "License": "Apache Software License",
+    "License": "Apache-2.0",
     "Name": "msgpack",
-    "Version": "1.1.0"
-  },
-  {
-    "License": "MIT License",
-    "Name": "narwhals",
-    "Version": "1.41.0"
-  },
-  {
-    "License": "BSD License",
-    "Name": "numpy",
-    "Version": "2.2.6"
-  },
-  {
-    "License": "BSD-3-Clause",
-    "Name": "oauthlib",
-    "Version": "3.3.1"
-  },
-  {
-    "License": "Apache Software License",
-    "Name": "opencv-python",
-    "Version": "4.11.0.86"
-  },
-  {
-    "License": "MIT License",
-    "Name": "openpyxl",
-    "Version": "3.1.5"
-  },
-  {
-    "License": "Apache Software License; BSD License",
-    "Name": "packaging",
-    "Version": "24.2"
-  },
-  {
-    "License": "EPL-2.0 OR BSD-3-Clause",
-    "Name": "paho-mqtt",
-    "Version": "2.1.0"
-  },
-  {
-    "License": "BSD License",
-    "Name": "pandas",
-    "Version": "2.2.3"
+    "Version": "1.1.2"
   },
   {
     "License": "MIT-CMU",
     "Name": "pillow",
-    "Version": "11.2.1"
-  },
-  {
-    "License": "MIT License",
-    "Name": "pluggy",
-    "Version": "1.5.0"
-  },
-  {
-    "License": "3-Clause BSD License",
-    "Name": "protobuf",
-    "Version": "6.31.1"
-  },
-  {
-    "License": "Apache Software License",
-    "Name": "pyarrow",
-    "Version": "20.0.0"
-  },
-  {
-    "License": "MIT",
-    "Name": "pydantic",
-    "Version": "2.11.7"
-  },
-  {
-    "License": "MIT License",
-    "Name": "pydantic_core",
-    "Version": "2.33.2"
-  },
-  {
-    "License": "Apache License 2.0",
-    "Name": "pydeck",
-    "Version": "0.9.1"
-  },
-  {
-    "License": "MIT License",
-    "Name": "pyproject_hooks",
-    "Version": "1.2.0"
-  },
-  {
-    "License": "MIT License",
-    "Name": "pytest",
-    "Version": "8.3.5"
-  },
-  {
-    "License": "Apache Software License; BSD License",
-    "Name": "python-dateutil",
-    "Version": "2.9.0.post0"
+    "Version": "12.0.0"
   },
   {
     "License": "DFSG approved; GNU General Public License v2 or later (GPLv2+)",
@@ -320,99 +70,19 @@
     "Version": "1.0.1"
   },
   {
-    "License": "BSD License",
-    "Name": "python-dotenv",
-    "Version": "1.1.1"
-  },
-  {
-    "License": "MIT",
-    "Name": "python-engineio",
-    "Version": "4.12.2"
-  },
-  {
     "License": "MIT License",
-    "Name": "python-socketio",
-    "Version": "5.13.0"
-  },
-  {
-    "License": "MIT License",
-    "Name": "pytz",
-    "Version": "2025.2"
-  },
-  {
-    "License": "MIT License",
-    "Name": "reactivex",
-    "Version": "4.0.4"
-  },
-  {
-    "License": "MIT",
-    "Name": "referencing",
-    "Version": "0.36.2"
+    "Name": "python-magic",
+    "Version": "0.4.27"
   },
   {
     "License": "Apache Software License",
     "Name": "requests",
-    "Version": "2.32.3"
-  },
-  {
-    "License": "BSD License",
-    "Name": "requests-oauthlib",
-    "Version": "2.0.0"
+    "Version": "2.32.5"
   },
   {
     "License": "Apache Software License; CC0 1.0 Universal (CC0 1.0) Public Domain Dedication; DFSG approved; GNU General Public License v3 or later (GPLv3+); Other/Proprietary License",
     "Name": "reuse",
-    "Version": "5.0.2"
-  },
-  {
-    "License": "MIT",
-    "Name": "rpds-py",
-    "Version": "0.25.1"
-  },
-  {
-    "License": "MIT License",
-    "Name": "ruff",
-    "Version": "0.12.0"
-  },
-  {
-    "License": "MIT License",
-    "Name": "simple-websocket",
-    "Version": "1.1.0"
-  },
-  {
-    "License": "MIT License",
-    "Name": "six",
-    "Version": "1.17.0"
-  },
-  {
-    "License": "BSD License",
-    "Name": "smmap",
-    "Version": "5.0.2"
-  },
-  {
-    "License": "Apache Software License; MIT License",
-    "Name": "sniffio",
-    "Version": "1.3.1"
-  },
-  {
-    "License": "BSD-3-Clause",
-    "Name": "starlette",
-    "Version": "0.46.2"
-  },
-  {
-    "License": "Apache Software License",
-    "Name": "streamlit",
-    "Version": "1.45.1"
-  },
-  {
-    "License": "Apache Software License",
-    "Name": "tenacity",
-    "Version": "9.1.2"
-  },
-  {
-    "License": "MIT License",
-    "Name": "toml",
-    "Version": "0.10.2"
+    "Version": "6.2.0"
   },
   {
     "License": "MIT License",
@@ -420,68 +90,8 @@
     "Version": "0.13.3"
   },
   {
-    "License": "Apache Software License",
-    "Name": "tornado",
-    "Version": "6.5.1"
-  },
-  {
-    "License": "MIT",
-    "Name": "typing-inspection",
-    "Version": "0.4.1"
-  },
-  {
-    "License": "PSF-2.0",
-    "Name": "typing_extensions",
-    "Version": "4.13.2"
-  },
-  {
-    "License": "Apache Software License",
-    "Name": "tzdata",
-    "Version": "2025.2"
-  },
-  {
     "License": "MIT",
     "Name": "urllib3",
-    "Version": "2.4.0"
-  },
-  {
-    "License": "BSD-3-Clause",
-    "Name": "uvicorn",
-    "Version": "0.34.3"
-  },
-  {
-    "License": "Apache Software License; MIT License",
-    "Name": "uvloop",
-    "Version": "0.21.0"
-  },
-  {
-    "License": "Apache Software License",
-    "Name": "watchdog",
-    "Version": "6.0.0"
-  },
-  {
-    "License": "MIT License",
-    "Name": "watchfiles",
-    "Version": "1.1.0"
-  },
-  {
-    "License": "BSD License",
-    "Name": "websockets",
-    "Version": "15.0.1"
-  },
-  {
-    "License": "MIT License",
-    "Name": "wsproto",
-    "Version": "1.2.0"
-  },
-  {
-    "License": "Zope Public License",
-    "Name": "zope.event",
-    "Version": "5.0"
-  },
-  {
-    "License": "Zope Public License",
-    "Name": "zope.interface",
-    "Version": "7.2"
+    "Version": "2.5.0"
   }
 ]
