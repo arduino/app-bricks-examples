@@ -10,9 +10,7 @@ def on_set_color(ledid: int, message: dict):
     print(f"Received set_color message: {message}")
     try:
         color = message.get("color")
-
         Leds.set_led_color(ledid, color)
-
     except Exception as e:
         ui.send_message("error", f"LED color set error: {e}")
 
