@@ -1,0 +1,7 @@
+name: Detect Objects on a smartphone's Camera
+icon: 📽️
+description: This example showcases object detection within a live feed from a smartphone's camera.
+
+bricks:
+  - arduino:video_object_detection
+  - arduino:web_ui
