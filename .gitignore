@@ -1,13 +1,16 @@
-# ASDF
+# Development
+.keys/
+.env
 .tool-versions
+.task/
+Taskfile.yml
+
+# IDEs
+.vscode/*
+.idea/*
 
 # Python
 .venv
-
-# Taskfile
-.task/
-Taskfile.yml
-.env
 
 # Examples
 *.db
@@ -15,7 +18,3 @@ Taskfile.yml
 .cache/
 __pycache__/
 **/.DS_Store
-
-# IDEs
-.vscode/*
-.idea/*
