@@ -7,6 +7,7 @@
 # Taskfile
 .task/
 Taskfile.yml
+.env
 
 # Examples
 *.db
