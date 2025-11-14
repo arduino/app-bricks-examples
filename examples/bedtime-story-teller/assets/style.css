@@ -59,9 +59,16 @@ body {
     grid-row: 1 / 2;
 }
 
-.main-content > .column-title:nth-child(3) {
+.your-story-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     grid-column: 3 / 4;
     grid-row: 1 / 2;
+}
+
+.your-story-header .column-title {
+    margin-bottom: 0;
 }
 
 .main-content > .container {
@@ -425,7 +432,7 @@ body {
 
 .add-character-button {
     background-color: transparent;
-    border: 1px solid #008184;
+    border: none;
     color: #008184;
     padding: 8px 16px;
     border-radius: 200px;
@@ -433,6 +440,189 @@ body {
     font-family: "Open Sans";
     font-size: 12px;
     font-weight: 600;
+}
+
+#story-response-area {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#loading-spinner {
+    margin: 20px auto; /* Center it */
+}
+
+#story-response-area {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.response-container {
+    background-color: #ECF1F1;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 8px;
+    display: flex;
+    flex-direction: column;
+}
+
+.response-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.icon-button {
+    background-color: transparent;
+    color: #008184;
+    padding: 8px 16px;
+    border-radius: 200px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.response-header-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+/* Modal styles */
+.modal {
+    position: fixed;
+    z-index: 10;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 8px;
+    color: #2C353A;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal-body {
+    padding: 15px 0;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 10px;
+    border-top: 1px solid #ddd;
+}
+
+#clear-story-button,
+#confirm-new-story-button {
+    border-radius: 8px;
+    background: #25C2C7;
+    color: #171E21;
+    font-family: "Open Sans";
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 160%;
+    letter-spacing: 0.12px;
+    padding: 8px 16px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.icon-button img {
+    height: 14px;
+    width: 14px;
+}
+
+.response-title {
+    color: #2C353A;
+    font-family: "Open Sans";
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.response-content {
+    color: #2C353A;
+    font-family: "Open Sans";
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    overflow-y: auto;
+}
+
+.response-content strong {
+    color: #25C2C7; /* Highlight color for parameters */
+}
+
+
+
+#story-container .response-title,
+#story-container .response-content {
+    color: #2C353A;
+}
+
+#clear-story-button {
+    /* Style similar to other buttons */
+    border-radius: 8px;
+    background: #AA4335; /* A different color to distinguish */
+    color: white;
+    font-family: "Open Sans";
+    font-size: 12px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border: none;
+    cursor: pointer;
+    margin-top: 16px;
+    align-self: center; /* Center the button */
 }
 
 .spinner {
