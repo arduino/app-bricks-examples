@@ -26,7 +26,10 @@ SPDX-License-Identifier: MPL-2.0
 
                         <div></div> <!-- This is for the gap -->
 
-                        <h2 class="column-title">Your story</h2>
+                        <div class="your-story-header">
+                            <h2 class="column-title">Your story</h2>
+                            <button id="clear-story-button" style="display: none;">New story</button>
+                        </div>
 
                         <div class="container">
 
@@ -87,7 +90,7 @@ SPDX-License-Identifier: MPL-2.0
                                                     <h4 class="paragraph-title">Ending type</h4>
                                                     <div class="chips-container">
                                                         <span class="chip"><img src="./img/happy.svg" alt="happy icon"><span>Happy and reassuring</span></span>
-                                                        <span class="chip"><img src="./img/misterious.svg" alt="misterious icon"><span>open and mysterious</span></span>
+                                                        <span class="chip"><img src="./img/misterious.svg" alt="misterious icon"><span>Open and mysterious</span></span>
                                                         <span class="chip"><img src="./img/doubt.svg" alt="doubt icon"><span>With a moral</span></span>
                                                         <span class="chip"><img src="./img/hope.svg" alt="hope icon"><span>Dramatic but with hope</span></span>
                                                     </div>
@@ -114,11 +117,37 @@ SPDX-License-Identifier: MPL-2.0
                                         <div class="parameter-container">
                                             <div class="parameter-header">
                                                 <h3 class="parameter-title">Characters</h3>
-                                                <span class="selected-value"></span>
+                                                <span class="optional-text">(max 5)</span>
                                                 <img src="./img/arrow-right.svg" class="arrow-icon" alt="arrow icon">
                                             </div>
                                             <div class="parameter-content">
-                                                CONTENUTO
+                                                <div class="characters-list">
+                                                    <div class="character-input-group">
+                                                        <div class="character-inputs">
+                                                            <div class="character-first-row">
+                                                                <input type="text" placeholder="Name" class="character-name">
+                                                                <select class="character-role">
+                                                                    <option value="" disabled selected>Select role...</option>
+                                                                    <option value="protagonist">👑 Protagonist</option>
+                                                                    <option value="positive-helper">🧸 Positive helper</option>
+                                                                    <option value="antagonist">😈 Antagonist</option>
+                                                                    <option value="negative-helper">🐍 Negative helper</option>
+                                                                    <option value="other">🐧 Other characters</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="character-second-row">
+                                                                <input type="text" placeholder="Something about character traits, goals ..." class="character-description">
+                                                                <span class="optional-text">(optional)</span>
+                                                            </div>
+                                                        </div>
+                                                        <button class="delete-character-button" style="display: none;">
+                                                            <img src="./img/trash.svg" alt="delete character">
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="add-character-container">
+                                                    <button class="add-character-button">Add character +</button>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -140,9 +169,42 @@ SPDX-License-Identifier: MPL-2.0
 
                                     </div>
 
-                        <div class="story-output-container"></div>
+                        <div class="story-output-container">
+                            <div class="story-output-placeholder">
+                                <p>Set parameters to generate story</p>
+                            </div>
+                            <div id="story-response-area" style="display: none;">
+                                <div id="loading-spinner" class="spinner" style="display: none;"></div>
+                                <div class="response-container" id="story-container" style="display: none;">
+                                    <div class="response-header">
+                                        <h3 class="response-title">Story</h3>
+                                        <div class="response-header-buttons">
+                                            <button id="copy-story-button" class="icon-button">
+                                                Copy <img src="./img/copy.svg" alt="copy icon">
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div id="story-response" class="response-content"></div>
+                                </div>
+                            </div>
+                        </div>
 
                     </div>
+        </div>
+    </div>
+
+    <div id="new-story-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Story</h2>
+                <span class="close-button">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Creating a new story will delete the existing one, Are you sure? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button id="confirm-new-story-button" class="primary-button">Create new story</button>
+            </div>
         </div>
     </div>
 

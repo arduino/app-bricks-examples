@@ -2,43 +2,52 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-/*
- * UI Elements definition: needed to interact with the HTML elements.
- */
+const socket = io(`http://${window.location.host}`);
 
-const socket = io(`http://${window.location.host}`); // Initialize socket.io connection
 
-/*
- * Socket initialization. We need it to communicate with the server
- */
+
 function initSocketIO() {
     socket.on('response', (data) => {
-        const responseBox = document.getElementById('promptResponse');
-        responseBox.textContent += data;
-        responseBox.style.display = 'block';
-        document.getElementById('loadingSpinner').style.display = 'none';
-        document.getElementById('clearStoryButton').disabled = false;
+        document.getElementById('story-container').style.display = 'flex';
+        const storyResponse = document.getElementById('story-response');
+        storyResponse.textContent = data;
+        document.getElementById('loading-spinner').style.display = 'none';
+        const clearStoryButton = document.getElementById('clear-story-button');
+        clearStoryButton.style.display = 'block';
+        clearStoryButton.disabled = false;
     });
+}
+
+function unlockAndOpenNext(currentContainer) {
+    const nextContainer = currentContainer.nextElementSibling;
+    if (nextContainer && nextContainer.classList.contains('parameter-container')) {
+        if (nextContainer.classList.contains('disabled')) {
+            nextContainer.classList.remove('disabled');
+            const content = nextContainer.querySelector('.parameter-content');
+            const arrow = nextContainer.querySelector('.arrow-icon');
+            if (content.style.display !== 'block') {
+                content.style.display = 'block';
+                arrow.classList.add('rotated');
+            }
+        }
+    }
 }
 
 function setupChipSelection(container) {
     const chips = container.querySelectorAll('.chip');
     const selectedValue = container.querySelector('.selected-value');
-
     chips.forEach(chip => {
         chip.addEventListener('click', (event) => {
-            event.stopPropagation(); // Prevent the container from toggling
-
-            // Remove selected class from all chips in this container
+            event.stopPropagation();
+            const alreadySelected = chip.classList.contains('selected');
             chips.forEach(c => c.classList.remove('selected'));
-
-            // Add selected class to the clicked chip
             chip.classList.add('selected');
-
-            // Update the selected value display
             if (selectedValue) {
-                selectedValue.textContent = chip.textContent;
-                selectedValue.style.display = 'inline-block';
+                selectedValue.innerHTML = chip.innerHTML;
+                selectedValue.style.display = 'inline-flex';
+            }
+            if (!alreadySelected) {
+                unlockAndOpenNext(container);
             }
         });
     });
@@ -46,19 +55,19 @@ function setupChipSelection(container) {
 
 function setupStoryTypeSelection(container) {
     const paragraphs = container.querySelectorAll('.story-type-paragraph');
-    const optionalText = container.querySelector('.optional-text');
-
     paragraphs.forEach(paragraph => {
         const chips = paragraph.querySelectorAll('.chip');
         chips.forEach(chip => {
             chip.addEventListener('click', (event) => {
                 event.stopPropagation();
-
-                // Single selection within the paragraph
-                chips.forEach(c => c.classList.remove('selected'));
+                const paragraphChips = paragraph.querySelectorAll('.chip');
+                paragraphChips.forEach(c => c.classList.remove('selected'));
                 chip.classList.add('selected');
-
                 updateStoryTypeHeader(container);
+                const selectedChips = container.querySelectorAll('.chip.selected');
+                if (selectedChips.length === paragraphs.length) {
+                    unlockAndOpenNext(container);
+                }
             });
         });
     });
@@ -69,98 +78,300 @@ function updateStoryTypeHeader(container) {
     const selectedChips = container.querySelectorAll('.chip.selected');
     const content = container.querySelector('.parameter-content');
     const isOpen = content.style.display === 'block';
-
+    optionalText.innerHTML = '';
     if (selectedChips.length === 0) {
         optionalText.textContent = '(optional)';
         return;
     }
-
     if (isOpen) {
-        optionalText.textContent = Array.from(selectedChips).map(c => c.textContent).join(', ');
+        Array.from(selectedChips).forEach(chip => {
+            const pill = document.createElement('span');
+            pill.className = 'selection-pill';
+            pill.innerHTML = chip.innerHTML;
+            optionalText.appendChild(pill);
+        });
     } else {
-        const firstTwo = Array.from(selectedChips).slice(0, 2).map(c => c.textContent).join(', ');
+        const firstTwo = Array.from(selectedChips).slice(0, 2);
+        firstTwo.forEach(chip => {
+            const pill = document.createElement('span');
+            pill.className = 'selection-pill';
+            pill.innerHTML = chip.innerHTML;
+            optionalText.appendChild(pill);
+        });
         const remaining = selectedChips.length - 2;
         if (remaining > 0) {
-            optionalText.innerHTML = `${firstTwo} <span class="plus-x">+${remaining}</span>`;
-        } else {
-            optionalText.textContent = firstTwo;
+            const plusSpan = document.createElement('span');
+            plusSpan.className = 'plus-x';
+            plusSpan.style.display = 'inline-block';
+            plusSpan.textContent = `+${remaining}`;
+            optionalText.appendChild(plusSpan);
         }
     }
 }
 
-// Start the application
+function checkCharactersAndUnlockNext(charactersContainer) {
+    const characterGroups = charactersContainer.querySelectorAll('.character-input-group');
+    let atLeastOneCharacterEntered = false;
+    characterGroups.forEach(group => {
+        const nameInput = group.querySelector('.character-name');
+        const roleSelect = group.querySelector('.character-role');
+        if (nameInput.value.trim() !== '' && roleSelect.value !== '') {
+            atLeastOneCharacterEntered = true;
+        }
+    });
+    const generateButton = document.querySelector('.generate-story-button');
+    if (atLeastOneCharacterEntered) {
+        unlockAndOpenNext(charactersContainer);
+        generateButton.style.display = 'flex';
+    } else {
+        generateButton.style.display = 'none';
+    }
+}
+
+function gatherDataAndGenerateStory() {
+    const age = document.querySelector('.parameter-container:nth-child(1) .chip.selected')?.textContent.trim() || 'any';
+    const theme = document.querySelector('.parameter-container:nth-child(2) .chip.selected')?.textContent.trim() || 'any';
+    const storyTypeContainer = document.querySelector('.parameter-container:nth-child(3)');
+    const tone = storyTypeContainer.querySelector('.story-type-paragraph:nth-child(1) .chip.selected')?.textContent.trim() || 'any';
+    const endingType = storyTypeContainer.querySelector('.story-type-paragraph:nth-child(2) .chip.selected')?.textContent.trim() || 'any';
+    const narrativeStructure = storyTypeContainer.querySelector('.story-type-paragraph:nth-child(3) .chip.selected')?.textContent.trim() || 'any';
+    const duration = storyTypeContainer.querySelector('.story-type-paragraph:nth-child(4) .chip.selected')?.textContent.trim() || 'any';
+    
+    const characters = [];
+    const characterGroups = document.querySelectorAll('.character-input-group');
+    characterGroups.forEach(group => {
+        const name = group.querySelector('.character-name').value.trim();
+        const role = group.querySelector('.character-role').value;
+        const description = group.querySelector('.character-description').value.trim();
+        if (name && role) {
+            characters.push({ name, role, description });
+        }
+    });
+
+    const other = document.querySelector('.other-textarea').value.trim();
+
+    const storyData = {
+        age,
+        theme,
+        tone,
+        endingType,
+        narrativeStructure,
+        duration,
+        characters,
+        other,
+    };
+
+    generateStory(storyData);
+}
+
+function generateStory(data) {
+    document.querySelector('.story-output-placeholder').style.display = 'none';
+    const responseArea = document.getElementById('story-response-area');
+    responseArea.style.display = 'flex';
+    document.getElementById('story-container').style.display = 'none';
+    document.getElementById('loading-spinner').style.display = 'block';
+    document.getElementById('story-response').textContent = '';
+    document.getElementById('clear-story-button').style.display = 'none';
+    socket.emit('generate_story', data);
+}
+
+function resetStoryView() {
+    document.querySelector('.story-output-placeholder').style.display = 'flex';
+    const responseArea = document.getElementById('story-response-area');
+    responseArea.style.display = 'none';
+    document.getElementById('prompt-container').style.display = 'none';
+    document.getElementById('story-container').style.display = 'none';
+    document.getElementById('prompt-display').innerHTML = '';
+    document.getElementById('story-response').textContent = '';
+
+    // Reset parameter selections
+    document.querySelectorAll('.chip.selected').forEach(chip => {
+        chip.classList.remove('selected');
+    });
+
+    document.querySelectorAll('.selected-value').forEach(selectedValue => {
+        selectedValue.innerHTML = '';
+        selectedValue.style.display = 'none';
+    });
+
+    // Reset Story type optional text
+    document.querySelectorAll('.parameter-container:nth-child(3) .optional-text').forEach(optionalText => {
+        optionalText.textContent = '(optional)';
+    });
+
+    // Clear character inputs and remove extra groups
+    const characterInputGroups = document.querySelectorAll('.character-input-group');
+    characterInputGroups.forEach((group, index) => {
+        if (index === 0) { // Only clear the first group, others will be removed
+            group.querySelector('.character-name').value = '';
+            group.querySelector('.character-role').selectedIndex = 0;
+            group.querySelector('.character-description').value = '';
+            group.querySelector('.delete-character-button').style.display = 'none';
+        } else {
+            group.remove();
+        }
+    });
+    document.querySelector('.add-character-button').style.display = 'block'; // Ensure add character button is visible
+
+    // Clear "Other" textarea
+    const otherTextarea = document.querySelector('.other-textarea');
+    if (otherTextarea) {
+        otherTextarea.value = '';
+        const charCounter = document.querySelector('.char-counter');
+        if (charCounter) {
+            charCounter.textContent = `0 / ${otherTextarea.maxLength}`;
+        }
+    }
+
+    // Hide "Generate story" button
+    const generateStoryButton = document.querySelector('.generate-story-button');
+    if (generateStoryButton) {
+        generateStoryButton.style.display = 'none';
+    }
+
+    // Reset parameter containers state
+    const parameterContainers = document.querySelectorAll('.parameter-container');
+    parameterContainers.forEach((container, index) => {
+        const content = container.querySelector('.parameter-content');
+        const arrow = container.querySelector('.arrow-icon');
+
+        if (index === 0) { // Age container
+            content.style.display = 'block';
+            arrow.classList.add('rotated');
+            container.classList.remove('disabled');
+        } else {
+            container.classList.add('disabled');
+            content.style.display = 'none';
+            arrow.classList.remove('rotated');
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     initSocketIO();
 
     const parameterContainers = document.querySelectorAll('.parameter-container');
 
-    parameterContainers.forEach(container => {
-        const title = container.querySelector('.parameter-title').textContent;
-
-        container.addEventListener('click', () => {
+    parameterContainers.forEach((container, index) => {
+        if (index === 0) {
             const content = container.querySelector('.parameter-content');
             const arrow = container.querySelector('.arrow-icon');
+            content.style.display = 'block';
+            arrow.classList.add('rotated');
+        } else {
+            container.classList.add('disabled');
+        }
+    });
 
+    parameterContainers.forEach(container => {
+        const title = container.querySelector('.parameter-title').textContent;
+        const header = container.querySelector('.parameter-header');
+        header.addEventListener('click', () => {
+            if (container.classList.contains('disabled')) return;
+            const content = container.querySelector('.parameter-content');
+            const arrow = container.querySelector('.arrow-icon');
             arrow.classList.toggle('rotated');
             if (content.style.display === 'block') {
                 content.style.display = 'none';
             } else {
                 content.style.display = 'block';
             }
-
             if (title === 'Story type') {
                 updateStoryTypeHeader(container);
             } else if (title === 'Other') {
                 const textarea = container.querySelector('.other-textarea');
                 const charCounter = container.querySelector('.char-counter');
-                const generateButton = document.querySelector('.generate-story-button');
                 const maxLength = textarea.maxLength;
-
                 textarea.addEventListener('input', () => {
                     const currentLength = textarea.value.length;
                     charCounter.textContent = `${currentLength} / ${maxLength}`;
                 });
-
-                // Toggle button visibility based on container content display
-                if (content.style.display === 'block') {
-                    generateButton.style.display = 'flex';
-                } else {
-                    generateButton.style.display = 'none';
-                }
-            } else {
-                setupChipSelection(container);
             }
         });
 
         if (title === 'Story type') {
             setupStoryTypeSelection(container);
+        } else if (title === 'Characters') {
+            const charactersList = container.querySelector('.characters-list');
+            charactersList.addEventListener('input', () => {
+                checkCharactersAndUnlockNext(container);
+            });
+            container.querySelector('.add-character-button').addEventListener('click', () => {
+                checkCharactersAndUnlockNext(container);
+            });
         } else if (title === 'Other') {
-            // Initial state for the button when the page loads
-            const generateButton = document.querySelector('.generate-story-button');
-            const content = container.querySelector('.parameter-content');
-            if (content.style.display === 'block') {
-                generateButton.style.display = 'flex';
-            } else {
-                generateButton.style.display = 'none';
-            }
+            container.querySelector('.other-textarea').addEventListener('input', () => unlockAndOpenNext(container), { once: true });
         } else {
             setupChipSelection(container);
         }
     });
+
+    const addCharacterButton = document.querySelector('.add-character-button');
+    const charactersList = document.querySelector('.characters-list');
+    const characterInputGroup = document.querySelector('.character-input-group');
+    addCharacterButton.addEventListener('click', () => {
+        const characterGroups = document.querySelectorAll('.character-input-group');
+        if (characterGroups.length < 5) {
+            const newCharacterGroup = characterInputGroup.cloneNode(true);
+            newCharacterGroup.querySelector('.character-name').value = '';
+            newCharacterGroup.querySelector('.character-role').selectedIndex = 0;
+            newCharacterGroup.querySelector('.character-description').value = '';
+            const deleteButton = newCharacterGroup.querySelector('.delete-character-button');
+            deleteButton.style.display = 'block';
+            deleteButton.addEventListener('click', () => {
+                newCharacterGroup.remove();
+                if (document.querySelectorAll('.character-input-group').length < 5) {
+                    addCharacterButton.style.display = 'block';
+                }
+                checkCharactersAndUnlockNext(document.querySelector('.parameter-container:nth-child(4)'));
+            });
+            charactersList.appendChild(newCharacterGroup);
+            if (document.querySelectorAll('.character-input-group').length === 5) {
+                addCharacterButton.style.display = 'none';
+            }
+        }
+    });
+
+    document.querySelector('.generate-story-button').addEventListener('click', gatherDataAndGenerateStory);
+
+    
+    const modal = document.getElementById('new-story-modal');
+    const clearButton = document.getElementById('clear-story-button');
+    const closeButton = document.querySelector('.close-button');
+    const confirmButton = document.getElementById('confirm-new-story-button');
+
+    clearButton.addEventListener('click', () => {
+        modal.style.display = 'flex';
+    });
+
+    closeButton.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    confirmButton.addEventListener('click', () => {
+        resetStoryView();
+        modal.style.display = 'none';
+    });
+
+    window.addEventListener('click', (event) => {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+    document.getElementById('copy-story-button').addEventListener('click', () => {
+        const storyText = document.getElementById('story-response').textContent;
+        navigator.clipboard.writeText(storyText).then(() => {
+            const copyButton = document.getElementById('copy-story-button');
+            const originalHTML = copyButton.innerHTML;
+            copyButton.textContent = 'Copied!';
+            copyButton.disabled = true;
+            setTimeout(() => {
+                copyButton.innerHTML = originalHTML;
+                copyButton.disabled = false;
+            }, 2000);
+        }, (err) => {
+            console.error('Could not copy text: ', err);
+        });
+    });
 });
-
-function generateStory(msg) {
-    document.getElementById('sendStoryButton').disabled = true;
-    document.getElementById('storyInput').disabled = true;
-    document.getElementById('loadingSpinner').style.display = 'inline-block';
-    socket.emit('generate_story', msg);
-}
-
-function resetUI() {
-    document.getElementById('storyInput').value = '';
-    document.getElementById('promptResponse').style.display = 'none';
-    document.getElementById('promptResponse').scrollTop = 0; // Reset scroll position
-    document.getElementById('promptResponse').textContent = '';
-    document.getElementById('sendStoryButton').disabled = false;
-    document.getElementById('storyInput').disabled = false;
-}
