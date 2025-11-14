@@ -2,15 +2,8 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-/*
- * UI Elements definition: needed to interact with the HTML elements.
- */
+const socket = io(`http://${window.location.host}`);
 
-const socket = io(`http://${window.location.host}`); // Initialize socket.io connection
-
-/*
- * Socket initialization. We need it to communicate with the server
- */
 function initSocketIO() {
     socket.on('response', (data) => {
         const responseBox = document.getElementById('promptResponse');
@@ -21,24 +14,41 @@ function initSocketIO() {
     });
 }
 
+function unlockAndOpenNext(currentContainer) {
+    const nextContainer = currentContainer.nextElementSibling;
+    if (nextContainer && nextContainer.classList.contains('parameter-container')) {
+        if (nextContainer.classList.contains('disabled')) {
+            nextContainer.classList.remove('disabled');
+            const content = nextContainer.querySelector('.parameter-content');
+            const arrow = nextContainer.querySelector('.arrow-icon');
+            if (content.style.display !== 'block') {
+                content.style.display = 'block';
+                arrow.classList.add('rotated');
+            }
+        }
+    }
+}
+
 function setupChipSelection(container) {
     const chips = container.querySelectorAll('.chip');
     const selectedValue = container.querySelector('.selected-value');
 
     chips.forEach(chip => {
         chip.addEventListener('click', (event) => {
-            event.stopPropagation(); // Prevent the container from toggling
+            event.stopPropagation();
 
-            // Remove selected class from all chips in this container
+            const alreadySelected = chip.classList.contains('selected');
+
             chips.forEach(c => c.classList.remove('selected'));
-
-            // Add selected class to the clicked chip
             chip.classList.add('selected');
 
-            // Update the selected value display
             if (selectedValue) {
-                selectedValue.textContent = chip.textContent;
-                selectedValue.style.display = 'inline-block';
+                selectedValue.innerHTML = chip.innerHTML;
+                selectedValue.style.display = 'inline-flex';
+            }
+
+            if (!alreadySelected) {
+                unlockAndOpenNext(container);
             }
         });
     });
@@ -46,7 +56,6 @@ function setupChipSelection(container) {
 
 function setupStoryTypeSelection(container) {
     const paragraphs = container.querySelectorAll('.story-type-paragraph');
-    const optionalText = container.querySelector('.optional-text');
 
     paragraphs.forEach(paragraph => {
         const chips = paragraph.querySelectorAll('.chip');
@@ -54,11 +63,18 @@ function setupStoryTypeSelection(container) {
             chip.addEventListener('click', (event) => {
                 event.stopPropagation();
 
-                // Single selection within the paragraph
-                chips.forEach(c => c.classList.remove('selected'));
+                // Allow only one selection per paragraph
+                const paragraphChips = paragraph.querySelectorAll('.chip');
+                paragraphChips.forEach(c => c.classList.remove('selected'));
                 chip.classList.add('selected');
 
                 updateStoryTypeHeader(container);
+
+                // Check if all subcategories have a selection
+                const selectedChips = container.querySelectorAll('.chip.selected');
+                if (selectedChips.length === paragraphs.length) {
+                    unlockAndOpenNext(container);
+                }
             });
         });
     });
@@ -70,36 +86,84 @@ function updateStoryTypeHeader(container) {
     const content = container.querySelector('.parameter-content');
     const isOpen = content.style.display === 'block';
 
+    optionalText.innerHTML = ''; // Clear previous content
+
     if (selectedChips.length === 0) {
         optionalText.textContent = '(optional)';
         return;
     }
 
     if (isOpen) {
-        optionalText.textContent = Array.from(selectedChips).map(c => c.textContent).join(', ');
+        Array.from(selectedChips).forEach(chip => {
+            const pill = document.createElement('span');
+            pill.className = 'selection-pill';
+            pill.innerHTML = chip.innerHTML;
+            optionalText.appendChild(pill);
+        });
     } else {
-        const firstTwo = Array.from(selectedChips).slice(0, 2).map(c => c.textContent).join(', ');
+        const firstTwo = Array.from(selectedChips).slice(0, 2);
+        firstTwo.forEach(chip => {
+            const pill = document.createElement('span');
+            pill.className = 'selection-pill';
+            pill.innerHTML = chip.innerHTML;
+            optionalText.appendChild(pill);
+        });
+
         const remaining = selectedChips.length - 2;
         if (remaining > 0) {
-            optionalText.innerHTML = `${firstTwo} <span class="plus-x">+${remaining}</span>`;
-        } else {
-            optionalText.textContent = firstTwo;
+            const plusSpan = document.createElement('span');
+            plusSpan.className = 'plus-x';
+            plusSpan.style.display = 'inline-block'; // make it visible
+            plusSpan.textContent = `+${remaining}`;
+            optionalText.appendChild(plusSpan);
         }
     }
 }
 
-// Start the application
+function checkCharactersAndUnlockNext(charactersContainer) {
+    const characterGroups = charactersContainer.querySelectorAll('.character-input-group');
+    let atLeastOneCharacterEntered = false;
+    characterGroups.forEach(group => {
+        const nameInput = group.querySelector('.character-name');
+        const roleSelect = group.querySelector('.character-role');
+        if (nameInput.value.trim() !== '' && roleSelect.value !== '') {
+            atLeastOneCharacterEntered = true;
+        }
+    });
+
+    const generateButton = document.querySelector('.generate-story-button');
+    if (atLeastOneCharacterEntered) {
+        unlockAndOpenNext(charactersContainer);
+        generateButton.style.display = 'flex';
+    } else {
+        generateButton.style.display = 'none';
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     initSocketIO();
 
     const parameterContainers = document.querySelectorAll('.parameter-container');
 
+    // Initial setup for sequential containers
+    parameterContainers.forEach((container, index) => {
+        if (index === 0) { // First container (Age)
+            const content = container.querySelector('.parameter-content');
+            const arrow = container.querySelector('.arrow-icon');
+            content.style.display = 'block';
+            arrow.classList.add('rotated');
+        } else {
+            container.classList.add('disabled');
+        }
+    });
+
     parameterContainers.forEach(container => {
         const title = container.querySelector('.parameter-title').textContent;
-
         const header = container.querySelector('.parameter-header');
 
-    header.addEventListener('click', () => {
+        header.addEventListener('click', () => {
+            if (container.classList.contains('disabled')) return;
+
             const content = container.querySelector('.parameter-content');
             const arrow = container.querySelector('.arrow-icon');
 
@@ -115,36 +179,28 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (title === 'Other') {
                 const textarea = container.querySelector('.other-textarea');
                 const charCounter = container.querySelector('.char-counter');
-                const generateButton = document.querySelector('.generate-story-button');
                 const maxLength = textarea.maxLength;
 
                 textarea.addEventListener('input', () => {
                     const currentLength = textarea.value.length;
                     charCounter.textContent = `${currentLength} / ${maxLength}`;
                 });
-
-                // Toggle button visibility based on container content display
-                if (content.style.display === 'block') {
-                    generateButton.style.display = 'flex';
-                } else {
-                    generateButton.style.display = 'none';
-                }
-            } else {
-                setupChipSelection(container);
             }
         });
 
+        // Setup interaction listeners for unlocking the next container
         if (title === 'Story type') {
             setupStoryTypeSelection(container);
+        } else if (title === 'Characters') {
+            const charactersList = container.querySelector('.characters-list');
+            charactersList.addEventListener('input', () => {
+                checkCharactersAndUnlockNext(container);
+            });
+            container.querySelector('.add-character-button').addEventListener('click', () => {
+                checkCharactersAndUnlockNext(container);
+            });
         } else if (title === 'Other') {
-            // Initial state for the button when the page loads
-            const generateButton = document.querySelector('.generate-story-button');
-            const content = container.querySelector('.parameter-content');
-            if (content.style.display === 'block') {
-                generateButton.style.display = 'flex';
-            } else {
-                generateButton.style.display = 'none';
-            }
+            container.querySelector('.other-textarea').addEventListener('input', () => unlockAndOpenNext(container), { once: true });
         } else {
             setupChipSelection(container);
         }
@@ -163,10 +219,9 @@ document.addEventListener('DOMContentLoaded', () => {
             newCharacterGroup.querySelector('.character-description').value = '';
             
             const deleteButton = newCharacterGroup.querySelector('.delete-character-button');
-            deleteButton.style.display = 'block'; // Make the button visible
+            deleteButton.style.display = 'block';
             deleteButton.addEventListener('click', () => {
                 newCharacterGroup.remove();
-                // Show the "Add character" button again if needed
                 if (document.querySelectorAll('.character-input-group').length < 5) {
                     addCharacterButton.style.display = 'block';
                 }
@@ -189,10 +244,37 @@ function generateStory(msg) {
 }
 
 function resetUI() {
+    // This function might need to be updated to reset the sequential locking
     document.getElementById('storyInput').value = '';
     document.getElementById('promptResponse').style.display = 'none';
-    document.getElementById('promptResponse').scrollTop = 0; // Reset scroll position
+    document.getElementById('promptResponse').scrollTop = 0;
     document.getElementById('promptResponse').textContent = '';
     document.getElementById('sendStoryButton').disabled = false;
     document.getElementById('storyInput').disabled = false;
+
+    // Reset sequential containers
+    const parameterContainers = document.querySelectorAll('.parameter-container');
+    parameterContainers.forEach((container, index) => {
+        // Close content and un-rotate arrow
+        const content = container.querySelector('.parameter-content');
+        const arrow = container.querySelector('.arrow-icon');
+        content.style.display = 'none';
+        arrow.classList.remove('rotated');
+
+        // Reset selected chips
+        container.querySelectorAll('.chip.selected').forEach(c => c.classList.remove('selected'));
+        const selectedValue = container.querySelector('.selected-value');
+        if (selectedValue) {
+            selectedValue.textContent = '';
+            selectedValue.style.display = 'none';
+        }
+
+        if (index === 0) { // First container (Age)
+            container.classList.remove('disabled');
+            content.style.display = 'block';
+            arrow.classList.add('rotated');
+        } else {
+            container.classList.add('disabled');
+        }
+    });
 }
