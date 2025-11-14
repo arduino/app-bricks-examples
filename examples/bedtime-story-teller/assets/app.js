@@ -97,7 +97,9 @@ document.addEventListener('DOMContentLoaded', () => {
     parameterContainers.forEach(container => {
         const title = container.querySelector('.parameter-title').textContent;
 
-        container.addEventListener('click', () => {
+        const header = container.querySelector('.parameter-header');
+
+    header.addEventListener('click', () => {
             const content = container.querySelector('.parameter-content');
             const arrow = container.querySelector('.arrow-icon');
 
@@ -145,6 +147,23 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else {
             setupChipSelection(container);
+        }
+    });
+
+    const addCharacterButton = document.querySelector('.add-character-button');
+    const charactersList = document.querySelector('.characters-list');
+    const characterInputGroup = document.querySelector('.character-input-group');
+
+    addCharacterButton.addEventListener('click', () => {
+        const characterGroups = document.querySelectorAll('.character-input-group');
+        if (characterGroups.length < 5) {
+            const newCharacterGroup = characterInputGroup.cloneNode(true);
+            newCharacterGroup.querySelector('.character-name').value = '';
+            newCharacterGroup.querySelector('.character-role').selectedIndex = 0;
+            charactersList.appendChild(newCharacterGroup);
+            if (characterGroups.length === 4) {
+                addCharacterButton.style.display = 'none';
+            }
         }
     });
 });

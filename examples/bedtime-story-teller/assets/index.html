@@ -114,11 +114,26 @@ SPDX-License-Identifier: MPL-2.0
                                         <div class="parameter-container">
                                             <div class="parameter-header">
                                                 <h3 class="parameter-title">Characters</h3>
-                                                <span class="selected-value"></span>
+                                                <span class="optional-text">(max 5)</span>
                                                 <img src="./img/arrow-right.svg" class="arrow-icon" alt="arrow icon">
                                             </div>
                                             <div class="parameter-content">
-                                                CONTENUTO
+                                                <div class="characters-list">
+                                                    <div class="character-input-group">
+                                                        <input type="text" placeholder="Name" class="character-name">
+                                                        <select class="character-role">
+                                                            <option value="" disabled selected>Select role...</option>
+                                                            <option value="protagonist">👑 Protagonist</option>
+                                                            <option value="positive-helper">🧸 Positive helper</option>
+                                                            <option value="antagonist">😈 Antagonist</option>
+                                                            <option value="negative-helper">🐍 Negative helper</option>
+                                                            <option value="other">🐧 Other characters</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="add-character-container">
+                                                    <button class="add-character-button">Add character +</button>
+                                                </div>
                                             </div>
                                         </div>
 

@@ -147,6 +147,7 @@ body {
 
 .parameter-header .arrow-icon {
     margin-left: auto; /* Push the arrow to the far right */
+    margin-right: 4px;
 }
 
 .parameter-title {
@@ -285,6 +286,45 @@ body {
     margin-top: 16px; /* Space from the last parameter container */
     margin-left: auto; /* Push to the right */
     width: fit-content; /* Make it not full width */
+}
+
+.character-input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    gap: 8px;
+}
+
+.input-icon {
+    margin-right: 8px;
+}
+
+.character-name,
+.character-role {
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #C9D2D2;
+    background: #FFF;
+    font-family: "Open Sans";
+    font-size: 12px;
+}
+
+.add-character-container {
+    text-align: center;
+    margin-top: 16px;
+}
+
+.add-character-button {
+    background-color: transparent;
+    border: 1px solid #008184;
+    color: #008184;
+    padding: 8px 16px;
+    border-radius: 200px;
+    cursor: pointer;
+    font-family: "Open Sans";
+    font-size: 12px;
+    font-weight: 600;
 }
 
 .spinner {
