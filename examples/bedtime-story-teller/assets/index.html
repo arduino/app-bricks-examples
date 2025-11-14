@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: Copyright (C) ARDUINO SRL (http://www.arduino.cc)
+SPDX-FileCopyrightText: Copyright (C) 2025 ARDUINO SA <http://www.arduino.cc>
 
 SPDX-License-Identifier: MPL-2.0
 -->
@@ -26,10 +26,7 @@ SPDX-License-Identifier: MPL-2.0
 
                         <div></div> <!-- This is for the gap -->
 
-                        <div class="your-story-header">
-                            <h2 class="column-title">Your story</h2>
-                            <button id="clear-story-button" style="display: none;">New story</button>
-                        </div>
+                        <h2 class="column-title">Your story</h2>
 
                         <div class="container">
 
@@ -71,7 +68,7 @@ SPDX-License-Identifier: MPL-2.0
                                         <div class="parameter-container">
                                             <div class="parameter-header">
                                                 <h3 class="parameter-title">Story type</h3>
-                                                <span class="optional-text story-type-selections">(optional)</span>
+                                                <span class="optional-text">(optional)</span>
                                                 <img src="./img/arrow-right.svg" class="arrow-icon" alt="arrow icon">
                                             </div>
                                             <div class="parameter-content">
@@ -173,55 +170,13 @@ SPDX-License-Identifier: MPL-2.0
                             <div class="story-output-placeholder">
                                 <p>Set parameters to generate story</p>
                                 <p>or</p>
-                                <button id="generate-randomly-button" class="generate-randomly-button">Generate Randomly</button>
-                            </div>
-                            <div id="story-response-area" style="display: none;">
-                                <div id="loading-spinner" class="spinner" style="display: none;"></div>
-                                <div class="parameter-container" id="prompt-container" style="display: none;">
-                                    <div class="parameter-header">
-                                        <h3 class="parameter-title">Prompt</h3>
-                                        <img src="./img/arrow-right.svg" class="arrow-icon" alt="arrow icon">
-                                    </div>
-                                    <div class="parameter-content">
-                                        <div id="prompt-display" class="response-content"></div>
-                                    </div>
-                                </div>
-                                <div class="response-container" id="story-container" style="display: none;">
-                                    <div class="response-header">
-                                        <h3 class="response-title">Story</h3>
-                                        <div class="response-header-buttons">
-                                            <button id="copy-story-button" class="icon-button">
-                                                Copy <img src="./img/copy.svg" alt="copy icon">
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div id="story-response" class="response-content"></div>
-                                </div>
+                                <button class="generate-randomly-button">
+                                    Generate randomly <img src="./img/double-arrow.svg" alt="double arrow icon">
+                                </button>
                             </div>
                         </div>
 
                     </div>
-        </div>
-    </div>
-
-    <div id="new-story-modal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-body-title">New Story</h2>
-                <span class="close-button">&times;</span>
-            </div>
-            <div class="modal-body">
-                <p>Creating a new story will delete the existing one, Are you sure? This action cannot be undone.</p>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure?</p>
-            </div>
-            <div class="modal-body-small">
-                <p>This action cannot be undone.</p>
-            </div>
-            <div class="modal-footer">
-                <button id="confirm-new-story-button" class="primary-button">Create new story</button>
-            </div>
         </div>
     </div>
 
