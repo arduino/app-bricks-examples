@@ -26,7 +26,10 @@ SPDX-License-Identifier: MPL-2.0
 
                         <div></div> <!-- This is for the gap -->
 
-                        <h2 class="column-title">Your story</h2>
+                        <div class="your-story-header">
+                            <h2 class="column-title">Your story</h2>
+                            <button id="clear-story-button" style="display: none;">New story</button>
+                        </div>
 
                         <div class="container">
 
@@ -174,9 +177,42 @@ SPDX-License-Identifier: MPL-2.0
                                     Generate randomly <img src="./img/double-arrow.svg" alt="double arrow icon">
                                 </button>
                             </div>
+                            <div id="story-response-area" style="display: none;">
+                                <div id="loading-spinner" class="spinner" style="display: none;"></div>
+                                <div class="response-container" id="prompt-container" style="display: none;">
+                                    <h3 class="response-title">Prompt</h3>
+                                    <div id="prompt-display" class="response-content"></div>
+                                </div>
+                                <div class="response-container" id="story-container" style="display: none;">
+                                    <div class="response-header">
+                                        <h3 class="response-title">Story</h3>
+                                        <div class="response-header-buttons">
+                                            <button id="copy-story-button" class="icon-button">
+                                                Copy <img src="./img/copy.svg" alt="copy icon">
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div id="story-response" class="response-content"></div>
+                                </div>
+                            </div>
                         </div>
 
                     </div>
+        </div>
+    </div>
+
+    <div id="new-story-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Story</h2>
+                <span class="close-button">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Creating a new story will delete the existing one, Are you sure? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button id="confirm-new-story-button" class="primary-button">Create new story</button>
+            </div>
         </div>
     </div>
 
