@@ -288,10 +288,56 @@ body {
     width: fit-content; /* Make it not full width */
 }
 
+.character-input-group:not(:last-child) {
+    border-bottom: 1px solid #C9D2D2;
+    padding-bottom: 8px;
+}
+
 .character-input-group {
     display: flex;
+    flex-direction: row;
     align-items: center;
+    margin-bottom: 0;
+    gap: 8px;
+}
+
+.character-inputs {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.character-input-group:not(:last-child) {
+    border-bottom: 1px solid #C9D2D2;
+    padding-bottom: 8px;
     margin-bottom: 8px;
+}
+
+.delete-character-button {
+    background-color: #F6D9D5;
+    border: none;
+    border-radius: 8px;
+    padding: 5px 5px 2px 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.delete-character-button img {
+    width: 16px;
+    height: 16px;
+}
+
+.character-first-row {
+    display: flex;
+    gap: 8px;
+}
+
+.character-second-row {
+    display: flex;
+    align-items: center;
     gap: 8px;
 }
 
@@ -300,7 +346,8 @@ body {
 }
 
 .character-name,
-.character-role {
+.character-role,
+.character-description {
     width: 100%;
     padding: 8px;
     border-radius: 4px;
@@ -308,6 +355,10 @@ body {
     background: #FFF;
     font-family: "Open Sans";
     font-size: 12px;
+}
+
+.character-second-row .character-description {
+    flex-grow: 1;
 }
 
 .add-character-container {

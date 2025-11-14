@@ -160,8 +160,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const newCharacterGroup = characterInputGroup.cloneNode(true);
             newCharacterGroup.querySelector('.character-name').value = '';
             newCharacterGroup.querySelector('.character-role').selectedIndex = 0;
+            newCharacterGroup.querySelector('.character-description').value = '';
+            
+            const deleteButton = newCharacterGroup.querySelector('.delete-character-button');
+            deleteButton.style.display = 'block'; // Make the button visible
+            deleteButton.addEventListener('click', () => {
+                newCharacterGroup.remove();
+                // Show the "Add character" button again if needed
+                if (document.querySelectorAll('.character-input-group').length < 5) {
+                    addCharacterButton.style.display = 'block';
+                }
+            });
+
             charactersList.appendChild(newCharacterGroup);
-            if (characterGroups.length === 4) {
+
+            if (document.querySelectorAll('.character-input-group').length === 5) {
                 addCharacterButton.style.display = 'none';
             }
         }
