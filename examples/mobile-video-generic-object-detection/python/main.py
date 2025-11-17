@@ -14,7 +14,7 @@ from datetime import datetime, UTC
 
 def generate_secret() -> str:
   characters = string.ascii_letters + string.digits
-  password = ''.join(secrets.choice(characters) for i in range(12))
+  password = ''.join(secrets.choice(characters) for i in range(5))
   return password
 
 password = generate_secret()
