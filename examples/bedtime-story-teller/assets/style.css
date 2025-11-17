@@ -666,10 +666,6 @@ body {
  */
 
 @media (max-width: 768px) {
-    body {
-        padding: 12px 16px;
-    }
-
     .container {
         max-width: none;
         width: 100%;

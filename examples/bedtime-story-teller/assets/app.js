@@ -4,26 +4,7 @@
 
 const socket = io(`http://${window.location.host}`);
 
-function generateRandomTestStory() {
-    document.querySelector('.story-output-placeholder').style.display = 'none';
-    const responseArea = document.getElementById('story-response-area');
-    responseArea.style.display = 'flex';
-    document.getElementById('prompt-container').style.display = 'none';
-    document.getElementById('story-container').style.display = 'none';
-    document.getElementById('loading-spinner').style.display = 'block';
-    document.getElementById('story-response').textContent = '';
-    document.getElementById('clear-story-button').style.display = 'none';
-    setTimeout(() => {
-        const randomStory = `Once upon a time, in a land far, far away, there lived a brave ${Math.random() > 0.5 ? 'knight' : 'princess'}. They embarked on a quest to find a magical ${Math.random() > 0.5 ? 'dragon' : 'unicorn'} and save their kingdom from a wicked ${Math.random() > 0.5 ? 'sorcerer' : 'giant'}. After many adventures and challenges, they succeeded and lived happily ever after. The end.`;
-        document.getElementById('story-container').style.display = 'flex';
-        const storyResponse = document.getElementById('story-response');
-        storyResponse.textContent += randomStory;
-        document.getElementById('loading-spinner').style.display = 'none';
-        const clearStoryButton = document.getElementById('clear-story-button');
-        clearStoryButton.style.display = 'block';
-        clearStoryButton.disabled = false;
-    }, 1500);
-}
+
 
 function initSocketIO() {
     socket.on('response', (data) => {
@@ -347,7 +328,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.querySelector('.generate-story-button').addEventListener('click', gatherDataAndGenerateStory);
-    document.querySelector('.generate-randomly-button').addEventListener('click', generateRandomTestStory);
+
     
     const modal = document.getElementById('new-story-modal');
     const clearButton = document.getElementById('clear-story-button');
