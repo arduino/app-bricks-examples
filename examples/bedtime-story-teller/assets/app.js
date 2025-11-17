@@ -19,7 +19,9 @@ function generateRandomTestStory() {
         const storyResponse = document.getElementById('story-response');
         storyResponse.textContent += randomStory;
         document.getElementById('loading-spinner').style.display = 'none';
-        document.getElementById('clear-story-button').style.display = 'block';
+        const clearStoryButton = document.getElementById('clear-story-button');
+        clearStoryButton.style.display = 'block';
+        clearStoryButton.disabled = false;
     }, 1500);
 }
 
@@ -27,9 +29,10 @@ function initSocketIO() {
     socket.on('response', (data) => {
         document.getElementById('story-container').style.display = 'flex';
         const storyResponse = document.getElementById('story-response');
-        storyResponse.textContent += data;
         document.getElementById('loading-spinner').style.display = 'none';
-        document.getElementById('clear-story-button').style.display = 'block';
+        const clearStoryButton = document.getElementById('clear-story-button');
+        clearStoryButton.style.display = 'block';
+        clearStoryButton.disabled = false;
     });
 }
 
