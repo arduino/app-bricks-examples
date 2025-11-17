@@ -479,6 +479,7 @@ body {
     color: #008184;
     padding: 8px 16px;
     border-radius: 200px;
+    border: none;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -547,13 +548,26 @@ body {
 
 .modal-body {
     padding: 15px 0;
+    text-align: center;
+}
+
+.modal-body p {
+    color: #2C353A;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 700;
+}
+
+.modal-body-small {
+    font-size: 14px !important;
+    font-style: normal !important;
+    font-weight: 400 !important;
 }
 
 .modal-footer {
     display: flex;
     justify-content: flex-end;
     padding-top: 10px;
-    border-top: 1px solid #ddd;
 }
 
 #clear-story-button,
@@ -608,21 +622,6 @@ body {
 #story-container .response-title,
 #story-container .response-content {
     color: #2C353A;
-}
-
-#clear-story-button {
-    /* Style similar to other buttons */
-    border-radius: 8px;
-    background: #AA4335; /* A different color to distinguish */
-    color: white;
-    font-family: "Open Sans";
-    font-size: 12px;
-    font-weight: 600;
-    padding: 8px 16px;
-    border: none;
-    cursor: pointer;
-    margin-top: 16px;
-    align-self: center; /* Center the button */
 }
 
 .spinner {

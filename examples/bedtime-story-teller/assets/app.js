@@ -197,6 +197,68 @@ function resetStoryView() {
     document.getElementById('story-container').style.display = 'none';
     document.getElementById('prompt-display').innerHTML = '';
     document.getElementById('story-response').textContent = '';
+
+    // Reset parameter selections
+    document.querySelectorAll('.chip.selected').forEach(chip => {
+        chip.classList.remove('selected');
+    });
+
+    document.querySelectorAll('.selected-value').forEach(selectedValue => {
+        selectedValue.innerHTML = '';
+        selectedValue.style.display = 'none';
+    });
+
+    // Reset Story type optional text
+    document.querySelectorAll('.parameter-container:nth-child(3) .optional-text').forEach(optionalText => {
+        optionalText.textContent = '(optional)';
+    });
+
+    // Clear character inputs and remove extra groups
+    const characterInputGroups = document.querySelectorAll('.character-input-group');
+    characterInputGroups.forEach((group, index) => {
+        if (index === 0) { // Only clear the first group, others will be removed
+            group.querySelector('.character-name').value = '';
+            group.querySelector('.character-role').selectedIndex = 0;
+            group.querySelector('.character-description').value = '';
+            group.querySelector('.delete-character-button').style.display = 'none';
+        } else {
+            group.remove();
+        }
+    });
+    document.querySelector('.add-character-button').style.display = 'block'; // Ensure add character button is visible
+
+    // Clear "Other" textarea
+    const otherTextarea = document.querySelector('.other-textarea');
+    if (otherTextarea) {
+        otherTextarea.value = '';
+        const charCounter = document.querySelector('.char-counter');
+        if (charCounter) {
+            charCounter.textContent = `0 / ${otherTextarea.maxLength}`;
+        }
+    }
+
+    // Hide "Generate story" button
+    const generateStoryButton = document.querySelector('.generate-story-button');
+    if (generateStoryButton) {
+        generateStoryButton.style.display = 'none';
+    }
+
+    // Reset parameter containers state
+    const parameterContainers = document.querySelectorAll('.parameter-container');
+    parameterContainers.forEach((container, index) => {
+        const content = container.querySelector('.parameter-content');
+        const arrow = container.querySelector('.arrow-icon');
+
+        if (index === 0) { // Age container
+            content.style.display = 'block';
+            arrow.classList.add('rotated');
+            container.classList.remove('disabled');
+        } else {
+            container.classList.add('disabled');
+            content.style.display = 'none';
+            arrow.classList.remove('rotated');
+        }
+    });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
