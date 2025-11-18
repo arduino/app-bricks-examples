@@ -18,8 +18,7 @@ let iframeLoadIntervalId;
 
 // Webcam state management
 let webcamState = {
-    connected: false,
-    streaming: false,
+    status: "disconnected",
     secret: null
 };
 
@@ -70,10 +69,10 @@ function updateDisplay() {
     videoPausedPlaceholder.style.display = 'none';
     dynamicIframe.style.display = 'none';
 
-    if (webcamState.streaming) {
+    if (webcamState.status == "streaming") {
         // Webcam is streaming - show video iframe
         dynamicIframe.style.display = 'block';
-    } else if (!webcamState.connected) {
+    } else if (webcamState.status != "connected") {
         // Webcam is connected but not streaming - show QR code
         qrPlaceholder.style.display = 'flex';
         if (webcamState.secret) {
@@ -142,34 +141,34 @@ function initSocketIO() {
         updateFeedback(message);
     });
 
-    socket.on('secret', async (message) => {
-        webcamState.secret = message;
+    socket.on('welcome', async (message) => {
+        webcamState.status = message.status;
+        webcamState.secret = message.secret;
+        console.dir(webcamState);
         updateDisplay();
     });
 
-    socket.on('webcam_connected', async (message) => {
+    socket.on('connected', async (message) => {
         console.log("Webcam connected!");
-        webcamState.connected = true;
+        webcamState.status = "connected";
         updateDisplay();
     });
 
-    socket.on('webcam_disconnected', async (message) => {
+    socket.on('disconnected', async (message) => {
         console.log("Webcam disconnected!");
-        webcamState.connected = false;
-        webcamState.streaming = false; // Disconnection implies streaming stopped
+        webcamState.status = "disconnected";
         updateDisplay();
     });
-
-    socket.on('webcam_streaming_started', async (message) => {
+    
+    socket.on('streaming', async (message) => {
         console.log("Webcam streaming started!");
-        webcamState.connected = true; // Streaming implies connected
-        webcamState.streaming = true;
+        webcamState.status = "streaming";
         updateDisplay();
     });
-
-    socket.on('webcam_streaming_stopped', async (message) => {
+    
+    socket.on('paused', async (message) => {
         console.log("Webcam streaming stopped!");
-        webcamState.streaming = false;
+        webcamState.status = "paused";
         updateDisplay();
     });
 }
