@@ -105,11 +105,11 @@ function setupIframeLoading() {
 
 function generateQRCode(secret) {
     const qrCodeContainer = document.getElementById('qrCodeContainer');
-    
-    // Clear previous QR code
+    const qrSecretText = document.getElementById('qrSecretText');
+
     qrCodeContainer.innerHTML = '';
-    
-    // Generate new QR code
+    qrSecretText.textContent = '';
+
     new QRCode(qrCodeContainer, {
         text: secret,
         width: 256,
@@ -118,6 +118,8 @@ function generateQRCode(secret) {
         colorLight: "#ffffff",
         correctLevel: QRCode.CorrectLevel.H
     });
+
+    qrSecretText.textContent = secret;
 }
 
 function initSocketIO() {
