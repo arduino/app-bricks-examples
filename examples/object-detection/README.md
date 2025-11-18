@@ -74,7 +74,6 @@ Here is a brief explanation of the application script (main.py):
 from arduino.app_utils import *
 from arduino.app_bricks.web_ui import WebUI
 from arduino.app_bricks.objectdetection import ObjectDetection
-from arduino.app_utils import draw_bounding_boxes
 from PIL import Image
 import io
 import base64
