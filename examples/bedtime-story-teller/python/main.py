@@ -11,6 +11,7 @@ from arduino.app_utils import App
 llm = CloudLLM(
     api_key=os.getenv("API_KEY"), # Make sure to set your API key in the environment variable
     model=CloudModel.GOOGLE_GEMINI,
+    system_prompt="You are a bedtime story teller. Tell short, funny and relaxing stories that are suitable for children. Use a simple language and avoid long sentences.",
 )
 llm.with_memory()
 
