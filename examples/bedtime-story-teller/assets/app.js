@@ -10,6 +10,7 @@ function initSocketIO() {
     socket.on('response', (data) => {
         document.getElementById('story-container').style.display = 'flex';
         const storyResponse = document.getElementById('story-response');
+        storyResponse.textContent = data;
         document.getElementById('loading-spinner').style.display = 'none';
         const clearStoryButton = document.getElementById('clear-story-button');
         clearStoryButton.style.display = 'block';
@@ -135,6 +136,7 @@ function gatherDataAndGenerateStory() {
     const endingType = storyTypeContainer.querySelector('.story-type-paragraph:nth-child(2) .chip.selected')?.textContent.trim() || 'any';
     const narrativeStructure = storyTypeContainer.querySelector('.story-type-paragraph:nth-child(3) .chip.selected')?.textContent.trim() || 'any';
     const duration = storyTypeContainer.querySelector('.story-type-paragraph:nth-child(4) .chip.selected')?.textContent.trim() || 'any';
+    
     const characters = [];
     const characterGroups = document.querySelectorAll('.character-input-group');
     characterGroups.forEach(group => {
@@ -145,21 +147,24 @@ function gatherDataAndGenerateStory() {
             characters.push({ name, role, description });
         }
     });
-    const protagonist = characters.find(c => c.role === 'protagonist');
-    const helper = characters.find(c => c.role === 'positive-helper');
-    const antagonist = characters.find(c => c.role === 'antagonist');
-    const other = document.querySelector('.other-textarea').value.trim();
-    const formattedPrompt = `As a parent who loves to read bedtime stories to my <strong>${age}</strong> year old child, I need a delightful and age-appropriate story about an <strong>${protagonist ? protagonist.description : ''}</strong>, <strong>${protagonist ? protagonist.name : 'a character'}</strong> accompanied by his <strong>${helper ? helper.description : ''}</strong> helper <strong>${helper ? helper.name : 'a friend'}</strong> who will have to face the <strong>${antagonist ? antagonist.description : ''}</strong> antagonist <strong>${antagonist ? antagonist.name : 'a villain'}</strong>. The story type is <strong>${theme}</strong>. The tone should be <strong>${tone}</strong>. The format should be a narrative-style story with a clear beginning, middle, and end, allowing for a smooth and engaging reading experience. The objective is to entertain and soothe the child before bedtime. Provide a brief introduction to set the scene and introduce the main character. The scope should revolve around the topic: managing emotions and conflicts. The length should be approximately <strong>${duration}</strong>. Please ensure the story has a <strong>${narrativeStructure}</strong> narrative structure, leaving the child with a sense of <strong>${endingType}</strong>. The language should be easy to understand and suitable for my child's age comprehension.
-    ${other ? `
 
-Other on optional stuff for the story: <strong>${other}</strong>` : ''}`;
-    document.getElementById('prompt-display').innerHTML = formattedPrompt;
-    document.getElementById('prompt-container').style.display = 'flex';
-    const rawPrompt = formattedPrompt.replace(/<strong>/g, '').replace(/<\/strong>/g, '');
-    generateStory(rawPrompt);
+    const other = document.querySelector('.other-textarea').value.trim();
+
+    const storyData = {
+        age,
+        theme,
+        tone,
+        endingType,
+        narrativeStructure,
+        duration,
+        characters,
+        other,
+    };
+
+    generateStory(storyData);
 }
 
-function generateStory(msg) {
+function generateStory(data) {
     document.querySelector('.story-output-placeholder').style.display = 'none';
     const responseArea = document.getElementById('story-response-area');
     responseArea.style.display = 'flex';
@@ -167,7 +172,7 @@ function generateStory(msg) {
     document.getElementById('loading-spinner').style.display = 'block';
     document.getElementById('story-response').textContent = '';
     document.getElementById('clear-story-button').style.display = 'none';
-    socket.emit('generate_story', msg);
+    socket.emit('generate_story', data);
 }
 
 function resetStoryView() {
