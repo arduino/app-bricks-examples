@@ -65,7 +65,7 @@ The application uses the `wave_generator` Brick to create a continuous audio str
 
 - **User Interaction**: The frontend captures mouse/touch coordinates and sends them to the backend.
 - **Real-time Communication**: Input data is sent via the `web_ui` Brick's WebSocket channel.
-- **Audio Synthesis**: The `wave_generator` Brick runs in the background. It takes the target frequency and amplitude and applies a **glide (portamento) algorithm** to transition smoothly between notes.
+- **Audio Synthesis**: The `wave_generator` Brick runs in the background. It takes the target frequency and amplitude and applies a **glide algorithm** to transition smoothly between notes.
 - **Audio Output**: The Brick streams the generated sine wave directly to the **USB** audio device.
 
 **High-level data flow:**
