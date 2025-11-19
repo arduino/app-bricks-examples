@@ -149,9 +149,3 @@ If the application fails to start and you see an error regarding the speaker (e.
 - **Not supported:**
   - **HDMI audio** output
   - **Bluetooth® speakers**
-
-## License
-
-This example is licensed under the Mozilla Public License 2.0 (MPL-2.0).
-
-Copyright (C) 2025 ARDUINO SA <http://www.arduino.cc>
