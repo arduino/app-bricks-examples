@@ -111,7 +111,7 @@ function generateQRCode(secret) {
     qrSecretText.textContent = '';
 
     new QRCode(qrCodeContainer, {
-        text: secret,
+        text: "https://cloud.arduino.cc/installmobileapp?otp=" + secret,
         width: 256,
         height: 256,
         colorDark: "#000000",
