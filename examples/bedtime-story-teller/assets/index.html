@@ -71,7 +71,7 @@ SPDX-License-Identifier: MPL-2.0
                                         <div class="parameter-container">
                                             <div class="parameter-header">
                                                 <h3 class="parameter-title">Story type</h3>
-                                                <span class="optional-text">(optional)</span>
+                                                <span class="optional-text story-type-selections">(optional)</span>
                                                 <img src="./img/arrow-right.svg" class="arrow-icon" alt="arrow icon">
                                             </div>
                                             <div class="parameter-content">
@@ -172,9 +172,20 @@ SPDX-License-Identifier: MPL-2.0
                         <div class="story-output-container">
                             <div class="story-output-placeholder">
                                 <p>Set parameters to generate story</p>
+                                <p>or</p>
+                                <button id="generate-randomly-button" class="generate-randomly-button">Generate Randomly</button>
                             </div>
                             <div id="story-response-area" style="display: none;">
                                 <div id="loading-spinner" class="spinner" style="display: none;"></div>
+                                <div class="parameter-container" id="prompt-container" style="display: none;">
+                                    <div class="parameter-header">
+                                        <h3 class="parameter-title">Prompt</h3>
+                                        <img src="./img/arrow-right.svg" class="arrow-icon" alt="arrow icon">
+                                    </div>
+                                    <div class="parameter-content">
+                                        <div id="prompt-display" class="response-content"></div>
+                                    </div>
+                                </div>
                                 <div class="response-container" id="story-container" style="display: none;">
                                     <div class="response-header">
                                         <h3 class="response-title">Story</h3>
@@ -196,11 +207,17 @@ SPDX-License-Identifier: MPL-2.0
     <div id="new-story-modal" class="modal" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>New Story</h2>
+                <h2 class="modal-body-title">New Story</h2>
                 <span class="close-button">&times;</span>
             </div>
             <div class="modal-body">
                 <p>Creating a new story will delete the existing one, Are you sure? This action cannot be undone.</p>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure?</p>
+            </div>
+            <div class="modal-body-small">
+                <p>This action cannot be undone.</p>
             </div>
             <div class="modal-footer">
                 <button id="confirm-new-story-button" class="primary-button">Create new story</button>
