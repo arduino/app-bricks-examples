@@ -5,7 +5,6 @@ author: Karl Söderby
 tags: [SBC, Debian, Linux, Terminal]
 icon: Computer
 category: basic
-last_revised: 2025/10/01
 ---
 
 ![UNO Q as a Single Board Computer (SBC)](assets/sbc-hero.png)

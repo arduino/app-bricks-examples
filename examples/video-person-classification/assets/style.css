@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (C) 2025 ARDUINO SA <http://www.arduino.cc>
+ * SPDX-FileCopyrightText: Copyright (C) ARDUINO SRL (http://www.arduino.cc)
  *
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -284,7 +284,7 @@ body {
 }
 
 .arduino-logo {
-    height: 32px;
+    height: 48px;
     width: auto;
 }
 
@@ -358,7 +358,7 @@ body {
 
 .scan-content,
 .scan-content-time {
-    font-size: 14px;
+    font-size: 12px;
     font-style: normal;
     font-weight: 600;
     line-height: 160%;
@@ -605,6 +605,10 @@ body {
     height: 36px;
 }
 
+.feedback-section {
+    margin-bottom: 8px;
+}
+
 .confidence-input {
     border: none;
     background: transparent;
@@ -612,7 +616,7 @@ body {
     font-weight: inherit;
     color: inherit;
     text-align: center;
-    width: 32px;
+    width: 40px;
     padding: 0;
     margin: 0;
     outline: none;
@@ -701,7 +705,7 @@ body {
 
 .popover {
     position: absolute;
-    left: 25%;
+    left: 5%;
     top: 70%;
     margin-left: 8px;
     display: none;

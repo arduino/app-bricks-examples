@@ -8,7 +8,7 @@ profiles:
       - DebugLog (0.8.4)
       - ArxContainer (0.7.0)
       - ArxTypeTraits (0.3.1)
-      - Modulino (0.5.0)
+      - Arduino_Modulino (0.6.1)
       - Arduino_HS300x (1.0.0)
       - Arduino_LPS22HB (1.0.2)
       - Arduino_LSM6DSOX (1.1.2)

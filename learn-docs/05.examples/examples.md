@@ -5,7 +5,6 @@ author: Karl Söderby
 tags: [Examples]
 icon: Group
 category: basic
-last_revised: 2025/10/01
 ---
 
 In the previous guides, we have gone through:

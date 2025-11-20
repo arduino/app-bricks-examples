@@ -5,7 +5,6 @@ author: Karl Söderby
 tags: [UNO Q, Overview]
 icon: UNO
 category: basic
-last_revised: 2025/10/01
 ---
 
 ![Arduino UNO Q](assets/uno-q-hero.png)
