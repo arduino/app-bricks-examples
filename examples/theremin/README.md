@@ -164,3 +164,4 @@ If the interface works but there is no sound:
 - **Latency:** ~30 ms block duration
 - **Frequency range:** ~20 Hz to ~8,000 Hz
 - **Envelope:** Attack (0.01s), Release (0.03s), Glide (0.02s)
+- 
