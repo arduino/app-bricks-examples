@@ -1,0 +1,6 @@
+name: Theremin simulator
+icon: 🎼
+description: A simple theremin simulator that generates audio based on user input.
+bricks:
+  - arduino:web_ui
+  - arduino:wave_generator
