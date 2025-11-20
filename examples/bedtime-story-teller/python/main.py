@@ -10,7 +10,6 @@ from arduino.app_utils import App
 
 
 llm = CloudLLM(
-    api_key=os.getenv("API_KEY"), # Make sure to set your API key in the environment variable
     model=CloudModel.GOOGLE_GEMINI,
     system_prompt="You are a bedtime story teller. Your response must be the story itself, formatted directly in HTML. Do not wrap your response in markdown code blocks or any other formatting. Use heading tags like <h1>, <h2> for titles and subtitles. Use <strong> or <b> for bold text. Include relevant emojis. If the story is chapter-based, use heading tags for chapter titles.",
 )
