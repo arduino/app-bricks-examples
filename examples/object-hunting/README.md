@@ -177,8 +177,3 @@ If you are pointing the camera at an object but it doesn't register:
 - **Adjust Confidence:** Lower the **Confidence Level** slider. If set too high (e.g., > 0.80), the model requires a perfect angle to trigger a detection.
 - **Lighting:** Ensure the object is well-lit. Shadows or darkness can prevent detection.
 - **Distance:** Move the camera closer or further away. The object should occupy a significant portion of the frame.
-
-### "Connection to the board lost" error
-If this message appears at the bottom of the screen:
-- The WebSocket connection has been severed.
-- **Fix:** Refresh the web page. If the error persists, check if the UNO Q is still powered on and connected to the network.
