@@ -1,11 +1,10 @@
-# SPDX-FileCopyrightText: Copyright (C) 2025 ARDUINO SA <http://www.arduino.cc>
+# SPDX-FileCopyrightText: Copyright (C) ARDUINO SRL (http://www.arduino.cc)
 #
 # SPDX-License-Identifier: MPL-2.0
 
 from arduino.app_utils import *
 from arduino.app_bricks.web_ui import WebUI
 from arduino.app_bricks.object_detection import ObjectDetection
-from arduino.app_utils import draw_bounding_boxes
 from PIL import Image
 import io
 import base64
@@ -33,7 +32,7 @@ def on_detect_objects(client_id, data):
             ui.send_message('detection_error', {'error': 'No results returned'})
             return
 
-        img_with_boxes = draw_bounding_boxes(pil_image, results)
+        img_with_boxes = object_detection.draw_bounding_boxes(pil_image, results)
 
         if img_with_boxes is not None:
             img_buffer = io.BytesIO()

@@ -15,7 +15,7 @@ tasks:
         git ls-files |
         grep -Ev "(^|/)(libs|sketch-libraries|assets)/|THIRD-PARTY-LICENSES.json|\.(md|txt|yml|yaml|toml|gitignore|gitmodules)$" |
         sed 's/ /\\ /g' |
-        xargs reuse annotate -r --skip-unrecognized --copyright-prefix 'spdx-string-c' --copyright 'ARDUINO SA <http://www.arduino.cc>' --year '2025' --license 'MPL-2.0'
+        xargs reuse annotate -r --skip-unrecognized --copyright-prefix 'spdx-string-c' --copyright 'ARDUINO SRL (http://www.arduino.cc)' --exclude-year --license 'MPL-2.0'
       - reuse download --all
       - |
         licenses_dir="LICENSES"
