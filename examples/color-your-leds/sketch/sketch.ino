@@ -4,33 +4,29 @@
 
 #include <Arduino_RouterBridge.h>
 
-void setRGB(int ledRPin, int ledGPin, int ledBPin, int r, int g, int b) {
-  analogWrite(ledRPin, r);
-  analogWrite(ledGPin, g);
-  analogWrite(ledBPin, b);
+// Led 3 can be controlled via PWM pins
+void set_led3_color(int r, int g, int b) {
+  analogWrite(LED3_R, r);
+  analogWrite(LED3_G, g);
+  analogWrite(LED3_B, b);
 }
 
-void setColor(int ledIndex, int r, int g, int b) {
-  switch (ledIndex) {
-    case 3:
-      setRGB(LED3_R, LED3_G, LED3_B, r, g, b);
-      break;
-    case 4:
-      setRGB(LED4_R, LED4_G, LED4_B, r, g, b);
-      break;
-    default:
-      break;
-  }
+// Led 4 is a simple ON/OFF LED for each color channel, HIGH = OFF, LOW = ON
+void set_led4_color(bool r, bool g, bool b) {
+  digitalWrite(LED_BUILTIN + 3, r ? LOW : HIGH);
+  digitalWrite(LED_BUILTIN + 4, g ? LOW : HIGH);
+  digitalWrite(LED_BUILTIN + 5, b ? LOW : HIGH);
 }
 
 void setup()
 {
-    setColor(3, 0, 0, 0); // Initialize LED 3 to off
-    setColor(4, 0, 0, 0); // Initialize LED 4 to off
+    set_led3_color(0, 0, 0);
+    set_led4_color(false, false, false);
 
     Bridge.begin();
 
-    Bridge.provide("set_led_color", setColor);
+    Bridge.provide("set_led3_color", set_led3_color);
+    Bridge.provide("set_led4_color", set_led4_color);
 }
 
 void loop() {}
