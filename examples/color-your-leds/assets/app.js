@@ -2,10 +2,6 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-// SPDX-FileCopyrightText: Copyright (C) ARDUINO SRL (http://www.arduino.cc)
-//
-// SPDX-License-Identifier: MPL-2.0
-
 const led1ColorPicker = document.getElementById('led1-color');
 const led2ColorPicker = document.getElementById('led2-color');
 const led3ColorPicker = document.getElementById('led3-color');
