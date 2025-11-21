@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-import os
 import re
 from arduino.app_bricks.cloud_llm import CloudLLM, CloudModel
 from arduino.app_bricks.web_ui import WebUI
@@ -35,16 +34,13 @@ def generate_story(_, data):
         prompt_for_display += " Characters of the story: "
         char_prompts = []
         for i, char in enumerate(characters):
-            name = char.get('name')
-            role = char.get('role')
-            description = char.get('description') or '' # Ensure description is not None
-
-            char_prompts.append(f"Character {i+1} (<strong>{description}</strong>, <strong>{name}</strong>, <strong>{role}</strong>)")
+            ch = f"Character {i+1} (<strong>{char.get('name')}</strong>, <strong>{char.get('role')}</strong>"
+            ch += f", <strong>{char.get('description')}</strong>)" if char.get('description') else ")"
+            char_prompts.append(ch)
         prompt_for_display += ", ".join(char_prompts)
+        prompt_for_display += "."
 
-    prompt_for_display += "."
-
-    prompt_for_display += f". The story type is <strong>{theme}</strong>. The tone should be <strong>{tone}</strong>. The format should be a narrative-style story with a clear beginning, middle, and end, allowing for a smooth and engaging reading experience. The objective is to entertain and soothe the child before bedtime. Provide a brief introduction to set the scene and introduce the main character. The scope should revolve around the topic: managing emotions and conflicts. The length should be approximately <strong>{duration}</strong>. Please ensure the story has a <strong>{narrative_structure}</strong> narrative structure, leaving the child with a sense of <strong>{ending_type}</strong>. The language should be easy to understand and suitable for my child's age comprehension."
+    prompt_for_display += f" The story type is <strong>{theme}</strong>. The tone should be <strong>{tone}</strong>. The format should be a narrative-style story with a clear beginning, middle, and end, allowing for a smooth and engaging reading experience. The objective is to entertain and soothe the child before bedtime. Provide a brief introduction to set the scene and introduce the main character. The scope should revolve around the topic: managing emotions and conflicts. The length should be approximately <strong>{duration}</strong>. Please ensure the story has a <strong>{narrative_structure}</strong> narrative structure, leaving the child with a sense of <strong>{ending_type}</strong>. The language should be easy to understand and suitable for my child's age comprehension."
     if other:
         prompt_for_display += f"\n\nOther on optional stuff for the story: <strong>{other}</strong>"
 
