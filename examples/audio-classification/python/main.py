@@ -13,26 +13,14 @@ import json
 
 # Global state
 AUDIO_DIR = "/app/assets/audio"
-audio_classifier = None
-
-def get_audio_classifier():
-    """Lazy initialization of audio classifier"""
-    global audio_classifier
-    if audio_classifier is None:
-        audio_classifier = AudioClassification(mic=NO_MIC)
-    return audio_classifier
+audio_classifier = AudioClassification(mic=NO_MIC)
 
 def parse_data(data):
-    """Parse incoming data - handle both string and dict"""
     if isinstance(data, str):
-        try:
-            return json.loads(data)
-        except:
-            return {}
+        return json.loads(data)
     return data if isinstance(data, dict) else {}
 
 def on_run_classification(sid, data):
-    """Run classification"""
     parsed_data = parse_data(data)
     confidence = parsed_data.get('confidence', 0.5)
     audio_data = parsed_data.get('audio_data')
@@ -51,9 +39,8 @@ def on_run_classification(sid, data):
             input_audio = io.BytesIO(f.read())
 
     if input_audio:
-        classifier = get_audio_classifier()
         start_time = time.time() * 1000
-        results = classifier.classify_from_file(input_audio, confidence)
+        results = audio_classifier.classify_from_file(input_audio, confidence)
         diff = time.time() * 1000 - start_time
 
         response_data = { 'results': results, 'processing_time': diff }
