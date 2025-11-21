@@ -32,7 +32,7 @@
   {
     "License": "Mozilla Public License 2.0 (MPL 2.0)",
     "Name": "certifi",
-    "Version": "2025.10.5"
+    "Version": "2025.11.12"
   },
   {
     "License": "MIT",
@@ -42,7 +42,7 @@
   {
     "License": "BSD-3-Clause",
     "Name": "click",
-    "Version": "8.3.0"
+    "Version": "8.3.1"
   },
   {
     "License": "BSD-3-Clause",
