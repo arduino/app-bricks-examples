@@ -2,7 +2,7 @@
 
 The **Theremin Simulator** example lets you create and control a virtual theremin instrument using an interactive web interface, producing synthesized audio output through a connected **USB** audio device with low latency.
 
-**Note:** This example requires to be run using **[Network Mode](learn/network-mode)** or **[Single-Board Computer (SBC) Mode](learn/single-board-computer)**, since it requires a **USB-C® hub** and a **USB speaker**.
+**Note:** This example requires to be run using **Network Mode** or **Single-Board Computer (SBC)**, since it requires a **USB-C® hub** and a **USB speaker**.
 
 ![Theremin Simulator](assets/docs_assets/theremin-simulator.png)
 
