@@ -20,6 +20,10 @@ void set_led4_color(bool r, bool g, bool b) {
 
 void setup()
 {
+    pinMode(LED_BUILTIN + 3, OUTPUT);
+    pinMode(LED_BUILTIN + 4, OUTPUT);
+    pinMode(LED_BUILTIN + 5, OUTPUT);
+
     set_led3_color(0, 0, 0);
     set_led4_color(false, false, false);
 
