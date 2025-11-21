@@ -1,7 +1,6 @@
 name: Object Hunting
 icon: 🔍
 description: Detect a list of object to win the game
-
 bricks:
   - arduino:video_object_detection
   - arduino:web_ui
