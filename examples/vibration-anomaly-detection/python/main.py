@@ -14,7 +14,6 @@ ui = WebUI()
 
 vibration_detection = VibrationAnomalyDetection(anomaly_detection_threshold=1.0)
 
-@ui.on('override_th')
 def on_override_th(value: float):
     logger.info(f"Setting new anomaly threshold: {value}")
     vibration_detection.anomaly_detection_threshold = value
