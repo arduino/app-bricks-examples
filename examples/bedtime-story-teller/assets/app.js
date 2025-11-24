@@ -317,7 +317,9 @@ function resetStoryView() {
             arrow.classList.add('rotated');
             container.classList.remove('disabled');
         } else {
-            container.classList.add('disabled');
+            if (container.id !== 'prompt-container') {
+                container.classList.add('disabled');
+            }
             content.style.display = 'none';
             arrow.classList.remove('rotated');
         }
@@ -444,19 +446,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('copy-story-button').addEventListener('click', () => {
-        const storyText = document.getElementById('story-response').textContent;
-        navigator.clipboard.writeText(storyText).then(() => {
-            const copyButton = document.getElementById('copy-story-button');
-            const originalHTML = copyButton.innerHTML;
+        const storyText = document.getElementById('story-response').innerText;
+        const copyButton = document.getElementById('copy-story-button');
+        const originalHTML = copyButton.innerHTML;
+        const textarea = document.createElement('textarea');
+        textarea.value = storyText;
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            document.execCommand('copy');
             copyButton.textContent = 'Copied!';
             copyButton.disabled = true;
-            setTimeout(() => {
-                copyButton.innerHTML = originalHTML;
-                copyButton.disabled = false;
-            }, 2000);
-        }, (err) => {
+        } catch (err) {
             console.error('Could not copy text: ', err);
-        });
+        }
+        document.body.removeChild(textarea);
+
+        setTimeout(() => {
+            copyButton.innerHTML = originalHTML;
+            copyButton.disabled = false;
+        }, 2000);
     });
 
     document.getElementById('generate-randomly-button').addEventListener('click', () => {
