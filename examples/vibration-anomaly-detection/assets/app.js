@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initSocketIO();
     renderAccelerometerData(); // Initial render for accelerometer
     renderAnomalies(); // Initial render for anomalies
-    updateFeedback(false); // Initial feedback state
+    updateFeedback(null); // Initial feedback state
     initializeConfidenceSlider(); // Initialize the confidence slider
 
     // Popover logic
@@ -139,11 +139,11 @@ function handleConfidenceInputChange() {
     const confidenceInput = document.getElementById('confidenceInput');
     const confidenceSlider = document.getElementById('confidenceSlider');
 
-    let value = parseFloat(confidenceInput.value);
+    let value = parseInt(confidenceInput.value, 10);
 
-    if (isNaN(value)) value = 0.5;
-    if (value < 0) value = 0;
-    if (value > 1) value = 1;
+    if (isNaN(value)) value = 5;
+    if (value < 1) value = 1;
+    if (value > 10) value = 10;
 
     confidenceSlider.value = value;
     updateConfidenceDisplay();
@@ -151,13 +151,13 @@ function handleConfidenceInputChange() {
 
 function validateConfidenceInput() {
     const confidenceInput = document.getElementById('confidenceInput');
-    let value = parseFloat(confidenceInput.value);
+    let value = parseInt(confidenceInput.value, 10);
 
-    if (isNaN(value)) value = 0.5;
-    if (value < 0) value = 0;
-    if (value > 1) value = 1;
+    if (isNaN(value)) value = 5;
+    if (value < 1) value = 1;
+    if (value > 10) value = 10;
 
-    confidenceInput.value = value.toFixed(2);
+    confidenceInput.value = value.toFixed(0);
 
     handleConfidenceInputChange();
 }
@@ -169,10 +169,10 @@ function updateConfidenceDisplay() {
     const sliderProgress = document.getElementById('sliderProgress');
 
     const value = parseFloat(confidenceSlider.value);
-    socket.emit('override_th', value); // Send confidence to backend
+    socket.emit('override_th', value / 10); // Send scaled confidence to backend (0.1 to 1.0)
     const percentage = (value - confidenceSlider.min) / (confidenceSlider.max - confidenceSlider.min) * 100;
 
-    const displayValue = value.toFixed(2);
+    const displayValue = value.toFixed(0);
     confidenceValueDisplay.textContent = displayValue;
 
     if (document.activeElement !== confidenceInput) {
@@ -187,8 +187,8 @@ function resetConfidence() {
     const confidenceSlider = document.getElementById('confidenceSlider');
     const confidenceInput = document.getElementById('confidenceInput');
 
-    confidenceSlider.value = '0.5';
-    confidenceInput.value = '0.50';
+    confidenceSlider.value = '5';
+    confidenceInput.value = '5';
     updateConfidenceDisplay();
 }
 
@@ -200,7 +200,13 @@ function initSocketIO() {
         }
         printAnomalies(message);
         renderAnomalies();
-        updateFeedback(true);
+        try {
+            const parsedAnomaly = JSON.parse(message);
+            updateFeedback(parsedAnomaly.score); // Pass the anomaly score
+        } catch (e) {
+            console.error("Failed to parse anomaly message for feedback:", message, e);
+            updateFeedback(null); // Fallback to no anomaly feedback
+        }
     });
 
     socket.on('sample', (s) => {
@@ -225,7 +231,7 @@ function initSocketIO() {
 
 // ... (existing printAnomalies and renderAnomalies functions)
 
-function updateFeedback(hasAnomaly) {
+function updateFeedback(anomalyScore = null) {
     clearTimeout(feedbackTimeout); // Clear any existing timeout
 
     if (!hasDataFromBackend) {
@@ -238,21 +244,20 @@ function updateFeedback(hasAnomaly) {
         return;
     }
 
-    if (hasAnomaly) {
+    if (anomalyScore !== null) { // Anomaly detected
         feedbackContentWrapper.innerHTML = `
             <div class="feedback-content">
-                <img src="./img/good.svg" alt="Anomaly Detected">
-                <p class="feedback-text">Anomaly Detected!</p>
+                <img src="./img/bad.svg" alt="Anomaly Detected">
+                <p class="feedback-text">Anomaly detected: ${anomalyScore.toFixed(2)}</p>
             </div>
         `;
-        // Reset to "No anomalies" state after 3 seconds
         feedbackTimeout = setTimeout(() => {
-            updateFeedback(false);
+            updateFeedback(null); // Reset after 3 seconds
         }, 3000);
-    } else {
+    } else { // No anomaly or reset
         feedbackContentWrapper.innerHTML = `
             <div class="feedback-content">
-                <img src="./img/bad.svg" alt="No Anomalies">
+                <img src="./img/good.svg" alt="No Anomalies">
                 <p class="feedback-text">No anomalies</p>
             </div>
         `;
@@ -285,25 +290,22 @@ function renderAnomalies() {
                 return; // Skip empty anomaly objects
             }
 
-            const row = document.createElement('div');
-            row.className = 'anomaly-container'; // Using a new class for styling
+            const listItem = document.createElement('li');
+            listItem.className = 'anomaly-list-item';
 
-            const cellContainer = document.createElement('span');
-            cellContainer.className = 'anomaly-cell-container';
+            const score = parsedAnomaly.score.toFixed(1);
+            const date = new Date(parsedAnomaly.timestamp);
 
-            const scoreText = document.createElement('span');
-            scoreText.className = 'anomaly-content';
-            const value = parsedAnomaly.score; // Assuming 'score' is a property
-            scoreText.innerHTML = `Anomaly Score: ${value.toFixed(2)}`;
+            const timeString = date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const dateString = date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, ' ');
 
-            const timeText = document.createElement('span');
-            timeText.className = 'anomaly-content-time';
-            timeText.textContent = new Date(parsedAnomaly.timestamp).toLocaleString('it-IT').replace(',', ' -'); // Assuming 'timestamp' property
+            listItem.innerHTML = `
+                <span class="anomaly-score">${score}</span>
+                <span class="anomaly-text">Anomaly</span>
+                <span class="anomaly-time">${timeString} - ${dateString}</span>
+            `;
 
-            cellContainer.appendChild(scoreText);
-            cellContainer.appendChild(timeText);
-            row.appendChild(cellContainer);
-            recentAnomaliesElement.appendChild(row);
+            recentAnomaliesElement.appendChild(listItem);
 
         } catch (e) {
             console.error("Failed to parse anomaly data:", anomaly, e);

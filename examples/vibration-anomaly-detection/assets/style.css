@@ -441,3 +441,22 @@ body {
 .btn-tertiary:hover .reset-icon {
     opacity: 1;
 }
+
+.anomaly-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid #DAE3E3;
+}
+.anomaly-score {
+    font-weight: bold;
+    color: #b00020; /* Red color for score */
+}
+.anomaly-text {
+    /* Style for 'Anomaly' text if needed */
+}
+.anomaly-time {
+    color: #5D6A6B; /* Grey for time */
+    font-size: 11px;
+}
