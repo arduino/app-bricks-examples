@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (C) 2025 ARDUINO SA <http://www.arduino.cc>
+# SPDX-FileCopyrightText: Copyright (C) ARDUINO SRL (http://www.arduino.cc)
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -231,14 +231,5 @@ ui.on_message('client_connected', on_client_connected)
 # Provide the LED state function to the Arduino sketch
 Bridge.provide("get_led_state", get_led_state)
 
-# Start game loop in separate thread
-game_thread = threading.Thread(target=game_loop, daemon=True)
-game_thread.start()
-
 # Run the app
-try:
-    App.run()
-except KeyboardInterrupt:
-    game_running = False
-    if game_thread:
-        game_thread.join()
+App.run(user_loop=game_loop)

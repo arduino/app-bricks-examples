@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (C) 2025 ARDUINO SA <http://www.arduino.cc>
+ * SPDX-FileCopyrightText: Copyright (C) ARDUINO SRL (http://www.arduino.cc)
  *
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -46,6 +46,17 @@ body {
 }
 
 .column-title {
+    font-family: "Open Sans";
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 160%;
+    letter-spacing: 0.16px;
+    color: white;
+    margin-bottom: 16px;
+}
+
+.modal-body-title {
     font-family: "Open Sans";
     font-size: 16px;
     font-style: normal;
@@ -144,14 +155,12 @@ body {
 .parameter-header {
     display: flex;
     align-items: center;
-}
+    gap: 8px;
 
-.parameter-header .parameter-title {
-    margin-right: 8px; /* Gap between title and optional text/selected value */
 }
 
 .parameter-header .arrow-icon {
-    margin-left: auto; /* Push the arrow to the far right */
+    margin-left: auto;
     margin-right: 4px;
 }
 
@@ -159,7 +168,7 @@ body {
     font-size: 14px;
     font-style: normal;
     font-weight: 700;
-    line-height: 160%; /* 22.4px */
+    line-height: 160%;
     letter-spacing: 0.14px;
     color: #2C353A;
     margin: 0;
@@ -167,6 +176,7 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     flex-shrink: 0;
+    font-family: "Open Sans";
 }
 
 .arrow-icon {
@@ -202,12 +212,12 @@ body {
     padding: 4px 12px;
     white-space: nowrap;
     cursor: pointer;
-    display: inline-flex; /* Use inline-flex for alignment */
-    align-items: center; /* Center items vertically */
+    display: inline-flex;
+    align-items: center;
 }
 
 .chip img {
-    margin-right: 8px; /* 8px gap */
+    margin-right: 8px;
 }
 
 .chip.selected {
@@ -223,10 +233,10 @@ body {
     padding: 2px 8px;
     border: 1px solid #C9D2D2;
     border-radius: 4px;
-    background: #FFF;
-    margin: 4px;
+    margin: 0px 4px 4px 0px;
     font-size: 12px;
     font-weight: 600;
+    white-space: nowrap;
 }
 
 .selection-pill img {
@@ -247,7 +257,7 @@ body {
     font-size: 12px;
     font-weight: 600;
     color: #2C353A;
-    margin-left: 8px; /* Add some space from the title */
+    margin-left: 8px;
 }
 
 .selected-value img {
@@ -266,6 +276,18 @@ body {
     font-weight: 400;
     line-height: 160%;
     letter-spacing: 0.12px;
+    align-items: center;
+    gap: 4px;
+}
+
+.story-type-selections {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+    display: inline-block;
+    vertical-align: middle;
+    flex: 1;
 }
 
 .paragraph-title {
@@ -288,8 +310,8 @@ body {
     padding: 8px;
     font-family: "Open Sans";
     font-size: 12px;
-    resize: vertical; /* Allow vertical resize */
-    box-sizing: border-box; /* Fix padding issue */
+    resize: vertical;
+    box-sizing: border-box;
 }
 
 .char-counter {
@@ -317,9 +339,14 @@ body {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    margin-top: 16px; /* Space from the last parameter container */
-    margin-left: auto; /* Push to the right */
-    width: fit-content; /* Make it not full width */
+    margin-top: 16px;
+    margin-left: auto;
+    width: fit-content;
+}
+
+.generate-story-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .story-output-placeholder {
@@ -327,9 +354,9 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100%; /* Take full height of parent */
+    height: 100%;
     text-align: center;
-    color: white; /* Text color */
+    color: white;
     font-family: "Open Sans";
     font-size: 16px;
     font-weight: 600;
@@ -451,7 +478,7 @@ body {
 }
 
 #loading-spinner {
-    margin: 20px auto; /* Center it */
+    margin: 20px auto;
 }
 
 #story-response-area {
@@ -495,7 +522,6 @@ body {
     gap: 8px;
 }
 
-/* Modal styles */
 .modal {
     position: fixed;
     z-index: 10;
@@ -549,7 +575,6 @@ body {
 }
 
 .modal-body {
-    padding: 15px 0;
     text-align: center;
 }
 
@@ -564,6 +589,7 @@ body {
     font-size: 14px !important;
     font-style: normal !important;
     font-weight: 400 !important;
+    text-align: center !important;
 }
 
 .modal-footer {
@@ -613,13 +639,25 @@ body {
     line-height: 1.6;
     white-space: pre-wrap;
     overflow-y: auto;
+    max-height: 60vh; /* Added for fixed height and scrollbar */
+}
+
+#prompt-display strong {
+    color: #008184;
+    font-weight: bold;
 }
 
 .response-content strong {
-    color: #25C2C7; /* Highlight color for parameters */
+    color: #25C2C7;
 }
 
+.story-type-paragraph {
+    margin-bottom: 8px;
+}
 
+.response-title {
+    margin-bottom: 8px;
+}
 
 #story-container .response-title,
 #story-container .response-content {
@@ -637,6 +675,13 @@ body {
     display: inline-block;
     vertical-align: middle;
 }
+
+.button-spinner.spinner {
+    width: 20px;
+    height: 20px;
+    border-width: 2px;
+    margin: 0;
+}
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
@@ -650,14 +695,38 @@ body {
 
 @media (max-width: 1024px) {
     .main-content {
-        flex-direction: column;
-        align-items: center;
+        grid-template-columns: 1fr;
         gap: 24px;
     }
 
-    .container {
-        max-width: 800px;
-        width: 90%;
+    .main-content > .column-title:nth-child(1) {
+        grid-row: 1;
+    }
+
+    .main-content > .container {
+        grid-row: 2;
+        grid-column: 1;
+        max-width: none;
+        width: 100%;
+        padding: 0;
+    }
+
+    .your-story-header {
+        grid-row: 3;
+        grid-column: 1;
+    }
+
+
+
+    .story-output-container {
+        grid-row: 4;
+        grid-column: 1;
+        padding: 0;
+        border: none;
+    }
+
+    .main-content > div:nth-child(2) {
+        display: none;
     }
 }
 
@@ -700,4 +769,27 @@ body {
     #rescanButton {
         font-size: 12px;
     }
+}
+
+/* Story Response Styling */
+#story-response {
+    white-space: normal;
+}
+
+#story-response h1,
+#story-response h2 {
+    margin-top: 0;
+    margin-bottom: 0.8em;
+}
+
+#story-response p {
+    margin: 0 0 8px 0;
+}
+
+#story-response::-webkit-scrollbar {
+    width: 8px;
+}
+
+#story-response::-webkit-scrollbar-track {
+    background-color: transparent;
 }

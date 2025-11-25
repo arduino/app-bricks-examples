@@ -1,21 +1,61 @@
-// SPDX-FileCopyrightText: Copyright (C) 2025 ARDUINO SA <http://www.arduino.cc>
+// SPDX-FileCopyrightText: Copyright (C) ARDUINO SRL (http://www.arduino.cc)
 //
 // SPDX-License-Identifier: MPL-2.0
 
 const socket = io(`http://${window.location.host}`);
 
+let generateStoryButtonOriginalHTML = ''; // To store the original content of the generate story button
+let storyBuffer = '';
+
 
 
 function initSocketIO() {
-    socket.on('response', (data) => {
-        document.getElementById('story-container').style.display = 'flex';
-        const storyResponse = document.getElementById('story-response');
-        storyResponse.textContent = data;
-        document.getElementById('loading-spinner').style.display = 'none';
-        const clearStoryButton = document.getElementById('clear-story-button');
-        clearStoryButton.style.display = 'block';
-        clearStoryButton.disabled = false;
+    socket.on('prompt', (data) => {
+        const promptContainer = document.getElementById('prompt-container');
+        const promptDisplay = document.getElementById('prompt-display');
+        promptDisplay.innerHTML = data;
+        promptContainer.style.display = 'block';
     });
+
+        socket.on('response', (data) => {
+
+            document.getElementById('story-container').style.display = 'flex';
+
+            storyBuffer += data;
+
+        });
+
+    
+
+        socket.on('stream_end', () => {
+
+            const storyResponse = document.getElementById('story-response');
+
+            storyResponse.innerHTML = storyBuffer;
+
+            
+
+            document.getElementById('loading-spinner').style.display = 'none';
+
+            const clearStoryButton = document.getElementById('clear-story-button');
+
+            clearStoryButton.style.display = 'block';
+
+            clearStoryButton.disabled = false;
+
+    
+
+            const generateStoryButton = document.querySelector('.generate-story-button');
+
+            if (generateStoryButton) {
+
+                generateStoryButton.disabled = false;
+
+                generateStoryButton.innerHTML = generateStoryButtonOriginalHTML; // Restore original content
+
+            }
+
+        });
 }
 
 function unlockAndOpenNext(currentContainer) {
@@ -31,6 +71,12 @@ function unlockAndOpenNext(currentContainer) {
             }
         }
     }
+}
+
+function getRandomElement(elements) {
+    if (elements.length === 0) return null;
+    const randomIndex = Math.floor(Math.random() * elements.length);
+    return elements[randomIndex];
 }
 
 function setupChipSelection(container) {
@@ -49,6 +95,13 @@ function setupChipSelection(container) {
             if (!alreadySelected) {
                 unlockAndOpenNext(container);
             }
+
+            // Collapse the current container
+            const content = container.querySelector('.parameter-content');
+            const arrow = container.querySelector('.arrow-icon');
+            content.style.display = 'none';
+            arrow.classList.remove('rotated');
+
         });
     });
 }
@@ -129,6 +182,17 @@ function checkCharactersAndUnlockNext(charactersContainer) {
 }
 
 function gatherDataAndGenerateStory() {
+    document.querySelectorAll('.parameter-container').forEach(container => {
+        const content = container.querySelector('.parameter-content');
+        if (content && content.style.display === 'block') {
+            content.style.display = 'none';
+            const arrow = container.querySelector('.arrow-icon');
+            if (arrow) {
+                arrow.classList.remove('rotated');
+            }
+        }
+    });
+
     const age = document.querySelector('.parameter-container:nth-child(1) .chip.selected')?.textContent.trim() || 'any';
     const theme = document.querySelector('.parameter-container:nth-child(2) .chip.selected')?.textContent.trim() || 'any';
     const storyTypeContainer = document.querySelector('.parameter-container:nth-child(3)');
@@ -168,9 +232,20 @@ function generateStory(data) {
     document.querySelector('.story-output-placeholder').style.display = 'none';
     const responseArea = document.getElementById('story-response-area');
     responseArea.style.display = 'flex';
+    document.getElementById('prompt-container').style.display = 'none';
+    document.getElementById('prompt-display').textContent = '';
     document.getElementById('story-container').style.display = 'none';
-    document.getElementById('loading-spinner').style.display = 'block';
-    document.getElementById('story-response').textContent = '';
+    document.getElementById('story-response').innerHTML = ''; // Use innerHTML to clear
+    storyBuffer = ''; // Reset buffer
+    document.getElementById('loading-spinner').style.display = 'block'; // Show the general loading spinner
+
+    const generateStoryButton = document.querySelector('.generate-story-button');
+    if (generateStoryButton) {
+        generateStoryButton.disabled = true;
+        // Append the spinner instead of replacing innerHTML
+        generateStoryButton.innerHTML += '<div class="button-spinner spinner"></div>';
+    }
+    
     document.getElementById('clear-story-button').style.display = 'none';
     socket.emit('generate_story', data);
 }
@@ -223,10 +298,12 @@ function resetStoryView() {
         }
     }
 
-    // Hide "Generate story" button
+    // Restore "Generate story" button to original state
     const generateStoryButton = document.querySelector('.generate-story-button');
     if (generateStoryButton) {
-        generateStoryButton.style.display = 'none';
+        generateStoryButton.style.display = 'none'; // Keep hidden if no chars, will be set to flex by checkCharactersAndUnlockNext
+        generateStoryButton.disabled = false;
+        generateStoryButton.innerHTML = generateStoryButtonOriginalHTML;
     }
 
     // Reset parameter containers state
@@ -240,7 +317,9 @@ function resetStoryView() {
             arrow.classList.add('rotated');
             container.classList.remove('disabled');
         } else {
-            container.classList.add('disabled');
+            if (container.id !== 'prompt-container') {
+                container.classList.add('disabled');
+            }
             content.style.display = 'none';
             arrow.classList.remove('rotated');
         }
@@ -249,6 +328,11 @@ function resetStoryView() {
 
 document.addEventListener('DOMContentLoaded', () => {
     initSocketIO();
+
+    const generateStoryButton = document.querySelector('.generate-story-button');
+    if (generateStoryButton) {
+        generateStoryButtonOriginalHTML = generateStoryButton.innerHTML; // Store original content
+    }
 
     const parameterContainers = document.querySelectorAll('.parameter-container');
 
@@ -259,7 +343,9 @@ document.addEventListener('DOMContentLoaded', () => {
             content.style.display = 'block';
             arrow.classList.add('rotated');
         } else {
-            container.classList.add('disabled');
+            if (container.id !== 'prompt-container') {
+                container.classList.add('disabled');
+            }
         }
     });
 
@@ -360,18 +446,77 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('copy-story-button').addEventListener('click', () => {
-        const storyText = document.getElementById('story-response').textContent;
-        navigator.clipboard.writeText(storyText).then(() => {
-            const copyButton = document.getElementById('copy-story-button');
-            const originalHTML = copyButton.innerHTML;
+        const storyText = document.getElementById('story-response').innerText;
+        const copyButton = document.getElementById('copy-story-button');
+        const originalHTML = copyButton.innerHTML;
+        const textarea = document.createElement('textarea');
+        textarea.value = storyText;
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            document.execCommand('copy');
             copyButton.textContent = 'Copied!';
             copyButton.disabled = true;
-            setTimeout(() => {
-                copyButton.innerHTML = originalHTML;
-                copyButton.disabled = false;
-            }, 2000);
-        }, (err) => {
+        } catch (err) {
             console.error('Could not copy text: ', err);
-        });
+        }
+        document.body.removeChild(textarea);
+
+        setTimeout(() => {
+            copyButton.innerHTML = originalHTML;
+            copyButton.disabled = false;
+        }, 2000);
+    });
+
+    document.getElementById('generate-randomly-button').addEventListener('click', () => {
+        // Age
+        const ageChips = document.querySelectorAll('.parameter-container:nth-child(1) .chip');
+        const randomAgeChip = getRandomElement(ageChips);
+        const age = randomAgeChip ? randomAgeChip.textContent.trim() : 'any';
+
+        // Theme
+        const themeChips = document.querySelectorAll('.parameter-container:nth-child(2) .chip');
+        const randomThemeChip = getRandomElement(themeChips);
+        const theme = randomThemeChip ? randomThemeChip.textContent.trim() : 'any';
+
+        // Story Type
+        const storyTypeContainer = document.querySelector('.parameter-container:nth-child(3)');
+        
+        // Tone
+        const toneChips = storyTypeContainer.querySelectorAll('.story-type-paragraph:nth-child(1) .chip');
+        const randomToneChip = getRandomElement(toneChips);
+        const tone = randomToneChip ? randomToneChip.textContent.trim() : 'any';
+
+        // Ending type
+        const endingTypeChips = storyTypeContainer.querySelectorAll('.story-type-paragraph:nth-child(2) .chip');
+        const randomEndingTypeChip = getRandomElement(endingTypeChips);
+        const endingType = randomEndingTypeChip ? randomEndingTypeChip.textContent.trim() : 'any';
+        
+        // Narrative structure
+        const narrativeStructureChips = storyTypeContainer.querySelectorAll('.story-type-paragraph:nth-child(3) .chip');
+        const randomNarrativeStructureChip = getRandomElement(narrativeStructureChips);
+        const narrativeStructure = randomNarrativeStructureChip ? randomNarrativeStructureChip.textContent.trim() : 'any';
+
+        // Duration
+        const durationChips = storyTypeContainer.querySelectorAll('.story-type-paragraph:nth-child(4) .chip');
+        const randomDurationChip = getRandomElement(durationChips);
+        const duration = randomDurationChip ? randomDurationChip.textContent.trim() : 'any';
+
+        // Characters and Other will be empty for random generation.
+        const characters = [];
+        const other = '';
+
+        const storyData = {
+            age,
+            theme,
+            tone,
+            endingType,
+            narrativeStructure,
+            duration,
+            characters,
+            other,
+        };
+
+        generateStory(storyData);
     });
 });
