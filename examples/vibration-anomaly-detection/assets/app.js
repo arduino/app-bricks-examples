@@ -4,12 +4,11 @@
 
 const canvas = document.getElementById('plot');
 const ctx = canvas.getContext('2d');
-const width = canvas.width, height = canvas.height;
 const maxSamples = 200;
 const samples = [];
 let errorContainer;
 
-const recentAnomaliesElement = document.getElementById('recentClassifications'); // Renamed to recentAnomaliesElement but ID is recentClassifications
+const recentAnomaliesElement = document.getElementById('recentClassifications');
 let anomalies = [];
 const MAX_RECENT_ANOMALIES = 5;
 
@@ -21,29 +20,33 @@ const noAccelerometerDataPlaceholder = document.getElementById('no-accelerometer
 function drawPlot() {
   if (!hasDataFromBackend) return; // Only draw if we have data
 
-  // clear
-  // ctx.fillStyle = '#fff';
-  // ctx.fillRect(0,0,width,height);
+  const currentWidth = canvas.clientWidth;
+  const currentHeight = canvas.clientHeight;
+
+  if (canvas.width !== currentWidth || canvas.height !== currentHeight) {
+    canvas.width = currentWidth;
+    canvas.height = currentHeight;
+  }
 
   // All grid lines (every 0.5) - same size
-  ctx.strokeStyle = 'rgba(49, 51, 63, 0.6)';
+  ctx.strokeStyle = '#31333F99';
   ctx.lineWidth = 0.5;
   ctx.beginPath();
   for (let i=0; i<=8; i++){
-    const y = 10 + i*((height-20)/8);
+    const y = 10 + i*((currentHeight-20)/8);
     ctx.moveTo(40,y);
-    ctx.lineTo(width,y);
+    ctx.lineTo(currentWidth,y);
   }
   ctx.stroke();
 
   // Y-axis labels (-2.0 to 2.0 every 0.5)
-  ctx.fillStyle = 'rgba(49, 51, 63, 0.6)';
-  ctx.font = '12px Arial';
+  ctx.fillStyle = '#666';
+  ctx.font = '400 14px Arial';
   ctx.textAlign = 'right';
   ctx.textBaseline = 'middle';
 
   for (let i=0; i<=8; i++) {
-    const y = 10 + i*((height-20)/8);
+    const y = 10 + i*((currentHeight-20)/8);
     const value = (2.0 - i * 0.5).toFixed(1);
     ctx.fillText(value, 35, y);
   }
@@ -55,9 +58,9 @@ function drawPlot() {
     ctx.beginPath();
     for (let i=0;i<samples.length;i++){
       const s = samples[i];
-      const x = 40 + (i/(maxSamples-1))*(width-40);
+      const x = 40 + (i/(maxSamples-1))*(currentWidth-40);
       const v = s[key];
-      const y = (height/2) - (v * ((height-20)/4));
+      const y = (currentHeight/2) - (v * ((currentHeight-20)/4));
       if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
     }
     ctx.stroke();

@@ -163,6 +163,10 @@ body {
         flex-direction: column;
     }
 
+    .right-column {
+        max-width: 100%;
+    }
+
     .arduino-text {
         font-size: 14px;
     }
@@ -450,13 +454,23 @@ body {
     border-bottom: 1px solid #DAE3E3;
 }
 .anomaly-score {
-    font-weight: bold;
-    color: #b00020; /* Red color for score */
+    font-weight: normal;
+    color: #2C353A;
+    font-size: 12px;
 }
 .anomaly-text {
-    /* Style for 'Anomaly' text if needed */
+    color: #2C353A;
+    font-size: 12px;
 }
 .anomaly-time {
-    color: #5D6A6B; /* Grey for time */
-    font-size: 11px;
+    color: #2C353A;
+    font-size: 12px;
+}
+#accelerometer-data-display {
+    margin-top: 20px;
+}
+
+#plot {
+    width: 100%;
+    height: 250px;
 }
