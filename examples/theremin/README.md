@@ -8,7 +8,7 @@ The **Theremin Simulator** example lets you create and control a virtual theremi
 
 This App creates a virtual instrument that generates real-time audio by creating sine waves at varying frequencies and amplitudes based on user input. The workflow involves receiving mouse or touch coordinates from the frontend and updating a **Wave Generator** Brick, which handles the audio synthesis, smoothing, and streaming to the **USB device** automatically.
 
-Key features include:
+**Key features include:**
 
 - Real-time audio synthesis with low latency
 - Interactive web interface for pitch and volume control
