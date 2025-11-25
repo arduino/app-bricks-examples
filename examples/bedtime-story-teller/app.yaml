@@ -1,0 +1,9 @@
+name: Bedtime story teller
+icon: 🏰
+description:
+  This example shows how to create a bedtime story teller using Arduino.
+  It uses a cloud-based language model to generate a story based on user input and shows the story on a web interface.
+
+bricks:
+  - arduino:cloud_llm
+  - arduino:web_ui
