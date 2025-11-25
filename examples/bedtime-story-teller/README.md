@@ -39,9 +39,11 @@ This example requires a valid API Key from an LLM provider (Google Gemini, OpenA
 
 1. **Duplicate the Example**
    Since built-in examples are read-only, you must duplicate this App to edit the configuration. Click the arrow next to the App name and select **Duplicate** or click the **Copy and edit app** button on the top right corner of the App page.
+   ![Duplicate example](assets/docs_assets/duplicate-app.png)
 
 2. **Open Brick Configuration**
    On the App page, locate the **Bricks** section on the left. Click on the **Cloud LLM** Brick, then click the **Brick Configuration** button on the right side of the screen.
+   ![Open Brick Configuration](assets/docs_assets/brick-config.png)
 
 3. **Add API Key**
    In the configuration panel, enter your API Key (e.g., your Google AI Studio key) into the corresponding field. This securely saves your credentials for the App to use.
