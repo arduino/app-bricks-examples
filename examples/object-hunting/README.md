@@ -10,7 +10,7 @@ The **Object Hunting Game** is an interactive scavenger hunt that uses real-time
 
 This App creates an interactive game that recognizes real-world objects. It utilizes the `video_objectdetection` Brick to stream video from a USB webcam and perform continuous inference using the **YoloX Nano** model. The web interface challenges the user to find five specific items: **Book, Bottle, Chair, Cup, and Cell Phone**.
 
-Key features include:
+**Key features include:**
 
 - Real-time video streaming and object recognition
 - Interactive checklist that updates automatically when items are found
