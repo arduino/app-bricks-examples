@@ -47,9 +47,11 @@ This example requires a valid API Key from an LLM provider (Google Gemini, OpenA
 
 3. **Add API Key**
    In the configuration panel, enter your API Key (e.g., your Google AI Studio key) into the corresponding field. This securely saves your credentials for the App to use.
+   ![Enter your API KEY](assets/docs_assets/brick-credentials.png)
 
 4. **Run the App**
    Launch the App by clicking the **Play** button in the top right corner. Wait for the App to start.
+   ![Launch the App](assets/docs_assets/launch-app.png)
 
 5. **Access the Web Interface**
    Open the App in your browser at `<UNO-Q-IP-ADDRESS>:7000`.
