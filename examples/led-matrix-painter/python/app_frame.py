@@ -146,7 +146,7 @@ class AppFrame(Frame):
         Returns:
             str: C source fragment containing a const array initializer.
         """
-        c_type = "uint8_t"
+        c_type = "uint32_t"
         scaled_arr = self.rescale_quantized_frame(scale_max=255)
 
         parts = [f"const {c_type} {self.name}[] = {{"]
