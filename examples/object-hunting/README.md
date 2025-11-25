@@ -43,7 +43,7 @@ The object hunting game example uses the following Bricks:
 
 1. **Hardware Setup**
    Connect your **USB Webcam** to a powered **USB-C® hub** attached to the UNO Q. Ensure the hub is powered to support the camera.
-     ![Hardware setup](assets/docs_assets/hardware-setup.png)
+   ![Hardware setup](assets/docs_assets/hardware-setup.png)
 
 2. **Run the App**
    Launch the App from Arduino App Lab.
