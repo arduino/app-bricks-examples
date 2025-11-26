@@ -18,7 +18,7 @@ def generate_secret() -> str:
 secret = generate_secret()
 
 ui = WebUI(use_ssl=True)
-camera = Camera("ws://0.0.0.0:8080", secret=secret)
+camera = Camera("ws://0.0.0.0:8080", secret=secret, enable_encryption=True)
 
 ui.on_connect(lambda sid: ui.send_message("welcome", {"secret": secret, "status": camera.status, "protocol": camera.protocol, "ip": camera.ip, "port": camera.port}))
 camera.on_status_changed(lambda evt_type, data: ui.send_message(evt_type, data))
