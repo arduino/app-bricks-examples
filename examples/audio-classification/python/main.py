@@ -4,7 +4,7 @@
 
 from arduino.app_utils import *
 from arduino.app_bricks.web_ui import WebUI
-from arduino.app_bricks.audio_classification import AudioClassification, NO_MIC
+from arduino.app_bricks.audio_classification import AudioClassification
 import time
 import os
 import io
@@ -13,7 +13,6 @@ import json
 
 # Global state
 AUDIO_DIR = "/app/assets/audio"
-audio_classifier = AudioClassification(mic=NO_MIC)
 
 def parse_data(data):
     if isinstance(data, str):
@@ -40,7 +39,7 @@ def on_run_classification(sid, data):
 
     if input_audio:
         start_time = time.time() * 1000
-        results = audio_classifier.classify_from_file(input_audio, confidence)
+        results = AudioClassification.classify_from_file(input_audio, confidence)
         diff = time.time() * 1000 - start_time
 
         response_data = { 'results': results, 'processing_time': diff }
