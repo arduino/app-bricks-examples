@@ -76,7 +76,7 @@ function updateDisplay() {
         // Webcam is connected but not streaming - show QR code
         qrPlaceholder.style.display = 'flex';
         if (webcamState.secret) {
-            generateQRCode(webcamState.secret);
+            generateQRCode(webcamState.secret, webcamState.protocol, webcamState.ip, webcamState.port);
         }
     } else {
         // Webcam is disconnected - show paused placeholder
@@ -103,7 +103,7 @@ function setupIframeLoading() {
     iframeLoadIntervalId = setInterval(startLoading, 1000);
 }
 
-function generateQRCode(secret) {
+function generateQRCode(secret, protocol, ip, port) {
     const qrCodeContainer = document.getElementById('qrCodeContainer');
     const qrSecretText = document.getElementById('qrSecretText');
 
@@ -111,7 +111,7 @@ function generateQRCode(secret) {
     qrSecretText.textContent = '';
 
     new QRCode(qrCodeContainer, {
-        text: "https://cloud.arduino.cc/installmobileapp?otp=" + secret,
+        text: `https://cloud.arduino.cc/installmobileapp?otp=${secret}&protocol=${protocol}&ip=${ip}&port=${port}`,
         width: 256,
         height: 256,
         colorDark: "#000000",
