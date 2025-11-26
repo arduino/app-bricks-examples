@@ -687,6 +687,14 @@ body {
     100% { transform: rotate(360deg); }
 }
 
+.error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    margin-top: 20px;
+    border-radius: 5px;
+    text-align: center;
+}
 
 
 /*
@@ -791,5 +799,10 @@ body {
 }
 
 #story-response::-webkit-scrollbar-track {
-    background-color: transparent;
+    background-color: #ECF1F1;
+}
+
+#story-response::-webkit-scrollbar-thumb {
+    background-color: #C9D2D2;
+    border-radius: 4px;
 }
