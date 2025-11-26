@@ -7,55 +7,83 @@ const socket = io(`http://${window.location.host}`);
 let generateStoryButtonOriginalHTML = ''; // To store the original content of the generate story button
 let storyBuffer = '';
 
+// Error container elements
+const errorContainer = document.getElementById('error-container');
 
+function showError(message) {
+    errorContainer.textContent = message;
+    errorContainer.style.display = 'block';
+}
+
+function hideError() {
+    errorContainer.style.display = 'none';
+    errorContainer.textContent = '';
+}
+
+
+function handlePrompt(data) {
+    const promptContainer = document.getElementById('prompt-container');
+    const promptDisplay = document.getElementById('prompt-display');
+    promptDisplay.innerHTML = data;
+    promptContainer.style.display = 'block';
+}
+
+function handleResponse(data) {
+    document.getElementById('story-container').style.display = 'flex';
+    storyBuffer += data;
+}
+
+function handleStreamEnd() {
+    hideError(); // Hide any errors on successful stream end
+
+    const storyResponse = document.getElementById('story-response');
+    storyResponse.innerHTML = storyBuffer;
+
+    document.getElementById('loading-spinner').style.display = 'none';
+    const clearStoryButton = document.getElementById('clear-story-button');
+    clearStoryButton.style.display = 'block';
+    clearStoryButton.disabled = false;
+
+    const generateStoryButton = document.querySelector('.generate-story-button');
+    if (generateStoryButton) {
+        generateStoryButton.disabled = false;
+        generateStoryButton.innerHTML = generateStoryButtonOriginalHTML; // Restore original content
+    }
+}
+
+function handleStoryError(data) {
+    // Hide the loading spinner
+    document.getElementById('loading-spinner').style.display = 'none';
+
+    // Restore the generate story button
+    const generateStoryButton = document.querySelector('.generate-story-button');
+    if (generateStoryButton) {
+        generateStoryButton.disabled = false;
+        generateStoryButton.innerHTML = generateStoryButtonOriginalHTML;
+    }
+
+    // Display the error message in the dedicated error container
+    showError(`An error occurred while generating the story: ${data.error}`);
+
+    // Also show the "New story" button to allow the user to restart
+    const clearStoryButton = document.getElementById('clear-story-button');
+    clearStoryButton.style.display = 'block';
+    clearStoryButton.disabled = false;
+}
 
 function initSocketIO() {
-    socket.on('prompt', (data) => {
-        const promptContainer = document.getElementById('prompt-container');
-        const promptDisplay = document.getElementById('prompt-display');
-        promptDisplay.innerHTML = data;
-        promptContainer.style.display = 'block';
+    socket.on('prompt', handlePrompt);
+    socket.on('response', handleResponse);
+    socket.on('stream_end', handleStreamEnd);
+    socket.on('story_error', handleStoryError);
+
+    socket.on('connect', () => {
+        hideError(); // Clear any previous errors on successful connection
     });
 
-        socket.on('response', (data) => {
-
-            document.getElementById('story-container').style.display = 'flex';
-
-            storyBuffer += data;
-
-        });
-
-    
-
-        socket.on('stream_end', () => {
-
-            const storyResponse = document.getElementById('story-response');
-
-            storyResponse.innerHTML = storyBuffer;
-
-            
-
-            document.getElementById('loading-spinner').style.display = 'none';
-
-            const clearStoryButton = document.getElementById('clear-story-button');
-
-            clearStoryButton.style.display = 'block';
-
-            clearStoryButton.disabled = false;
-
-    
-
-            const generateStoryButton = document.querySelector('.generate-story-button');
-
-            if (generateStoryButton) {
-
-                generateStoryButton.disabled = false;
-
-                generateStoryButton.innerHTML = generateStoryButtonOriginalHTML; // Restore original content
-
-            }
-
-        });
+    socket.on('disconnect', () => {
+        showError("Connection to backend lost. Please refresh the page or check the backend server.");
+    });
 }
 
 function unlockAndOpenNext(currentContainer) {
@@ -229,6 +257,7 @@ function gatherDataAndGenerateStory() {
 }
 
 function generateStory(data) {
+    hideError(); // Hide any errors when starting a new generation
     document.querySelector('.story-output-placeholder').style.display = 'none';
     const responseArea = document.getElementById('story-response-area');
     responseArea.style.display = 'flex';
@@ -251,6 +280,7 @@ function generateStory(data) {
 }
 
 function resetStoryView() {
+    hideError(); // Hide any errors when resetting view
     document.querySelector('.story-output-placeholder').style.display = 'flex';
     const responseArea = document.getElementById('story-response-area');
     responseArea.style.display = 'none';
@@ -469,6 +499,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('generate-randomly-button').addEventListener('click', () => {
+        hideError(); // Hide any errors when starting a new generation
         // Age
         const ageChips = document.querySelectorAll('.parameter-container:nth-child(1) .chip');
         const randomAgeChip = getRandomElement(ageChips);
