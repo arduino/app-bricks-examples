@@ -6,7 +6,7 @@ The **Fan Vibration Monitoring** example creates a smart vibration detector that
 
 ## Description
 
-Monitor the physical status of a fan in real-time. This example uses a Modulino sensor to capture acceleration data and a dedicated software brick to detect vibration anomalies. 
+Monitor the physical status of a fan in real-time. This example uses a Modulino Movement to capture acceleration data and a dedicated Brick to detect vibration anomalies. 
 
 Unlike simple threshold detectors, this app provides:
 * **Live Data Visualization:** A real-time scrolling plot of X, Y, and Z acceleration.
@@ -26,7 +26,7 @@ The example uses the following Bricks:
 
 - Arduino UNO Q (x1)
 - Modulino Movement (LSM6DSOX) (x1)
-- Modulino Base and Cables
+- Qwiic Cable (x1)
 - USB-C® to USB-A Cable (x1)
 
 ### Software
@@ -37,7 +37,7 @@ The example uses the following Bricks:
 
 ## How to Use the Example
 
-1. Connect the Modulino Movement sensor to the Arduino UNO Q via the Modulino Base.
+1. Connect the Modulino Movement sensor to the Arduino UNO Q via the Qwiic connector.
 2. Run the App.
 3. Open the App on your browser.
 4. Observe the **Accelerometer Data** chart to see the live vibration waveforms.
@@ -50,15 +50,15 @@ Here is a brief explanation of the full-stack application:
 
 ### 🔧 Backend (main.py)
 
-- Initializes the `VibrationAnomalyDetection` brick.
+- Initializes the `vibration_anomaly_detection` Brick.
 - Receives raw sensor data via `Bridge`, converts it from gravity units ($g$) to acceleration ($m/s^2$), and forwards it to the UI for plotting.
-- Accumulates samples in the detection brick.
+- Accumulates samples in the detection Brick.
 - Listens for threshold overrides from the UI to update the detection sensitivity in real-time.
 - Broadcasts anomaly alerts containing the anomaly score and timestamp.
 
 ### 💻 Frontend (index.html + app.js)
 
-- **Real-time Plotting:** Uses an HTML5 Canvas to draw the live X, Y, Z acceleration waveforms at 60fps.
+- **Real-time Plotting:** Uses an HTML5 Canvas to draw the live X, Y, Z acceleration waveforms.
 - **Interactive Controls:** Sends slider values to the backend to tune the algorithm parameters.
 - **Alert System:** visualizes anomalies with status icons and maintains a chronological list of recent detections.
 
@@ -96,19 +96,19 @@ Once the application is running, you can access it from your web browser. At tha
     ```python
     def record_sensor_movement(x: float, y: float, z: float):
         try:
-            # Convert g -> m/s^2 for the detector and UI
+            # Convert g -> m/s^2 for the detector
             x_ms2 = x * 9.81
             y_ms2 = y * 9.81
             z_ms2 = z * 9.81
 
-            # Forward data to UI for the live plot
+            # Forward raw data to UI for plotting
             ui.send_message('sample', {'x': x_ms2, 'y': y_ms2, 'z': z_ms2})
 
-            # Forward samples to the vibration_detection brick for analysis
+            # Forward samples to the vibration_detection Brick
             vibration_detection.accumulate_samples((x_ms2, y_ms2, z_ms2))
 
         except Exception as e:
-            logger.exception(f"Error: {e}")
+            logger.exception(f"record_sensor_movement: Error: {e}")
     ```
 
 - **Handling Dynamic Thresholds.**
