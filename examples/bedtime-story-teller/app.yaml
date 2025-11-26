@@ -5,5 +5,5 @@ description:
   It uses a cloud-based language model to generate a story based on user input and shows the story on a web interface.
 
 bricks:
-  - arduino:cloud_llm:
+  - arduino:cloud_llm
   - arduino:web_ui
