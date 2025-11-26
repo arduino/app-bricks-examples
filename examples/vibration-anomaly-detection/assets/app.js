@@ -27,7 +27,8 @@ function drawPlot() {
     canvas.width = currentWidth;
     canvas.height = currentHeight;
   }
-
+  // Clear the canvas before drawing the new frame!
+  ctx.clearRect(0, 0, currentWidth, currentHeight);
   // All grid lines (every 0.5) - same size
   ctx.strokeStyle = '#31333F99';
   ctx.lineWidth = 0.5;
