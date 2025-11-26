@@ -6,5 +6,4 @@ description:
 
 bricks:
   - arduino:cloud_llm:
-        API_KEY: <API_KEY>
   - arduino:web_ui
