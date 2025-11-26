@@ -50,7 +50,7 @@ body {
 .main-content {
     display: flex;
     gap: 30px;
-    align-items: stretch;
+    align-items: flex-start;
 }
 
 /*
@@ -260,6 +260,7 @@ body {
     align-items: center;
     justify-content: center;
     gap: 8px;
+    min-height: 64px;
 }
 
 .feedback-text {

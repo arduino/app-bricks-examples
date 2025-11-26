@@ -48,7 +48,7 @@ function drawPlot() {
 
   for (let i=0; i<=8; i++) {
     const y = 10 + i*((currentHeight-20)/8);
-    const value = (2.0 - i * 0.5).toFixed(1);
+    const value = (4.0 - i * 1.0).toFixed(1);
     ctx.fillText(value, 35, y);
   }
 
@@ -61,7 +61,7 @@ function drawPlot() {
       const s = samples[i];
       const x = 40 + (i/(maxSamples-1))*(currentWidth-40);
       const v = s[key];
-      const y = (currentHeight/2) - (v * ((currentHeight-20)/4));
+      const y = (currentHeight/2) - (v * ((currentHeight-20)/8));
       if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
     }
     ctx.stroke();
