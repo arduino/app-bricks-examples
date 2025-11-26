@@ -6,7 +6,7 @@ The **Bedtime Story Teller** example demonstrates how to build a generative AI a
 
 ## Description
 
-This App transforms the UNO Q into an AI storytelling assistant. It uses the `cloud_llm` Brick to connect to a cloud-based AI model  and the `web_ui` Brick to provide a rich configuration interface.
+This App transforms the UNO Q into an AI storytelling assistant. It uses the `cloud_llm` Brick to connect to a cloud-based AI model and the `web_ui` Brick to provide a rich configuration interface.
 
 The workflow allows you to craft a story by selecting specific parameters—such as the child's age, story theme, tone, and specific characters—or to let the App **generate a story randomly** for a quick surprise. The backend constructs a detailed prompt, sends it to the AI model, and streams the generated story back to the browser text-token by text-token.
 
@@ -23,7 +23,6 @@ The bedtime story teller example uses the following Bricks:
 
 - Arduino UNO Q (x1)
 - USB-C® cable (for power and programming) (x1)
-- Personal computer with internet access
 
 ### Software
 
@@ -46,7 +45,11 @@ This example requires a valid API Key from an LLM provider (Google Gemini, OpenA
    ![Open Brick Configuration](assets/docs_assets/brick-config.png)
 
 3. **Add API Key**
-   In the configuration panel, enter your API Key (e.g., your Google AI Studio key) into the corresponding field. This securely saves your credentials for the App to use.
+   In the configuration panel, enter your API Key into the corresponding field. This securely saves your credentials for the App to use. You can generate an API key from your preferred provider:
+   *   **Google Gemini:** [Get API Key](https://aistudio.google.com/app/apikey)
+   *   **OpenAI GPT:** [Get API Key](https://platform.openai.com/api-keys)
+   *   **Anthropic Claude:** [Get API Key](https://console.anthropic.com/settings/keys)
+
    ![Enter your API KEY](assets/docs_assets/brick-credentials.png)
 
 4. **Run the App**
