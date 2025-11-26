@@ -30,7 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateFeedback(null);
     renderDetections();
     updateDisplay();
-    setupIframeLoading();
 
     // Popover logic
     const confidencePopoverText = "Minimum confidence score for detected objects. Lower values show more results but may include false positives.";
@@ -71,6 +70,7 @@ function updateDisplay() {
 
     if (webcamState.status == "streaming") {
         // Webcam is streaming - show video iframe
+        dynamicIframe.src = streamUrl;
         dynamicIframe.style.display = 'block';
     } else if (webcamState.status != "connected") {
         // Webcam is connected but not streaming - show QR code
@@ -82,25 +82,6 @@ function updateDisplay() {
         // Webcam is disconnected - show paused placeholder
         videoPausedPlaceholder.style.display = 'flex';
     }
-}
-
-function setupIframeLoading() {
-    const iframe = document.getElementById('dynamicIframe');
-
-    iframe.onload = () => {
-        if (iframeLoadIntervalId) {
-            clearInterval(iframeLoadIntervalId);
-        }
-        // Display is now managed by updateDisplay() based on webcamState
-    };
-
-    const startLoading = () => {
-        // Set the src to start loading
-        iframe.src = streamUrl;
-    };
-
-    // Try to load iframe every second
-    iframeLoadIntervalId = setInterval(startLoading, 1000);
 }
 
 function generateQRCode(secret, protocol, ip, port) {
@@ -146,7 +127,6 @@ function initSocketIO() {
     socket.on('welcome', async (message) => {
         webcamState.status = message.status;
         webcamState.secret = message.secret;
-        console.dir(webcamState);
         updateDisplay();
     });
 
@@ -166,6 +146,7 @@ function initSocketIO() {
         console.log("Webcam streaming started!");
         webcamState.status = "streaming";
         updateDisplay();
+        updateConfidenceDisplay();
     });
     
     socket.on('paused', async (message) => {
@@ -304,7 +285,9 @@ function updateConfidenceDisplay() {
     const sliderProgress = document.getElementById('sliderProgress');
 
     const value = parseFloat(confidenceSlider.value);
-    socket.emit('override_th', value); // Send confidence to backend
+    if (webcamState.status === "streaming") {
+        socket.emit('override_th', value); // Send confidence to backend
+    }
     const percentage = (value - confidenceSlider.min) / (confidenceSlider.max - confidenceSlider.min) * 100;
 
     const displayValue = value.toFixed(2);
