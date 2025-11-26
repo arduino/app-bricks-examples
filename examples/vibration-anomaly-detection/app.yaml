@@ -1,0 +1,7 @@
+name: Fan Vibration Monitoring
+icon: 🌀
+description: Monitor fan vibrations and detect anomalies
+
+bricks:
+  - arduino:web_ui
+  - arduino:vibration_anomaly_detection
