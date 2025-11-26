@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-import time
 import secrets
 import string
 
@@ -19,9 +18,9 @@ def generate_secret() -> str:
 secret = generate_secret()
 
 ui = WebUI(use_ssl=True)
-camera = Camera("ws://0.0.0.0:8080")
+camera = Camera("ws://0.0.0.0:8080", secret=secret)
 
-ui.on_connect(lambda sid: ui.send_message("welcome", {"secret": secret, "status": camera.status}))
+ui.on_connect(lambda sid: ui.send_message("welcome", {"secret": secret, "status": camera.status, "protocol": camera.protocol, "ip": camera.ip, "port": camera.port}))
 camera.on_status_changed(lambda evt_type, data: ui.send_message(evt_type, data))
 
 detection = VideoObjectDetection(camera, confidence=0.5, debounce_sec=0.0)
