@@ -25,6 +25,8 @@ def on_override_th(value: float):
     logger.info(f"Setting new anomaly threshold: {value}")
     vibration_detection.anomaly_detection_threshold = value
 
+ui.on_message("override_th", lambda sid, threshold: on_override_th(threshold))
+
 def get_fan_status(anomaly_detected: bool):
     return {
         "anomaly": anomaly_detected,
