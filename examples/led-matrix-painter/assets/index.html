@@ -10,62 +10,96 @@ SPDX-License-Identifier: MPL-2.0
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>LED Matrix Painter</title>
+  <link rel="icon" type="image/png" href="img/favicon.png"/>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="body-wrapper">
+  <div class="container">
   <main>
-    <h1>LED Matrix Painter</h1>
-    <div class="layout">
-      <aside class="sidebar">
-        <div class="sidebar-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <h3 style="margin:0;font-size:0.9rem;color:#666">Frames (auto-saved)</h3>
-          <button id="new-frame" title="Create new frame" style="font-size:1.2rem;padding:4px 12px;background:#0b76ff;color:white;border:none;border-radius:4px;cursor:pointer">+</button>
+    <div class="header">
+        <div class="header-left">
+            <img src="img/RGB-Arduino-Logo_Color Inline Loop.svg" alt="Arduino Logo" class="arduino-logo" />
+            <p class="arduino-text">LED Matrix Painter</p>
         </div>
-        <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
-          <label><input type="radio" name="mode" value="frames" checked> Frames</label>
-          <label><input type="radio" name="mode" value="anim"> Animations</label>
+        <div class="header-right">
+            <div class="switch-container">
+                <label class="switch">
+                    <input type="checkbox" id="code-panel-toggle" checked>
+                    <span class="slider round"></span>
+                </label>
+                <label for="code-panel-toggle" class="switch-label">Code panel</label>
+            </div>
+            <span class="separator">|</span>
+            <button id="export">Export .h</button>
         </div>
-        <div id="anim-controls" style="display:none;gap:8px;margin-bottom:8px">
-          <input id="anim-name" placeholder="Animation name" style="flex:1;padding:6px" />
+    </div>
+    <div class="main-content">
+      <div class="left-sidebar">
+        <div class="tools-box">
+          <h3 class="box-title">Tools</h3>
         </div>
-        <!-- Frame name goes above the list of frames and below animation name (if present) -->
-        <div style="margin-bottom:8px;display:flex;gap:8px;align-items:center">
-          <input id="name" placeholder="Frame name (optional)" style="flex:1;padding:6px" />
-          <input id="duration" type="number" min="0" step="10" value="1000" title="Duration in ms" style="width:110px;padding:6px" />
+        <div class="transform-box">
+          <h3 class="box-title">Transform</h3>
+          <div class="transform-buttons">
+            <button id="invert" class="transform-btn">Invert</button>
+            <button id="invert-not-null" class="transform-btn">Invert Brightness</button>
+            <button id="rotate180" class="transform-btn">Rotate 180</button>
+            <button id="flip-h" class="transform-btn">Flip H</button>
+            <button id="flip-v" class="transform-btn">Flip V</button>
+          </div>
         </div>
-        <div id="frames" class="frames" draggable="false"></div>
-      </aside>
+      </div>
 
-      <section class="maincol">
-        <div id="grid" class="grid"></div>
-
-        <div id="transform-tools" style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center">
-          <button id="clear">Clear</button>
-          <button id="invert" class="transform-btn">Invert</button>
-          <button id="invert-not-null" class="transform-btn">Invert Brightness</button>
-          <button id="rotate180" class="transform-btn">Rotate 180</button>
-          <button id="flip-h" class="transform-btn">Flip H</button>
-          <button id="flip-v" class="transform-btn">Flip V</button>
+      <div class="center-content">
+        <div class="center-content-header">
+          <h3 class="box-title" id="frame-title">Frame 1</h3>
+          <div class="frame-controls">
+            <button id="clear">Clear</button>
+            <span class="separator">|</span>
+            <button id="frame-back">&lt;</button>
+            <button id="frame-forward">&gt;</button>
+          </div>
         </div>
+        <section class="maincol">
+          <div id="grid" class="grid"></div>
+          <div id="export-tools">
+            <button id="play-animation">Play Animation</button>
+          </div>
+          <!-- floating brightness slider -->
+          <div id="cell-slider">
+            <input id="brightness-slider" type="range" min="0" max="7" value="7" />
+            <div id="brightness-value">7</div>
+          </div>
+        </section>
+      </div>
 
-        <div id="export-tools" style="margin-top:8px;display:flex;gap:8px">
-          <button id="export" style="flex:1">Export .h</button>
-          <button id="play-animation" style="flex:1;background:#28a745;color:white">Play Animation</button>
-        </div>
-
-        <!-- floating brightness slider -->
-        <div id="cell-slider" style="display:none;position:fixed;z-index:1000;align-items:center;gap:8px;padding:8px;background:#fff;border:1px solid #ddd;border-radius:6px">
-          <input id="brightness-slider" type="range" min="0" max="7" value="7" />
-          <div id="brightness-value" style="min-width:28px;text-align:center;font-weight:600">7</div>
-        </div>
-      </section>
-
-      <aside class="rightcol" style="padding-left:12px;min-width:220px;">
-        <pre id="vector" class="out" style="white-space:pre-wrap;word-break:break-word;max-height:480px;overflow:auto;padding:8px;background:#f7f7f7;border:1px solid #ddd"></pre>
-      </aside>
+      <div class="controls-section-right">
+        <h3 class="box-title">Project code preview</h3>
+        <pre id="vector" class="out"></pre>
+      </div>
     </div>
   </main>
+  <div class="frames-section-bottom">
+    <div class="controls-section-left">
+      <div class="sidebar-header">
+        <h3 style="margin:0;font-size:0.9rem;color:#666">Frames (auto-saved)</h3>
+        <button id="new-frame" title="Create new frame">+</button>
+      </div>
+      <div>
+        <label><input type="radio" name="mode" value="frames" checked> Frames</label>
+        <label><input type="radio" name="mode" value="anim"> Animations</label>
+      </div>
+      <div id="anim-controls">
+        <input id="anim-name" placeholder="Animation name" />
+      </div>
+      <!-- Frame name goes above the list of frames and below animation name (if present) -->
+      <div>
+        <input id="name" placeholder="Frame name (optional)" />
+        <input id="duration" type="number" min="0" step="10" value="1000" title="Duration in ms" />
+      </div>
+      <div id="frames" class="frames"></div>
+    </div>
+  </div>
   </div>
   <script src="app.js"></script>
 </body>

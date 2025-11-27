@@ -13,6 +13,17 @@ const invertBtn = document.getElementById('invert');
 const rotate180Btn = document.getElementById('rotate180');
 const flipHBtn = document.getElementById('flip-h');
 const flipVBtn = document.getElementById('flip-v');
+const frameTitle = document.getElementById('frame-title');
+
+const codePanelToggle = document.getElementById('code-panel-toggle');
+const codePanel = document.querySelector('.controls-section-right');
+if (codePanelToggle && codePanel) {
+  codePanelToggle.addEventListener('change', () => {
+    codePanel.style.display = codePanelToggle.checked ? 'flex' : 'none';
+  });
+  // set initial state
+  codePanel.style.display = codePanelToggle.checked ? 'flex' : 'none';
+}
 
 const ROWS = 8, COLS = 13;
 let BRIGHTNESS_LEVELS = 8;
@@ -272,6 +283,7 @@ async function initEditor(){
       
       // Populate name input
       if (nameInput) nameInput.value = frame.name || '';
+      if (frameTitle) frameTitle.textContent = frame.name || `Frame ${frame.id}`;
       
       // Populate duration
       if (durationInput) durationInput.value = frame.duration_ms || 1000;
@@ -469,6 +481,7 @@ if(nameInput){
   nameInput.addEventListener('input', ()=>{
     // Schedule persist when name changes
     schedulePersist();
+    if(frameTitle) frameTitle.textContent = nameInput.value.trim() || '(unsaved)';
   });
   nameInput.addEventListener('blur', ()=>{
     nameInput.value = normalizeSymbolInput(nameInput.value.trim()) || '';
@@ -783,6 +796,7 @@ async function loadFrameIntoEditor(id){
       
       // Populate name input
       if(nameInput) nameInput.value = f.name || '';
+      if(frameTitle) frameTitle.textContent = f.name || `Frame ${f.id}`;
       
       // Populate duration
       if(durationInput) durationInput.value = (f.duration_ms !== undefined && f.duration_ms !== null) ? String(f.duration_ms) : '1000';
@@ -880,6 +894,7 @@ if (newFrameBtn) {
         loadedFrameId = data.frame.id;
         // Set name to the backend-assigned name (Frame{id})
         if(nameInput) nameInput.value = data.frame.name || `Frame${data.frame.id}`;
+        if(frameTitle) frameTitle.textContent = data.frame.name || `Frame ${data.frame.id}`;
         
         // Show C vector representation
         if (data.vector) {

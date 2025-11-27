@@ -1,62 +1,502 @@
 /*
-SPDX-FileCopyrightText: Copyright (C) 2025 ARDUINO SA <http://www.arduino.cc>
+SPDX-FileCopyrightText: Copyright (C) ARDUINO SRL (http://www.arduino.cc)
 
 SPDX-License-Identifier: MPL-2.0
 */
 
-.body-wrapper{display:flex;align-items:center;justify-content:center;height:100vh;margin:0;width:100%}
-body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh}
-.main{width:1200px;max-width:98vw;margin:20px auto}
-.grid{display:grid;grid-template-columns:repeat(13,32px);grid-auto-rows:32px;gap:6px;margin:16px 0}
-.cell{width:32px;height:32px;border-radius:4px;border:1px solid #bbb;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
-.cell.on{background:#0b76ff}
-/* brightness visual using background color intensity */
-#cell-slider{padding:6px;background:#fff;border:1px solid #ddd;border-radius:6px}
-.cell[data-b='0']{ background:#fff }
-.cell[data-b='1']{ background:#e6f3ff }
-.cell[data-b='2']{ background:#cfe9ff }
-.cell[data-b='3']{ background:#b8defe }
-.cell[data-b='4']{ background:#9fcffb }
-.cell[data-b='5']{ background:#7fc0f7 }
-.cell[data-b='6']{ background:#4fa8f0 }
-.cell[data-b='7']{ background:#0b76ff }
-#cell-slider{padding:6px;background:#fff;border:1px solid #ddd;border-radius:6px}
-#cell-slider{padding:6px;background:#fff;border:1px solid #ddd;border-radius:6px}
-.controls{display:flex;gap:8px;align-items:center}
-.out{height:180px;overflow:auto;background:#f7f7f7;padding:8px;border:1px solid #eee}
-input#name{flex:1;padding:6px}
-button{padding:6px 10px}
+@import url('fonts/fonts.css');
 
-/* Layout for sidebar with frame previews */
-.layout{display:flex;gap:20px;align-items:stretch}
-.sidebar{width:320px;background:#fff;border:1px solid #eee;padding:14px;border-radius:6px;display:flex;flex-direction:column;min-height:400px}
-.maincol{width:488px;flex: none;display:flex;flex-direction:column;min-height:400px}
-.rightcol{width:320px;padding-left:12px;display:flex;flex-direction:column;min-height:400px}
-.sidebar-header{display:flex;gap:8px;justify-content:space-between;margin-bottom:8px}
-.frames{display:flex;flex-direction:column;gap:8px;max-height:400px;overflow:auto}
-.frame-item{display:flex;align-items:center;gap:8px;padding:6px;border:1px solid #f0f0f0;border-radius:4px;background:#fafafa}
-.frame-thumb{
-	/* Thumbnail for a 13x8 matrix: keep the same aspect ratio as the main grid */
-	width:65px;
-	height:40px;
-	background:#fff;
-	border:1px solid #ddd;
-	display:grid;
-	grid-template-columns:repeat(13,1fr);
-	grid-auto-rows:1fr;
-	gap:1px;
-	box-sizing:border-box;
+/*
+ * This CSS is used to center the various elements on the screen
+ */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
-.frame-thumb > div{border-radius:1px}
 
-/* make the vector pre fill its column vertically */
-#vector{flex:1;box-sizing:border-box;overflow:auto;padding:8px;background:#f7f7f7;border:1px solid #ddd}
-/* ensure out class doesn't impose fixed height now */
-.out{height:auto}
-.frame-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.frame-actions{display:flex;gap:6px}
-.frame-item.dragging{opacity:0.5}
-.frame-item.dragover{outline:2px dashed #0b76ff}
-.frame-item.loaded{box-shadow:0 0 0 3px rgba(11,118,255,0.12);border-color:rgba(11,118,255,0.35)}
-.frame-item.loaded .frame-name{font-weight:700}
-.animations-list{margin-top:8px}
+body {
+    font-family: 'Open Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #DAE3E3;
+    line-height: 1.6;
+    color: #343a40;
+}
+
+.container {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 12px 0;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.switch-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.separator {
+    color: #cdd7d7;
+    font-size: 20px;
+}
+
+.switch-label {
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: #343a40;
+}
+
+/* The switch - a checkbox with a custom look */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 34px;
+  height: 20px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #008184;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #008184;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(14px);
+  -ms-transform: translateX(14px);
+  transform: translateX(14px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 20px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.arduino-text {
+    color: #008184;
+    font-family: "Roboto Mono", monospace;
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+    font-style: normal;
+    line-height: 170%;
+    letter-spacing: 2.4px;
+}
+
+.arduino-logo {
+    height: 24px;
+    width: auto;
+}
+
+.main-content {
+    display: flex;
+    gap: 20px;
+    align-items: stretch; /* Changed to stretch */
+}
+
+.left-sidebar {
+  max-width: 250px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.tools-box, .transform-box {
+  background: #ECF1F1;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.transform-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.center-content {
+  background: #ECF1F1;
+  padding: 16px;
+  border-radius: 8px;
+  width: 100%;
+}
+
+.center-content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.frame-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.frames-section-bottom {
+  margin-top: 20px;
+}
+
+/*
+ * Styles for specific components required by Anomaly Detection
+ */
+
+.legend {
+    display: flex;
+    gap: 16px;
+    margin-top: 8px;
+    font-size: 14px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.legend-color {
+    width: 12px;
+    height: 4px;
+    border-radius: 1px;
+}
+
+.controls-section-right {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    background: #ECF1F1;
+    padding: 16px;
+    border-radius: 8px;
+}
+
+.box-title {
+    color: #2C353A;
+    font-family: "Roboto Mono";
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 170%;
+    letter-spacing: 1.2px;
+    margin-bottom: 16px;
+}
+
+.controls-section-left {
+    background: #ECF1F1;
+    padding: 16px;
+    border-radius: 8px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 20px;
+}
+
+.row {
+  margin-bottom: 12px;
+}
+
+.movement-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.label {
+  font-weight: 600;
+  color: #2C353A;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.label .emoji {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.value {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.value.primary {
+  color: #16A588;
+}
+
+.value.secondary {
+  color: #5D6A6B;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-fill.primary {
+  background: linear-gradient(90deg, #16A588);
+}
+
+.progress-fill.secondary {
+  background: linear-gradient(90deg, #5D6A6B);
+}
+
+.error-message {
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/*
+ * Responsive design
+ */
+@media (max-width: 768px) {
+    .main-content {
+        flex-direction: column;
+    }
+
+    .arduino-text {
+        font-size: 14px;
+    }
+
+    .container {
+        padding: 15px;
+    }
+
+    .controls-section-left {
+        min-width: 330px;
+    }
+
+    .arduino-logo {
+        height: 16px;
+        width: auto;
+    }
+
+}
+
+@media (max-width: 1024px) and (min-width: 769px) {
+    .controls-section-left {
+        min-width: 490px;
+    }
+}
+
+@media (max-width: 480px) {
+    .controls-section-left {
+        min-width: 170px;
+    }
+}
+
+/* Specific styles for LED Matrix Painter components */
+
+/* Grid and cells */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(13, 40px); /* Updated to 40px */
+    grid-auto-rows: 40px; /* Updated to 40px */
+    gap: 6px;
+    margin: 16px auto; /* Centered horizontally */
+    background-color: #374146;
+    padding: 16px;
+    border-radius: 8px; /* Add a radius to match other containers */
+    width: 624px; /* Fixed width, updated for 40px cells */
+}
+.cell {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    border: 1px solid #434F54;
+    background: #232B2E;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+/* brightness visual using background color intensity */
+.cell[data-b="0"] { background: #3CE2FF33; }
+.cell[data-b="1"] { background: #3CE2FF50; }
+.cell[data-b="2"] { background: #3CE2FF6D; }
+.cell[data-b="3"] { background: #3CE2FF8A; }
+.cell[data-b="4"] { background: #3CE2FFA7; }
+.cell[data-b="5"] { background: #3CE2FFC4; }
+.cell[data-b="6"] { background: #3CE2FFE1; }
+.cell[data-b="7"] { background: #3CE2FF; }
+
+/* Frame previews */
+.sidebar-header {
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.frames {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 400px;
+    overflow: auto;
+}
+.frame-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px;
+    border: 1px solid #f0f0f0;
+    border-radius: 4px;
+    background: #fafafa;
+}
+.frame-thumb {
+    width: 65px;
+    height: 40px;
+    background: #fff;
+    border: 1px solid #ddd;
+    display: grid;
+    grid-template-columns: repeat(13, 1fr);
+    grid-auto-rows: 1fr;
+    gap: 1px;
+    box-sizing: border-box;
+}
+.frame-thumb > div {
+    border-radius: 1px;
+}
+.frame-name {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.frame-actions {
+    display: flex;
+    gap: 6px;
+}
+.frame-item.dragging {
+    opacity: 0.5;
+}
+.frame-item.dragover {
+    outline: 2px dashed #0b76ff;
+}
+.frame-item.loaded {
+    box-shadow: 0 0 0 3px rgba(11, 118, 255, 0.12);
+    border-color: rgba(11, 118, 255, 0.35);
+}
+.frame-item.loaded .frame-name {
+    font-weight: 700;
+}
+
+/* General button and input styles */
+button {
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #008184;
+  color: white;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #006567;
+}
+
+input {
+  padding: 6px;
+}
+
+/* Output Vector */
+#vector {
+    flex: 1;
+    box-sizing: border-box;
+    overflow: auto;
+    padding: 8px;
+    background: #f7f7f7;
+    border: 1px solid #ddd;
+    height: auto; /* Ensure it takes content height, if needed. Overrides previous .out fixed height */
+}
+
+/* Cell Slider */
+#cell-slider {
+    padding: 6px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    display:none; /* This was originally an inline style, so it should be present in CSS for initial state */
+    position:fixed;
+    z-index:1000;
+    align-items:center;
+    gap:8px;
+}
