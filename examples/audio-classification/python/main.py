@@ -46,6 +46,9 @@ def on_run_classification(sid, data):
             response_data = { 'results': results, 'processing_time': diff }
             if results:
                 response_data['classification'] = { 'class_name': results["class_name"], 'confidence': results["confidence"] }
+            else:
+                response_data['error'] = "No objects detected in the audio. Try to lower the confidence threshold."
+            ui.send_message('classification_complete', response_data, sid)
         else:
             ui.send_message('classification_error', {'message': "No audio available for classification"}, sid)
     except Exception as e:
