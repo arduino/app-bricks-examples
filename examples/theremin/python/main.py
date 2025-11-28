@@ -5,9 +5,9 @@
 from arduino.app_bricks.web_ui import WebUI
 from arduino.app_bricks.wave_generator import WaveGenerator
 from arduino.app_utils import App, Logger
-import logging
 
-logger = Logger("theremin", logging.DEBUG)
+
+logger = Logger("theremin")
 
 # configuration
 SAMPLE_RATE = 16000
