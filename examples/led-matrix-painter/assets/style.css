@@ -230,7 +230,6 @@ input:checked + .slider:before {
     font-weight: 700;
     line-height: 170%;
     letter-spacing: 1.2px;
-    margin-bottom: 16px;
 }
 
 .controls-section-left {
