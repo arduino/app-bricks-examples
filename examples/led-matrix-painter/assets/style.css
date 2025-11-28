@@ -628,7 +628,7 @@ input {
   border-radius: 50%; /* Make it a circle */
   background: #008184 !important; /* Green background */
   cursor: pointer; /* Cursor on hover */
-  margin-top: -7.5px; /* Adjust this to center the thumb vertically on the track */
+  margin-top: -5px; /* Adjust this to center the thumb vertically on the track */
   filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.25));
 }
 
@@ -639,7 +639,7 @@ input {
   border-radius: 50%; /* Make it a circle */
   background: #008184 !important; /* Green background */
   cursor: pointer; /* Cursor on hover */
-  margin-top: -7.5px;
+  margin-top: -5px;
   filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.25));
 }
 
