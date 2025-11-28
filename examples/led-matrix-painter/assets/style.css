@@ -607,8 +607,7 @@ input {
 #brightness-alpha-slider {
   -webkit-appearance: none;
   width: 100%;
-  height: 6px;
-  background: #008184 !important;
+  background: transparent; /* Changed from #008184 to transparent */
   outline: none;
   -webkit-transition: .2s;
   transition: opacity .2s;
@@ -629,7 +628,8 @@ input {
   border-radius: 50%; /* Make it a circle */
   background: #008184 !important; /* Green background */
   cursor: pointer; /* Cursor on hover */
-  margin-top: -4px; /* Adjust this to center the thumb vertically on the track */
+  margin-top: -7.5px; /* Adjust this to center the thumb vertically on the track */
+  filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.25));
 }
 
 /* The slider thumb (Firefox) */
@@ -639,20 +639,22 @@ input {
   border-radius: 50%; /* Make it a circle */
   background: #008184 !important; /* Green background */
   cursor: pointer; /* Cursor on hover */
+  margin-top: -7.5px;
+  filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.25));
 }
 
 /* The slider track (webKit) */
 #brightness-alpha-slider::-webkit-slider-runnable-track {
   width: 100%;
-  height: 8px;
+  height: 6px;
   background: #008184 !important; /* Green background */
-  border-radius: 4px;
+  border-radius: 30px;
 }
 
 /* The slider track (Firefox) */
 #brightness-alpha-slider::-moz-range-track {
   width: 100%;
-  height: 8px;
+  height: 6px;
   background: #008184 !important; /* Green background */
-  border-radius: 4px;
+  border-radius: 30px;
 }
