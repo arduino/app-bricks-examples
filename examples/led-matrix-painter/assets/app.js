@@ -15,6 +15,45 @@ const flipHBtn = document.getElementById('flip-h');
 const flipVBtn = document.getElementById('flip-v');
 const frameTitle = document.getElementById('frame-title');
 
+function showError(message) {
+  const errorContainer = document.getElementById('error-container');
+  if (errorContainer) {
+    errorContainer.textContent = message;
+    errorContainer.style.display = 'block';
+  }
+}
+
+function hideError() {
+  const errorContainer = document.getElementById('error-container');
+  if (errorContainer) {
+    errorContainer.textContent = '';
+    errorContainer.style.display = 'none';
+  }
+}
+
+async function fetchWithHandling(url, options, responseType = 'json', context = 'performing operation') {
+  try {
+    const response = await fetch(url, options);
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'An unknown error occurred.' }));
+      throw new Error(error.message || `HTTP error! status: ${response.status}`);
+    }
+    hideError(); // Hide error on successful communication
+
+    if (responseType === 'json') {
+      return await response.json();
+    } else if (responseType === 'blob') {
+      return await response.blob();
+    } else if (responseType === 'text') {
+        return await response.text();
+    }
+    return response;
+  } catch (error) {
+    showError(`Failed to ${context}: ${error.message}`);
+    throw error; // Re-throw to allow specific handlers to catch it if needed
+  }
+}
+
 const codePanelToggle = document.getElementById('code-panel-toggle');
 const codePanel = document.querySelector('.controls-section-right');
 if (codePanelToggle && codePanel) {
@@ -40,9 +79,7 @@ const AUTO_PERSIST_DELAY_MS = 150; // 150ms unified delay
 
 async function loadConfig(brightnessSlider, brightnessValue){
   try{
-    const resp = await fetch('/config');
-    if(!resp.ok) return;
-    const data = await resp.json();
+    const data = await fetchWithHandling('/config', {}, 'json', 'load config');
     if(typeof data.brightness_levels === 'number' && data.brightness_levels >= 2){
       BRIGHTNESS_LEVELS = data.brightness_levels;
     }
@@ -130,7 +167,7 @@ function schedulePersist(){
   }, AUTO_PERSIST_DELAY_MS);
 }
 
-function persistFrame(){
+async function persistFrame(){
   const grid = collectGridBrightness();
   // Backend is responsible for naming - send empty if no value
   const frameName = nameInput.value.trim() || (loadedFrame && loadedFrame.name) || '';
@@ -150,25 +187,27 @@ function persistFrame(){
   }
   
   console.debug('[ui] persistFrame (save to DB + update board)', payload);
-  
-  fetch('/persist_frame', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify(payload)
-  }).then(r => r.json())
-    .then(data => {
-      if (data && data.ok && data.frame) {
-        // Update loaded frame reference
-        loadedFrame = data.frame;
-        loadedFrameId = data.frame.id;
-        // Show vector text
-        if (data.vector) showVectorText(data.vector);
-        // Refresh frames list to show updated version
-        refreshFrames();
-        console.debug('[ui] frame persisted:', data.frame.id);
-      }
-    })
-    .catch(err => console.warn('[ui] persistFrame failed', err));
+
+  try {
+    const data = await fetchWithHandling('/persist_frame', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    }, 'json', 'persist frame');
+
+    if (data && data.ok && data.frame) {
+      // Update loaded frame reference
+      loadedFrame = data.frame;
+      loadedFrameId = data.frame.id;
+      // Show vector text
+      if (data.vector) showVectorText(data.vector);
+      // Refresh frames list to show updated version
+      refreshFrames();
+      console.debug('[ui] frame persisted:', data.frame.id);
+    }
+  } catch (err) {
+    console.warn('[ui] persistFrame failed', err);
+  }
 }
 
 function sendUpdateFromGrid(){
@@ -199,12 +238,11 @@ function showVectorText(txt){
 // Initialize editor: load last frame or create empty
 async function initEditor(){
   try {
-    const resp = await fetch('/load_frame', {
+    const data = await fetchWithHandling('/load_frame', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({}) // no id = load last or create empty
-    });
-    const data = await resp.json();
+    }, 'json', 'load initial frame');
     
     if (data && data.ok && data.frame) {
       const frame = data.frame;
@@ -245,54 +283,39 @@ async function exportH(){
   exportBtn.disabled = true;
   try {
     const mode = getMode();
+    let data;
+    let filename = 'frames.h';
+
     if(mode === 'frames'){
-      // Export all frames (session)
-      const resp = await fetch('/export_frames', {method:'POST'});
-      if(!resp.ok){ 
-        showVectorText('Server error'); 
-        return; 
-      }
-      const data = await resp.json();
-      // Download file without updating the vector display
-      const blob = new Blob([data.header], {type: 'text/plain'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); 
-      a.href = url; 
-      a.download = 'frames.h'; 
-      document.body.appendChild(a); 
-      a.click(); 
-      a.remove(); 
-      URL.revokeObjectURL(url);
+      data = await fetchWithHandling('/export_frames', {method:'POST'}, 'json', 'export frames');
     } else {
-      // Animations mode: use the Animation name field as file name and animation name
+      // Animations mode
       const container = document.getElementById('frames');
       let selected = Array.from(container.children).filter(ch => ch.dataset.selected === '1').map(ch => parseInt(ch.dataset.id));
       if(selected.length === 0){
-        // default to all frames if none selected
         selected = sessionFrames.map(f => f.id);
       }
       const animName = animNameInput && animNameInput.value && animNameInput.value.trim() ? animNameInput.value.trim() : 'Animation';
+      filename = (animName || 'Animation') + '.h';
       const payload = { frames: selected, animations: [{name: animName, frames: selected}] };
       console.debug('[ui] exportH animation payload', payload, 'sessionFrames=', sessionFrames.map(f=>f.id));
-      const resp = await fetch('/export_frames', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
-      if(!resp.ok){ 
-        showVectorText('Server error'); 
-        return; 
-      }
-      const data = await resp.json();
-      // Download file without updating the vector display
+      data = await fetchWithHandling('/export_frames', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)}, 'json', 'export animation');
+    }
+
+    if (data && data.header) {
       const blob = new Blob([data.header], {type: 'text/plain'});
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); 
-      a.href = url; 
-      a.download = (animName || 'Animation') + '.h'; 
-      document.body.appendChild(a); 
-      a.click(); 
-      a.remove(); 
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
       URL.revokeObjectURL(url);
     }
   } catch (err) {
-    showVectorText('Error: ' + (err.message || err));
+    // Error is already shown by fetchWithHandling
+    console.error('[ui] exportH failed', err);
   } finally {
     exportBtn.disabled = false;
   }
@@ -306,80 +329,45 @@ async function playAnimation() {
   
   try {
     playAnimationBtn.disabled = true;
-    
     const mode = getMode();
-    
+    let frameIds;
+
     if (mode === 'frames') {
-      // Frames mode: play all frames in order
-      const frameIds = sessionFrames.map(f => f.id);
-      
+      frameIds = sessionFrames.map(f => f.id);
       if (frameIds.length === 0) {
-        showVectorText('No frames to play');
+        showError('No frames to play');
         return;
-      }
-      
-      console.debug('[ui] playAnimation frames mode, frameIds=', frameIds);
-      
-      const payload = {
-        frames: frameIds,
-        loop: false
-      };
-      
-      const resp = await fetch('/play_animation', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(payload)
-      });
-      
-      if (!resp.ok) {
-        showVectorText('Error playing animation');
-        return;
-      }
-      
-      const data = await resp.json();
-      if (data.error) {
-        showVectorText('Error: ' + data.error);
-      } else {
-        console.debug('[ui] Animation played successfully, frames=', data.frames_played);
-        showVectorText('Animation played: ' + data.frames_played + ' frames');
       }
     } else {
-      // Animation mode: play selected frames
       if (selectedIds.size === 0) {
-        showVectorText('No frames selected for animation');
+        showError('No frames selected for animation');
         return;
       }
-      
-      const frameIds = Array.from(selectedIds);
-      
-      console.debug('[ui] playAnimation animation mode, selected frameIds=', frameIds);
-      
-      const payload = {
-        frames: frameIds,
-        loop: false
-      };
-      
-      const resp = await fetch('/play_animation', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(payload)
-      });
-      
-      if (!resp.ok) {
-        showVectorText('Error playing animation');
-        return;
-      }
-      
-      const data = await resp.json();
-      if (data.error) {
-        showVectorText('Error: ' + data.error);
-      } else {
-        console.debug('[ui] Animation played successfully, frames=', data.frames_played);
-        showVectorText('Animation played: ' + data.frames_played + ' frames');
-      }
+      frameIds = Array.from(selectedIds);
     }
+    
+    console.debug(`[ui] playAnimation ${mode} mode, frameIds=`, frameIds);
+    
+    const payload = {
+      frames: frameIds,
+      loop: false
+    };
+    
+    const data = await fetchWithHandling('/play_animation', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    }, 'json', 'play animation');
+    
+    if (data.error) {
+      showError('Error: ' + data.error);
+    } else {
+      console.debug('[ui] Animation played successfully, frames=', data.frames_played);
+      showVectorText('Animation played: ' + data.frames_played + ' frames');
+    }
+
   } catch (err) {
-    showVectorText('Error: ' + (err.message || err));
+    console.error('[ui] playAnimation failed', err);
   } finally {
     playAnimationBtn.disabled = false;
   }
@@ -446,8 +434,7 @@ if(animNameInput){
 
 async function refreshFrames(){
   try{
-    const resp = await fetch('/list_frames');
-    const data = await resp.json();
+    const data = await fetchWithHandling('/list_frames', {}, 'json', 'refresh frames');
     sessionFrames = data.frames || [];
     renderFrames();
     
@@ -563,7 +550,7 @@ function renderFrames(){
         
         // compute new order and send to backend
         const order = Array.from(container.children).map(ch => parseInt(ch.dataset.id));
-        await fetch('/reorder_frames', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({order})});
+        await fetchWithHandling('/reorder_frames', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({order})}, 'json', 'reorder frames');
         await refreshFrames();
       }
     });
@@ -643,81 +630,54 @@ Array.from(modeInputs).forEach(i=> i.addEventListener('change', async ()=>{
 }));
 
 // Transform button handlers
+async function transformFrame(op) {
+  console.debug(`[ui] ${op} button clicked (delegating to server)`);
+  const grid = collectGridBrightness();
+  try {
+    const data = await fetchWithHandling('/transform_frame', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        op,
+        rows: grid,
+        brightness_levels: BRIGHTNESS_LEVELS
+      })
+    }, 'json', `transform frame (${op})`);
+
+    if (data && data.ok && data.frame) {
+      setGridFromRows(data.frame.rows);
+      if (data.vector) showVectorText(data.vector);
+      schedulePersist();
+    }
+  } catch (e) {
+    console.warn(`[ui] ${op} failed`, e);
+  }
+}
+
 if (rotate180Btn) {
-  rotate180Btn.addEventListener('click', async ()=>{
-    const grid = collectGridBrightness();
-    try{
-      const resp = await fetch('/transform_frame', {
-        method:'POST', 
-        headers:{'Content-Type':'application/json'}, 
-        body: JSON.stringify({
-          op:'rotate180', 
-          rows: grid,
-          brightness_levels: BRIGHTNESS_LEVELS
-        })
-      });
-      const data = await resp.json();
-      if(data && data.ok && data.frame) {
-        setGridFromRows(data.frame.rows);
-        if(data.vector) showVectorText(data.vector);
-        schedulePersist();
-      }
-    }catch(e){ console.warn('[ui] rotate180 failed', e); }
-  });
+  rotate180Btn.addEventListener('click', () => transformFrame('rotate180'));
 }
 if (flipHBtn) {
-  flipHBtn.addEventListener('click', async ()=>{
-    const grid = collectGridBrightness();
-    try{
-      const resp = await fetch('/transform_frame', {
-        method:'POST', 
-        headers:{'Content-Type':'application/json'}, 
-        body: JSON.stringify({
-          op:'flip_h', 
-          rows: grid,
-          brightness_levels: BRIGHTNESS_LEVELS
-        })
-      });
-      const data = await resp.json();
-      if(data && data.ok && data.frame) {
-        setGridFromRows(data.frame.rows);
-        if(data.vector) showVectorText(data.vector);
-        schedulePersist();
-      }
-    }catch(e){ console.warn('[ui] flip-h failed', e); }
-  });
+  flipHBtn.addEventListener('click', () => transformFrame('flip_h'));
 }
 if (flipVBtn) {
-  flipVBtn.addEventListener('click', async ()=>{
-    const grid = collectGridBrightness();
-    try{
-      const resp = await fetch('/transform_frame', {
-        method:'POST', 
-        headers:{'Content-Type':'application/json'}, 
-        body: JSON.stringify({
-          op:'flip_v', 
-          rows: grid,
-          brightness_levels: BRIGHTNESS_LEVELS
-        })
-      });
-      const data = await resp.json();
-      if(data && data.ok && data.frame) {
-        setGridFromRows(data.frame.rows);
-        if(data.vector) showVectorText(data.vector);
-        schedulePersist();
-      }
-    }catch(e){ console.warn('[ui] flip-v failed', e); }
-  });
+  flipVBtn.addEventListener('click', () => transformFrame('flip_v'));
+}
+if (invertBtn) {
+  invertBtn.addEventListener('click', () => transformFrame('invert'));
+}
+const invertNotNullBtn = document.getElementById('invert-not-null');
+if (invertNotNullBtn) {
+  invertNotNullBtn.addEventListener('click', () => transformFrame('invert_not_null'));
 }
 
 async function loadFrameIntoEditor(id){
   try {
-    const resp = await fetch('/load_frame', {
+    const data = await fetchWithHandling('/load_frame', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({id})
-    });
-    const data = await resp.json();
+    }, 'json', `load frame ${id}`);
     
     if(data && data.ok && data.frame){
       const f = data.frame;
@@ -785,7 +745,7 @@ function selectFrame(id, add=false){
 }
 
 async function deleteFrame(id){
-  await fetch('/delete_frame', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id})});
+  await fetchWithHandling('/delete_frame', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id})}, 'json', `delete frame ${id}`);
 }
 
 // Initialize editor on page load
@@ -810,7 +770,7 @@ if (newFrameBtn) {
     // Create empty frame in DB (no name = backend assigns progressive name)
     const grid = collectGridBrightness(); // all zeros
     try {
-      const resp = await fetch('/persist_frame', {
+      const data = await fetchWithHandling('/persist_frame', {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
         body: JSON.stringify({
@@ -819,8 +779,7 @@ if (newFrameBtn) {
           duration_ms: 1000,
           brightness_levels: BRIGHTNESS_LEVELS
         })
-      });
-      const data = await resp.json();
+      }, 'json', 'create new frame');
       
       if (data && data.ok && data.frame) {
         loadedFrame = data.frame;
@@ -861,57 +820,26 @@ if (clearBtn) {
   console.warn('[ui] clear button not found');
 }
 
-if (invertBtn) {
-  invertBtn.addEventListener('click', async ()=>{
-    console.debug('[ui] invert button clicked (delegating to server)');
-    const grid = collectGridBrightness();
-    try{
-      const resp = await fetch('/transform_frame', {
-        method:'POST', 
-        headers:{'Content-Type':'application/json'}, 
-        body: JSON.stringify({
-          op:'invert', 
-          rows: grid,
-          brightness_levels: BRIGHTNESS_LEVELS
-        })
-      });
-      const data = await resp.json();
-      if(data && data.ok && data.frame){
-        setGridFromRows(data.frame.rows);
-        if(data.vector) showVectorText(data.vector);
-        schedulePersist();
+if (saveAnimBtn) {
+  saveAnimBtn.addEventListener('click', async ()=>{
+    const container = document.getElementById('frames');
+    const selected = Array.from(container.children).filter(ch => ch.dataset.selected === '1').map(ch => parseInt(ch.dataset.id));
+    if(selected.length === 0) { alert('Select some frames first'); return; }
+    const animName = animNameInput.value && animNameInput.value.trim() ? animNameInput.value.trim() : undefined;
+    try {
+      const data = await fetchWithHandling('/save_animation', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name: animName, frames: selected})}, 'json', 'save animation');
+      if(data && data.anim){
+        // clear selection
+        Array.from(container.children).forEach(ch => { ch.classList.remove('selected'); ch.dataset.selected = '0'; });
+        animNameInput.value = '';
+        alert('Animation saved');
       }
-    }catch(e){ console.warn('[ui] transform request failed', e); }
+    } catch(e) {
+      console.warn('[ui] save animation failed', e);
+    }
   });
 } else {
-  console.warn('[ui] invert button not found');
-}
-
-const invertNotNullBtn = document.getElementById('invert-not-null');
-if (invertNotNullBtn) {
-  invertNotNullBtn.addEventListener('click', async ()=>{
-    console.debug('[ui] invert-not-null clicked (delegating to server)');
-    const grid = collectGridBrightness();
-    try{
-      const resp = await fetch('/transform_frame', {
-        method:'POST', 
-        headers:{'Content-Type':'application/json'}, 
-        body: JSON.stringify({
-          op:'invert_not_null', 
-          rows: grid,
-          brightness_levels: BRIGHTNESS_LEVELS
-        })
-      });
-      const data = await resp.json();
-      if(data && data.ok && data.frame) {
-        setGridFromRows(data.frame.rows);
-        if(data.vector) showVectorText(data.vector);
-        schedulePersist();
-      }
-    }catch(e){ console.warn('[ui] invert-not-null failed', e); }
-  });
-} else {
-  console.warn('[ui] invert-not-null button not found');
+  console.warn('[ui] save-anim button not found (animation save disabled)');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
