@@ -39,7 +39,7 @@ The LED Matrix Painter example uses the following Bricks:
 ## How to Use the Example
 
 1. **Run the App**
-   Launch the App from Arduino App Lab.
+   Launch the App clicking the **Run** button from Arduino App Lab.
 
 2. **Access the Editor**
    Open the App in your browser at `<UNO-Q-IP-ADDRESS>:7000`.
@@ -69,7 +69,6 @@ The LED Matrix Painter example uses the following Bricks:
    - Toggle the **Code panel** switch in the top right header to view the C++ code for the current frame or animation in real-time.
    - Click the **Export .h** button to download a header file containing your selected designs, ready to be included in an Arduino sketch.
 
-
 ## How it Works
 
 The LED Matrix Painter relies on a synchronized data flow between the browser, the Python backend, and the hardware.
@@ -95,18 +94,19 @@ Web Browser  ──►  HTTP API  ──►  Python Backend  ──►  Router B
 
 The Python backend manages the application logic, database, and hardware communication.
 
-- **Database Management**: The `store.py` module handles all SQL operations. It ensures frames are stored persistently and retrieved in the correct order.
+- **Initialization**:
+  - `designer = FrameDesigner()`: Initializes the frame designer utility from `arduino.app_utils`, which provides the logic for transformation operations (invert, rotate, flip).
+  - `store.init_db()`: Creates the SQLite database and tables for storing frames if they don't exist.
 
-```python
-# store.py
-def save_frame(frame: AppFrame) -> int:
-    # Logic to calculate position, assign ID, and insert record
-    record = frame.to_record()
-    db.store("frames", record, create_table=False)
-    # ...
-```
+- **API Endpoints**: The backend exposes several HTTP endpoints using `ui.expose_api` to handle frontend requests:
+  - `POST /persist_frame`: Saves or updates frames in the database and updates the board.
+  - `POST /load_frame`: Loads a specific frame by ID or retrieves the last edited frame.
+  - `GET /list_frames`: Returns all saved frames to populate the bottom panel.
+  - `POST /play_animation`: Sends a sequence of frames to the Arduino to play as an animation.
+  - `POST /transform_frame`: Applies geometric transformations to the pixel data.
+  - `POST /export_frames`: Generates the C++ header file content.
 
-- **Hardware Update**: The `apply_frame_to_board` function sends the visual data to the microcontroller.
+- **Hardware Update**: The `apply_frame_to_board` function sends the visual data to the microcontroller via the Bridge.
 
 ```python
 # main.py
