@@ -980,3 +980,47 @@ if (invertNotNullBtn) {
 } else {
   console.warn('[ui] invert-not-null button not found');
 }
+
+/* Custom Select Dropdown */
+document.addEventListener('DOMContentLoaded', () => {
+  const customSelect = document.querySelector('.custom-select');
+  if (customSelect) {
+    const trigger = customSelect.querySelector('.custom-select__trigger');
+    const options = customSelect.querySelectorAll('.custom-option');
+    const triggerImage = trigger.querySelector('img');
+    
+    trigger.addEventListener('click', () => {
+      customSelect.classList.toggle('open');
+    });
+
+    options.forEach(option => {
+      option.addEventListener('click', () => {
+        const value = option.getAttribute('data-value');
+        const img = option.querySelector('img');
+        
+        triggerImage.src = img.src;
+        triggerImage.alt = img.alt;
+        customSelect.classList.remove('open');
+
+        // You can use the 'value' variable to handle tool changes
+        console.log('Selected tool:', value);
+      });
+    });
+
+    window.addEventListener('click', (e) => {
+      if (!customSelect.contains(e.target)) {
+        customSelect.classList.remove('open');
+      }
+    });
+  }
+
+  /* Brightness Alpha Slider */
+  const brightnessAlphaSlider = document.getElementById('brightness-alpha-slider');
+  const brightnessAlphaValue = document.getElementById('brightness-alpha-value');
+
+  if (brightnessAlphaSlider && brightnessAlphaValue) {
+    brightnessAlphaSlider.addEventListener('input', () => {
+      brightnessAlphaValue.textContent = brightnessAlphaSlider.value;
+    });
+  }
+});
