@@ -95,20 +95,16 @@ Once the application is running, you can access it from your web browser. At tha
 
     ```python
     def record_sensor_movement(x: float, y: float, z: float):
-        try:
-            # Convert g -> m/s^2 for the detector
-            x_ms2 = x * 9.81
-            y_ms2 = y * 9.81
-            z_ms2 = z * 9.81
+        # Convert g -> m/s^2 for the detector
+        x_ms2 = x * 9.81
+        y_ms2 = y * 9.81
+        z_ms2 = z * 9.81
 
-            # Forward raw data to UI for plotting
-            ui.send_message('sample', {'x': x_ms2, 'y': y_ms2, 'z': z_ms2})
+        # Forward raw data to UI for plotting
+        ui.send_message('sample', {'x': x_ms2, 'y': y_ms2, 'z': z_ms2})
 
-            # Forward samples to the vibration_detection Brick
-            vibration_detection.accumulate_samples((x_ms2, y_ms2, z_ms2))
-
-        except Exception as e:
-            logger.exception(f"record_sensor_movement: Error: {e}")
+        # Forward samples to the vibration_detection brick
+        vibration_detection.accumulate_samples((x_ms2, y_ms2, z_ms2))
     ```
 
 - **Handling Dynamic Thresholds.**
