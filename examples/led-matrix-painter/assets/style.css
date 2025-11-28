@@ -374,7 +374,6 @@ input:checked + .slider:before {
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
 }
 /* brightness visual using background color intensity */
 .cell[data-b="0"] { background: #3CE2FF33; }
@@ -657,4 +656,12 @@ input {
   height: 6px;
   background: #008184 !important; /* Green background */
   border-radius: 30px;
+}
+
+.grid[data-tool='brush'] {
+  cursor: url('img/mouse-brush.svg') 8 8, auto;
+}
+
+.grid[data-tool='eraser'] {
+  cursor: url('img/mouse-eraser.svg') 8 8, auto;
 }

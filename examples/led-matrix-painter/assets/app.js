@@ -38,7 +38,7 @@ let selectedIds = new Set(); // persistent selection of frame ids (survives refr
 let persistTimeout = null;
 const AUTO_PERSIST_DELAY_MS = 150; // 150ms unified delay
 
-async function loadConfig(){
+async function loadConfig(brightnessSlider, brightnessValue){
   try{
     const resp = await fetch('/config');
     if(!resp.ok) return;
@@ -113,80 +113,13 @@ function makeGrid(){
       const el = document.createElement('div');
       el.className = 'cell';
       el.dataset.r = r; el.dataset.c = c;
-      // click opens a brightness slider for that cell
-        el.addEventListener('click', (ev)=>{ ev.stopPropagation(); cellClicked(ev, el); });
       gridEl.appendChild(el);
       cells.push(el);
     }
   }
 }
 
-const sliderWrap = document.getElementById('cell-slider');
-const brightnessSlider = document.getElementById('brightness-slider');
-const brightnessValue = document.getElementById('brightness-value');
-let activeCell = null;
 
-function cellClicked(ev, el){
-  activeCell = el;
-  // position slider near cursor if present; otherwise just keep selection
-  if (sliderWrap && brightnessSlider) {
-    try {
-      sliderWrap.style.left = (ev.clientX + 8) + 'px';
-      sliderWrap.style.top = (ev.clientY + 8) + 'px';
-  const current = clampBrightness(el.dataset.b ? parseInt(el.dataset.b) : 0);
-  brightnessSlider.value = String(current);
-  if (brightnessValue) brightnessValue.textContent = String(current);
-  if (sliderWrap) { sliderWrap.style.display = 'flex'; }
-    } catch (err) {
-      console.warn('[ui] failed to position slider', err);
-    }
-  } else {
-    // fallback: ensure visual state reflects dataset.b
-    const current = clampBrightness(el.dataset.b ? parseInt(el.dataset.b) : 0);
-    if (current > 0) el.classList.add('on'); else el.classList.remove('on');
-    // user has toggled a cell visually without using the slider -> this counts as an edit
-    clearLoaded();
-  }
-}
-
-if (brightnessSlider) {
-  brightnessSlider.addEventListener('input', ()=>{
-    if(!activeCell) return;
-    const v = clampBrightness(parseInt(brightnessSlider.value));
-    brightnessSlider.value = String(v);
-    activeCell.dataset.b = String(v);
-    // visually mark as 'on' if v>0
-    if(v>0) activeCell.classList.add('on'); else activeCell.classList.remove('on');
-    // update numeric display next to slider
-    if (brightnessValue) brightnessValue.textContent = String(v);
-  });
-
-  brightnessSlider.addEventListener('change', ()=>{
-    // commit change: send full 2D array rows of ints to backend
-    const committed = clampBrightness(parseInt(brightnessSlider.value));
-    brightnessSlider.value = String(committed);
-    console.debug('[ui] brightness change commit for active cell, value=', committed);
-    
-    // Trigger unified persist (board + DB)
-    schedulePersist();
-    
-    // hide slider
-    if (sliderWrap) sliderWrap.style.display = 'none';
-    activeCell = null;
-  });
-} else {
-  console.warn('[ui] brightness-slider element not found; per-cell slider disabled');
-}
-
-loadConfig();
-
-// Hide the slider when clicking anywhere outside the slider or the grid
-document.addEventListener('click', (e) => {
-  if (!sliderWrap) return;
-  if (sliderWrap.contains(e.target)) return;
-  if (gridEl && gridEl.contains(e.target)) return;
-  sliderWrap.style.display = 'none';
-});
 
 // Unified persist: save to DB and update board together
 function schedulePersist(){
@@ -981,13 +914,15 @@ if (invertNotNullBtn) {
   console.warn('[ui] invert-not-null button not found');
 }
 
-/* Custom Select Dropdown */
 document.addEventListener('DOMContentLoaded', () => {
+  let selectedTool = 'brush';
+  gridEl.dataset.tool = selectedTool;
+
   const customSelect = document.querySelector('.custom-select');
   if (customSelect) {
     const trigger = customSelect.querySelector('.custom-select__trigger');
     const options = customSelect.querySelectorAll('.custom-option');
-    const triggerImage = trigger.querySelector('img');
+    const triggerSvg = trigger.querySelector('svg.tool-icon');
     
     trigger.addEventListener('click', () => {
       customSelect.classList.toggle('open');
@@ -996,13 +931,13 @@ document.addEventListener('DOMContentLoaded', () => {
     options.forEach(option => {
       option.addEventListener('click', () => {
         const value = option.getAttribute('data-value');
-        const img = option.querySelector('img');
+        const svg = option.querySelector('svg.tool-icon');
         
-        triggerImage.src = img.src;
-        triggerImage.alt = img.alt;
+        triggerSvg.innerHTML = svg.innerHTML;
         customSelect.classList.remove('open');
 
-        // You can use the 'value' variable to handle tool changes
+        selectedTool = value;
+        gridEl.dataset.tool = selectedTool;
         console.log('Selected tool:', value);
       });
     });
@@ -1023,4 +958,45 @@ document.addEventListener('DOMContentLoaded', () => {
       brightnessAlphaValue.textContent = brightnessAlphaSlider.value;
     });
   }
+
+  loadConfig(brightnessAlphaSlider, brightnessAlphaValue);
+
+  let isDrawing = false;
+
+  function draw(e) {
+    if (!e.target.classList.contains('cell')) return;
+
+    const cell = e.target;
+    if (selectedTool === 'brush') {
+      const brightness = brightnessAlphaSlider.value;
+      cell.dataset.b = brightness;
+    } else if (selectedTool === 'eraser') {
+      delete cell.dataset.b;
+    }
+  }
+
+  gridEl.addEventListener('mousedown', (e) => {
+    isDrawing = true;
+    draw(e);
+  });
+
+  gridEl.addEventListener('mousemove', (e) => {
+    if (isDrawing) {
+      draw(e);
+    }
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (isDrawing) {
+      isDrawing = false;
+      schedulePersist();
+    }
+  });
+
+  gridEl.addEventListener('mouseleave', () => {
+    if (isDrawing) {
+      isDrawing = false;
+      schedulePersist();
+    }
+  });
 });
