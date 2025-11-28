@@ -74,6 +74,15 @@ The LED Matrix Painter example uses the following Bricks:
 
 The LED Matrix Painter relies on a synchronized data flow between the browser, the Python backend, and the hardware.
 
+**High-level data flow:**
+
+```
+Web Browser  ──►  HTTP API  ──►  Python Backend  ──►  Router Bridge  ──►  Arduino Sketch
+                                       │                                        │
+                                       ▼                                        ▼
+                                SQLite Database                          LED Matrix Display
+```
+
 1.  **Web Interface**: The `app.js` script captures clicks on the grid. It debounces these events and sends the pixel data to the backend via the `/persist_frame` endpoint.
 2.  **Python Backend**:
     *   **Persistence**: The `store.py` module uses `SQLStore` to save the frame data (pixels, duration, position) to a `frames` table in a SQLite database.
