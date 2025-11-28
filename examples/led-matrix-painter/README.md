@@ -1,26 +1,29 @@
 # LED Matrix Painter
 
-The **LED Matrix Painter** example provides a web-based tool for designing frames and animations for the Arduino UNO Q 8×13 LED matrix. You can create individual frames, organize them into animations, preview them in real-time on the board, and export them as C++ code.
+The **LED Matrix Painter** example transforms your Arduino UNO Q into a design tool for the built-in LED Matrix. It features a web-based pixel editor that allows you to draw frames, create animations, and export the results as ready-to-use C++ code.
 
-![LED Matrix Painter](assets/docs_assets/led-matrix-painter.png)
+![LED Matrix Painter Example](assets/docs_assets/thumbnail.png)
 
 ## Description
 
-This example allows you to design LED matrix frames using an interactive web interface. Each frame can have custom brightness levels (0-7) for each LED pixel. You can:
+This App provides a complete workflow for designing LED matrix visuals. It uses the `web_ui` Brick to host a graphical editor where you can draw pixels with 8 levels of brightness. Changes are reflected instantly on the UNO Q's physical matrix.
 
-- **Design frames** with pixel-by-pixel control using an interactive grid
-- **Preview in real-time** on the Arduino UNO Q LED matrix
-- **Save and organize** multiple frames with a persistent database
-- **Create animations** by sequencing multiple frames together
-- **Export code** as C++ arrays ready to use in your Arduino sketches
-- **Transform frames** with operations like invert, rotate, and flip
+The application uses the `dbstorage_sqlstore` Brick to persist your designs in a database, allowing you to save multiple frames, reorder them via drag-and-drop, and organize them into animations. Finally, the "Export .h" feature generates the exact C++ code needed to use your designs in standalone Arduino sketches.
 
-The application uses the Router Bridge to communicate between the web interface (running on Linux) and the Arduino sketch (running on the microcontroller), enabling real-time updates to the physical LED matrix.
+Key features include:
+- **Real-time Preview:** Drawing on the web interface updates the UNO Q matrix instantly.
+- **8-bit Grayscale:** Support for 8 brightness levels per pixel (0-7 in the editor, mapped to 0-255).
+- **Frame Management:** Create, delete, and reorder frames using a persistent database.
+- **Transform Tools:** Quickly invert, rotate, or flip your designs.
+- **Animation Mode:** Sequence frames to create and preview animations on the board.
+- **Code Generation:** Export frames or animations as `uint32_t` arrays compatible with the `Arduino_LED_Matrix` library.
 
 ## Bricks Used
 
-- `web_ui`: Provides the web server and HTTP API endpoints for the interactive frame designer interface.
-- `dbstorage_sqlstore` (implicit): Stores frame data persistently in a SQLite database.
+The LED Matrix Painter example uses the following Bricks:
+
+- `web_ui`: Brick to create the interactive grid editor and manage API endpoints.
+- `dbstorage_sqlstore`: Brick to persist frames and animation sequences using a SQLite database.
 
 ## Hardware and Software Requirements
 
@@ -35,127 +38,131 @@ The application uses the Router Bridge to communicate between the web interface 
 
 ## How to Use the Example
 
-1. Launch the App by clicking the **Play** button in the top-right corner. Wait until the App has launched.
-2. **Design a frame:**
-   - Click on individual pixels in the 8×13 grid to toggle them on/off
-   - Use the brightness slider to adjust LED intensity (0-7)
-   - Click on pixels with different brightness values to paint with varying intensities
-3. **Save your frame:**
-   - Click the **Save Frame** button to persist the current design
-   - Frames are automatically saved to a database and appear in the sidebar
-4. **Create animations:**
-   - Save multiple frames
-   - Switch to **Animations** mode in the sidebar
-   - Create a new animation and add frames to it
-   - Use **Play** to preview the animation on the board
-5. **Export code:**
-   - Select the frames or animations you want to export
-   - Click **Export** to generate C++ code
-   - Copy the generated arrays into your Arduino sketch
+1. **Run the App**
+   Launch the App from Arduino App Lab.
+
+2. **Access the Editor**
+   Open the App in your browser at `<UNO-Q-IP-ADDRESS>:7000`.
+
+3. **Draw Frames**
+   - **Click** a cell in the grid to toggle it on.
+   - **Click again** (or hover and wait) to open the brightness slider and adjust the intensity (0-7).
+   - The design appears immediately on the UNO Q LED Matrix.
+
+4. **Manage Your Session**
+   - **Auto-save:** Changes are automatically saved to the database as you draw.
+   - **Create:** Use the **+** button in the sidebar to create new empty frames.
+   - **Reorder:** Drag and drop frames in the list to change their sequence.
+   - **Transform:** Use the toolbar buttons to **Invert**, **Rotate 180°**, or **Flip** the current frame.
+
+5. **Create Animations**
+   - Switch the radio button in the sidebar to **Animations**.
+   - Select multiple frames by clicking on them in the sidebar.
+   - Click **Play Animation** to see the sequence run on the UNO Q.
+
+6. **Export Code**
+   - Click **Export .h** to download a C++ header file containing your designs.
+   - Copy the generated code (displayed in the right column) directly into your Arduino sketch.
 
 ## How it Works
 
 The LED Matrix Painter consists of three main components working together:
 
-- **Web Interface (Frontend)**: An interactive grid editor built with HTML/CSS/JavaScript that sends pixel data to the backend via HTTP API calls.
+1.  **Web Interface**: An interactive grid editor that captures user input and sends pixel data to the backend.
+2.  **Python Backend**: Manages the database, handles frame transformations, and communicates with the hardware.
+3.  **Arduino Sketch**: Receives raw data and renders it on the physical matrix.
 
-- **Python Backend**: Handles frame storage in a SQLite database, manages frame transformations, and communicates with the Arduino via Router Bridge.
-
-- **Arduino Sketch**: Receives frame data over Router Bridge and displays it on the physical LED matrix using the `Arduino_LED_Matrix` library.
-
-High-level data flow:
+**High-level data flow:**
 
 ```
-Web Browser → HTTP API → Python Backend → Router Bridge → Arduino LED Matrix
-                              ↓
-                        SQLite Database
+Web Browser  ──►  HTTP API  ──►  Python Backend  ──►  Router Bridge  ──►  Arduino Sketch
+                                       │                                        │
+                                       ▼                                        ▼
+                                SQLite Database                          LED Matrix Display
 ```
-
-The workflow:
-1. User edits a frame in the web interface
-2. Changes are sent to Python backend via HTTP POST
-3. Backend validates and stores the frame in SQLite
-4. Backend sends frame data to Arduino via Bridge
-5. Arduino sketch renders the frame on the LED matrix
 
 ## Understanding the Code
 
-### 🔧 Backend (`main.py`)
+### 🔧 Backend (`main.py` & `store.py`)
 
-The Python application manages the HTTP API, database operations, and communication with the Arduino.
+The Python backend acts as the controller, managing the API and database interactions.
 
-- **`designer = FrameDesigner()`**: Initializes the frame designer utility from `arduino.app_utils`, which provides transformation operations (invert, rotate, flip).
+- **Persistence**: The application uses `SQLStore` to manage a `frames` table. This allows frames to be loaded, reordered, and updated efficiently.
 
-- **`store.init_db()`**: Creates the SQLite database and tables for storing frames if they don't exist.
+```python
+# store.py
+db = SQLStore(database_name="led_matrix_frames")
 
-- **`ui.expose_api('POST', '/persist_frame', persist_frame)`**: Exposes an HTTP endpoint that saves or updates frames in the database.
-
-- **`ui.expose_api('POST', '/load_frame', load_frame)`**: Loads a frame from the database by ID or retrieves the last edited frame.
-
-- **`ui.expose_api('GET', '/list_frames', list_frames)`**: Returns all saved frames for display in the sidebar.
-
-- **`ui.expose_api('POST', '/play_animation', play_animation)`**: Sends a sequence of frames to the Arduino to play as an animation.
-
-- **`ui.expose_api('POST', '/export_frames', export_frames)`**: Generates C++ code arrays from selected frames for use in Arduino sketches.
-
-- **`Bridge.call("draw", frame_bytes)`**: Sends frame data to the Arduino sketch to update the LED matrix display.
-
-- **`AppFrame` class**: Custom extension of `arduino.app_utils.Frame` that adds metadata like frame name, position, duration, and database persistence methods.
-
-### 💻 Frontend (`app.js` + `index.html`)
-
-The web interface provides an interactive pixel grid editor and frame management tools.
-
-- **Pixel Grid**: An 8×13 canvas that responds to mouse clicks and drag operations for painting pixels.
-
-- **Brightness Control**: A slider (0-7) that controls the current brush brightness level.
-
-- **Frame List**: Displays all saved frames in a sidebar with options to load, delete, or reorder them.
-
-- **Animations Mode**: Allows creating and managing animation sequences by dragging frames into animation containers.
-
-- **Transform Tools**: Buttons for applying transformations (invert, rotate 180°, flip horizontal/vertical).
-
-- **Export Modal**: Generates and displays C++ code for selected frames or animations.
-
-- **HTTP API calls**: Uses `fetch()` to communicate with the Python backend for all frame operations (save, load, delete, transform, export, play).
-
-### 🔧 Hardware (`sketch.ino`)
-
-The Arduino code handles LED matrix control and Router Bridge communication.
-
-- **`matrix.begin()`**: Initializes the Arduino_LED_Matrix library for controlling the UNO Q LED matrix.
-
-- **`matrix.setGrayscaleBits(8)`**: Configures the matrix to accept 8-bit brightness values (0-255) for each pixel.
-
-- **`Bridge.begin()`**: Initializes Router Bridge for receiving commands from the Python application.
-
-- **`Bridge.provide("draw", draw)`**: Registers the `draw` function to be callable from Python, which accepts frame data and renders it on the matrix.
-
-- **`Bridge.provide("play_animation", play_animation)`**: Registers the animation playback function that accepts multiple frames and plays them sequentially.
-
-- **`matrix.draw(frame.data())`**: Renders a single frame on the LED matrix using raw byte data.
-
-- **`matrix.loadWrapper()` + `matrix.playSequence()`**: Loads an animation sequence and plays it on the LED matrix.
-
-## Frame Data Format
-
-Frames are stored as 8×13 arrays where each value represents LED brightness (0-255):
-
-```cpp
-// Example frame in C++ format
-const uint8_t frame[][12] = {
-  {255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255},
-  {0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 255, 0},
-  // ... 6 more rows
-};
+def save_frame(frame: AppFrame) -> int:
+    # Logic to calculate position and insert record
+    record = frame.to_record()
+    db.store("frames", record, create_table=False)
+    # ...
 ```
 
-For animations, frames are stored as `uint32_t` arrays compatible with the Arduino_LED_Matrix library:
+- **Bridge Communication**: When a frame is loaded or edited, it is sent to the board. The `AppFrame` class handles the conversion of pixel data into the specific byte format required by the sketch.
+
+```python
+# main.py
+def apply_frame_to_board(frame: AppFrame):
+    """Send frame bytes to the Arduino board."""
+    frame_bytes = frame.to_board_bytes()
+    Bridge.call("draw", frame_bytes)
+```
+
+- **Code Export**: The `AppFrame` class includes logic to generate C++ source code strings (`uint32_t` arrays), which are returned to the frontend for display.
+
+```python
+# app_frame.py
+def to_c_string(self) -> str:
+    c_type = "uint32_t"
+    parts = [f"const {c_type} {self.name}[] = {{"]
+    # ... formats array data as hex/int ...
+    parts.append("};")
+    return "\n".join(parts)
+```
+
+### 🔧 Arduino Component (`sketch.ino`)
+
+The sketch initializes the matrix and registers Bridge functions to receive data from Python.
+
+- **Matrix Configuration**: The matrix is configured to accept 8-bit values, allowing for smooth gradients (0-255) rather than just on/off.
 
 ```cpp
-const uint32_t animation[][5] = {
-  {0x12345678, 0x9abcdef0, 0x12345678, 0x9abcdef0, 1000},  // Frame 1, 1000ms duration
-  {0xfedcba98, 0x76543210, 0xfedcba98, 0x76543210, 1000},  // Frame 2, 1000ms duration
-};
+void setup() {
+  matrix.begin();
+  // configure grayscale bits to 8 so the display can accept 0..255 brightness
+  matrix.setGrayscaleBits(8);
+  Bridge.begin();
+  // ...
+}
+```
+
+- **Drawing Frames**: The `draw` function receives a vector of bytes, which represents the frame data, and passes it to the matrix driver.
+
+```cpp
+void draw(std::vector<uint8_t> frame) {
+  // Direct draw of received bytes
+  matrix.draw(frame.data());
+}
+```
+
+- **Playing Animations**: The `play_animation` function receives a stream of bytes representing multiple frames and durations. It reconstructs them into `uint32_t` arrays (the native format for the matrix library) and plays the sequence.
+
+### 🔧 Frontend (`app.js`)
+
+The JavaScript frontend handles the interactive grid logic.
+
+- **Brightness Control**: It supports multi-level brightness by managing a dataset attribute `data-b` on each cell.
+- **Auto-Persist**: To ensure a smooth user experience, changes are debounced and automatically sent to the backend via `schedulePersist()`, which updates both the database and the physical board simultaneously.
+
+```javascript
+// Unified persist: save to DB and update board together
+function schedulePersist(){
+  if (persistTimeout) clearTimeout(persistTimeout);
+  persistTimeout = setTimeout(()=> {
+    persistFrame();
+    persistTimeout = null;
+  }, AUTO_PERSIST_DELAY_MS);
+}
 ```
