@@ -14,6 +14,8 @@ const rotate180Btn = document.getElementById('rotate180');
 const flipHBtn = document.getElementById('flip-h');
 const flipVBtn = document.getElementById('flip-v');
 const frameTitle = document.getElementById('frame-title');
+const frameBackBtn = document.getElementById('frame-back');
+const frameForwardBtn = document.getElementById('frame-forward');
 
 function showError(message) {
   const errorContainer = document.getElementById('error-container');
@@ -117,6 +119,25 @@ function collectGridBrightness(){
   return grid;
 }
 
+function updateArrowButtonsState() {
+    if (!frameBackBtn || !frameForwardBtn) return;
+    if (!loadedFrameId) {
+        frameBackBtn.disabled = true;
+        frameForwardBtn.disabled = true;
+        return;
+    }
+
+    const currentIndex = sessionFrames.findIndex(f => f.id === loadedFrameId);
+    if (currentIndex === -1) {
+        frameBackBtn.disabled = true;
+        frameForwardBtn.disabled = true;
+        return;
+    }
+
+    frameBackBtn.disabled = currentIndex === 0;
+    frameForwardBtn.disabled = currentIndex === sessionFrames.length - 1;
+}
+
 function markLoaded(frame){
   const oldFrameId = loadedFrameId; // Store the old ID
   
@@ -143,6 +164,7 @@ function markLoaded(frame){
       }
     }catch(e){/* ignore */}
   }
+  updateArrowButtonsState();
 }
 
 function clearLoaded(){
@@ -154,6 +176,7 @@ function clearLoaded(){
   }
   loadedFrameId = null;
   loadedFrame = null;
+  updateArrowButtonsState();
 }
 
 function makeGrid(){
@@ -406,6 +429,28 @@ if (stopAnimationBtn) {
   });
 }
 
+if (frameForwardBtn) {
+    frameForwardBtn.addEventListener('click', () => {
+        if (!loadedFrameId) return;
+        const currentIndex = sessionFrames.findIndex(f => f.id === loadedFrameId);
+        if (currentIndex < sessionFrames.length - 1) {
+            const nextFrame = sessionFrames[currentIndex + 1];
+            loadFrameIntoEditor(nextFrame.id);
+        }
+    });
+}
+
+if (frameBackBtn) {
+    frameBackBtn.addEventListener('click', () => {
+        if (!loadedFrameId) return;
+        const currentIndex = sessionFrames.findIndex(f => f.id === loadedFrameId);
+        if (currentIndex > 0) {
+            const prevFrame = sessionFrames[currentIndex - 1];
+            loadFrameIntoEditor(prevFrame.id);
+        }
+    });
+}
+
 // Save frame button removed - auto-persist replaces it
 const animControls = document.getElementById('anim-controls');
 const animNameInput = document.getElementById('anim-name');
@@ -451,6 +496,7 @@ async function refreshFrames(){
             el.classList.add('selected');
         }
     }
+    updateArrowButtonsState();
   }catch(e){ console.warn(e) }
 }
 
