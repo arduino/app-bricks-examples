@@ -128,10 +128,7 @@ SPDX-License-Identifier: MPL-2.0
                                 <button id="duration-anim" class="anim-option-btn"><img src="img/time.svg" alt="Duration"></button>
                               </div>
                               <div class="animation-controls-main">
-                                  <div>
-                                    <label><input type="radio" name="mode" value="frames" checked> Frames</label>
-                                    <label><input type="radio" name="mode" value="anim"> Animations</label>
-                                  </div>
+                                                    
                                   <div id="anim-controls">
                                     <input id="anim-name" placeholder="Animation name" />
                                   </div>
@@ -140,12 +137,22 @@ SPDX-License-Identifier: MPL-2.0
                                     <input id="name" placeholder="Frame name (optional)" />
                                     <input id="duration" type="number" min="0" step="10" value="1000" title="Duration in ms" />
                                   </div>
-                                  <div id="frames" class="frames"></div>
-                              </div>
-                          </div>    </div>
+                                                    <div id="frames" class="frames"></div>
+                                                    <button id="new-frame" class="add-frame-btn" title="Create new frame"><img src="img/add.svg" alt="Add Frame"></button>
+                                                </div>                          </div>    </div>
   </div>
   <div id="error-container" class="error-message" style="display: none;"></div>
   </div>
+
+  <div id="duration-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-button">&times;</span>
+      <p>Set a duration to all frames</p>
+      <input type="number" id="all-frames-duration" placeholder="Duration in ms" min="0" step="10">
+      <button id="apply-duration">Apply</button>
+    </div>
+  </div>
+
   <script src="app.js"></script>
 </body>
 </html>

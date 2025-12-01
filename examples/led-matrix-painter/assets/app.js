@@ -274,33 +274,16 @@ async function initEditor(){
   }
 }
 
-function getMode() {
-  const checked = Array.from(modeInputs).find(i => i.checked);
-  return checked ? checked.value : 'frames';
-}
-
 async function exportH(){
   exportBtn.disabled = true;
   try {
-    const mode = getMode();
-    let data;
-    let filename = 'frames.h';
+    const animName = animNameInput && animNameInput.value && animNameInput.value.trim() ? animNameInput.value.trim() : 'Animation';
+    const filename = (animName || 'Animation') + '.h';
+    const frameIds = sessionFrames.map(f => f.id);
+    const payload = { frames: frameIds, animations: [{name: animName, frames: frameIds}] };
 
-    if(mode === 'frames'){
-      data = await fetchWithHandling('/export_frames', {method:'POST'}, 'json', 'export frames');
-    } else {
-      // Animations mode
-      const container = document.getElementById('frames');
-      let selected = Array.from(container.children).filter(ch => ch.dataset.selected === '1').map(ch => parseInt(ch.dataset.id));
-      if(selected.length === 0){
-        selected = sessionFrames.map(f => f.id);
-      }
-      const animName = animNameInput && animNameInput.value && animNameInput.value.trim() ? animNameInput.value.trim() : 'Animation';
-      filename = (animName || 'Animation') + '.h';
-      const payload = { frames: selected, animations: [{name: animName, frames: selected}] };
-      console.debug('[ui] exportH animation payload', payload, 'sessionFrames=', sessionFrames.map(f=>f.id));
-      data = await fetchWithHandling('/export_frames', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)}, 'json', 'export animation');
-    }
+    console.debug('[ui] exportH payload', payload);
+    const data = await fetchWithHandling('/export_frames', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)}, 'json', 'export animation');
 
     if (data && data.header) {
       const blob = new Blob([data.header], {type: 'text/plain'});
@@ -329,24 +312,13 @@ async function playAnimation() {
   
   try {
     playAnimationBtn.disabled = true;
-    const mode = getMode();
-    let frameIds;
-
-    if (mode === 'frames') {
-      frameIds = sessionFrames.map(f => f.id);
-      if (frameIds.length === 0) {
-        showError('No frames to play');
-        return;
-      }
-    } else {
-      if (selectedIds.size === 0) {
-        showError('No frames selected for animation');
-        return;
-      }
-      frameIds = Array.from(selectedIds);
+    const frameIds = sessionFrames.map(f => f.id);
+    if (frameIds.length === 0) {
+      showError('No frames to play');
+      return;
     }
     
-    console.debug(`[ui] playAnimation ${mode} mode, frameIds=`, frameIds);
+    console.debug(`[ui] playAnimation, frameIds=`, frameIds);
     
     const payload = {
       frames: frameIds,
@@ -376,7 +348,6 @@ async function playAnimation() {
 if (playAnimationBtn) playAnimationBtn.addEventListener('click', playAnimation); else console.warn('[ui] play animation button not found');
 
 // Save frame button removed - auto-persist replaces it
-const modeInputs = document.getElementsByName('mode');
 const animControls = document.getElementById('anim-controls');
 const animNameInput = document.getElementById('anim-name');
 const durationInput = document.getElementById('duration');
@@ -446,6 +417,43 @@ async function refreshFrames(){
   }catch(e){ console.warn(e) }
 }
 
+// Function to make a text element editable on double-click
+function createEditableField(element, onSave) {
+  element.addEventListener('dblclick', () => {
+    const originalValue = element.textContent;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = originalValue.replace(/ ms$/, ''); // Remove ' ms' for duration
+    
+    // Replace element with input
+    element.style.display = 'none';
+    element.parentNode.insertBefore(input, element);
+    input.focus();
+
+    const saveAndRevert = () => {
+      const newValue = input.value.trim();
+      input.remove();
+      element.style.display = '';
+      // Only save if the value has changed
+      if (newValue && newValue !== originalValue.replace(/ ms$/, '')) {
+        onSave(newValue);
+      } else {
+        element.textContent = originalValue; // Revert to original if empty or unchanged
+      }
+    };
+
+    input.addEventListener('blur', saveAndRevert);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        input.blur(); // Trigger blur to save
+      } else if (e.key === 'Escape') {
+        input.remove();
+        element.style.display = ''; // Cancel editing
+      }
+    });
+  });
+}
+
 function renderFrames(){
   const container = document.getElementById('frames');
   container.innerHTML = '';
@@ -454,7 +462,6 @@ function renderFrames(){
     const thumb = document.createElement('div'); thumb.className = 'frame-thumb';
     // render a tiny grid by mapping the rows into colored blocks
     const rows = f.rows || [];
-    // create 8*13 small cells but the CSS makes them tiny
     for(let r=0;r<ROWS;r++){
       const row = rows[r];
       for(let c=0;c<COLS;c++){
@@ -468,6 +475,30 @@ function renderFrames(){
       }
     }
     const name = document.createElement('div'); name.className = 'frame-name'; name.textContent = f.name || ('Frame'+f.id);
+    const duration = document.createElement('div'); duration.className = 'frame-duration'; duration.textContent = `${f.duration_ms || 1000} ms`;
+    
+    // Make name and duration editable
+    createEditableField(name, (newName) => {
+      const rows = (f.id === loadedFrameId) ? collectGridBrightness() : f.rows;
+      fetchWithHandling('/persist_frame', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ id: f.id, name: newName, duration_ms: f.duration_ms, rows: rows })
+      }).then(() => refreshFrames());
+    });
+    
+    createEditableField(duration, (newDuration) => {
+      const durationMs = parseInt(newDuration, 10);
+      if (!isNaN(durationMs)) {
+        const rows = (f.id === loadedFrameId) ? collectGridBrightness() : f.rows;
+        fetchWithHandling('/persist_frame', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ id: f.id, name: f.name, duration_ms: durationMs, rows: rows })
+        }).then(() => refreshFrames());
+      }
+    });
+
     const actions = document.createElement('div'); actions.className = 'frame-actions';
     const loadBtn = document.createElement('button'); loadBtn.textContent = 'Load';
     loadBtn.addEventListener('click', ()=> loadFrameIntoEditor(f.id));
@@ -476,43 +507,29 @@ function renderFrames(){
       const deletingLoadedFrame = (loadedFrameId === f.id);
       await deleteFrame(f.id); 
       
-      // If we deleted the currently loaded frame, clear editor and load another frame
       if (deletingLoadedFrame) {
         clearLoaded();
         cells.forEach(c => { c.classList.remove('on'); delete c.dataset.b; });
         if(nameInput) nameInput.value = '';
         if(durationInput) durationInput.value = '1000';
         showVectorText('');
-        
-        // Load the first available frame or let backend create empty one
-        await refreshFrames(); // Update list after deletion
-        
+        await refreshFrames();
         if (sessionFrames.length > 0) {
-          // Find a frame that's not the one we just deleted
           const nextFrame = sessionFrames.find(fr => fr.id !== f.id);
           if (nextFrame) {
             await loadFrameIntoEditor(nextFrame.id);
           }
         } else {
-          // No frames left, let backend create one with proper naming
-          await loadFrameIntoEditor(); // no ID = backend creates empty frame with Frame{id} name
-          // Refresh again to show the newly created frame
+          await loadFrameIntoEditor();
           await refreshFrames();
         }
       } else {
-        // Not deleting loaded frame, just refresh the list
         await refreshFrames();
       }
     });
-    // toggle selection for animations when clicking the thumb
+    
     item.addEventListener('click', (e)=>{
-      // avoid toggling when clicking the load/del buttons
-      if(e.target === loadBtn || e.target === delBtn) return;
-      
-      // Only allow selection toggle in animations mode
-      const mode = getMode();
-      if (mode !== 'anim') return;
-      
+      if(e.target === loadBtn || e.target === delBtn || e.target.parentNode === loadBtn || e.target.parentNode === delBtn) return;
       const id = parseInt(item.dataset.id);
       if(selectedIds.has(id)){
         selectedIds.delete(id);
@@ -525,7 +542,6 @@ function renderFrames(){
       }
     });
 
-    // drag/drop handlers
     item.addEventListener('dragstart', (ev)=>{ ev.dataTransfer.setData('text/plain', f.id); item.classList.add('dragging'); });
     item.addEventListener('dragend', ()=>{ item.classList.remove('dragging'); });
     item.addEventListener('dragover', (ev)=>{ ev.preventDefault(); item.classList.add('dragover'); });
@@ -535,29 +551,23 @@ function renderFrames(){
       const draggedId = parseInt(ev.dataTransfer.getData('text/plain'));
       const draggedEl = container.querySelector(`[data-id='${draggedId}']`);
       if(draggedEl && draggedEl !== item){
-        // Determine if we should insert before or after based on mouse position
         const rect = item.getBoundingClientRect();
         const mouseY = ev.clientY;
         const itemMiddle = rect.top + rect.height / 2;
-        
         if (mouseY < itemMiddle) {
-          // Drop in upper half: insert before
           container.insertBefore(draggedEl, item);
         } else {
-          // Drop in lower half: insert after
           container.insertBefore(draggedEl, item.nextSibling);
         }
-        
-        // compute new order and send to backend
-        const order = Array.from(container.children).map(ch => parseInt(ch.dataset.id));
+        const order = Array.from(container.children).map(ch => parseInt(ch.dataset.id)).filter(id => !isNaN(id));
         await fetchWithHandling('/reorder_frames', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({order})}, 'json', 'reorder frames');
         await refreshFrames();
       }
     });
-    actions.appendChild(loadBtn); actions.appendChild(delBtn);
-    item.appendChild(thumb); item.appendChild(name); item.appendChild(actions);
     
-    // Set selection state from selectedIds (for animations)
+    actions.appendChild(loadBtn); actions.appendChild(delBtn);
+    item.appendChild(thumb); item.appendChild(name); item.appendChild(duration); item.appendChild(actions);
+    
     if(selectedIds.has(f.id)){
       item.classList.add('selected');
       item.dataset.selected = '1';
@@ -565,7 +575,6 @@ function renderFrames(){
       item.dataset.selected = '0';
     }
     
-    // Set loaded state (frame currently in editor)
     if(loadedFrameId === f.id){
       item.classList.add('loaded');
     }
@@ -597,37 +606,7 @@ if (saveAnimBtn) {
   console.warn('[ui] save-anim button not found (animation save disabled)');
 }
 
-// Mode toggle handling
-Array.from(modeInputs).forEach(i=> i.addEventListener('change', async ()=>{
-  const mode = Array.from(modeInputs).find(x=>x.checked).value;
-  if(mode === 'anim'){
-    animControls.style.display = 'flex';
-    // ensure we have the latest frames when switching to Animations mode
-    await refreshFrames();
-    // Auto-select all frames by default when entering Animations mode so
-    // exporting immediately will include existing frames the user created
-    // in Frames mode.
-    selectedIds = new Set((sessionFrames || []).map(f => f.id));
-    // reflect selection in the DOM
-    const container = document.getElementById('frames');
-    if(container){
-      Array.from(container.children).forEach(ch => {
-        const id = parseInt(ch.dataset.id);
-        if(selectedIds.has(id)){
-          ch.classList.add('selected'); ch.dataset.selected = '1';
-        } else {
-          ch.classList.remove('selected'); ch.dataset.selected = '0';
-        }
-      });
-    }
-  } else {
-    animControls.style.display = 'none';
-    // clear any animation selections when leaving animations mode
-    selectedIds = new Set();
-    const container = document.getElementById('frames');
-    if(container){ Array.from(container.children).forEach(ch => { ch.classList.remove('selected'); ch.dataset.selected = '0'; }); }
-  }
-}));
+// Mode toggle handling removed
 
 // Transform button handlers
 async function transformFrame(op) {
@@ -928,3 +907,120 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+// --- Option Buttons Functionality ---
+const copyAnimBtn = document.getElementById('copy-anim');
+const deleteAnimBtn = document.getElementById('delete-anim');
+const durationAnimBtn = document.getElementById('duration-anim');
+const durationModal = document.getElementById('duration-modal');
+const closeModalBtn = document.querySelector('#duration-modal .close-button');
+const applyDurationBtn = document.getElementById('apply-duration');
+const allFramesDurationInput = document.getElementById('all-frames-duration');
+
+if (copyAnimBtn) {
+  copyAnimBtn.addEventListener('click', async () => {
+    if (selectedIds.size === 0) {
+      showError('Please select one or more frames to copy.');
+      setTimeout(hideError, 3000);
+      return;
+    }
+    
+    const idsToCopy = Array.from(selectedIds);
+    
+    for (const id of idsToCopy) {
+      try {
+        const data = await fetchWithHandling('/load_frame', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ id })
+        }, 'json', `load frame ${id} for copying`);
+
+        if (data && data.ok && data.frame) {
+          const frameToCopy = data.frame;
+          const newFramePayload = {
+            name: `${frameToCopy.name} (copy)`,
+            rows: frameToCopy.rows,
+            duration_ms: frameToCopy.duration_ms,
+            brightness_levels: frameToCopy.brightness_levels
+          };
+          await fetchWithHandling('/persist_frame', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(newFramePayload)
+          }, 'json', 'create copied frame');
+        }
+      } catch (err) {
+        console.error(`[ui] Failed to copy frame ${id}`, err);
+      }
+    }
+    await refreshFrames();
+  });
+}
+
+if (deleteAnimBtn) {
+  deleteAnimBtn.addEventListener('click', async () => {
+    if (selectedIds.size === 0) {
+      showError('Please select one or more frames to delete.');
+      setTimeout(hideError, 3000);
+      return;
+    }
+    
+    const idsToDelete = Array.from(selectedIds);
+    for (const id of idsToDelete) {
+      await deleteFrame(id);
+    }
+    
+    selectedIds.clear();
+    await refreshFrames();
+  });
+}
+
+if (durationAnimBtn) {
+  durationAnimBtn.addEventListener('click', () => {
+    durationModal.style.display = 'block';
+  });
+}
+
+if (closeModalBtn) {
+  closeModalBtn.addEventListener('click', () => {
+    durationModal.style.display = 'none';
+  });
+}
+
+// Close modal if user clicks outside of it
+window.addEventListener('click', (event) => {
+  if (event.target == durationModal) {
+    durationModal.style.display = 'none';
+  }
+});
+
+if (applyDurationBtn) {
+  applyDurationBtn.addEventListener('click', async () => {
+    const newDuration = parseInt(allFramesDurationInput.value, 10);
+    if (isNaN(newDuration) || newDuration < 0) {
+      showError('Please enter a valid, non-negative duration.');
+      setTimeout(hideError, 3000);
+      return;
+    }
+
+    durationModal.style.display = 'none';
+
+    const updatePromises = sessionFrames.map(frame => {
+      const fullFrame = sessionFrames.find(f => f.id === frame.id);
+      if (fullFrame) {
+        const payload = { ...fullFrame, duration_ms: newDuration };
+        return fetchWithHandling('/persist_frame', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(payload)
+        }, 'json', `update duration for frame ${frame.id}`).catch(err => {
+          console.error(`[ui] Failed to update duration for frame ${frame.id}`, err);
+          return Promise.resolve(); 
+        });
+      }
+      return Promise.resolve();
+    });
+
+    await Promise.all(updatePromises);
+    await refreshFrames();
+  });
+}
