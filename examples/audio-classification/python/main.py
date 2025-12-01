@@ -13,41 +13,13 @@ import json
 
 # Global state
 AUDIO_DIR = "/app/assets/audio"
-audio_classifier = None
-
-def get_audio_classifier():
-    """Lazy initialization of audio classifier"""
-    global audio_classifier
-    if audio_classifier is None:
-        try:
-            from arduino.app_peripherals.microphone import Microphone
-            try:
-                audio_classifier = AudioClassification(mic=None)
-            except:
-                class MockMicrophone:
-                    def __init__(self):
-                        self.sample_rate = 16000
-                        self.channels = 1
-                    def start_recording(self): pass
-                    def stop_recording(self): pass
-                    def read(self): return b''
-                mock_mic = MockMicrophone()
-                audio_classifier = AudioClassification(mic=mock_mic)
-        except Exception as e:
-            raise e
-    return audio_classifier
 
 def parse_data(data):
-    """Parse incoming data - handle both string and dict"""
     if isinstance(data, str):
-        try:
-            return json.loads(data)
-        except:
-            return {}
+        return json.loads(data)
     return data if isinstance(data, dict) else {}
 
 def on_run_classification(sid, data):
-    """Run classification"""
     try:
         parsed_data = parse_data(data)
         confidence = parsed_data.get('confidence', 0.5)
@@ -65,11 +37,9 @@ def on_run_classification(sid, data):
                 return
             with open(file_path, "rb") as f:
                 input_audio = io.BytesIO(f.read())
-        
         if input_audio:
-            classifier = get_audio_classifier()
             start_time = time.time() * 1000
-            results = classifier.classify_from_file(input_audio, confidence)
+            results = AudioClassification.classify_from_file(input_audio, confidence)
             diff = time.time() * 1000 - start_time
 
             response_data = { 'results': results, 'processing_time': diff }
@@ -77,7 +47,7 @@ def on_run_classification(sid, data):
                 response_data['classification'] = { 'class_name': results["class_name"], 'confidence': results["confidence"] }
             else:
                 response_data['error'] = "No objects detected in the audio. Try to lower the confidence threshold."
-            
+
             ui.send_message('classification_complete', response_data, sid)
         else:
             ui.send_message('classification_error', {'message': "No audio available for classification"}, sid)
