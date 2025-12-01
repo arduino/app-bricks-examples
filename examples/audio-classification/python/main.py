@@ -37,7 +37,6 @@ def on_run_classification(sid, data):
                 return
             with open(file_path, "rb") as f:
                 input_audio = io.BytesIO(f.read())
-
         if input_audio:
             start_time = time.time() * 1000
             results = AudioClassification.classify_from_file(input_audio, confidence)
@@ -48,9 +47,11 @@ def on_run_classification(sid, data):
                 response_data['classification'] = { 'class_name': results["class_name"], 'confidence': results["confidence"] }
             else:
                 response_data['error'] = "No objects detected in the audio. Try to lower the confidence threshold."
+
             ui.send_message('classification_complete', response_data, sid)
         else:
             ui.send_message('classification_error', {'message': "No audio available for classification"}, sid)
+
     except Exception as e:
         ui.send_message('classification_error', {'message': str(e)}, sid)
 
