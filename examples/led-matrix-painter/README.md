@@ -91,14 +91,14 @@ Web Browser  ──►  HTTP API  ──►  Python Backend  ──►  Router B
 
 ## Understanding the Code
 
-### 📦 Data Model (`app_frame.py`)
+### 🔧 Backend (`main.py`, `store.py` & `app_frame.py`)
 
-The `AppFrame` class is the core data structure that acts as a bridge between the different components. It extends the base `Frame` class to add application-specific metadata like `id`, `name`, `position`, and `duration`.
+The Python backend manages the application logic, database, and hardware communication.
 
-It handles three distinct data contracts:
-- **API Contract**: `to_json()` / `from_json()` formats data for the web frontend.
-- **Database Contract**: `to_record()` / `from_record()` formats data for `SQLStore` storage.
-- **Hardware Contract**: `to_board_bytes()` packs pixels into the specific byte format expected by the Arduino sketch.
+- **Data Model (`app_frame.py`)**: The `AppFrame` class is the core data structure that acts as a bridge between the different components. It extends the base `Frame` class to add application-specific metadata like `id`, `name`, `position`, and `duration`. It handles three distinct data contracts:
+  - **API Contract**: `to_json()` / `from_json()` formats data for the web frontend.
+  - **Database Contract**: `to_record()` / `from_record()` formats data for `SQLStore` storage.
+  - **Hardware Contract**: `to_board_bytes()` packs pixels into the specific byte format expected by the Arduino sketch.
 
 ```python
 class AppFrame(Frame):
@@ -112,10 +112,6 @@ class AppFrame(Frame):
             # ...
         }
 ```
-
-### 🔧 Backend (`main.py` & `store.py`)
-
-The Python backend manages the application logic, database, and hardware communication.
 
 - **Initialization**:
   - `designer = FrameDesigner()`: Initializes the frame designer utility from `arduino.app_utils`, which provides the logic for transformation operations (invert, rotate, flip).
