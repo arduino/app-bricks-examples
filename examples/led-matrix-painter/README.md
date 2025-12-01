@@ -84,11 +84,34 @@ Web Browser  ──►  HTTP API  ──►  Python Backend  ──►  Router B
 
 1.  **Web Interface**: The `app.js` script captures clicks on the grid. It debounces these events and sends the pixel data to the backend via the `/persist_frame` endpoint.
 2.  **Python Backend**:
-    *   **Persistence**: The `store.py` module uses `SQLStore` to save the frame data (pixels, duration, position) to a `frames` table in a SQLite database.
-    *   **Bridge**: The `main.py` script converts the frame into a raw byte array and calls `Bridge.call("draw", frame_bytes)`.
+    *   **Data Model**: The `AppFrame` class normalizes the data, converting between frontend JSON, database records, and hardware byte arrays.
+    *   **Persistence**: The `store.py` module uses `SQLStore` to save the frame data to a `frames` table in a SQLite database.
+    *   **Bridge**: The `main.py` script sends the raw byte array to the board via `Bridge.call("draw", frame_bytes)`.
 3.  **Arduino Sketch**: The sketch receives the raw byte data and uses the `Arduino_LED_Matrix` library to render the grayscale image.
 
 ## Understanding the Code
+
+### 📦 Data Model (`app_frame.py`)
+
+The `AppFrame` class is the core data structure that acts as a bridge between the different components. It extends the base `Frame` class to add application-specific metadata like `id`, `name`, `position`, and `duration`.
+
+It handles three distinct data contracts:
+- **API Contract**: `to_json()` / `from_json()` formats data for the web frontend.
+- **Database Contract**: `to_record()` / `from_record()` formats data for `SQLStore` storage.
+- **Hardware Contract**: `to_board_bytes()` packs pixels into the specific byte format expected by the Arduino sketch.
+
+```python
+class AppFrame(Frame):
+    def to_record(self) -> dict:
+        """Convert to a database record dict for storage."""
+        return {
+            "id": self.id,
+            "name": self.name,
+            "rows": json.dumps(self.arr.tolist()), # Serialize pixels to JSON string
+            "brightness_levels": int(self.brightness_levels),
+            # ...
+        }
+```
 
 ### 🔧 Backend (`main.py` & `store.py`)
 
@@ -114,18 +137,6 @@ def apply_frame_to_board(frame: AppFrame):
     """Send frame bytes to the Arduino board."""
     frame_bytes = frame.to_board_bytes()
     Bridge.call("draw", frame_bytes)
-```
-
-- **Code Generation**: The `AppFrame` class generates the C++ code displayed in the UI. It formats the internal array data into `uint32_t` hex values.
-
-```python
-# app_frame.py
-def to_c_string(self) -> str:
-    c_type = "uint32_t"
-    parts = [f"const {c_type} {self.name}[] = {{"]
-    # ... logic to format array data ...
-    parts.append("};")
-    return "\n".join(parts)
 ```
 
 ### 🔧 Arduino Component (`sketch.ino`)
