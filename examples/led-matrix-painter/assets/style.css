@@ -486,19 +486,21 @@ input:checked + .slider:before {
     overflow-y: hidden;
     padding-bottom: 10px; /* Add some padding for the scrollbar */
     align-items: center; /* Vertically center items */
-    min-height: 150px; /* Give the container some height */
+    height: 112px; /* Set fixed height to match buttons */
 }
 .frame-item {
     display: flex;
     flex-direction: column; /* Stack image, name, duration vertically */
     align-items: center; /* Center content horizontally */
+    justify-content: space-around; /* Distribute space vertically within the frame item */
     gap: 4px;
     padding: 4px;
-    border: 1px solid #f0f0f0;
-    border-radius: 8px;
-    background: #fafafa;
+    border: 1px solid #f0f0f0; /* Default border */
+    border-radius: 8px; /* Requested border-radius */
+    background: transparent; /* Remove default background */
     max-width: 132px;
     flex-shrink: 0; /* Prevent shrinking */
+    height: 100%; /* Make frame item fill the height of its container */
 }
 .frame-thumb {
     width: 65px;
@@ -590,6 +592,8 @@ input {
     font-style: normal;
     font-weight: 400;
     color: #2C353A;
+    border-radius: 4px;
+    border: 1px solid#C9D2D2;
 }
 
 /* Cell Slider */
@@ -771,17 +775,16 @@ input {
   border-color: rgba(0, 129, 132, 0.4);
 }
 .add-frame-btn {
-  display: block;
-  margin: 12px auto 0; /* Top margin, centered horizontally */
-  width: 32px; /* Adjusted to match other icon buttons */
-  height: 32px; /* Adjusted to match other icon buttons */
-  border-radius: 8px; /* Changed to 8px as requested */
-  background: rgba(0, 129, 132, 0.2); /* Same as stop button */
-  border: none; /* Remove default border from buttons */
+  margin-left: 8px; /* Add 8px to the existing 8px gap for a total of 16px */
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(0, 129, 132, 0.2);
+  border: none;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* Subtle shadow */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
   transition: background 0.3s ease;
-  display: flex; /* To center the image */
+  display: flex;
   align-items: center;
   justify-content: center;
 }
@@ -789,8 +792,12 @@ input {
   background: rgba(0, 129, 132, 0.3); /* Slightly darker on hover */
 }
 .add-frame-btn img {
-  width: 16px; /* Icon size */
-  height: 16px; /* Icon size */
+  width: 16px;
+  height: 16px;
+}
+
+.frame-item:hover {
+  cursor: pointer;
 }
 
 .frame-name, .frame-duration {
@@ -806,9 +813,9 @@ input {
     text-overflow: ellipsis;
 }
 .modal {
-  display: none; 
-  position: fixed; 
-  z-index: 1001; 
+  display: none;
+  position: fixed;
+  z-index: 1001;
   left: 0;
   top: 0;
   width: 100%;
@@ -841,3 +848,18 @@ input {
 #global-frame-inputs {
   display: none;
 }
+
+@media (max-width: 700px) {
+    .grid {
+        grid-template-columns: repeat(13, 20px);
+        grid-auto-rows: 20px;
+        gap: 3px; /* Half the original gap for smaller cells */
+        width: calc(13 * 20px + 12 * 3px + 32px); /* 13 cells * 20px + 12 gaps * 3px + 2*16px padding */
+        padding: 16px; /* Keep padding consistent, or adjust as needed */
+    }
+    .cell {
+        width: 20px;
+        height: 20px;
+    }
+}
+

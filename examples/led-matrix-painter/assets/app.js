@@ -67,7 +67,6 @@ const ROWS = 8, COLS = 13;
 let BRIGHTNESS_LEVELS = 8;
 let cells = [];
 let sessionFrames = [];
-let selectedFrameId = null;
 let loadedFrameId = null; // ID of the frame currently loaded in editor
 let loadedFrame = null; // Full frame object currently loaded
 
@@ -597,11 +596,7 @@ async function loadFrameIntoEditor(id){
       setGridFromRows(f.rows || []);
       
       // Populate name input
-      if(nameInput) nameInput.value = f.name || '';
       if(frameTitle) frameTitle.textContent = f.name || `Frame ${f.id}`;
-      
-      // Populate duration
-      if(durationInput) durationInput.value = (f.duration_ms !== undefined && f.duration_ms !== null) ? String(f.duration_ms) : '1000';
       
       // Mark as loaded in sidebar
       markLoaded(f);
@@ -610,8 +605,6 @@ async function loadFrameIntoEditor(id){
       if (data.vector) {
         showVectorText(data.vector);
       }
-      
-      selectedFrameId = id;
       
       console.debug('[ui] loaded frame into editor:', id);
     }
@@ -671,7 +664,6 @@ async function handleNewFrameClick() {
       loadedFrame = data.frame;
       loadedFrameId = data.frame.id;
       // Set name to the backend-assigned name (Frame{id})
-      if(nameInput) nameInput.value = data.frame.name || `Frame${data.frame.id}`;
       if(frameTitle) frameTitle.textContent = data.frame.name || `Frame ${data.frame.id}`;
       
       // Show C vector representation
@@ -707,27 +699,7 @@ if (clearBtn) {
   console.warn('[ui] clear button not found');
 }
 
-if (saveAnimBtn) {
-  saveAnimBtn.addEventListener('click', async ()=>{
-    const container = document.getElementById('frames');
-    const selected = Array.from(container.children).filter(ch => ch.dataset.selected === '1').map(ch => parseInt(ch.dataset.id));
-    if(selected.length === 0) { alert('Select some frames first'); return; }
-    const animName = animNameInput.value && animNameInput.value.trim() ? animNameInput.value.trim() : undefined;
-    try {
-      const data = await fetchWithHandling('/save_animation', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name: animName, frames: selected})}, 'json', 'save animation');
-      if(data && data.anim){
-        // clear selection
-        Array.from(container.children).forEach(ch => { ch.classList.remove('selected'); ch.dataset.selected = '0'; });
-        animNameInput.value = '';
-        alert('Animation saved');
-      }
-    } catch(e) {
-      console.warn('[ui] save animation failed', e);
-    }
-  });
-} else {
-  console.warn('[ui] save-anim button not found (animation save disabled)');
-}
+// 'save-anim' button functionality has been removed as it is no longer part of the UI.
 
 document.addEventListener('DOMContentLoaded', () => {
   let selectedTool = 'brush';
