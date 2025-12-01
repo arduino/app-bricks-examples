@@ -1,0 +1,54 @@
+<!--
+SPDX-FileCopyrightText: Copyright (C) ARDUINO SRL (http://www.arduino.cc)
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mascot Jumpe Game</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="icon" type="image/png" href="img/favicon.png">
+</head>
+<body>
+    <div class="connection-status disconnected" id="connectionStatus">Connecting...</div>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="arduino-text">Mascot Jump Game</h1>
+            <img class="arduino-logo" src="img/RGB-Arduino-Logo_Color Inline Loop.svg" alt="Arduino Logo">
+        </div>
+        
+        <div class="game-container">
+            <canvas id="gameCanvas" width="800" height="300"></canvas>
+            
+            <div class="game-info">
+                <div class="score-display">
+                    <span class="score-label">Score:</span>
+                    <span id="score" class="score-value">00000</span>
+                    <span class="high-score-label">HI:</span>
+                    <span id="highScore" class="high-score-value">00000</span>
+                </div>
+                
+                <div class="controls-info" id="controlsInfo">
+                    <span class="control-item">
+                        <span class="key-icon">SPACE</span> or <span class="key-icon">↑</span> Jump
+                    </span>
+                    <span class="control-divider">•</span>
+                    <span class="control-item">
+                        <span class="key-icon">R</span> Restart
+                    </span>
+                </div>
+            </div>
+            
+            <div id="errorContainer" class="error-message" style="display: none;"></div>
+        </div>
+    </div>
+    
+    <script src="libs/socket.io.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
