@@ -142,7 +142,7 @@ input:checked + .slider:before {
 .main-content {
     display: flex;
     gap: 20px;
-    align-items: stretch; /* Changed to stretch */
+    align-items: stretch;
 }
 
 .left-sidebar {
@@ -190,7 +190,7 @@ input:checked + .slider:before {
 }
 
 /*
- * Styles for specific components required by Anomaly Detection
+ * Styles for specific components required LED matrix
  */
 
 .legend {
@@ -239,33 +239,33 @@ input:checked + .slider:before {
     border-radius: 8px;
     width: 100%;
     display: flex;
-    flex-direction: column; /* Changed from row */
-    gap: 16px; /* Adjusted gap */
+    flex-direction: column;
+    gap: 16px;
 }
 
 .animation-controls-body {
     display: flex;
-    flex-direction: row; /* Changed to row */
-    gap: 16px; /* Gap between options and main controls */
+    flex-direction: row;
+    gap: 16px;
 }
 
 .animation-options {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    align-items: center; /* Center buttons in the column */
+    align-items: center;
 }
 
 .anim-option-btn {
     border: 1px solid #C9D2D2;
     border-radius: 8px;
     padding: 6px;
-    background-color: transparent; /* Assuming transparent background */
+    background-color: transparent;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #2C353A; /* Updated icon color */
+    color: #2C353A;
 }
 
 .anim-option-btn:hover {
@@ -281,14 +281,14 @@ input:checked + .slider:before {
     width: 100%;
     height: 1px;
     background-color: #C9D2D2;
-    margin: 4px 0; /* Vertical margin for spacing */
+    margin: 4px 0;
 }
 
 .animation-controls-main {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    flex: 1; /* Allow this to take remaining space */
+    flex: 1;
 }
 
 .row {
@@ -372,14 +372,14 @@ input:checked + .slider:before {
     }
 
     .left-sidebar {
-        max-width: 100%; /* Allow left-sidebar to take full width */
-        flex-direction: row; /* Arrange children side-by-side */
-        flex-wrap: wrap; /* Allow children to wrap */
+        max-width: 100%;
+        flex-direction: row;
+        flex-wrap: wrap;
     }
 
     .tools-box, .transform-box {
-        flex: 1; /* Allow boxes to grow and shrink */
-        min-width: 250px; /* Ensure a minimum width for the boxes */
+        flex: 1;
+        min-width: 250px;
     }
 
     .arduino-text {
@@ -402,14 +402,14 @@ input:checked + .slider:before {
 /* Grid and cells */
 .grid {
     display: grid;
-    grid-template-columns: repeat(13, 40px); /* Updated to 40px */
-    grid-auto-rows: 40px; /* Updated to 40px */
+    grid-template-columns: repeat(13, 40px);
+    grid-auto-rows: 40px;
     gap: 6px;
-    margin: 16px auto; /* Centered horizontally */
+    margin: 16px auto;
     background-color: #374146;
     padding: 16px;
-    border-radius: 8px; /* Add a radius to match other containers */
-    width: 624px; /* Fixed width, updated for 40px cells */
+    border-radius: 8px;
+    width: 624px;
 }
 .cell {
     width: 40px;
@@ -436,27 +436,27 @@ input:checked + .slider:before {
   display: flex;
   gap: 8px;
   justify-content: space-between;
-  align-items: center; /* Added for vertical alignment */
+  align-items: center;
 }
 
 .anim-buttons {
   display: flex;
-  gap: 8px; /* Space between play and stop buttons */
+  gap: 8px;
 }
 
 /* Styling for the new icon-only buttons */
 .anim-buttons button {
-  padding: 6px; /* Smaller padding for icon buttons */
-  width: 32px; /* Fixed width for square buttons */
-  height: 32px; /* Fixed height for square buttons */
+  padding: 6px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px; /* Changed to 8px as requested */
-  color: white; /* For the SVG fill */
+  border-radius: 8px;
+  color: white;
   border: none;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* Subtle shadow */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
   transition: background 0.3s ease;
 }
 
@@ -465,11 +465,11 @@ input:checked + .slider:before {
 }
 
 #play-animation:disabled {
-  background: #006567; /* Darken background when animation is running */
+  background: #006567;
 }
 
 #stop-animation {
-  background: rgba(0, 129, 132, 0.2); /* #008184 with 20% alpha */
+  background: rgba(0, 129, 132, 0.2);
 }
 
 
@@ -483,31 +483,29 @@ input:checked + .slider:before {
 }
 .frames {
     display: flex;
-    flex-direction: row; /* Horizontal layout */
-    flex-wrap: wrap; /* Allow frames to wrap to the next line */
+    flex-direction: row;
+    flex-wrap: wrap;
     gap: 8px;
-    /* Removed overflow-x: auto as horizontal scrolling is no longer needed */
-    /* Changed height to auto to allow the container to expand vertically */
     height: auto;
-    align-items: flex-start; /* Align items to the start of the cross axis (top) */
+    align-items: flex-start;
     align-items: center;
 }
 .frame-item {
     display: flex;
-    flex-direction: column; /* Stack image, name, duration vertically */
-    justify-content: space-around; /* Distribute space vertically within the frame item */
+    flex-direction: column;
+    justify-content: space-around;
     gap: 4px;
     padding: 4px;
-    border: 1px solid #f0f0f0; /* Default border */
-    border-radius: 8px; /* Requested border-radius */
-    background: transparent; /* Remove default background */
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
+    background: transparent;
     width: 120px;
-    flex-shrink: 0; /* Prevent shrinking */
+    flex-shrink: 0;
 }
 .frame-thumb {
     width: 112px;
     height: 69px;
-    background: #374146; /* Changed to match original matrix background */
+    background: #374146;
     border: 1px solid #ddd;
     display: grid;
     grid-template-columns: repeat(13, 1fr);
@@ -520,10 +518,10 @@ input:checked + .slider:before {
 }
 
 .frame-actions {
-    display: flex; /* Keep actions in a row */
+    display: flex;
     gap: 6px;
-    justify-content: flex-end; /* Push actions to the right */
-    width: 100%; /* Take full width of parent */
+    justify-content: flex-end;
+    width: 100%;
 }
 .frame-item.dragging {
     opacity: 0.5;
@@ -539,7 +537,7 @@ input:checked + .slider:before {
 }
 .frame-item.selected {
   background-color: rgba(0, 129, 132, 0.2) !important;
-  border: 1px solid #008184 !important; /* Requested solid border color */
+  border: 1px solid #008184 !important;
 }
 
 /* General button and input styles */
@@ -585,10 +583,10 @@ input {
     box-sizing: border-box;
     overflow: auto;
     padding: 8px;
-    background: #DAE3E3; /* New background color */
-    border: 1px solid #ddd; /* Keep existing border */
+    background: #DAE3E3;
+    border: 1px solid #ddd;
     height: auto;
-    font-family: "Open Sans"; /* New text styling */
+    font-family: "Open Sans";
     font-size: 10px;
     font-style: normal;
     font-weight: 400;
@@ -603,7 +601,7 @@ input {
     background: #fff;
     border: 1px solid #ddd;
     border-radius: 6px;
-    display:none; /* This was originally an inline style, so it should be present in CSS for initial state */
+    display:none;
     position:fixed;
     z-index:1000;
     align-items:center;
@@ -615,7 +613,7 @@ input {
   width: 1px;
   height: 35px;
   background-color: #7F8C8D;
-  vertical-align: middle; /* To vertically align with other elements in the header */
+  vertical-align: middle;
 }
 
 .tool-controls {
@@ -657,7 +655,7 @@ input {
   left: 0;
   right: 0;
   display: none;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow instead of border */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 0 0 8px 8px;
   background: #fff;
   z-index: 2;
@@ -667,7 +665,7 @@ input {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 8px; /* Adjusted padding */
+  padding: 12px 8px;
   cursor: pointer;
 }
 
@@ -709,7 +707,7 @@ input {
 #brightness-alpha-slider {
   -webkit-appearance: none;
   width: 100%;
-  background: transparent; /* Changed from #008184 to transparent */
+  background: transparent;
   outline: none;
   -webkit-transition: .2s;
   transition: opacity .2s;
@@ -718,29 +716,29 @@ input {
 
 /* Mouse-over effects */
 #brightness-alpha-slider:hover {
-  opacity: 1; /* Fully shown on mouse-over */
+  opacity: 1;
 }
 
 /* The slider thumb (webKit) */
 #brightness-alpha-slider::-webkit-slider-thumb {
-  -webkit-appearance: none; /* Hides the default slider thumb */
+  -webkit-appearance: none;
   appearance: none;
-  width: 16px; /* Set a specific slider handle width */
-  height: 16px; /* Slider handle height */
-  border-radius: 50%; /* Make it a circle */
-  background: #008184 !important; /* Green background */
-  cursor: pointer; /* Cursor on hover */
-  margin-top: -5px; /* Adjust this to center the thumb vertically on the track */
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #008184 !important;
+  cursor: pointer;
+  margin-top: -5px;
   filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.25));
 }
 
 /* The slider thumb (Firefox) */
 #brightness-alpha-slider::-moz-range-thumb {
-  width: 16px; /* Set a specific slider handle width */
-  height: 16px; /* Slider handle height */
-  border-radius: 50%; /* Make it a circle */
-  background: #008184 !important; /* Green background */
-  cursor: pointer; /* Cursor on hover */
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #008184 !important;
+  cursor: pointer;
   margin-top: -5px;
   filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.25));
 }
@@ -749,7 +747,7 @@ input {
 #brightness-alpha-slider::-webkit-slider-runnable-track {
   width: 100%;
   height: 6px;
-  background: #008184 !important; /* Green background */
+  background: #008184 !important;
   border-radius: 30px;
 }
 
@@ -757,7 +755,7 @@ input {
 #brightness-alpha-slider::-moz-range-track {
   width: 100%;
   height: 6px;
-  background: #008184 !important; /* Green background */
+  background: #008184 !important;
   border-radius: 30px;
 }
 
@@ -776,7 +774,7 @@ input {
   border-color: rgba(0, 129, 132, 0.4);
 }
 .add-frame-btn {
-  margin-left: 8px; /* Add 8px to the existing 8px gap for a total of 16px */
+  margin-left: 8px;
   width: 32px;
   height: 32px;
   border-radius: 8px;
@@ -790,7 +788,7 @@ input {
   justify-content: center;
 }
 .add-frame-btn:hover {
-  background: rgba(0, 129, 132, 0.3); /* Slightly darker on hover */
+  background: rgba(0, 129, 132, 0.3);
 }
 .add-frame-btn img {
   width: 16px;
@@ -807,7 +805,7 @@ input {
     font-size: 12px;
     font-style: normal;
     font-weight: 600;
-    line-height: 160%; /* 19.2px */
+    line-height: 160%;
     letter-spacing: 0.12px;
     white-space: nowrap;
     overflow: hidden;
@@ -832,11 +830,11 @@ input {
   width: 80%;
   max-width: 400px;
   border-radius: 8px;
-  text-align: left; /* Changed to left */
+  text-align: left;
 }
 
 #all-frames-duration {
-  margin-top: 16px; /* Add space above the input */
+  margin-top: 16px;
   width: 100%;
   box-sizing: border-box;
 }
