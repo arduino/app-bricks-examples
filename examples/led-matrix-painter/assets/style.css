@@ -480,12 +480,13 @@ input:checked + .slider:before {
 .frames {
     display: flex;
     flex-direction: row; /* Horizontal layout */
-    flex-wrap: nowrap; /* Keep in a single line */
+    flex-wrap: wrap; /* Allow frames to wrap to the next line */
     gap: 8px;
-    overflow-x: auto; /* Allow horizontal scrolling */
-    overflow-y: hidden;
-    align-items: center; /* Vertically center items */
-    height: 100%; /* Set fixed height to match buttons */
+    /* Removed overflow-x: auto as horizontal scrolling is no longer needed */
+    /* Changed height to auto to allow the container to expand vertically */
+    height: auto;
+    align-items: flex-start; /* Align items to the start of the cross axis (top) */
+    align-items: center;
 }
 .frame-item {
     display: flex;
@@ -496,14 +497,13 @@ input:checked + .slider:before {
     border: 1px solid #f0f0f0; /* Default border */
     border-radius: 8px; /* Requested border-radius */
     background: transparent; /* Remove default background */
-    max-width: 132px;
+    width: 120px;
     flex-shrink: 0; /* Prevent shrinking */
-    height: 100%; /* Make frame item fill the height of its container */
 }
 .frame-thumb {
-    width: 65px;
-    height: 40px;
-    background: #fff;
+    width: 112px;
+    height: 69px;
+    background: #374146; /* Changed to match original matrix background */
     border: 1px solid #ddd;
     display: grid;
     grid-template-columns: repeat(13, 1fr);

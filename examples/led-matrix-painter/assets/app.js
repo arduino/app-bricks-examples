@@ -456,7 +456,7 @@ function renderFrames(){
         } else if (typeof row === 'string') {
           isOn = row[c] === '1';
         }
-        const dot = document.createElement('div'); dot.style.background = isOn ? '#0b76ff' : '#fff'; thumb.appendChild(dot);
+        const dot = document.createElement('div'); dot.style.background = isOn ? '#3CE2FF' : 'transparent'; thumb.appendChild(dot);
       }
     }
     const name = document.createElement('div'); name.className = 'frame-name'; name.textContent = f.name || ('Frame ' + f.id);
@@ -654,7 +654,7 @@ async function handleNewFrameClick() {
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({
         rows: grid,
-        name: '', // empty name = backend will assign Frame{id}
+        name: '', // empty name = backend will assign Frame {id}
         duration_ms: 1000,
         brightness_levels: BRIGHTNESS_LEVELS
       })
@@ -663,7 +663,7 @@ async function handleNewFrameClick() {
     if (data && data.ok && data.frame) {
       loadedFrame = data.frame;
       loadedFrameId = data.frame.id;
-      // Set name to the backend-assigned name (Frame{id})
+      // Set name to the backend-assigned name (Frame {id})
       if(frameTitle) frameTitle.textContent = data.frame.name || `Frame ${data.frame.id}`;
       
       // Show C vector representation

@@ -89,7 +89,7 @@ def save_frame(frame: AppFrame) -> int:
     
     # Backend responsibility: assign progressive name if empty
     if new_id and (not frame.name or frame.name.strip() == ''):
-        frame.name = f'Frame{new_id}'
+        frame.name = f'Frame {new_id}'
         frame.id = new_id
         db.update("frames", {"name": frame.name}, condition=f"id = {new_id}")
     
