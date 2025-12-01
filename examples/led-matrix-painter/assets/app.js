@@ -7,7 +7,6 @@ const gridEl = document.getElementById('grid');
 const vectorEl = document.getElementById('vector');
 const exportBtn = document.getElementById('export');
 const playAnimationBtn = document.getElementById('play-animation');
-const nameInput = document.getElementById('name');
 const clearBtn = document.getElementById('clear');
 const invertBtn = document.getElementById('invert');
 const rotate180Btn = document.getElementById('rotate180');
@@ -71,7 +70,6 @@ let sessionFrames = [];
 let selectedFrameId = null;
 let loadedFrameId = null; // ID of the frame currently loaded in editor
 let loadedFrame = null; // Full frame object currently loaded
-let selectedIds = new Set(); // persistent selection of frame ids (survives refreshFrames)
 
 // Auto-persist timer (unified: board + DB together)
 let persistTimeout = null;
@@ -120,18 +118,27 @@ function collectGridBrightness(){
 }
 
 function markLoaded(frame){
-  // Remove existing loaded marker
+  // Remove existing loaded/selected marker
   if(loadedFrameId !== null){
     const prev = document.querySelector(`#frames [data-id='${loadedFrameId}']`);
-    if(prev) prev.classList.remove('loaded');
+    if(prev) {
+      prev.classList.remove('loaded');
+      prev.classList.remove('selected');
+    }
   }
+  
   loadedFrameId = frame ? frame.id : null;
+  // selectedFrameId is now the same as loadedFrameId
+  
   loadedFrame = frame;
   
   if(frame && frame.id){
     try{
       const el = document.querySelector(`#frames [data-id='${frame.id}']`);
-      if(el) el.classList.add('loaded');
+      if(el) {
+        el.classList.add('loaded');
+        el.classList.add('selected');
+      }
     }catch(e){/* ignore */}
   }
 }
@@ -139,7 +146,10 @@ function markLoaded(frame){
 function clearLoaded(){
   if(loadedFrameId === null) return;
   const prev = document.querySelector(`#frames [data-id='${loadedFrameId}']`);
-  if(prev) prev.classList.remove('loaded');
+  if(prev) {
+    prev.classList.remove('loaded');
+    prev.classList.remove('selected');
+  }
   loadedFrameId = null;
   loadedFrame = null;
 }
@@ -170,8 +180,8 @@ function schedulePersist(){
 async function persistFrame(){
   const grid = collectGridBrightness();
   // Backend is responsible for naming - send empty if no value
-  const frameName = nameInput.value.trim() || (loadedFrame && loadedFrame.name) || '';
-  const duration_ms = durationInput && durationInput.value ? parseInt(durationInput.value) : 1000;
+  const frameName = (loadedFrame && loadedFrame.name) || '';
+  const duration_ms = (loadedFrame && loadedFrame.duration_ms) || 1000;
   
   // Build payload with ID if we're updating an existing frame
   const payload = {
@@ -253,11 +263,7 @@ async function initEditor(){
       setGridFromRows(frame.rows || []);
       
       // Populate name input
-      if (nameInput) nameInput.value = frame.name || '';
       if (frameTitle) frameTitle.textContent = frame.name || `Frame ${frame.id}`;
-      
-      // Populate duration
-      if (durationInput) durationInput.value = frame.duration_ms || 1000;
       
       // Show C vector representation
       if (data.vector) {
@@ -350,7 +356,6 @@ if (playAnimationBtn) playAnimationBtn.addEventListener('click', playAnimation);
 // Save frame button removed - auto-persist replaces it
 const animControls = document.getElementById('anim-controls');
 const animNameInput = document.getElementById('anim-name');
-const durationInput = document.getElementById('duration');
 // set default placeholder and default value
 if (animNameInput) {
   animNameInput.placeholder = 'Animation name (optional)';
@@ -369,31 +374,7 @@ function normalizeSymbolInput(s){
   return cand;
 }
 
-if(nameInput){
-  nameInput.addEventListener('input', ()=>{
-    // Schedule persist when name changes
-    schedulePersist();
-    if(frameTitle) frameTitle.textContent = nameInput.value.trim() || '(unsaved)';
-  });
-  nameInput.addEventListener('blur', ()=>{
-    nameInput.value = normalizeSymbolInput(nameInput.value.trim()) || '';
-    // Trigger immediate persist on blur
-    if (persistTimeout) clearTimeout(persistTimeout);
-    persistFrame();
-  });
-}
 
-if(durationInput){
-  durationInput.addEventListener('input', ()=>{
-    // Schedule persist when duration changes
-    schedulePersist();
-  });
-  durationInput.addEventListener('blur', ()=>{
-    // Trigger immediate persist on blur
-    if (persistTimeout) clearTimeout(persistTimeout);
-    persistFrame();
-  });
-}
 
 if(animNameInput){
   animNameInput.addEventListener('blur', ()=>{
@@ -499,49 +480,18 @@ function renderFrames(){
       }
     });
 
-    const actions = document.createElement('div'); actions.className = 'frame-actions';
-    const loadBtn = document.createElement('button'); loadBtn.textContent = 'Load';
-    loadBtn.addEventListener('click', ()=> loadFrameIntoEditor(f.id));
-    const delBtn = document.createElement('button'); delBtn.textContent = 'Del';
-    delBtn.addEventListener('click', async ()=>{ 
-      const deletingLoadedFrame = (loadedFrameId === f.id);
-      await deleteFrame(f.id); 
-      
-      if (deletingLoadedFrame) {
-        clearLoaded();
-        cells.forEach(c => { c.classList.remove('on'); delete c.dataset.b; });
-        if(nameInput) nameInput.value = '';
-        if(durationInput) durationInput.value = '1000';
-        showVectorText('');
-        await refreshFrames();
-        if (sessionFrames.length > 0) {
-          const nextFrame = sessionFrames.find(fr => fr.id !== f.id);
-          if (nextFrame) {
-            await loadFrameIntoEditor(nextFrame.id);
-          }
-        } else {
-          await loadFrameIntoEditor();
-          await refreshFrames();
-        }
-      } else {
-        await refreshFrames();
-      }
-    });
-    
+    // NEW CLICK LOGIC: Single-select and load
     item.addEventListener('click', (e)=>{
-      if(e.target === loadBtn || e.target === delBtn || e.target.parentNode === loadBtn || e.target.parentNode === delBtn) return;
-      const id = parseInt(item.dataset.id);
-      if(selectedIds.has(id)){
-        selectedIds.delete(id);
-        item.classList.remove('selected');
-        item.dataset.selected = '0';
-      } else {
-        selectedIds.add(id);
-        item.classList.add('selected');
-        item.dataset.selected = '1';
-      }
+      // Don't do anything if clicking inside an input field during editing
+      if (e.target.tagName === 'INPUT') return;
+      
+      // If it's already selected, do nothing
+      if (loadedFrameId === f.id) return;
+
+      loadFrameIntoEditor(f.id); // This function already handles setting loadedFrameId and adding the .loaded class
     });
 
+    // drag/drop handlers
     item.addEventListener('dragstart', (ev)=>{ ev.dataTransfer.setData('text/plain', f.id); item.classList.add('dragging'); });
     item.addEventListener('dragend', ()=>{ item.classList.remove('dragging'); });
     item.addEventListener('dragover', (ev)=>{ ev.preventDefault(); item.classList.add('dragover'); });
@@ -565,46 +515,26 @@ function renderFrames(){
       }
     });
     
-    actions.appendChild(loadBtn); actions.appendChild(delBtn);
-    item.appendChild(thumb); item.appendChild(name); item.appendChild(duration); item.appendChild(actions);
-    
-    if(selectedIds.has(f.id)){
-      item.classList.add('selected');
-      item.dataset.selected = '1';
-    } else {
-      item.dataset.selected = '0';
-    }
+    item.appendChild(thumb); item.appendChild(name); item.appendChild(duration);
     
     if(loadedFrameId === f.id){
       item.classList.add('loaded');
+      item.classList.add('selected'); 
     }
     
     container.appendChild(item);
   });
+
+  // Add the "Add Frame" button at the end of the list
+  const newFrameBtn = document.createElement('button');
+  newFrameBtn.className = 'add-frame-btn';
+  newFrameBtn.title = 'Create new frame';
+  newFrameBtn.innerHTML = '<img src="img/add.svg" alt="Add Frame">';
+  newFrameBtn.addEventListener('click', handleNewFrameClick);
+  container.appendChild(newFrameBtn);
 }
 
-// Save animation: collect selected frames and POST to backend
-const saveAnimBtn = document.getElementById('save-anim');
-// list-anims button removed from UI
-// const listAnimsBtn = document.getElementById('list-anims');
-if (saveAnimBtn) {
-  saveAnimBtn.addEventListener('click', async ()=>{
-  const container = document.getElementById('frames');
-  const selected = Array.from(container.children).filter(ch => ch.dataset.selected === '1').map(ch => parseInt(ch.dataset.id));
-  if(selected.length === 0) { alert('Select some frames first'); return; }
-  const animName = animNameInput.value && animNameInput.value.trim() ? animNameInput.value.trim() : undefined;
-  const resp = await fetch('/save_animation', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name: animName, frames: selected})});
-  const data = await resp.json();
-  if(data && data.anim){
-    // clear selection
-    Array.from(container.children).forEach(ch => { ch.classList.remove('selected'); ch.dataset.selected = '0'; });
-    animNameInput.value = '';
-    alert('Animation saved');
-  }
-  });
-} else {
-  console.warn('[ui] save-anim button not found (animation save disabled)');
-}
+// 'save-anim' button functionality has been removed as it is no longer part of the UI.
 
 // Mode toggle handling removed
 
@@ -707,86 +637,64 @@ function setGridFromRows(rows){
   }
 }
 
-function selectFrame(id, add=false){
-  selectedFrameId = id;
-  const container = document.getElementById('frames');
-  Array.from(container.children).forEach(ch => {
-    const isMatch = parseInt(ch.dataset.id) === id;
-    if(add){
-      // keep existing selections, only set this one to selected
-      if(isMatch){ ch.classList.add('selected'); ch.dataset.selected = '1'; }
-    } else {
-      // exclusive selection
-      ch.classList.toggle('selected', isMatch);
-      ch.dataset.selected = isMatch ? '1' : '0';
-    }
-  });
-}
+
 
 async function deleteFrame(id){
   await fetchWithHandling('/delete_frame', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id})}, 'json', `delete frame ${id}`);
 }
 
+async function handleNewFrameClick() {
+  console.debug('[ui] new frame button clicked');
+  
+  // Clear editor
+  cells.forEach(c => { c.classList.remove('on'); delete c.dataset.b; });
+  showVectorText('');
+  
+  // Clear loaded frame reference (we're creating new)
+  clearLoaded();
+  
+  // Create empty frame in DB (no name = backend assigns progressive name)
+  const grid = collectGridBrightness(); // all zeros
+  try {
+    const data = await fetchWithHandling('/persist_frame', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        rows: grid,
+        name: '', // empty name = backend will assign Frame{id}
+        duration_ms: 1000,
+        brightness_levels: BRIGHTNESS_LEVELS
+      })
+    }, 'json', 'create new frame');
+    
+    if (data && data.ok && data.frame) {
+      loadedFrame = data.frame;
+      loadedFrameId = data.frame.id;
+      // Set name to the backend-assigned name (Frame{id})
+      if(nameInput) nameInput.value = data.frame.name || `Frame${data.frame.id}`;
+      if(frameTitle) frameTitle.textContent = data.frame.name || `Frame ${data.frame.id}`;
+      
+      // Show C vector representation
+      if (data.vector) {
+        showVectorText(data.vector);
+      }
+      
+      // Refresh frames list
+      await refreshFrames();
+      
+      // Mark as loaded
+      markLoaded(data.frame);
+      
+      console.debug('[ui] new frame created:', data.frame.id);
+    }
+  } catch(err) {
+    console.warn('[ui] failed to create new frame', err);
+  }
+}
+
 // Initialize editor on page load
 initEditor();
 refreshFrames();
-
-// New frame button: creates a new empty frame
-const newFrameBtn = document.getElementById('new-frame');
-if (newFrameBtn) {
-  newFrameBtn.addEventListener('click', async ()=>{
-    console.debug('[ui] new frame button clicked');
-    
-    // Clear editor
-    cells.forEach(c => { c.classList.remove('on'); delete c.dataset.b; });
-    if(nameInput) nameInput.value = '';
-    if(durationInput) durationInput.value = '1000';
-    showVectorText('');
-    
-    // Clear loaded frame reference (we're creating new)
-    clearLoaded();
-    
-    // Create empty frame in DB (no name = backend assigns progressive name)
-    const grid = collectGridBrightness(); // all zeros
-    try {
-      const data = await fetchWithHandling('/persist_frame', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({
-          rows: grid,
-          name: '', // empty name = backend will assign Frame{id}
-          duration_ms: 1000,
-          brightness_levels: BRIGHTNESS_LEVELS
-        })
-      }, 'json', 'create new frame');
-      
-      if (data && data.ok && data.frame) {
-        loadedFrame = data.frame;
-        loadedFrameId = data.frame.id;
-        // Set name to the backend-assigned name (Frame{id})
-        if(nameInput) nameInput.value = data.frame.name || `Frame${data.frame.id}`;
-        if(frameTitle) frameTitle.textContent = data.frame.name || `Frame ${data.frame.id}`;
-        
-        // Show C vector representation
-        if (data.vector) {
-          showVectorText(data.vector);
-        }
-        
-        // Refresh frames list
-        await refreshFrames();
-        
-        // Mark as loaded
-        markLoaded(data.frame);
-        
-        console.debug('[ui] new frame created:', data.frame.id);
-      }
-    } catch(err) {
-      console.warn('[ui] failed to create new frame', err);
-    }
-  });
-} else {
-  console.warn('[ui] new-frame button not found');
-}
 
 if (clearBtn) {
   clearBtn.addEventListener('click', ()=>{
@@ -918,59 +826,55 @@ const allFramesDurationInput = document.getElementById('all-frames-duration');
 
 if (copyAnimBtn) {
   copyAnimBtn.addEventListener('click', async () => {
-    if (selectedIds.size === 0) {
-      showError('Please select one or more frames to copy.');
+    if (loadedFrameId === null) {
+      showError('Please select a frame to copy.');
       setTimeout(hideError, 3000);
       return;
     }
     
-    const idsToCopy = Array.from(selectedIds);
-    
-    for (const id of idsToCopy) {
-      try {
-        const data = await fetchWithHandling('/load_frame', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ id })
-        }, 'json', `load frame ${id} for copying`);
-
-        if (data && data.ok && data.frame) {
-          const frameToCopy = data.frame;
-          const newFramePayload = {
-            name: `${frameToCopy.name} (copy)`,
-            rows: frameToCopy.rows,
-            duration_ms: frameToCopy.duration_ms,
-            brightness_levels: frameToCopy.brightness_levels
-          };
-          await fetchWithHandling('/persist_frame', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(newFramePayload)
-          }, 'json', 'create copied frame');
-        }
-      } catch (err) {
-        console.error(`[ui] Failed to copy frame ${id}`, err);
-      }
+    try {
+      const frameToCopy = loadedFrame;
+      const newFramePayload = {
+        name: `${frameToCopy.name} (copy)`,
+        rows: frameToCopy.rows,
+        duration_ms: frameToCopy.duration_ms,
+        brightness_levels: frameToCopy.brightness_levels
+      };
+      await fetchWithHandling('/persist_frame', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(newFramePayload)
+      }, 'json', 'create copied frame');
+    } catch (err) {
+      console.error(`[ui] Failed to copy frame ${loadedFrameId}`, err);
     }
+    
     await refreshFrames();
   });
 }
 
 if (deleteAnimBtn) {
   deleteAnimBtn.addEventListener('click', async () => {
-    if (selectedIds.size === 0) {
-      showError('Please select one or more frames to delete.');
+    if (loadedFrameId === null) {
+      showError('Please select a frame to delete.');
       setTimeout(hideError, 3000);
       return;
     }
     
-    const idsToDelete = Array.from(selectedIds);
-    for (const id of idsToDelete) {
-      await deleteFrame(id);
-    }
+    const idToDelete = loadedFrameId;
+    await deleteFrame(idToDelete);
     
-    selectedIds.clear();
+    clearLoaded();
     await refreshFrames();
+    
+    const frameToLoad = sessionFrames.find(f => f.id !== idToDelete) || (sessionFrames.length > 0 ? sessionFrames[0] : null);
+
+    if (frameToLoad) {
+      await loadFrameIntoEditor(frameToLoad.id);
+    } else {
+      // If no frames are left, initEditor will create a new empty one
+      await initEditor();
+    }
   });
 }
 

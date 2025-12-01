@@ -132,14 +132,11 @@ SPDX-License-Identifier: MPL-2.0
                                   <div id="anim-controls">
                                     <input id="anim-name" placeholder="Animation name" />
                                   </div>
-                                  <!-- Frame name goes above the list of frames and below animation name (if present) -->
-                                  <div>
-                                    <input id="name" placeholder="Frame name (optional)" />
-                                    <input id="duration" type="number" min="0" step="10" value="1000" title="Duration in ms" />
-                                  </div>
-                                                    <div id="frames" class="frames"></div>
-                                                    <button id="new-frame" class="add-frame-btn" title="Create new frame"><img src="img/add.svg" alt="Add Frame"></button>
-                                                </div>                          </div>    </div>
+                                                    <!-- Frame name goes above the list of frames and below animation name (if present) -->
+                                                    <div id="global-frame-inputs">
+                                                      <input id="name" placeholder="Frame name (optional)" />
+                                                      <input id="duration" type="number" min="0" step="10" value="1000" title="Duration in ms" />
+                                                    </div>                                                                      <div id="frames" class="frames"></div>                                                </div>                          </div>    </div>
   </div>
   <div id="error-container" class="error-message" style="display: none;"></div>
   </div>

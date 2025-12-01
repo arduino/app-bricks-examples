@@ -479,20 +479,26 @@ input:checked + .slider:before {
 }
 .frames {
     display: flex;
-    flex-direction: column;
+    flex-direction: row; /* Horizontal layout */
+    flex-wrap: nowrap; /* Keep in a single line */
     gap: 8px;
-    max-height: 400px;
-    overflow: auto;
+    overflow-x: auto; /* Allow horizontal scrolling */
+    overflow-y: hidden;
+    padding-bottom: 10px; /* Add some padding for the scrollbar */
+    align-items: center; /* Vertically center items */
+    min-height: 150px; /* Give the container some height */
 }
 .frame-item {
     display: flex;
     flex-direction: column; /* Stack image, name, duration vertically */
-    align-items: flex-start; /* Align items to the start of the cross axis (left) */
-    gap: 4px; /* Space between stacked elements */
-    padding: 4px; /* Requested padding */
-    border: 1px solid #f0f0f0; /* Default border */
-    border-radius: 8px; /* Requested border-radius */
-    background: #fafafa; /* Default background */
+    align-items: center; /* Center content horizontally */
+    gap: 4px;
+    padding: 4px;
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
+    background: #fafafa;
+    max-width: 132px;
+    flex-shrink: 0; /* Prevent shrinking */
 }
 .frame-thumb {
     width: 65px;
@@ -576,9 +582,14 @@ input {
     box-sizing: border-box;
     overflow: auto;
     padding: 8px;
-    background: #f7f7f7;
-    border: 1px solid #ddd;
-    height: auto; /* Ensure it takes content height, if needed. Overrides previous .out fixed height */
+    background: #DAE3E3; /* New background color */
+    border: 1px solid #ddd; /* Keep existing border */
+    height: auto;
+    font-family: "Open Sans"; /* New text styling */
+    font-size: 10px;
+    font-style: normal;
+    font-weight: 400;
+    color: #2C353A;
 }
 
 /* Cell Slider */
@@ -826,4 +837,7 @@ input {
   color: black;
   text-decoration: none;
   cursor: pointer;
+}
+#global-frame-inputs {
+  display: none;
 }
