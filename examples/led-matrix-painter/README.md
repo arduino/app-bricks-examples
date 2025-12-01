@@ -12,7 +12,7 @@ The application uses the `dbstorage_sqlstore` Brick to automatically save your w
 
 Key features include:
 - **Real-time Control:** Drawing on the web grid updates the UNO Q matrix instantly.
-- **8-bit Grayscale:** Support for 8 brightness levels per pixel (0-7).
+- **Grayscale Control:** 8 brightness presets (0-7) for intuitive pixel control, with full 8-bit precision (0-255) supported at the hardware level.
 - **Persistent Storage:** Frames are automatically saved to a database, allowing you to build complex animations over time.
 - **Transformation Tools:** Invert, rotate, or flip designs with a single click.
 - **Animation Mode:** Sequence frames to create animations and preview them on the board.
