@@ -464,6 +464,10 @@ input:checked + .slider:before {
   background: #008184;
 }
 
+#play-animation:disabled {
+  background: #006567; /* Darken background when animation is running */
+}
+
 #stop-animation {
   background: rgba(0, 129, 132, 0.2); /* #008184 with 20% alpha */
 }

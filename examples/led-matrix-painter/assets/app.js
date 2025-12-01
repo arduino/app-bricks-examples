@@ -7,6 +7,7 @@ const gridEl = document.getElementById('grid');
 const vectorEl = document.getElementById('vector');
 const exportBtn = document.getElementById('export');
 const playAnimationBtn = document.getElementById('play-animation');
+const stopAnimationBtn = document.getElementById('stop-animation');
 const clearBtn = document.getElementById('clear');
 const invertBtn = document.getElementById('invert');
 const rotate180Btn = document.getElementById('rotate180');
@@ -257,8 +258,6 @@ async function initEditor(){
     
     if (data && data.ok && data.frame) {
       const frame = data.frame;
-      loadedFrame = frame;
-      loadedFrameId = frame.id;
       
       // Populate grid
       setGridFromRows(frame.rows || []);
@@ -314,14 +313,36 @@ async function exportH(){
 makeGrid();
 if (exportBtn) exportBtn.addEventListener('click', exportH); else console.warn('[ui] export button not found');
 
+let animationTimeout = null;
+
+function displayFrame(frame) {
+  if (!frame) return;
+
+  // Populate grid
+  setGridFromRows(frame.rows || []);
+  
+  // Populate name input
+  if (frameTitle) frameTitle.textContent = frame.name || `Frame ${frame.id}`;
+
+  // Mark as loaded in sidebar
+  markLoaded(frame);
+}
+
 async function playAnimation() {
   if (!playAnimationBtn) return;
   
+  // Stop any previous animation loop
+  if (animationTimeout) {
+    clearTimeout(animationTimeout);
+    animationTimeout = null;
+  }
+
   try {
     playAnimationBtn.disabled = true;
     const frameIds = sessionFrames.map(f => f.id);
     if (frameIds.length === 0) {
       showError('No frames to play');
+      playAnimationBtn.disabled = false; // re-enable button
       return;
     }
     
@@ -340,19 +361,50 @@ async function playAnimation() {
     
     if (data.error) {
       showError('Error: ' + data.error);
+      playAnimationBtn.disabled = false;
     } else {
       console.debug('[ui] Animation played successfully, frames=', data.frames_played);
       showVectorText('Animation played: ' + data.frames_played + ' frames');
+
+      // Start frontend animation simulation
+      let currentFrameIndex = 0;
+      const animateNextFrame = () => {
+        if (currentFrameIndex >= sessionFrames.length) {
+          // Animation finished
+          playAnimationBtn.disabled = false;
+          animationTimeout = null;
+          return;
+        }
+
+        const frame = sessionFrames[currentFrameIndex];
+        displayFrame(frame);
+        
+        const duration = frame.duration_ms || 1000;
+        currentFrameIndex++;
+        
+        animationTimeout = setTimeout(animateNextFrame, duration);
+      };
+      animateNextFrame();
     }
 
   } catch (err) {
     console.error('[ui] playAnimation failed', err);
-  } finally {
-    playAnimationBtn.disabled = false;
+    playAnimationBtn.disabled = false; // re-enable on error
   }
 }
 
 if (playAnimationBtn) playAnimationBtn.addEventListener('click', playAnimation); else console.warn('[ui] play animation button not found');
+
+if (stopAnimationBtn) {
+  stopAnimationBtn.addEventListener('click', () => {
+    if (animationTimeout) {
+      clearTimeout(animationTimeout);
+      animationTimeout = null;
+      playAnimationBtn.disabled = false;
+      showVectorText('Animation stopped');
+    }
+  });
+}
 
 // Save frame button removed - auto-persist replaces it
 const animControls = document.getElementById('anim-controls');
@@ -589,8 +641,6 @@ async function loadFrameIntoEditor(id){
     
     if(data && data.ok && data.frame){
       const f = data.frame;
-      loadedFrame = f;
-      loadedFrameId = f.id;
       
       // Populate grid
       setGridFromRows(f.rows || []);
@@ -661,8 +711,6 @@ async function handleNewFrameClick() {
     }, 'json', 'create new frame');
     
     if (data && data.ok && data.frame) {
-      loadedFrame = data.frame;
-      loadedFrameId = data.frame.id;
       // Set name to the backend-assigned name (Frame {id})
       if(frameTitle) frameTitle.textContent = data.frame.name || `Frame ${data.frame.id}`;
       
