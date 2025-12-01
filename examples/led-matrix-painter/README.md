@@ -39,7 +39,7 @@ The LED Matrix Painter example uses the following Bricks:
 ## How to Use the Example
 
 1. **Run the App**
-   Launch the App clicking the **Run** button from Arduino App Lab.
+   Launch the example by clicking the **Run** button from Arduino App Lab.
 
 2. **Access the Editor**
    Open the App in your browser at `<UNO-Q-IP-ADDRESS>:7000`.
