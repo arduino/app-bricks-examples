@@ -113,25 +113,28 @@ SPDX-License-Identifier: MPL-2.0
   </main>
   <div class="frames-section-bottom">
     <div class="controls-section-left">
-      <div class="sidebar-header">
-        <h3 style="margin:0;font-size:0.9rem;color:#666">Frames (auto-saved)</h3>
-        <button id="new-frame" title="Create new frame">+</button>
-        <button id="play-animation">Play Animation</button>
-      </div>
-      <div>
-        <label><input type="radio" name="mode" value="frames" checked> Frames</label>
-        <label><input type="radio" name="mode" value="anim"> Animations</label>
-      </div>
-      <div id="anim-controls">
-        <input id="anim-name" placeholder="Animation name" />
-      </div>
-      <!-- Frame name goes above the list of frames and below animation name (if present) -->
-      <div>
-        <input id="name" placeholder="Frame name (optional)" />
-        <input id="duration" type="number" min="0" step="10" value="1000" title="Duration in ms" />
-      </div>
-      <div id="frames" class="frames"></div>
-    </div>
+                <div class="sidebar-header">
+                  <h3 style="margin:0;font-size:0.9rem;color:#666">Animation</h3>
+                  <div class="anim-buttons">
+                      <button id="play-animation" title="Play Animation"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2 L14 8 L4 14 Z"/></svg></button>
+                      <button id="stop-animation" title="Stop Animation"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="4" y="4" width="8" height="8"/></svg></button>
+                  </div>
+                </div>
+                <div class="animation-controls-body">
+                    <div>
+                      <label><input type="radio" name="mode" value="frames" checked> Frames</label>
+                      <label><input type="radio" name="mode" value="anim"> Animations</label>
+                    </div>
+                    <div id="anim-controls">
+                      <input id="anim-name" placeholder="Animation name" />
+                    </div>
+                    <!-- Frame name goes above the list of frames and below animation name (if present) -->
+                    <div>
+                      <input id="name" placeholder="Frame name (optional)" />
+                      <input id="duration" type="number" min="0" step="10" value="1000" title="Duration in ms" />
+                    </div>
+                    <div id="frames" class="frames"></div>
+                </div>    </div>
   </div>
   <div id="error-container" class="error-message" style="display: none;"></div>
   </div>

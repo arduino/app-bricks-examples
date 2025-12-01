@@ -239,10 +239,14 @@ input:checked + .slider:before {
     border-radius: 8px;
     width: 100%;
     display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 20px;
+    flex-direction: column; /* Changed from row */
+    gap: 16px; /* Adjusted gap */
+}
+
+.animation-controls-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 .row {
@@ -390,7 +394,47 @@ input:checked + .slider:before {
   display: flex;
   gap: 8px;
   justify-content: space-between;
-  margin-bottom: 8px;
+  align-items: center; /* Added for vertical alignment */
+}
+
+.anim-buttons {
+  display: flex;
+  gap: 8px; /* Space between play and stop buttons */
+}
+
+/* Styling for the new icon-only buttons */
+.anim-buttons button {
+  padding: 6px; /* Smaller padding for icon buttons */
+  width: 32px; /* Fixed width for square buttons */
+  height: 32px; /* Fixed height for square buttons */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px; /* Changed to 8px as requested */
+  color: white; /* For the SVG fill */
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* Subtle shadow */
+  transition: background 0.3s ease;
+}
+
+#play-animation {
+  background: #008184;
+}
+
+#stop-animation {
+  background: rgba(0, 129, 132, 0.2); /* #008184 with 20% alpha */
+}
+
+
+.anim-buttons button:hover {
+  background: #006567;
+}
+
+.anim-buttons button svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor; /* Use button's text color for SVG fill */
 }
 .frames {
     display: flex;
