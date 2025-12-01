@@ -245,8 +245,50 @@ input:checked + .slider:before {
 
 .animation-controls-body {
     display: flex;
+    flex-direction: row; /* Changed to row */
+    gap: 16px; /* Gap between options and main controls */
+}
+
+.animation-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center; /* Center buttons in the column */
+}
+
+.anim-option-btn {
+    border: 1px solid #C9D2D2;
+    border-radius: 8px;
+    padding: 6px;
+    background-color: transparent; /* Assuming transparent background */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #2C353A; /* Updated icon color */
+}
+
+.anim-option-btn:hover {
+    background-color: rgba(0, 129, 132, 0.08);
+}
+
+.anim-option-btn img {
+    width: 16px;
+    height: 16px;
+}
+
+.animation-options .separator {
+    width: 100%;
+    height: 1px;
+    background-color: #C9D2D2;
+    margin: 4px 0; /* Vertical margin for spacing */
+}
+
+.animation-controls-main {
+    display: flex;
     flex-direction: column;
     gap: 12px;
+    flex: 1; /* Allow this to take remaining space */
 }
 
 .row {
@@ -431,10 +473,9 @@ input:checked + .slider:before {
   background: #006567;
 }
 
-.anim-buttons button svg {
-  width: 16px;
-  height: 16px;
-  fill: currentColor; /* Use button's text color for SVG fill */
+.anim-buttons button img {
+  width: 12px;
+  height: 12px;
 }
 .frames {
     display: flex;
