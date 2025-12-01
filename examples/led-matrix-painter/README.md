@@ -12,7 +12,7 @@ The application uses the `dbstorage_sqlstore` Brick to automatically save your w
 
 Key features include:
 - **Real-time Control:** Drawing on the web grid updates the UNO Q matrix instantly.
-- **8-bit Grayscale:** Support for 8 brightness levels per pixel (0-7).
+- **Grayscale Control:** 8 brightness presets (0-7) for intuitive pixel control, with full 8-bit precision (0-255) supported at the hardware level.
 - **Persistent Storage:** Frames are automatically saved to a database, allowing you to build complex animations over time.
 - **Transformation Tools:** Invert, rotate, or flip designs with a single click.
 - **Animation Mode:** Sequence frames to create animations and preview them on the board.
@@ -39,7 +39,7 @@ The LED Matrix Painter example uses the following Bricks:
 ## How to Use the Example
 
 1. **Run the App**
-   Launch the App clicking the **Run** button from Arduino App Lab.
+   Launch the example by clicking the **Run** button from Arduino App Lab.
 
 2. **Access the Editor**
    Open the App in your browser at `<UNO-Q-IP-ADDRESS>:7000`.
@@ -137,6 +137,18 @@ def apply_frame_to_board(frame: AppFrame):
     """Send frame bytes to the Arduino board."""
     frame_bytes = frame.to_board_bytes()
     Bridge.call("draw", frame_bytes)
+```
+
+- **Code Generation**: The `AppFrame` class generates the C++ code displayed in the UI. It formats the internal array data into `uint32_t` hex values.
+
+```python
+# app_frame.py
+def to_c_string(self) -> str:
+    c_type = "uint32_t"
+    parts = [f"const {c_type} {self.name}[] = {{"]
+     # Converts pixel brightness data to uint32_t hex format
+    parts.append("};")
+    return "\n".join(parts)
 ```
 
 ### 🔧 Arduino Component (`sketch.ino`)
