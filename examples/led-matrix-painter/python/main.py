@@ -304,11 +304,13 @@ def play_animation(payload: dict):
     animation_bytes = bytearray()
     for frame in frames:
         hex_values = frame.to_animation_hex()
-        # Convert hex strings to uint32_t integers, then to bytes
-        for hex_str in hex_values:
-            value = int(hex_str, 16)
-            # Pack as 4 bytes, little-endian
+        # First 4 are hex pixel data
+        for i in range(4):
+            value = int(hex_values[i], 16)
             animation_bytes.extend(value.to_bytes(4, byteorder='little'))
+        # 5th is duration in ms
+        duration = int(hex_values[4])
+        animation_bytes.extend(duration.to_bytes(4, byteorder='little'))
     
     logger.debug(f"Animation data prepared: {len(animation_bytes)} bytes ({len(animation_bytes)//20} frames)")
     
