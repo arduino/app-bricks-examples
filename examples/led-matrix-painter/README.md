@@ -123,7 +123,7 @@ def apply_frame_to_board(frame: AppFrame):
 def to_c_string(self) -> str:
     c_type = "uint32_t"
     parts = [f"const {c_type} {self.name}[] = {{"]
-    # ... logic to format array data ...
+     # Converts pixel brightness data to uint32_t hex format
     parts.append("};")
     return "\n".join(parts)
 ```
