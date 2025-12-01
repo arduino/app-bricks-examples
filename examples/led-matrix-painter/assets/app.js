@@ -117,20 +117,22 @@ function collectGridBrightness(){
 }
 
 function markLoaded(frame){
-  // Remove existing loaded/selected marker
-  if(loadedFrameId !== null){
-    const prev = document.querySelector(`#frames [data-id='${loadedFrameId}']`);
+  const oldFrameId = loadedFrameId; // Store the old ID
+  
+  // Remove marker from the old frame
+  if(oldFrameId !== null){
+    const prev = document.querySelector(`#frames [data-id='${oldFrameId}']`);
     if(prev) {
       prev.classList.remove('loaded');
       prev.classList.remove('selected');
     }
   }
   
+  // Update the global state
   loadedFrameId = frame ? frame.id : null;
-  // selectedFrameId is now the same as loadedFrameId
-  
   loadedFrame = frame;
   
+  // Add marker to the new frame
   if(frame && frame.id){
     try{
       const el = document.querySelector(`#frames [data-id='${frame.id}']`);
@@ -391,8 +393,11 @@ async function refreshFrames(){
     
     // Re-apply loaded state after rendering
     if(loadedFrameId !== null && loadedFrame !== null){
-      const el = document.querySelector(`#frames [data-id='${loadedFrameId}']`);
-      if(el) el.classList.add('loaded');
+        const el = document.querySelector(`#frames [data-id='${loadedFrameId}']`);
+        if(el) {
+            el.classList.add('loaded');
+            el.classList.add('selected');
+        }
     }
   }catch(e){ console.warn(e) }
 }
@@ -454,7 +459,7 @@ function renderFrames(){
         const dot = document.createElement('div'); dot.style.background = isOn ? '#0b76ff' : '#fff'; thumb.appendChild(dot);
       }
     }
-    const name = document.createElement('div'); name.className = 'frame-name'; name.textContent = f.name || ('Frame'+f.id);
+    const name = document.createElement('div'); name.className = 'frame-name'; name.textContent = f.name || ('Frame ' + f.id);
     const duration = document.createElement('div'); duration.className = 'frame-duration'; duration.textContent = `${f.duration_ms || 1000} ms`;
     
     // Make name and duration editable
@@ -515,11 +520,6 @@ function renderFrames(){
     });
     
     item.appendChild(thumb); item.appendChild(name); item.appendChild(duration);
-    
-    if(loadedFrameId === f.id){
-      item.classList.add('loaded');
-      item.classList.add('selected'); 
-    }
     
     container.appendChild(item);
   });

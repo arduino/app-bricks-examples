@@ -128,7 +128,7 @@ SPDX-License-Identifier: MPL-2.0
                                 <button id="duration-anim" class="anim-option-btn"><img src="img/time.svg" alt="Duration"></button>
                               </div>
                               <div class="animation-controls-main">
-                                                    
+
                                   <div id="anim-controls">
                                     <input id="anim-name" placeholder="Animation name" />
                                   </div>
@@ -144,7 +144,8 @@ SPDX-License-Identifier: MPL-2.0
   <div id="duration-modal" class="modal">
     <div class="modal-content">
       <span class="close-button">&times;</span>
-      <p>Set a duration to all frames</p>
+      <p class="modal-content-title">Set a duration to all frames</p>
+      <p class="modal-content-p">This will replace individual frame settings</p>
       <input type="number" id="all-frames-duration" placeholder="Duration in ms" min="0" step="10">
       <button id="apply-duration">Apply</button>
     </div>

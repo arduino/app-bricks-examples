@@ -484,14 +484,12 @@ input:checked + .slider:before {
     gap: 8px;
     overflow-x: auto; /* Allow horizontal scrolling */
     overflow-y: hidden;
-    padding-bottom: 10px; /* Add some padding for the scrollbar */
     align-items: center; /* Vertically center items */
-    height: 112px; /* Set fixed height to match buttons */
+    height: 100%; /* Set fixed height to match buttons */
 }
 .frame-item {
     display: flex;
     flex-direction: column; /* Stack image, name, duration vertically */
-    align-items: center; /* Center content horizontally */
     justify-content: space-around; /* Distribute space vertically within the frame item */
     gap: 4px;
     padding: 4px;
@@ -530,7 +528,6 @@ input:checked + .slider:before {
     outline: 2px dashed #0b76ff;
 }
 .frame-item.loaded {
-    box-shadow: 0 0 0 3px rgba(11, 118, 255, 0.12);
     border-color: rgba(11, 118, 255, 0.35);
 }
 .frame-item.loaded .frame-name {
@@ -831,7 +828,30 @@ input {
   width: 80%;
   max-width: 400px;
   border-radius: 8px;
-  text-align: center;
+  text-align: left; /* Changed to left */
+}
+
+#all-frames-duration {
+  margin-top: 16px; /* Add space above the input */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#apply-duration {
+  margin-top: 16px;
+  width: 100%;
+}
+.modal-content-title {
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+  color: #2C353A;
+}
+.modal-content-p {
+  font-size:10px;
+  font-style: normal;
+  font-weight: 400;
+  color: #2C353A;
 }
 .close-button {
   color: #aaa;
