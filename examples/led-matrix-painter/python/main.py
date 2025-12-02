@@ -6,12 +6,11 @@ from arduino.app_bricks.web_ui import WebUI
 from arduino.app_utils import App, Bridge, FrameDesigner, Logger
 from app_frame import AppFrame  # user module defining AppFrame
 import store  # user module for DB operations
-import logging
 import threading
 
 BRIGHTNESS_LEVELS = 8  # must match the frontend slider range (0..BRIGHTNESS_LEVELS-1)
 
-logger = Logger(__name__, level=logging.DEBUG)
+logger = Logger("led-matrix-painter")
 ui = WebUI()
 designer = FrameDesigner()
 
