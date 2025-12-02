@@ -7,6 +7,7 @@ from arduino.app_utils import App, Bridge, FrameDesigner, Logger
 from app_frame import AppFrame  # user module defining AppFrame
 import store  # user module for DB operations
 import logging
+import threading
 
 BRIGHTNESS_LEVELS = 8  # must match the frontend slider range (0..BRIGHTNESS_LEVELS-1)
 
@@ -272,6 +273,13 @@ def export_frames(payload: dict = None):
         return {'header': header}
 
 
+def play_animation_thread(animation_bytes):
+    try:
+        Bridge.call("play_animation", bytes(animation_bytes))
+        logger.info("Animation sent to board successfully")
+    except Exception as e:
+        logger.warning(f"Failed to send animation to board: {e}")
+
 def play_animation(payload: dict):
     """Play animation sequence on the board.
     
@@ -304,23 +312,21 @@ def play_animation(payload: dict):
     animation_bytes = bytearray()
     for frame in frames:
         hex_values = frame.to_animation_hex()
-        # Convert hex strings to uint32_t integers, then to bytes
-        for hex_str in hex_values:
-            value = int(hex_str, 16)
-            # Pack as 4 bytes, little-endian
+        # First 4 are hex pixel data
+        for i in range(4):
+            value = int(hex_values[i], 16)
             animation_bytes.extend(value.to_bytes(4, byteorder='little'))
+        # 5th is duration in ms
+        duration = int(hex_values[4])
+        animation_bytes.extend(duration.to_bytes(4, byteorder='little'))
     
     logger.debug(f"Animation data prepared: {len(animation_bytes)} bytes ({len(animation_bytes)//20} frames)")
     
-    # Send to board via Bridge as bytes (not list)
-    # Bridge expects bytes object for std::vector<uint8_t>
-    try:
-        Bridge.call("play_animation", bytes(animation_bytes))
-        logger.info("Animation sent to board successfully")
-        return {'ok': True, 'frames_played': len(frames)}
-    except Exception as e:
-        logger.warning(f"Failed to send animation to board: {e}")
-        return {'error': str(e)}
+    # Run Bridge.call in a separate thread
+    thread = threading.Thread(target=play_animation_thread, args=(animation_bytes,))
+    thread.start()
+
+    return {'ok': True, 'frames_played': len(frames)} # Return immediately
 
 
 ui.expose_api('POST', '/update_board', update_board)
