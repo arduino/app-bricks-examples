@@ -1,0 +1,472 @@
+/*
+ * SPDX-FileCopyrightText: Copyright (C) ARDUINO SRL (http://www.arduino.cc)
+ *
+ * SPDX-License-Identifier: MPL-2.0
+ */
+
+@import url('./fonts/fonts.css');
+
+:root {
+  --bg-dark: #1a1a1a;
+  --bg-darker: #0d0d0d;
+  --cyan: #00d9ff;
+  --purple: #a855f7;
+  --text-light: #e0e0e0;
+  --text-dim: #888;
+  --grid-line: #333;
+  --grid-line-thick: #555;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Open Sans', Arial, sans-serif;
+  background-color: var(--bg-darker);
+  color: var(--text-light);
+  overflow-x: hidden;
+}
+
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.header {
+  background-color: var(--bg-dark);
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #000;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.arduino-logo {
+  height: 32px;
+  filter: brightness(0) invert(1);
+}
+
+.arduino-text {
+  font-family: 'Roboto', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-light);
+}
+
+.header-center {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+
+.play-button {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--cyan);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.play-button:hover {
+  background: #00bfdd;
+  transform: scale(1.05);
+}
+
+.play-button.playing {
+  background: var(--purple);
+}
+
+.play-icon {
+  font-size: 20px;
+  color: #000;
+  margin-left: 3px;
+}
+
+.stop-button {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #ff4444;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.stop-button:hover {
+  background: #dd3333;
+  transform: scale(1.05);
+}
+
+.stop-icon {
+  font-size: 20px;
+  color: #000;
+}
+
+.tempo-control {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.tempo-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.tempo-value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#bpm-input {
+  width: 60px;
+  padding: 5px 8px;
+  background: var(--bg-darker);
+  border: 1px solid var(--grid-line-thick);
+  color: var(--cyan);
+  font-size: 18px;
+  font-weight: 700;
+  border-radius: 4px;
+  text-align: center;
+}
+
+#bpm-input::-webkit-inner-spin-button,
+#bpm-input::-webkit-outer-spin-button {
+  opacity: 1;
+}
+
+.header-right {
+  display: flex;
+  gap: 10px;
+}
+
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: 1px solid var(--grid-line-thick);
+  color: var(--text-light);
+  font-size: 18px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.icon-btn:hover {
+  background: var(--grid-line-thick);
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+.export-btn {
+  padding: 8px 16px;
+  background: var(--cyan);
+  color: #000;
+  border: none;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.export-btn:hover {
+  background: #00bfdd;
+}
+
+/* Sequencer Container */
+#sequencer-container {
+  flex: 1;
+  padding: 20px;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+#sequencer-grid {
+  display: grid;
+  grid-template-columns: 60px repeat(16, 40px);
+  gap: 0;
+  background: var(--bg-dark);
+  border: 1px solid #000;
+  padding: 10px;
+}
+
+.grid-row-label {
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dim);
+  border-right: 2px solid var(--grid-line-thick);
+}
+
+.grid-col-label {
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-dim);
+  border-bottom: 2px solid var(--grid-line-thick);
+}
+
+.grid-cell {
+  width: 40px;
+  height: 35px;
+  background: var(--bg-darker);
+  border: 1px solid var(--grid-line);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.1s;
+  position: relative;
+}
+
+.grid-cell:hover {
+  background: #222;
+}
+
+.grid-cell.active {
+  background: var(--purple);
+}
+
+.grid-cell.active::before {
+  content: '';
+  width: 20px;
+  height: 20px;
+  background: var(--purple);
+  border-radius: 3px;
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.6);
+}
+
+.grid-cell.playing {
+  background: var(--cyan) !important;
+  box-shadow: 0 0 15px rgba(0, 217, 255, 0.8);
+}
+
+.grid-cell.beat-separator {
+  border-right: 2px solid var(--grid-line-thick);
+}
+
+/* Control Panel */
+#control-panel {
+  background: var(--bg-dark);
+  padding: 25px 30px;
+  display: flex;
+  gap: 40px;
+  border-top: 2px solid #000;
+}
+
+.control-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 5px;
+}
+
+/* Effects Section */
+.effects-section {
+  flex: 1;
+}
+
+.knobs-container {
+  display: flex;
+  gap: 30px;
+}
+
+.knob-control {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.knob {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
+  border: 3px solid var(--grid-line-thick);
+  position: relative;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.knob:hover {
+  border-color: var(--cyan);
+}
+
+.knob-indicator {
+  position: absolute;
+  width: 4px;
+  height: 20px;
+  background: var(--cyan);
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%) rotate(0deg);
+  transform-origin: center 22px;
+  border-radius: 2px;
+  transition: transform 0.1s;
+}
+
+.knob-control label {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-transform: capitalize;
+}
+
+/* Wave Section */
+.wave-section {
+  flex-shrink: 0;
+}
+
+.wave-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wave-btn {
+  padding: 10px 20px;
+  background: var(--bg-darker);
+  border: 2px solid var(--grid-line-thick);
+  color: var(--text-light);
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: capitalize;
+}
+
+.wave-btn:hover {
+  border-color: var(--cyan);
+  background: #1a1a1a;
+}
+
+.wave-btn.active {
+  background: var(--cyan);
+  color: #000;
+  border-color: var(--cyan);
+}
+
+/* Volume Section */
+.volume-section {
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.volume-slider-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.vertical-slider {
+  writing-mode: vertical-lr;
+  direction: rtl;
+  width: 8px;
+  height: 120px;
+  background: var(--grid-line);
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+}
+
+.vertical-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--cyan);
+  cursor: pointer;
+}
+
+.vertical-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--cyan);
+  cursor: pointer;
+  border: none;
+}
+
+.volume-icon {
+  font-size: 24px;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  #sequencer-grid {
+    grid-template-columns: 50px repeat(16, 35px);
+  }
+
+  .grid-cell {
+    width: 35px;
+    height: 30px;
+  }
+
+  .knobs-container {
+    gap: 20px;
+  }
+
+  .knob {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  #control-panel {
+    flex-direction: column;
+    gap: 25px;
+  }
+
+  .knobs-container {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}

@@ -1,0 +1,118 @@
+<!--
+SPDX-FileCopyrightText: Copyright (C) ARDUINO SRL (http://www.arduino.cc)
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Music Composer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-left">
+        <img class="arduino-logo" src="./img/RGB-Arduino-Logo_Color Inline Loop.svg" alt="Arduino Logo">
+        <h1 class="arduino-text">Music Composer</h1>
+      </div>
+      
+      <div class="header-center">
+        <button id="play-btn" class="play-button">
+          <span class="play-icon">▶</span>
+        </button>
+        <button id="stop-btn" class="stop-button" style="display: none;">
+          <span class="stop-icon">⏹</span>
+        </button>
+        
+        <div class="tempo-control">
+          <div class="tempo-label">4/4 BPM</div>
+          <div class="tempo-value">
+            <input type="number" id="bpm-input" value="120" min="40" max="240">
+            <button id="reset-bpm" class="icon-btn" title="Reset BPM">↻</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="header-right">
+        <button id="undo-btn" class="icon-btn" title="Undo">↶</button>
+        <button id="redo-btn" class="icon-btn" title="Redo">↷</button>
+        <button id="clear-btn" class="icon-btn" title="Clear All">✕</button>
+        <button id="export-btn" class="export-btn">Export .h</button>
+      </div>
+    </div>
+    
+    <!-- Step Sequencer Grid -->
+    <div id="sequencer-container">
+      <div id="sequencer-grid">
+        <!-- Grid will be generated dynamically -->
+      </div>
+    </div>
+    
+    <!-- Control Panel -->
+    <div id="control-panel">
+      <!-- Effects Section -->
+      <div class="control-section effects-section">
+        <h3 class="section-title">Effects</h3>
+        <div class="knobs-container">
+          <div class="knob-control">
+            <div class="knob" id="reverb-knob" data-value="0">
+              <div class="knob-indicator"></div>
+            </div>
+            <label>Reverb</label>
+          </div>
+          <div class="knob-control">
+            <div class="knob" id="chorus-knob" data-value="0">
+              <div class="knob-indicator"></div>
+            </div>
+            <label>Chorus</label>
+          </div>
+          <div class="knob-control">
+            <div class="knob" id="tremolo-knob" data-value="0">
+              <div class="knob-indicator"></div>
+            </div>
+            <label>Tremolo</label>
+          </div>
+          <div class="knob-control">
+            <div class="knob" id="vibrato-knob" data-value="0">
+              <div class="knob-indicator"></div>
+            </div>
+            <label>Vibrato</label>
+          </div>
+          <div class="knob-control">
+            <div class="knob" id="overdrive-knob" data-value="0">
+              <div class="knob-indicator"></div>
+            </div>
+            <label>Overdrive</label>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Wave Section -->
+      <div class="control-section wave-section">
+        <h3 class="section-title">Wave</h3>
+        <div class="wave-buttons">
+          <button class="wave-btn" data-wave="triangle">Triangle</button>
+          <button class="wave-btn active" data-wave="sine">Sine</button>
+          <button class="wave-btn" data-wave="square">Square</button>
+        </div>
+      </div>
+      
+      <!-- Volume Section -->
+      <div class="control-section volume-section">
+        <div class="volume-slider-container">
+          <input type="range" id="volume-slider" class="vertical-slider" min="0" max="100" value="80" orient="vertical">
+          <div class="volume-icon">🔊</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="libs/socket.io.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
