@@ -98,6 +98,29 @@ body {
   margin-left: 3px;
 }
 
+.pause-button {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #ffaa00;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.pause-button:hover {
+  background: #dd9900;
+  transform: scale(1.05);
+}
+
+.pause-icon {
+  font-size: 20px;
+  color: #000;
+}
+
 .stop-button {
   width: 50px;
   height: 50px;
@@ -199,17 +222,19 @@ body {
 #sequencer-container {
   flex: 1;
   padding: 20px;
-  overflow: auto;
+  overflow-x: auto;  /* Horizontal scroll for infinite grid */
+  overflow-y: auto;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;  /* Align left for scroll */
   align-items: flex-start;
 }
 
 #sequencer-grid {
   display: grid;
-  grid-template-columns: 60px repeat(16, 40px);
+  grid-template-columns: 60px repeat(16, 40px);  /* Will be updated dynamically by JS */
   gap: 0;
   background: var(--bg-dark);
+  min-width: min-content;  /* Allow grid to expand beyond viewport */
   border: 1px solid #000;
   padding: 10px;
 }

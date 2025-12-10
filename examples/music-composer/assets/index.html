@@ -25,6 +25,9 @@ SPDX-License-Identifier: MPL-2.0
         <button id="play-btn" class="play-button">
           <span class="play-icon">▶</span>
         </button>
+        <button id="pause-btn" class="pause-button" style="display: none;">
+          <span class="pause-icon">⏸</span>
+        </button>
         <button id="stop-btn" class="stop-button" style="display: none;">
           <span class="stop-icon">⏹</span>
         </button>
@@ -60,10 +63,10 @@ SPDX-License-Identifier: MPL-2.0
         <h3 class="section-title">Effects</h3>
         <div class="knobs-container">
           <div class="knob-control">
-            <div class="knob" id="reverb-knob" data-value="0">
+            <div class="knob" id="bitcrusher-knob" data-value="0">
               <div class="knob-indicator"></div>
             </div>
-            <label>Reverb</label>
+            <label>Bitcrusher</label>
           </div>
           <div class="knob-control">
             <div class="knob" id="chorus-knob" data-value="0">
