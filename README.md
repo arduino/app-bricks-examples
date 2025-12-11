@@ -9,5 +9,5 @@ Example applications based on Arduino Bricks for the Arduino UNO Q.
 - Taskfile (https://taskfile.dev/docs/installation).
 
 To update the licenses:
-- Create a Python virtual environment
+- Create and activate a Python virtual environment
 - Run `task license`
