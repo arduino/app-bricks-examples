@@ -22,6 +22,9 @@ grid_state = {}  # {"noteIdx": {"stepIdx": bool}}
 bpm = 120
 is_playing = False
 current_step = 0
+waveform = "sine"
+volume = 0.8
+effects_state = {}
 
 
 def on_step_callback(step: int, total_steps: int):
@@ -121,8 +124,12 @@ def on_set_bpm(sid, data=None):
         logger.warning("BPM update rejected: playback in progress")
         return
 
-    bpm = data.get("bpm", 120)
-    logger.info(f"BPM updated to {bpm}")
+    if data:
+        bpm = data.get("bpm", 120)
+        gen.set_bpm(bpm)  # Update the brick's internal BPM
+        logger.info(f"BPM updated to {bpm}")
+    else:
+        logger.warning("No BPM data received")
 
     ui.send_message(
         "composer:state",
@@ -152,7 +159,6 @@ def on_play(sid, data=None):
     gen.play_step_sequence(
         sequence=sequence,
         note_duration=1 / 8,
-        bpm=bpm,
         loop=False,  # One-shot playback
         on_step_callback=on_step_callback,
         on_complete_callback=on_sequence_complete,
@@ -198,6 +204,7 @@ def on_stop(sid, data=None):
 
 def on_set_waveform(sid, data=None):
     """Change waveform."""
+    global waveform
     waveform = data.get("waveform", "sine")
     if waveform in ["sine", "square", "triangle", "sawtooth"]:
         gen.set_wave_form(waveform)
@@ -206,6 +213,7 @@ def on_set_waveform(sid, data=None):
 
 def on_set_volume(sid, data=None):
     """Change volume."""
+    global volume
     volume = data.get("volume", 80) / 100.0
     gen.set_master_volume(volume)
     logger.info(f"Volume: {volume:.2f}")
@@ -213,27 +221,28 @@ def on_set_volume(sid, data=None):
 
 def on_set_effects(sid, data=None):
     """Update effects."""
-    effects = data.get("effects", {})
+    global effects_state
+    effects_state = data.get("effects", {})
     effect_list = [SoundEffect.adsr()]
 
-    if effects.get("bitcrusher", 0) > 0:
-        bits = int(8 - (effects["bitcrusher"] / 100.0) * 6)
+    if effects_state.get("bitcrusher", 0) > 0:
+        bits = int(8 - (effects_state["bitcrusher"] / 100.0) * 6)
         effect_list.append(SoundEffect.bitcrusher(bits=bits, reduction=4))
 
-    if effects.get("chorus", 0) > 0:
-        level = effects["chorus"] / 100.0
+    if effects_state.get("chorus", 0) > 0:
+        level = effects_state["chorus"] / 100.0
         effect_list.append(SoundEffect.chorus(depth_ms=int(5 + level * 20), rate_hz=0.25, mix=level * 0.8))
 
-    if effects.get("tremolo", 0) > 0:
-        level = effects["tremolo"] / 100.0
+    if effects_state.get("tremolo", 0) > 0:
+        level = effects_state["tremolo"] / 100.0
         effect_list.append(SoundEffect.tremolo(depth=level, rate=5.0))
 
-    if effects.get("vibrato", 0) > 0:
-        level = effects["vibrato"] / 100.0
+    if effects_state.get("vibrato", 0) > 0:
+        level = effects_state["vibrato"] / 100.0
         effect_list.append(SoundEffect.vibrato(depth=level * 0.05, rate=2.0))
 
-    if effects.get("overdrive", 0) > 0:
-        level = effects["overdrive"] / 100.0
+    if effects_state.get("overdrive", 0) > 0:
+        level = effects_state["overdrive"] / 100.0
         effect_list.append(SoundEffect.overdrive(drive=1.0 + level * 200))
 
     gen.set_effects(effect_list)
@@ -241,50 +250,104 @@ def on_set_effects(sid, data=None):
 
 
 def on_export(sid, data=None):
-    """Export Arduino code."""
+    """Export a MusicComposition object to a Python file."""
     sequence = build_sequence_from_grid(grid_state)
 
+    # Build polyphonic sequences: one track per note
+    tracks = []
+    for note_idx, note_name in enumerate(NOTE_MAP):
+        track = []
+        for step_notes in sequence:
+            if step_notes and note_name in step_notes:
+                # Note is active in this step
+                track.append((note_name, 1 / 8))  # Duration: 1/8 note (eighth note)
+            elif track and track[-1][0] != "REST":
+                # Add REST if previous was not a REST
+                track.append(("REST", 1 / 8))
+            elif not track:
+                # Start with REST if note doesn't start immediately
+                track.append(("REST", 1 / 8))
+
+        # Only include tracks that have actual notes (not just REST)
+        if any(note != "REST" for note, _ in track):
+            tracks.append(track)
+
+    # Build effects list code representation
+    effects_code = ["SoundEffect.adsr()"]
+
+    if effects_state.get("bitcrusher", 0) > 0:
+        bits = int(8 - (effects_state["bitcrusher"] / 100.0) * 6)
+        effects_code.append(f"SoundEffect.bitcrusher(bits={bits}, reduction=4)")
+
+    if effects_state.get("chorus", 0) > 0:
+        level = effects_state["chorus"] / 100.0
+        depth_ms = int(5 + level * 20)
+        mix = level * 0.8
+        effects_code.append(f"SoundEffect.chorus(depth_ms={depth_ms}, rate_hz=0.25, mix={mix:.2f})")
+
+    if effects_state.get("tremolo", 0) > 0:
+        level = effects_state["tremolo"] / 100.0
+        effects_code.append(f"SoundEffect.tremolo(depth={level:.2f}, rate=5.0)")
+
+    if effects_state.get("vibrato", 0) > 0:
+        level = effects_state["vibrato"] / 100.0
+        depth = level * 0.05
+        effects_code.append(f"SoundEffect.vibrato(depth={depth:.4f}, rate=2.0)")
+
+    if effects_state.get("overdrive", 0) > 0:
+        level = effects_state["overdrive"] / 100.0
+        drive = 1.0 + level * 200
+        effects_code.append(f"SoundEffect.overdrive(drive={drive:.2f})")
+
+    # Generate Python code with MusicComposition
     code_lines = [
-        "// Music Composer - Generated Code",
-        "#include <Arduino.h>",
+        "# Music Composer - Generated Composition",
+        "# This file contains a MusicComposition object that can be played with SoundGenerator.play_composition()",
         "",
-        f"const int GRID_STEPS = {len(sequence)};",
-        f"const int BPM = {bpm};",
-        f"const int NUM_NOTES = {len(NOTE_MAP)};",
+        "from arduino.app_bricks.sound_generator import MusicComposition, SoundEffect",
         "",
-        "const char* NOTES[] = {" + ", ".join([f'"{n}"' for n in NOTE_MAP]) + "};",
+        f"# Configuration: {len(sequence)} steps at {bpm} BPM",
         "",
-        "const bool grid[NUM_NOTES][GRID_STEPS] = {",
+        "# Define the composition tracks",
+        "composition_tracks = [",
     ]
 
-    for note_idx in range(len(NOTE_MAP)):
-        row = []
-        for step in range(len(sequence)):
-            note_key = str(note_idx)
-            step_key = str(step)
-            has_note = note_key in grid_state and step_key in grid_state[note_key] and grid_state[note_key][step_key]
-            row.append("true" if has_note else "false")
-        row_str = "  {" + ", ".join(row) + "}"
-        if note_idx < len(NOTE_MAP) - 1:
-            row_str += ","
-        code_lines.append(row_str + f"  // {NOTE_MAP[note_idx]}")
+    # Add tracks
+    for i, track in enumerate(tracks):
+        code_lines.append("    [  # Track " + str(i + 1))
+        for j, (note, duration) in enumerate(track):
+            duration_str = f"{duration:.3f}"
+            comma = "," if j < len(track) - 1 else ""
+            code_lines.append(f'        ("{note}", {duration_str}){comma}')
+        comma = "," if i < len(tracks) - 1 else ""
+        code_lines.append("    ]" + comma)
 
     code_lines.extend([
-        "};",
+        "]",
         "",
-        "void setup() {",
-        "  // Your setup code",
-        "}",
-        "",
-        "void loop() {",
-        "  // Your playback code",
-        "}",
+        "# Create the MusicComposition object",
+        "composition = MusicComposition(",
+        "    composition=composition_tracks,",
+        f"    bpm={bpm},",
+        f'    waveform="{waveform}",',
+        f"    volume={volume:.2f},",
+        "    effects=[",
+    ])
+
+    # Add effects
+    for i, effect in enumerate(effects_code):
+        comma = "," if i < len(effects_code) - 1 else ""
+        code_lines.append(f"        {effect}{comma}")
+
+    code_lines.extend([
+        "    ]",
+        ")",
     ])
 
     ui.send_message(
         "composer:export_data",
         {
-            "filename": "composition.ino",
+            "filename": "composition.py",
             "content": "\n".join(code_lines),
         },
         room=sid,
