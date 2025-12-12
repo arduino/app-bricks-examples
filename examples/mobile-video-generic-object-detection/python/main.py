@@ -12,7 +12,7 @@ from arduino.app_peripherals.camera import Camera
 from datetime import datetime, UTC
 
 def generate_secret() -> str:
-  characters = string.ascii_uppercase + string.digits
+  characters = string.digits
   return ''.join(secrets.choice(characters) for i in range(5))
 
 secret = generate_secret()
