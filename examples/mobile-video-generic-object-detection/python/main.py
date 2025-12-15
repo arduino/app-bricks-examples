@@ -13,7 +13,7 @@ from datetime import datetime, UTC
 
 def generate_secret() -> str:
   characters = string.digits
-  return ''.join(secrets.choice(characters) for i in range(5))
+  return ''.join(secrets.choice(characters) for i in range(6))
 
 secret = generate_secret()
 
