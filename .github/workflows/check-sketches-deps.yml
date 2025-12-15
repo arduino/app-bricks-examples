@@ -1,0 +1,34 @@
+name: Check sketches dependencies
+on:
+  pull_request:
+permissions:
+  contents: read
+
+jobs:
+  check-sketches-deps:
+    runs-on: ubuntu-latest
+    env:
+      ARDUINO_CLI_PATH: '/home/runner/bin'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install the latest version of Arduino CLI
+        run: |
+          mkdir -p ${{ env.ARDUINO_CLI_PATH }}
+          curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR=${{ env.ARDUINO_CLI_PATH }} sh
+
+      - name: Update Arduino cores and libraries and install Zephyr core
+        run: |
+          export PATH="${{ env.ARDUINO_CLI_PATH }}:$PATH"
+          arduino-cli update
+          arduino-cli core install arduino:zephyr
+
+      - name: Verify sketches
+        run: |
+          export PATH="${{ env.ARDUINO_CLI_PATH }}:$PATH"
+          SKETCHES=$(find . -name "*.ino")
+          for SKETCH in $SKETCHES; do
+            echo "Verifying $SKETCH"
+            arduino-cli compile --fqbn arduino:zephyr:unoq "$SKETCH"
+          done
