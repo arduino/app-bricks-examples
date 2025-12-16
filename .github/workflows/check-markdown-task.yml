@@ -86,7 +86,4 @@ jobs:
 
       - name: Check links
         run: |
-          go tool \
-            github.com/go-task/task/v3/cmd/task \
-              --silent \
-              markdown:check-links
+          task --silent markdown:check-links
