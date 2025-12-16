@@ -76,15 +76,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Install Go
-        uses: actions/setup-go@v6
-        with:
-          go-version-file: go.mod
+      - name: Install Task
+        uses: go-task/setup-task@v1
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version-file: package.json
+          node-version: "24.x"
 
       - name: Check links
         run: |
