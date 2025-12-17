@@ -19,7 +19,10 @@ let iframeLoadIntervalId;
 // Webcam state management
 let webcamState = {
     status: "disconnected",
-    secret: null
+    secret: null,
+    protocol: "",
+    ip: "",
+    port: 0
 };
 
 
@@ -127,6 +130,9 @@ function initSocketIO() {
     socket.on('welcome', async (message) => {
         webcamState.status = message.status;
         webcamState.secret = message.secret;
+        webcamState.protocol = message.protocol;
+        webcamState.ip = message.ip;
+        webcamState.port = message.port;
         updateDisplay();
     });
 
