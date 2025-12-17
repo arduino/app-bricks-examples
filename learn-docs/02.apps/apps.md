@@ -1,7 +1,7 @@
 ---
 title: What is an App?
 description: Learn how Apps work, and how they run on the UNO Q.
-author: Karl Söderby
+author: Karl Söderby, Ernesto Voltaggio
 tags: [Apps, Bricks, Sketches, Python]
 icon: Group
 category: basic
@@ -18,13 +18,17 @@ Apps are launched as a package on our board, and only one App can run at the sam
 - **Sketch** - a sketch written in the Arduino language (C++) that runs on the microcontroller.
 
 In particular, the following files are considered the "core" files of an App.
-- A `main.py` - for writing code that will run on the Linux side.
-- A `sketch.ino` - for writing code that will run on the microcontroller side.
-- A `app.yaml` - configuration file for the App (this file automatically updates based on App configurations made, and cannot be edited).
+- A `python/main.py` - for writing code that will run on the Linux side.
+- A `sketch/sketch.ino` - for writing code that will run on the microcontroller side.
+- An `app.yaml` - configuration file for the App (managed by App Lab and tooling, and may be updated by API calls).
+- A `sketch.yaml` - sketch-side configuration file (managed by App Lab and tooling, and may be updated by API calls).
+
+> **Note:** the `python/` and `sketch/` folders are expected by convention. Renaming or removing them may prevent the App from running (for example missing entry points like `main.py` or `sketch.ino`).  
+> The `assets/` folder is optional and depends on the Bricks used (for example WebUI). It is not part of the standard App definition and can be omitted or overridden at Brick level.
 
 ![How Apps work](assets/launch-app.png)
 
-The **Python part** of the application is capable of running AI models, hosting a web server, or making calls to external services. 
+The **Python part** of the application is capable of running AI models, hosting a web server, or making calls to external services.
 
 The **sketch part** of the application handles interaction with sensors, LEDs, motors, and other electrical components.
 
@@ -59,7 +63,7 @@ def loop():
     global led_state
     time.sleep(1)
     led_state = not led_state
-    Bridge.call("set_led_state", led_state)():
+    Bridge.call("set_led_state", led_state)
 
 App.run(user_loop=loop)
 ```
@@ -88,7 +92,7 @@ After creating an App, it will be available under **"My Apps"**. To edit the App
 Built-in examples cannot be edited, but if we want to start from an **existing example**, we can duplicate it.
 
 1. Navigate to the [Examples](/examples) tab and select an example.
-2. In the top-left, to the right of the App example name, click on the little arrow, and on **"Duplicate"**
+2. In the top-right, next to the Run button, click **"Copy and Edit App"**.
    ![Duplicate an example](assets/cloud-blink-duplicate.png)
 3. Name the App, and click on **"Create New"**.
 4. We will be redirected into a new App project, which is fully editable.
@@ -170,6 +174,8 @@ Below is the code for the microcontroller (Arduino/C++), which uses the `Arduino
 
 ```cpp
 #include "Arduino_RouterBridge.h"
+
+void set_led_state(bool state);
 
 void setup() {
     pinMode(LED_BUILTIN, OUTPUT);
