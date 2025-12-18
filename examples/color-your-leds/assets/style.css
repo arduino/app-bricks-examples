@@ -109,7 +109,7 @@ body {
     height: 100px;
     border-radius: 50%;
     border: 1px solid #C9D2D2;
-    background-color: #DAE3E3; /* Default background when off */
+    background-color: #FFFFFF; /* Default background */
 }
 
 .led-title {

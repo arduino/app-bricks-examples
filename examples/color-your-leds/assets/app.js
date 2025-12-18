@@ -4,11 +4,12 @@
 
 const socket = io(`http://${window.location.host}`);
 
+const OFF_COLOR = '#DAE3E3';
 const ledState = {
-  1: { color: '#DAE3E3', isOn: true },
-  2: { color: '#DAE3E3', isOn: true },
+  1: { color: '#FFFFFF', isOn: true },
+  2: { color: '#FFFFFF', isOn: true },
   3: { color: '#DAE3E3', isOn: true },
-  4: { color: '#DAE3E3', isOn: true },
+  4: { color: '#FFFFFF', isOn: true },
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -29,17 +30,21 @@ function setupPaletteLED(ledNumber) {
     if (ledState[ledNumber].isOn) {
       updateColor(ledNumber, ledState[ledNumber].color);
     } else {
-      updateColor(ledNumber, '#000000', false); // Turn off, don't update state color
+      const rgb = hexToRgb(OFF_COLOR);
+      socket.emit('set_color', { led: ledNumber, color: {r: 0, g: 0, b: 0}});
+      circle.style.backgroundColor = OFF_COLOR;
     }
   });
 
   palette.addEventListener('click', (e) => {
     if (e.target.classList.contains('color-square')) {
-      const newColor = e.target.dataset.color;
-      updateColor(ledNumber, newColor);
+      if (ledState[ledNumber].isOn) {
+        const newColor = e.target.dataset.color;
+        updateColor(ledNumber, newColor);
+      }
     }
   });
-  
+
   // Set initial color
   updateColor(ledNumber, ledState[ledNumber].color);
 }
@@ -49,29 +54,39 @@ function setupColorPickerLED(ledNumber) {
   const trigger = document.getElementById(`led${ledNumber}-color-trigger`);
   const picker = document.getElementById(`led${ledNumber}-color`);
   const hexInput = document.getElementById(`led${ledNumber}-hex`);
+  const circle = document.getElementById(`led${ledNumber}-circle`);
 
   switchEl.addEventListener('change', (e) => {
     ledState[ledNumber].isOn = e.target.checked;
     if (ledState[ledNumber].isOn) {
       updateColor(ledNumber, ledState[ledNumber].color);
     } else {
-      updateColor(ledNumber, '#000000', false);
+      socket.emit('set_color', { led: ledNumber, color: {r: 0, g: 0, b: 0} });
+      circle.style.backgroundColor = OFF_COLOR;
     }
   });
 
-  trigger.addEventListener('click', () => picker.click());
+  trigger.addEventListener('click', () => {
+    if (ledState[ledNumber].isOn) {
+      picker.click()
+    }
+  });
 
   picker.addEventListener('input', (e) => {
-    updateColor(ledNumber, e.target.value);
+    if (ledState[ledNumber].isOn) {
+      updateColor(ledNumber, e.target.value);
+    }
   });
 
   hexInput.addEventListener('change', (e) => {
     const newColor = e.target.value;
-    if (/^#[0-9A-F]{6}$/i.test(newColor)) {
-      updateColor(ledNumber, newColor);
+    if (ledState[ledNumber].isOn) {
+      if (/^#[0-9A-F]{6}$/i.test(newColor)) {
+        updateColor(ledNumber, newColor);
+      }
     }
   });
-    // Set initial color
+  // Set initial color
   updateColor(ledNumber, ledState[ledNumber].color);
 }
 
