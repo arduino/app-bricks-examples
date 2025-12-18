@@ -4,7 +4,7 @@ tasks:
   init:ci:
     desc: Initialize CI environment
     cmds:
-      - pip install libs/arduino_app_bricks-0.4.8-py3-none-any.whl reuse pip-licenses
+      - pip install libs/arduino_app_bricks-0.6.1-py3-none-any.whl reuse pip-licenses
 
   license:
     deps:
