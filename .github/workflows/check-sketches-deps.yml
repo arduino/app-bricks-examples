@@ -8,25 +8,11 @@ jobs:
   compile-sketches:
     runs-on: ubuntu-latest
     steps:
-      # Checkout arduino-app-cli to extract the version from go.mod file dynamically.
-      # This ensures that the same version of arduino-cli is used as a dependency.
-      - name: Checkout arduino-app-cli repository
-        uses: actions/checkout@v4
-        with:
-          repository: arduino/arduino-app-cli
-
-      - name: Extract cli-version from go.mod
-        id: get_cli_version
-        run: |
-          CLI_VERSION=$(grep 'github.com/arduino/arduino-cli ' go.mod | awk '{print $2}' | sed 's/^v//')
-          echo "cli_version=$CLI_VERSION" >> $GITHUB_OUTPUT
-
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Verify sketches
         uses: arduino/compile-sketches@v1
         with:
-          cli-version: ${{ steps.get_cli_version.outputs.cli_version }}
           fqbn: "arduino:zephyr:unoq"
           sketch-paths: "./examples"
