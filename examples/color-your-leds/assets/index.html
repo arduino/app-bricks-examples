@@ -21,112 +21,128 @@
     <div class="main-content">
       <div class="led-card">
         <div class="icon-wrapper">
-          <svg class="led-icon-container" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="0.5" y="0.5" width="23" height="23" rx="3.5" class="led-icon-square"/>
-            <circle cx="7" cy="7" r="3" class="led-icon-dot filled"/>
-            <circle cx="17" cy="7" r="3" class="led-icon-dot"/>
-            <circle cx="7" cy="17" r="3" class="led-icon-dot"/>
-            <circle cx="17" cy="17" r="3" class="led-icon-dot"/>
+          <svg class="led-icon-container" viewBox="0 0 24 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="2" width="20" height="30" rx="3.5" class="led-icon-square"/>
+            <circle cx="12" cy="5" r="3" class="led-icon-dot"/>
+            <circle cx="12" cy="13" r="3" class="led-icon-dot"/>
+            <circle cx="12" cy="21" r="3" class="led-icon-dot"/>
+            <circle cx="12" cy="29" r="3" class="led-icon-dot filled"/>
           </svg>
           <span class="led-title">LED 1</span>
         </div>
         <div class="led-color-circle" id="led1-circle" style="background-color: #DAE3E3;"></div>
-        <div class="switch-container">
-          <label class="switch">
-            <input type="checkbox" id="led1-switch" checked>
-            <span class="slider round"></span>
-          </label>
-        </div>
-        <div class="color-palette" id="led1-palette">
-          <div class="color-square" style="background-color: #FFFFFF;" data-color="#FFFFFF"></div>
-          <div class="color-square" style="background-color: #FF0000;" data-color="#FF0000"></div>
-          <div class="color-square" style="background-color: #00FF00;" data-color="#00FF00"></div>
-          <div class="color-square" style="background-color: #0000FF;" data-color="#0000FF"></div>
-          <div class="color-square" style="background-color: #00FFFF;" data-color="#00FFFF"></div>
-          <div class="color-square" style="background-color: #FF00FF;" data-color="#FF00FF"></div>
-          <div class="color-square" style="background-color: #FFFF00;" data-color="#FFFF00"></div>
+        <div class="controls-wrapper">
+          <div class="switch-container">
+            <span class="switch-label">OFF</span>
+            <label class="switch">
+              <input type="checkbox" id="led1-switch" checked>
+              <span class="slider round"></span>
+            </label>
+            <span class="switch-label">ON</span>
+          </div>
+          <div class="color-palette" id="led1-palette">
+            <div class="color-square" style="background-color: #FFFFFF;" data-color="#FFFFFF"></div>
+            <div class="color-square" style="background-color: #FF0000;" data-color="#FF0000"></div>
+            <div class="color-square" style="background-color: #00FF00;" data-color="#00FF00"></div>
+            <div class="color-square" style="background-color: #0000FF;" data-color="#0000FF"></div>
+            <div class="color-square" style="background-color: #00FFFF;" data-color="#00FFFF"></div>
+            <div class="color-square" style="background-color: #FF00FF;" data-color="#FF00FF"></div>
+            <div class="color-square" style="background-color: #FFFF00;" data-color="#FFFF00"></div>
+          </div>
         </div>
 
       </div>
       <div class="led-card">
         <div class="icon-wrapper">
-          <svg class="led-icon-container" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="0.5" y="0.5" width="23" height="23" rx="3.5" class="led-icon-square"/>
-            <circle cx="7" cy="7" r="3" class="led-icon-dot"/>
-            <circle cx="17" cy="7" r="3" class="led-icon-dot filled"/>
-            <circle cx="7" cy="17" r="3" class="led-icon-dot"/>
-            <circle cx="17" cy="17" r="3" class="led-icon-dot"/>
+          <svg class="led-icon-container" viewBox="0 0 24 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="2" width="20" height="30" rx="3.5" class="led-icon-square"/>
+            <circle cx="12" cy="5" r="3" class="led-icon-dot"/>
+            <circle cx="12" cy="13" r="3" class="led-icon-dot"/>
+            <circle cx="12" cy="21" r="3" class="led-icon-dot filled"/>
+            <circle cx="12" cy="29" r="3" class="led-icon-dot"/>
           </svg>
           <span class="led-title">LED 2</span>
         </div>
         <div class="led-color-circle" id="led2-circle" style="background-color: #DAE3E3;"></div>
-        <div class="switch-container">
-          <label class="switch">
-            <input type="checkbox" id="led2-switch" checked>
-            <span class="slider round"></span>
-          </label>
-        </div>
-        <div class="color-palette" id="led2-palette">
-          <div class="color-square" style="background-color: #FFFFFF;" data-color="#FFFFFF"></div>
-          <div class="color-square" style="background-color: #FF0000;" data-color="#FF0000"></div>
-          <div class="color-square" style="background-color: #00FF00;" data-color="#00FF00"></div>
-          <div class="color-square" style="background-color: #0000FF;" data-color="#0000FF"></div>
-          <div class="color-square" style="background-color: #00FFFF;" data-color="#00FFFF"></div>
-          <div class="color-square" style="background-color: #FF00FF;" data-color="#FF00FF"></div>
-          <div class="color-square" style="background-color: #FFFF00;" data-color="#FFFF00"></div>
+        <div class="controls-wrapper">
+          <div class="switch-container">
+            <span class="switch-label">OFF</span>
+            <label class="switch">
+              <input type="checkbox" id="led2-switch" checked>
+              <span class="slider round"></span>
+            </label>
+            <span class="switch-label">ON</span>
+          </div>
+          <div class="color-palette" id="led2-palette">
+            <div class="color-square" style="background-color: #FFFFFF;" data-color="#FFFFFF"></div>
+            <div class="color-square" style="background-color: #FF0000;" data-color="#FF0000"></div>
+            <div class="color-square" style="background-color: #00FF00;" data-color="#00FF00"></div>
+            <div class="color-square" style="background-color: #0000FF;" data-color="#0000FF"></div>
+            <div class="color-square" style="background-color: #00FFFF;" data-color="#00FFFF"></div>
+            <div class="color-square" style="background-color: #FF00FF;" data-color="#FF00FF"></div>
+            <div class="color-square" style="background-color: #FFFF00;" data-color="#FFFF00"></div>
+          </div>
         </div>
 
       </div>
       <div class="led-card">
         <div class="icon-wrapper">
-          <svg class="led-icon-container" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="0.5" y="0.5" width="23" height="23" rx="3.5" class="led-icon-square"/>
-            <circle cx="7" cy="7" r="3" class="led-icon-dot"/>
-            <circle cx="17" cy="7" r="3" class="led-icon-dot"/>
-            <circle cx="7" cy="17" r="3" class="led-icon-dot filled"/>
-            <circle cx="17" cy="17" r="3" class="led-icon-dot"/>
+          <svg class="led-icon-container" viewBox="0 0 24 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="2" width="20" height="30" rx="3.5" class="led-icon-square"/>
+            <circle cx="12" cy="5" r="3" class="led-icon-dot"/>
+            <circle cx="12" cy="13" r="3" class="led-icon-dot filled"/>
+            <circle cx="12" cy="21" r="3" class="led-icon-dot"/>
+            <circle cx="12" cy="29" r="3" class="led-icon-dot"/>
           </svg>
           <span class="led-title">LED 3</span>
         </div>
         <div class="led-color-circle" id="led3-circle" style="background-color: #DAE3E3;"></div>
-        <div class="switch-container">
-          <label class="switch">
-            <input type="checkbox" id="led3-switch" checked>
-            <span class="slider round"></span>
-          </label>
-        </div>
-        <div class="color-picker-container">
-            <div class="color-square" id="led3-color-trigger" style="background-color: #DAE3E3;"></div>
-            <input type="color" id="led3-color" value="#DAE3E3" style="visibility: hidden; width: 0; height: 0; padding: 0; border: none;">
-            <input type="text" id="led3-hex" class="hex-input" value="#DAE3E3">
+        <div class="controls-wrapper">
+          <div class="switch-container">
+            <span class="switch-label">OFF</span>
+            <label class="switch">
+              <input type="checkbox" id="led3-switch" checked>
+              <span class="slider round"></span>
+            </label>
+            <span class="switch-label">ON</span>
+          </div>
+          <div class="color-picker-container" id="led3-color-controls">
+              <div class="color-square" id="led3-color-trigger" style="background-color: #DAE3E3;"></div>
+              <input type="color" id="led3-color" value="#DAE3E3" style="visibility: hidden; width: 0; height: 0; padding: 0; border: none;">
+              <input type="text" id="led3-hex" class="hex-input" value="#DAE3E3">
+          </div>
         </div>
       </div>
       <div class="led-card">
         <div class="icon-wrapper">
-          <svg class="led-icon-container" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="0.5" y="0.5" width="23" height="23" rx="3.5" class="led-icon-square"/>
-            <circle cx="7" cy="7" r="3" class="led-icon-dot"/>
-            <circle cx="17" cy="7" r="3" class="led-icon-dot"/>
-            <circle cx="7" cy="17" r="3" class="led-icon-dot"/>
-            <circle cx="17" cy="17" r="3" class="led-icon-dot filled"/>
+          <svg class="led-icon-container" viewBox="0 0 24 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="2" width="20" height="30" rx="3.5" class="led-icon-square"/>
+            <circle cx="12" cy="5" r="3" class="led-icon-dot filled"/>
+            <circle cx="12" cy="13" r="3" class="led-icon-dot"/>
+            <circle cx="12" cy="21" r="3" class="led-icon-dot"/>
+            <circle cx="12" cy="29" r="3" class="led-icon-dot"/>
           </svg>
           <span class="led-title">LED 4</span>
         </div>
         <div class="led-color-circle" id="led4-circle" style="background-color: #DAE3E3;"></div>
-        <div class="switch-container">
-          <label class="switch">
-            <input type="checkbox" id="led4-switch" checked>
-            <span class="slider round"></span>
-          </label>
-        </div>
-        <div class="color-palette" id="led4-palette">
-          <div class="color-square" style="background-color: #FFFFFF;" data-color="#FFFFFF"></div>
-          <div class="color-square" style="background-color: #FF0000;" data-color="#FF0000"></div>
-          <div class="color-square" style="background-color: #00FF00;" data-color="#00FF00"></div>
-          <div class="color-square" style="background-color: #0000FF;" data-color="#0000FF"></div>
-          <div class="color-square" style="background-color: #00FFFF;" data-color="#00FFFF"></div>
-          <div class="color-square" style="background-color: #FF00FF;" data-color="#FF00FF"></div>
-          <div class="color-square" style="background-color: #FFFF00;" data-color="#FFFF00"></div>
+        <div class="controls-wrapper">
+          <div class="switch-container">
+            <span class="switch-label">OFF</span>
+            <label class="switch">
+              <input type="checkbox" id="led4-switch" checked>
+              <span class="slider round"></span>
+            </label>
+            <span class="switch-label">ON</span>
+          </div>
+          <div class="color-palette" id="led4-palette">
+            <div class="color-square" style="background-color: #FFFFFF;" data-color="#FFFFFF"></div>
+            <div class="color-square" style="background-color: #FF0000;" data-color="#FF0000"></div>
+            <div class="color-square" style="background-color: #00FF00;" data-color="#00FF00"></div>
+            <div class="color-square" style="background-color: #0000FF;" data-color="#0000FF"></div>
+            <div class="color-square" style="background-color: #00FFFF;" data-color="#00FFFF"></div>
+            <div class="color-square" style="background-color: #FF00FF;" data-color="#FF00FF"></div>
+            <div class="color-square" style="background-color: #FFFF00;" data-color="#FFFF00"></div>
+          </div>
         </div>
 
       </div>
