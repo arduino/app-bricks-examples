@@ -24,10 +24,12 @@ body {
 }
 
 .unoq-image-container {
-    flex: 0 0 200px; /* Adjust basis as needed */
-    margin-left: -150px;
+    flex: 0 0 600px; /* Adjust basis as needed */
+    margin-left: -500px;
     align-self: center;
     z-index: -1;
+    margin-top: 70px;
+    position: relative;
 }
 
 .unoq-image-container img {
@@ -338,4 +340,39 @@ input:checked + .slider:before {
         height: 16px;
         width: auto;
     }
+}
+
+.led-annotation {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    color: #7F8C8D;
+    font-family: "Roboto Mono", monospace;
+    font-size: 14px;
+}
+
+.led-annotation .dashed-line {
+    border-top: 1px dashed #7F8C8D;
+    width: 20px; /* Adjust as needed */
+    margin-right: 5px;
+}
+
+.led-4 {
+    top: 36px;
+    left: 578px; /* 568 + 10px offset */
+}
+
+.led-3 {
+    top: 55px;
+    left: 578px;
+}
+
+.led-2 {
+    top: 72px;
+    left: 578px;
+}
+
+.led-1 {
+    top: 90px;
+    left: 578px;
 }
