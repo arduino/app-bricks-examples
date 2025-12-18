@@ -2,70 +2,116 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-const led1ColorPicker = document.getElementById('led1-color');
-const led2ColorPicker = document.getElementById('led2-color');
-const led3ColorPicker = document.getElementById('led3-color');
-const led4ColorPicker = document.getElementById('led4-color');
-const led1HexDisplay = document.getElementById('led1-hex');
-const led2HexDisplay = document.getElementById('led2-hex');
-const led3HexDisplay = document.getElementById('led3-hex');
-const led4HexDisplay = document.getElementById('led4-hex');
-let errorContainer;
+const socket = io(`http://${window.location.host}`);
 
-/*
- * Socket initialization. We need it to communicate with the server
- */
-const socket = io(`http://${window.location.host}`); // Initialize socket.io connection
+const ledState = {
+  1: { color: '#DAE3E3', isOn: true },
+  2: { color: '#DAE3E3', isOn: true },
+  3: { color: '#DAE3E3', isOn: true },
+  4: { color: '#DAE3E3', isOn: true },
+};
 
-// Start the application
 document.addEventListener('DOMContentLoaded', () => {
-    errorContainer = document.getElementById('error-container');
-    initSocketIO();
-
-    // Add event listeners
-    led1ColorPicker.addEventListener('input', function(e) {
-      led1HexDisplay.textContent = e.target.value;
-      const rgb = hexToRgb(e.target.value);
-      socket.emit('set_color', { led: 1, color: rgb });
-      console.log(`LED 1 - R: ${rgb.r}, G: ${rgb.g}, B: ${rgb.b}`);
-    });
-
-    led2ColorPicker.addEventListener('input', function(e) {
-      led2HexDisplay.textContent = e.target.value;
-      const rgb = hexToRgb(e.target.value);
-      socket.emit('set_color', { led: 2, color: rgb });
-      console.log(`LED 2 - R: ${rgb.r}, G: ${rgb.g}, B: ${rgb.b}`);
-    });
-
-    led3ColorPicker.addEventListener('input', function(e) {
-      led3HexDisplay.textContent = e.target.value;
-      const rgb = hexToRgb(e.target.value);
-      socket.emit('set_color', { led: 3, color: rgb });
-      console.log(`LED 3 - R: ${rgb.r}, G: ${rgb.g}, B: ${rgb.b}`);
-    });
-
-    led4ColorPicker.addEventListener('input', function(e) {
-      led4HexDisplay.textContent = e.target.value;
-      const rgb = hexToRgb(e.target.value);
-      socket.emit('set_color', { led: 4, color: rgb });
-      console.log(`LED 4 - R: ${rgb.r}, G: ${rgb.g}, B: ${rgb.b}`);
-    });
+  initSocketIO();
+  setupPaletteLED(1);
+  setupPaletteLED(2);
+  setupColorPickerLED(3);
+  setupPaletteLED(4);
 });
 
-// Function to convert hex to RGB
+function setupPaletteLED(ledNumber) {
+  const switchEl = document.getElementById(`led${ledNumber}-switch`);
+  const palette = document.getElementById(`led${ledNumber}-palette`);
+  const circle = document.getElementById(`led${ledNumber}-circle`);
+
+  switchEl.addEventListener('change', (e) => {
+    ledState[ledNumber].isOn = e.target.checked;
+    if (ledState[ledNumber].isOn) {
+      updateColor(ledNumber, ledState[ledNumber].color);
+    } else {
+      updateColor(ledNumber, '#000000', false); // Turn off, don't update state color
+    }
+  });
+
+  palette.addEventListener('click', (e) => {
+    if (e.target.classList.contains('color-square')) {
+      const newColor = e.target.dataset.color;
+      updateColor(ledNumber, newColor);
+    }
+  });
+  
+  // Set initial color
+  updateColor(ledNumber, ledState[ledNumber].color);
+}
+
+function setupColorPickerLED(ledNumber) {
+  const switchEl = document.getElementById(`led${ledNumber}-switch`);
+  const trigger = document.getElementById(`led${ledNumber}-color-trigger`);
+  const picker = document.getElementById(`led${ledNumber}-color`);
+  const hexInput = document.getElementById(`led${ledNumber}-hex`);
+
+  switchEl.addEventListener('change', (e) => {
+    ledState[ledNumber].isOn = e.target.checked;
+    if (ledState[ledNumber].isOn) {
+      updateColor(ledNumber, ledState[ledNumber].color);
+    } else {
+      updateColor(ledNumber, '#000000', false);
+    }
+  });
+
+  trigger.addEventListener('click', () => picker.click());
+
+  picker.addEventListener('input', (e) => {
+    updateColor(ledNumber, e.target.value);
+  });
+
+  hexInput.addEventListener('change', (e) => {
+    const newColor = e.target.value;
+    if (/^#[0-9A-F]{6}$/i.test(newColor)) {
+      updateColor(ledNumber, newColor);
+    }
+  });
+    // Set initial color
+  updateColor(ledNumber, ledState[ledNumber].color);
+}
+
+function updateColor(ledNumber, newColor, updateStateColor = true) {
+  if (updateStateColor) {
+    ledState[ledNumber].color = newColor;
+  }
+
+  const circle = document.getElementById(`led${ledNumber}-circle`);
+  circle.style.backgroundColor = newColor;
+
+  if (ledNumber === 3) {
+    const hexInput = document.getElementById(`led3-hex`);
+    const trigger = document.getElementById(`led3-color-trigger`);
+    hexInput.value = newColor;
+    trigger.style.backgroundColor = newColor;
+  }
+
+  if (ledState[ledNumber].isOn) {
+    const rgb = hexToRgb(newColor);
+    socket.emit('set_color', { led: ledNumber, color: rgb });
+    console.log(`LED ${ledNumber} - R: ${rgb.r}, G: ${rgb.g}, B: ${rgb.b}`);
+  } else if (newColor === '#000000') {
+    // Specifically for turning off
+    const rgb = hexToRgb(newColor);
+    socket.emit('set_color', { led: ledNumber, color: rgb });
+    console.log(`LED ${ledNumber} turned OFF`);
+  }
+}
+
 function hexToRgb(hex) {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
+    const r = parseInt(hex.slice(1, 3), 16) || 0;
+    const g = parseInt(hex.slice(3, 5), 16) || 0;
+    const b = parseInt(hex.slice(5, 7), 16) || 0;
     return { r, g, b };
 }
 
 function initSocketIO() {
-    socket.on('led_status_update', (message) => {
-        updateLedStatus(message);
-    });
-
     socket.on('disconnect', () => {
+        const errorContainer = document.getElementById('error-container');
         if (errorContainer) {
             errorContainer.textContent = 'Connection to the board lost. Please check the connection.';
             errorContainer.style.display = 'block';
