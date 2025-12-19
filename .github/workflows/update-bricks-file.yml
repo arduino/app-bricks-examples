@@ -61,7 +61,7 @@ jobs:
 
       - name: Create Pull Request
         if: steps.check-branch.outputs.branch_exists != 'true' && steps.check-update.outputs.update_needed != 'false'
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v8
         with:
           base: main
           branch: update-bricks-${{ steps.get-latest-version.outputs.LATEST_RELEASE }}
