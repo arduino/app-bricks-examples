@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import json
+import re
 from arduino.app_utils import Frame
 
 class AppFrame(Frame):
@@ -147,10 +148,10 @@ class AppFrame(Frame):
             str: C source fragment containing a const array initializer.
         """
         c_type = "uint8_t"
-        snake_name = self.name.lower().replace(" ", "_")
+        snake_name = re.sub(r'[^a-zA-Z0-9]', '_', self.name.lower())
         scaled_arr = self.rescale_quantized_frame(scale_max=255)
 
-        parts = [f"{c_type} {snake_name}[] = {{"]
+        parts = [f"const {c_type} {snake_name} [] = {{"]
         rows = scaled_arr.tolist()
         # Emit the array as row-major integer values, preserving row breaks for readability
         for r_idx, row in enumerate(rows):
