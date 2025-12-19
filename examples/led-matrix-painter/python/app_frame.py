@@ -151,7 +151,7 @@ class AppFrame(Frame):
         snake_name = re.sub(r'[^a-zA-Z0-9]', '_', self.name.lower())
         scaled_arr = self.rescale_quantized_frame(scale_max=255)
 
-        parts = [f"const {c_type} {snake_name} [] = {{"]
+        parts = [f"{c_type} {snake_name} [] = {{"]
         rows = scaled_arr.tolist()
         # Emit the array as row-major integer values, preserving row breaks for readability
         for r_idx, row in enumerate(rows):
