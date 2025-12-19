@@ -146,10 +146,11 @@ class AppFrame(Frame):
         Returns:
             str: C source fragment containing a const array initializer.
         """
-        c_type = "uint32_t"
+        c_type = "uint8_t"
+        snake_name = self.name.lower().replace(" ", "_")
         scaled_arr = self.rescale_quantized_frame(scale_max=255)
 
-        parts = [f"const {c_type} {self.name}[] = {{"]
+        parts = [f"{c_type} {snake_name}[] = {{"]
         rows = scaled_arr.tolist()
         # Emit the array as row-major integer values, preserving row breaks for readability
         for r_idx, row in enumerate(rows):
