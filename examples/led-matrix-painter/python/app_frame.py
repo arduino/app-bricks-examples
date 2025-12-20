@@ -6,6 +6,33 @@ import re
 import json
 from arduino.app_utils import Frame
 
+
+def _sanitize_c_ident(name: str, fallback: str = "frame") -> str:
+    """Sanitize an arbitrary string into a valid C identifier.
+
+    Rules:
+    - allow lower-case letters, digits and underscore
+    - replace other chars with underscore
+    - if starts with a digit, prefix with 'f_'
+    - if result is empty, return fallback
+    """
+    if name is None:
+        return fallback
+    s = str(name).strip().lower()
+    if not s:
+        return fallback
+    # keep letters, digits and underscore
+    s = re.sub(r'[^a-z0-9_]', '_', s)
+    # collapse multiple underscores
+    s = re.sub(r'_+', '_', s)
+    # remove leading/trailing underscore
+    s = s.strip('_')
+    if not s:
+        return fallback
+    if re.match(r'^[0-9]', s):
+        s = f"f_{s}"
+    return s
+
 class AppFrame(Frame):
     """Extended Frame app_utils class with application-specific metadata.
 
@@ -86,6 +113,8 @@ class AppFrame(Frame):
         self.name = name
         self.position = position
         self.duration_ms = duration_ms
+        # Export-friendly sanitized name used for C identifiers and exports
+        self._export_name = _sanitize_c_ident(self.name or f"frame_{self.id}")
 
     # -- JSON serialization/deserialization for frontend --------------------------------
     @classmethod
@@ -148,8 +177,8 @@ class AppFrame(Frame):
             str: C source fragment containing a const array initializer.
         """
         c_type = "uint8_t"
-        # sanitize name into a safe C identifier
-        snake_name = re.sub(r'[^a-zA-Z0-9]', '_', self.name.lower())
+        # use export-friendly sanitized name
+        snake_name = self._export_name
         scaled_arr = self.rescale_quantized_frame(scale_max=255)
 
         parts = [f"{c_type} {snake_name} [] = {{"]
@@ -244,6 +273,9 @@ class AppFrame(Frame):
 
     def to_animation_bytes(self) -> bytes:
         """Return this frame encoded as 20 bytes (4 x uint32_t pixels + 1 x uint32_t duration) in little-endian.
+
+        Returns:
+            bytes: representation of the frame for RPC transmission.
         """
         hex_values = self.to_animation_hex()
         ba = bytearray()
@@ -278,8 +310,8 @@ class AppFrame(Frame):
         This is suitable for inclusion in a .h and compatible with
         `Arduino_LED_Matrix::loadWrapper(const uint32_t[][5], uint32_t)`.
         """
-        # sanitize name into a simple C identifier
-        snake = re.sub(r'[^a-zA-Z0-9]', '_', name)
+        # sanitize animation name into a simple C identifier
+        snake = _sanitize_c_ident(name or 'Animation')
         parts = [f"const uint32_t {snake}[][5] = {{"]
         for frame in frames:
             hex_values = frame.to_animation_hex()
