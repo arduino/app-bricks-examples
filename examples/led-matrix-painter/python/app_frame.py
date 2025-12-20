@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+import re
 import json
 from arduino.app_utils import Frame
 
@@ -240,6 +241,53 @@ class AppFrame(Frame):
         hex_values.append(str(duration))
         
         return hex_values
+
+    def to_animation_bytes(self) -> bytes:
+        """Return this frame encoded as 20 bytes (4 x uint32_t pixels + 1 x uint32_t duration) in little-endian.
+        """
+        hex_values = self.to_animation_hex()
+        ba = bytearray()
+        for i in range(4):
+            value = int(hex_values[i], 16)
+            ba.extend(value.to_bytes(4, byteorder='little'))
+        duration = int(hex_values[4])
+        ba.extend(duration.to_bytes(4, byteorder='little'))
+        return bytes(ba)
+
+    @staticmethod
+    def frames_to_animation_bytes(frames: list) -> bytes:
+        """Aggregate multiple AppFrame instances into a bytes sequence ready for RPC.
+
+        Each frame contributes 20 bytes (little-endian uint32 x5).
+        """
+        ba = bytearray()
+        for f in frames:
+            ba.extend(f.to_animation_bytes())
+        return bytes(ba)
+
+    @staticmethod
+    def frames_to_c_animation_array(frames: list, name: str = 'Animation') -> str:
+        """Produce a C initializer for an animation sequence.
+
+        Example output:
+            const uint32_t Animation[][5] = {
+                {0x..., 0x..., 0x..., 0x..., 1000},
+                ...
+            };
+
+        This is suitable for inclusion in a .h and compatible with
+        `Arduino_LED_Matrix::loadWrapper(const uint32_t[][5], uint32_t)`.
+        """
+        # sanitize name into a simple C identifier
+        snake = re.sub(r'[^a-zA-Z0-9]', '_', name)
+        parts = [f"const uint32_t {snake}[][5] = {{"]
+        for frame in frames:
+            hex_values = frame.to_animation_hex()
+            hex_str = ", ".join(hex_values)
+            parts.append(f"    {{{hex_str}}},  // {getattr(frame, '_export_name', frame.name)}")
+        parts.append("};")
+        parts.append("")
+        return "\n".join(parts)
 
     # -- Frame.from_rows override (for subclass construction only) ---------------------------
     @classmethod
