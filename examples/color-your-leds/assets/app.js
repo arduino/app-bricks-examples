@@ -8,7 +8,7 @@ const OFF_COLOR = '#DAE3E3';
 const ledState = {
   1: { color: '#FFFFFF', isOn: true },
   2: { color: '#FFFFFF', isOn: true },
-  3: { color: '#DAE3E3', isOn: true },
+  3: { color: '#FFFFFF', isOn: true },
   4: { color: '#FFFFFF', isOn: true },
 };
 
