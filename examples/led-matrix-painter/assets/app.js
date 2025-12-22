@@ -566,7 +566,7 @@ function renderFrames(){
       fetchWithHandling('/persist_frame', {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ id: f.id, name: newName, duration_ms: f.duration_ms, rows: rows })
+        body: JSON.stringify({ id: f.id, name: newName, duration_ms: f.duration_ms, rows: rows, brightness_levels: BRIGHTNESS_LEVELS })
       }).then(() => refreshFrames());
     });
 
@@ -577,7 +577,7 @@ function renderFrames(){
         fetchWithHandling('/persist_frame', {
           method: 'POST',
           headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({ id: f.id, name: f.name, duration_ms: durationMs, rows: rows })
+          body: JSON.stringify({ id: f.id, name: f.name, duration_ms: durationMs, rows: rows, brightness_levels: BRIGHTNESS_LEVELS })
         }).then(() => refreshFrames());
       }
     });
