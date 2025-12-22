@@ -4,3 +4,4 @@ description: Control your board through a Telegram bot
 
 bricks:
   - arduino:telegram
+  - arduino:object_detection
