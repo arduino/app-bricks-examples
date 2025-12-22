@@ -17,6 +17,16 @@ async def greet(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     await update.message.reply_markdown(f"Hi **{user.first_name}**. This is UNO Q!")
 
+async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    help_text = (
+        "🤖 *Available Commands:*\n"
+        "/hello - Greet the bot\n"
+        "/help - Show this help message\n\n"
+        "You can also send me any text message, and I will echo it back to you.\n"
+        "Send me a photo, and I will perform object detection on it!"
+    )
+    await update.message.reply_markdown(help_text)
+
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(f'🦜: {update.message.text}')
 
@@ -41,6 +51,7 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # --- Registration ---
 
 bot.add_command("hello", greet)
+bot.add_command("help", help)
 bot.on_text(echo)
 bot.on_photo(handle_photo)
 
