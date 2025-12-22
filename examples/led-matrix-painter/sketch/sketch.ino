@@ -78,9 +78,9 @@ void play_animation(std::vector<uint8_t> animation_bytes) {
 void setup() {
   matrix.begin();
   Serial.begin(115200);
-  // configure grayscale bits to 8 so the display can accept 0..255 brightness
-  // The MCU expects full-byte brightness values from the backend.
-  matrix.setGrayscaleBits(8);
+  // configure grayscale bits to 3 so the display accepts 0..7 brightness
+  // The backend will send quantized values in 0..(2^3-1) == 0..7.
+  matrix.setGrayscaleBits(3);
   matrix.clear();
 
   Bridge.begin();

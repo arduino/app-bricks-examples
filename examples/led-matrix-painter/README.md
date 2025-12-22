@@ -1,6 +1,6 @@
 # LED Matrix Painter
 
-The **LED Matrix Painter** example provides a web-based interface to draw, animate, and control the built-in LED Matrix of the Arduino UNO Q in real-time. It features a pixel editor with 8-bit brightness control, database storage for your designs, and a code generator to export your frames as ready-to-use C++ code.
+The **LED Matrix Painter** example provides a web-based interface to draw, animate, and control the built-in LED Matrix of the Arduino UNO Q in real-time. It features a pixel editor with 3-bit (0-7) brightness control, database storage for your designs, and a code generator to export your frames as ready-to-use C++ code.
 
 ![LED Matrix Painter Example](assets/docs_assets/thumbnail.png)
 
@@ -12,7 +12,7 @@ The application uses the `dbstorage_sqlstore` Brick to automatically save your w
 
 Key features include:
 - **Real-time Control:** Drawing on the web grid updates the UNO Q matrix instantly.
-- **Grayscale Control:** 8 brightness presets (0-7) for intuitive pixel control, with full 8-bit precision (0-255) supported at the hardware level.
+- **Grayscale Control:** 8 brightness presets (0-7) for intuitive pixel control; this example configures the board for 3-bit grayscale (0–7).
 - **Persistent Storage:** Frames are automatically saved to a database, allowing you to build complex animations over time.
 - **Transformation Tools:** Invert, rotate, or flip designs with a single click.
 - **Animation Mode:** Sequence frames to create animations and preview them on the board.
@@ -156,8 +156,9 @@ The sketch is designed to be a passive renderer, accepting commands from the Pyt
 ```cpp
 void setup() {
   matrix.begin();
-  // configure grayscale bits to 8 so the display can accept 0..255 brightness
-  matrix.setGrayscaleBits(8);
+  // configure grayscale bits to 3 so the display accepts 0..7 brightness
+  // The backend sends quantized values in 0..(2^3-1) == 0..7.
+  matrix.setGrayscaleBits(3);
   Bridge.begin();
   // ...
 }
