@@ -1,0 +1,72 @@
+name: Update bricks whl file to the latest version
+on:
+  workflow_dispatch:
+  schedule:
+    # Run every day at 8:00 AM UTC
+    - cron: '0 8 * * *'
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  steps:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get latest bricks version
+        id: get-latest-version
+        run: |
+          LATEST_RELEASE=$(curl -s https://api.github.com/repos/arduino/app-bricks-py/releases/latest | jq -r .tag_name | sed 's/^release\///')
+          echo "LATEST_RELEASE=$LATEST_RELEASE" >> $GITHUB_OUTPUT
+
+      - name: Check if there is an existing branch for the latest version
+        id: check-branch
+        run: |
+          LATEST_RELEASE=${{ steps.get-latest-version.outputs.LATEST_RELEASE }}
+          if git ls-remote --heads origin update-bricks-${LATEST_RELEASE} | grep -q update-bricks-${LATEST_RELEASE}; then
+            echo "Branch update-bricks-${LATEST_RELEASE} already exists."
+            echo "branch_exists=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check if current version is up to date
+        if: steps.check-branch.outputs.branch_exists != 'true'
+        id: check-update
+        run: |
+          LATEST_RELEASE=${{ steps.get-latest-version.outputs.LATEST_RELEASE }}
+          if ls libs/arduino_app_bricks-*.whl 1> /dev/null 2>&1; then
+            CURRENT_VERSION=$(ls libs/arduino_app_bricks-*.whl | sed -E 's/.*arduino_app_bricks-([0-9]+\.[0-9]+\.[0-9]+)-py3-none-any\.whl/\1/')
+            echo "CURRENT_VERSION=$CURRENT_VERSION"
+            if [ "$CURRENT_VERSION" = "$LATEST_RELEASE" ]; then
+              echo "No update needed. Current version is up to date."
+              echo "update_needed=false" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+          fi
+          echo "Update needed. Current version is outdated or not present."
+
+      - name: Download whl file
+        if: steps.check-branch.outputs.branch_exists != 'true' && steps.check-update.outputs.update_needed != 'false'
+        run: |
+          LATEST_RELEASE=${{ steps.get-latest-version.outputs.LATEST_RELEASE }}
+          ASSET_URL=$(curl -s https://api.github.com/repos/arduino/app-bricks-py/releases/latest | jq -r '.assets[] | select(.name | endswith(".whl")) | .browser_download_url')
+          wget "$ASSET_URL" -O libs/arduino_app_bricks-${LATEST_RELEASE}-py3-none-any.whl
+
+      - name: Remove old whl files
+        if: steps.check-branch.outputs.branch_exists != 'true' && steps.check-update.outputs.update_needed != 'false'
+        run: |
+          LATEST_RELEASE=${{ steps.get-latest-version.outputs.LATEST_RELEASE }}
+          find libs/ -name 'arduino_app_bricks-*.whl' ! -name "arduino_app_bricks-${LATEST_RELEASE}-py3-none-any.whl" -delete
+
+      - name: Create Pull Request
+        if: steps.check-branch.outputs.branch_exists != 'true' && steps.check-update.outputs.update_needed != 'false'
+        uses: peter-evans/create-pull-request@v8
+        with:
+          base: main
+          branch: update-bricks-${{ steps.get-latest-version.outputs.LATEST_RELEASE }}
+          title: "Update bricks whl file to ${{ steps.get-latest-version.outputs.LATEST_RELEASE }}"
+          body: "This PR updates the Arduino App Bricks wheel file to the latest version ${{ steps.get-latest-version.outputs.LATEST_RELEASE }}."
+          commit-message: "Update bricks whl to ${{ steps.get-latest-version.outputs.LATEST_RELEASE }}"
+          add-paths: |
+            libs/arduino_app_bricks-*.whl
