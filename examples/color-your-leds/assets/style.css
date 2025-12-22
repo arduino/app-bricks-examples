@@ -71,7 +71,7 @@ body {
 
 .main-content {
     display: flex;
-    gap: 32px;
+    gap: 16px;
     align-items: stretch;
     justify-content: center;
     flex-wrap: wrap;
@@ -330,6 +330,36 @@ input:checked + .slider:before {
 @media (max-width: 768px) {
     body {
         padding: 12px 20px;
+        position: relative;
+    }
+
+    .unoq-image-container {
+        position: absolute;
+        top: 220px;
+        left: 10%;
+        transform: translateX(-50%) scale(2.5);
+        width: 100%;
+        max-width: 400px;
+        margin-left: 0;
+        z-index: 0;
+        pointer-events: none;
+        flex-basis: auto;
+    }
+
+    .content-wrapper {
+        width: 100%;
+        position: relative;
+        z-index: 1;
+        padding-left: 0;
+    }
+
+    .main-content {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .led-card {
+        width: 100%;
     }
 
     .arduino-text {
