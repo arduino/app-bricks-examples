@@ -6,33 +6,6 @@ import re
 import json
 from arduino.app_utils import Frame
 
-
-def _sanitize_c_ident(name: str, fallback: str = "frame") -> str:
-    """Sanitize an arbitrary string into a valid C identifier.
-
-    Rules:
-    - allow lower-case letters, digits and underscore
-    - replace other chars with underscore
-    - if starts with a digit, prefix with 'f_'
-    - if result is empty, return fallback
-    """
-    if name is None:
-        return fallback
-    s = str(name).strip().lower()
-    if not s:
-        return fallback
-    # keep letters, digits and underscore
-    s = re.sub(r'[^a-z0-9_]', '_', s)
-    # collapse multiple underscores
-    s = re.sub(r'_+', '_', s)
-    # remove leading/trailing underscore
-    s = s.strip('_')
-    if not s:
-        return fallback
-    if re.match(r'^[0-9]', s):
-        s = f"f_{s}"
-    return s
-
 class AppFrame(Frame):
     """Extended Frame app_utils class with application-specific metadata.
 
@@ -114,7 +87,7 @@ class AppFrame(Frame):
         self.position = position
         self.duration_ms = duration_ms
         # Export-friendly sanitized name used for C identifiers and exports
-        self._export_name = _sanitize_c_ident(self.name or f"frame_{self.id}")
+        self._export_name = self._sanitize_c_ident(self.name or f"frame_{self.id}")
 
     # -- JSON serialization/deserialization for frontend --------------------------------
     @classmethod
@@ -193,6 +166,43 @@ class AppFrame(Frame):
         parts.append("};")
         parts.append("")
         return "\n".join(parts)
+
+    @staticmethod
+    def _sanitize_c_ident(name: str, fallback: str = "frame") -> str:
+        """Return a safe C identifier derived from ``name``.
+
+        This produces a lower-case identifier containing only ASCII
+        letters, digits and underscores. Multiple non-allowed
+        characters collapse into a single underscore. Leading digits are
+        prefixed with ``f_`` to ensure the identifier is valid. If the
+        resulting name is empty, ``fallback`` is returned.
+
+        Args:
+            name: The original name to sanitize.
+            fallback: The fallback identifier used when the sanitized
+                result would be empty.
+
+        Returns:
+            A sanitized, C-safe identifier string.
+        """
+
+        if name is None:
+            return fallback
+        s = str(name).strip().lower()
+        if not s:
+            return fallback
+
+        # keep letters, digits and underscore
+        s = re.sub(r'[^a-z0-9_]', '_', s)
+        # collapse multiple underscores
+        s = re.sub(r'_+', '_', s)
+        # remove leading/trailing underscore
+        s = s.strip('_')
+        if not s:
+            return fallback
+        if re.match(r'^[0-9]', s):
+            s = f"f_{s}"
+        return s
     
     # -- create empty AppFrame --------------------------------
     @classmethod
@@ -272,10 +282,16 @@ class AppFrame(Frame):
         return hex_values
 
     def to_animation_bytes(self) -> bytes:
-        """Return this frame encoded as 20 bytes (4 x uint32_t pixels + 1 x uint32_t duration) in little-endian.
+        """Return this frame encoded as bytes for RPC transmission.
+
+        The returned value is the wire format expected by the sketch's
+        `play_animation` provider: 5 uint32_t values per frame (4 words
+        containing packed pixel bits and 1 word for duration), each encoded
+        in little-endian order (20 bytes total).
 
         Returns:
-            bytes: representation of the frame for RPC transmission.
+            bytes: 20-byte little-endian representation of this frame
+                (4 x uint32_t pixels + 1 x uint32_t duration).
         """
         hex_values = self.to_animation_hex()
         ba = bytearray()
@@ -287,10 +303,16 @@ class AppFrame(Frame):
         return bytes(ba)
 
     @staticmethod
-    def frames_to_animation_bytes(frames: list) -> bytes:
-        """Aggregate multiple AppFrame instances into a bytes sequence ready for RPC.
+    def frames_to_animation_bytes(frames: list["AppFrame"]) -> bytes:
+        """Aggregate multiple frames into a single bytes blob ready for RPC.
 
-        Each frame contributes 20 bytes (little-endian uint32 x5).
+        Args:
+            frames (list[AppFrame]): Sequence of AppFrame instances to include
+                in the resulting animation.
+
+        Returns:
+            bytes: Concatenated little-endian byte sequence where each frame
+                contributes 20 bytes (4 uint32_t pixel words + 1 uint32_t duration).
         """
         ba = bytearray()
         for f in frames:
@@ -301,17 +323,23 @@ class AppFrame(Frame):
     def frames_to_c_animation_array(frames: list, name: str = 'Animation') -> str:
         """Produce a C initializer for an animation sequence.
 
-        Example output:
+        Args:
+            frames (list[AppFrame]): Frames that make up the animation.
+            name (str): Desired C identifier for the animation array. Will be
+                sanitized into a valid C identifier.
+
+        Returns:
+            str: C source fragment defining a `const uint32_t NAME[][5]` array
+                where each entry is `{word0, word1, word2, word3, duration}`.
+
+        Example:
             const uint32_t Animation[][5] = {
                 {0x..., 0x..., 0x..., 0x..., 1000},
                 ...
             };
-
-        This is suitable for inclusion in a .h and compatible with
-        `Arduino_LED_Matrix::loadWrapper(const uint32_t[][5], uint32_t)`.
         """
         # sanitize animation name into a simple C identifier
-        snake = _sanitize_c_ident(name or 'Animation')
+        snake = AppFrame._sanitize_c_ident(name or 'Animation')
         parts = [f"const uint32_t {snake}[][5] = {{"]
         for frame in frames:
             hex_values = frame.to_animation_hex()
