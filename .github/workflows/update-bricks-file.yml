@@ -67,7 +67,7 @@ jobs:
         if: steps.check-branch.outputs.branch_exists != 'true' && steps.check-update.outputs.update_needed != 'false'
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION }
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Update license headers and files
         if: steps.check-branch.outputs.branch_exists != 'true' && steps.check-update.outputs
