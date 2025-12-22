@@ -12,6 +12,27 @@
 
 Arduino_LED_Matrix matrix;
 
+void setup() {
+  matrix.begin();
+  Serial.begin(115200);
+  // configure grayscale bits to 8 so the display can accept 0..255 brightness
+  // The MCU expects full-byte brightness values from the backend.
+  matrix.setGrayscaleBits(8);
+  matrix.clear();
+
+  Bridge.begin();
+
+  // Register the draw provider (by-value parameter). Using by-value avoids
+  // RPC wrapper template issues with const reference params.
+  Bridge.provide("draw", draw);
+  
+  // Register the animation player provider
+  Bridge.provide("play_animation", play_animation);
+}
+
+void loop() {
+}
+
 void draw(std::vector<uint8_t> frame) {
   if (frame.empty()) {
     Serial.println("[sketch] draw called with empty frame");
@@ -73,26 +94,4 @@ void play_animation(std::vector<uint8_t> animation_bytes) {
   matrix.playSequence(false); // Don't loop by default
   
   Serial.println("[sketch] Animation playback complete");
-}
-
-void setup() {
-  matrix.begin();
-  Serial.begin(115200);
-  // configure grayscale bits to 8 so the display can accept 0..255 brightness
-  // The MCU expects full-byte brightness values from the backend.
-  matrix.setGrayscaleBits(8);
-  matrix.clear();
-
-  Bridge.begin();
-
-  // Register the draw provider (by-value parameter). Using by-value avoids
-  // RPC wrapper template issues with const reference params.
-  Bridge.provide("draw", draw);
-  
-  // Register the animation player provider
-  Bridge.provide("play_animation", play_animation);
-}
-
-void loop() {
-  delay(200);
 }
