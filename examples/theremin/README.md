@@ -39,7 +39,7 @@ The theremin simulator example uses the following Bricks:
 
 - Arduino App Lab
 
-**Important:** A **USB-C® hub is mandatory** for this example. The UNO Q's single port must be used for the hub, which provides the necessary connections for both the power supply and the USB audio device. Consequently, this example must be run in **[Network Mode](learn/network-mode)** or **[SBC Mode](learn/single-board-computer)**.
+**Important:** A **USB-C® hub is mandatory** for this example. The UNO Q's single port must be used for the hub, which provides the necessary connections for both the power supply and the USB audio device. Consequently, this example must be run in **[Network Mode](/learn/network-mode)** or **[SBC Mode](/learn/single-board-computer)**.
 
 **Note:** **HDMI audio** and **Bluetooth® Speakers** are not supported by this App.
 

@@ -4,7 +4,7 @@ The **Hey Arduino!** example triggers a LED matrix animation whenever the keywor
 
 To use this example, we need to use **Network Mode**, as it requires a [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) (to connect the microphone).
 
-Network mode is selected when launching the Arduino App Lab. You can read more about this the [Network Mode section](/first-setup#option-2-remote-connect-ssh).
+Network mode is selected when launching the Arduino App Lab. You can read more about this the [Network Mode section](/learn/first-setup#option-2-remote-connect-ssh).
 
 ## Bricks Used
 
