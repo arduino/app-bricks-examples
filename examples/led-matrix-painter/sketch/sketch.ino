@@ -12,6 +12,15 @@
 
 Arduino_LED_Matrix matrix;
 
+// Animation playback state (cooperative, interruptible by `stop_animation`)
+static const int MAX_FRAMES = 50;
+static uint32_t animation_buf[MAX_FRAMES][5]; // 4 words + duration
+static int animation_frame_count = 0;
+static volatile bool animation_running = false;
+static volatile bool animation_loop = false;
+static volatile int animation_current_frame = 0;
+static unsigned long animation_next_time = 0;
+
 void draw(std::vector<uint8_t> frame) {
   if (frame.empty()) {
     Serial.println("[sketch] draw called with empty frame");
@@ -52,27 +61,68 @@ void play_animation(std::vector<uint8_t> animation_bytes) {
     frame_count = MAX_FRAMES;
   }
   
-  // Static buffer to avoid dynamic allocation
-  static uint32_t animation[MAX_FRAMES][5];
-  
-  // Convert bytes to uint32_t array
+  // Parse bytes into the global animation buffer for cooperative playback
   const uint8_t* data = animation_bytes.data();
-  for (int i = 0; i < frame_count; i++) {
+  int limit = min(frame_count, MAX_FRAMES);
+  for (int i = 0; i < limit; i++) {
     for (int j = 0; j < 5; j++) {
       int byte_offset = (i * 5 + j) * 4;
-      // Reconstruct uint32_t from 4 bytes (little-endian)
-      animation[i][j] = ((uint32_t)data[byte_offset]) |
-                        ((uint32_t)data[byte_offset + 1] << 8) |
-                        ((uint32_t)data[byte_offset + 2] << 16) |
-                        ((uint32_t)data[byte_offset + 3] << 24);
+      animation_buf[i][j] = ((uint32_t)data[byte_offset]) |
+                            ((uint32_t)data[byte_offset + 1] << 8) |
+                            ((uint32_t)data[byte_offset + 2] << 16) |
+                            ((uint32_t)data[byte_offset + 3] << 24);
     }
   }
-  
-  // Load and play the sequence using the Arduino_LED_Matrix library
-  matrix.loadWrapper(animation, frame_count * 5 * sizeof(uint32_t));
-  matrix.playSequence(false); // Don't loop by default
-  
-  Serial.println("[sketch] Animation playback complete");
+  animation_frame_count = limit;
+  animation_current_frame = 0;
+  animation_loop = false; // preserve existing behaviour (no loop)
+  animation_running = true;
+  animation_next_time = millis();
+  Serial.print("[sketch] Animation queued, frames=");
+  Serial.println(animation_frame_count);
+}
+
+// Provider to stop any running animation
+void stop_animation() {
+  if (!animation_running) {
+    Serial.println("[sketch] stop_animation called but no animation running");
+    return;
+  }
+  animation_running = false;
+  Serial.println("[sketch] stop_animation: animation halted");
+}
+
+// Cooperative animation tick executed from loop()
+void animation_tick() {
+  if (!animation_running || animation_frame_count == 0) return;
+
+  unsigned long now = millis();
+  if (now < animation_next_time) return;
+
+  // Prepare frame words (reverse bits as the library expects)
+  uint32_t frame[4];
+  frame[0] = reverse(animation_buf[animation_current_frame][0]);
+  frame[1] = reverse(animation_buf[animation_current_frame][1]);
+  frame[2] = reverse(animation_buf[animation_current_frame][2]);
+  frame[3] = reverse(animation_buf[animation_current_frame][3]);
+
+  // Display frame
+  matrixWrite(frame);
+
+  // Schedule next frame
+  uint32_t interval = animation_buf[animation_current_frame][4];
+  if (interval == 0) interval = 1;
+  animation_next_time = now + interval;
+
+  animation_current_frame++;
+  if (animation_current_frame >= animation_frame_count) {
+    if (animation_loop) {
+      animation_current_frame = 0;
+    } else {
+      animation_running = false;
+      Serial.println("[sketch] Animation finished");
+    }
+  }
 }
 
 void setup() {
@@ -91,8 +141,12 @@ void setup() {
   
   // Register the animation player provider
   Bridge.provide("play_animation", play_animation);
+  // Provider to stop a running animation (invoked by backend)
+  Bridge.provide("stop_animation", stop_animation);
 }
 
 void loop() {
-  delay(200);
+  // Keep loop fast and let animation_tick handle playback timing
+  animation_tick();
+  delay(10);
 }
