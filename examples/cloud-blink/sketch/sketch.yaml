@@ -3,8 +3,10 @@ profiles:
     platforms:
       - platform: arduino:zephyr
     libraries:
-      - MsgPack (0.4.2)
-      - DebugLog (0.8.4)
-      - ArxContainer (0.7.0)
-      - ArxTypeTraits (0.3.1)
+      - Arduino_RouterBridge (0.2.2)
+      - dependency: Arduino_RPClite (0.2.0)
+      - dependency: ArxContainer (0.7.0)
+      - dependency: ArxTypeTraits (0.3.2)
+      - dependency: DebugLog (0.8.4)
+      - dependency: MsgPack (0.4.2)
 default_profile: default
