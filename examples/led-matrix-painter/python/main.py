@@ -311,6 +311,27 @@ def play_animation(payload: dict):
     return {'ok': True, 'frames_played': len(frames)} # Return immediately
 
 
+def stop_animation(payload: dict = None):
+    """Stop any running animation on the board.
+
+    This endpoint calls the sketch provider `stop_animation`. No payload
+    required.
+
+    Args:
+        payload (dict, optional): Not used. Defaults to None.
+    
+    Returns:
+        dict: {'ok': True} on success, {'error': str} on failure.
+    """
+    try:
+        Bridge.call("stop_animation")
+        logger.info("stop_animation called on board")
+        return {'ok': True}
+    except Exception as e:
+        logger.warning(f"Failed to request stop_animation: {e}")
+        return {'error': str(e)}
+
+
 ui.expose_api('POST', '/update_board', update_board)
 ui.expose_api('POST', '/persist_frame', persist_frame)
 ui.expose_api('POST', '/load_frame', load_frame)
@@ -321,6 +342,7 @@ ui.expose_api('POST', '/transform_frame', transform_frame)
 ui.expose_api('POST', '/export_frames', export_frames)
 ui.expose_api('POST', '/reorder_frames', reorder_frames)
 ui.expose_api('POST', '/play_animation', play_animation)
+ui.expose_api('POST', '/stop_animation', stop_animation)
 ui.expose_api('GET', '/config', get_config)
 
 App.run()
