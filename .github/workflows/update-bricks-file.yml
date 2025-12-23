@@ -63,21 +63,6 @@ jobs:
           LATEST_RELEASE=${{ steps.get-latest-version.outputs.LATEST_RELEASE }}
           find libs/ -name 'arduino_app_bricks-*.whl' ! -name "arduino_app_bricks-${LATEST_RELEASE}-py3-none-any.whl" -delete
 
-      - name: Set up Python
-        if: steps.check-branch.outputs.branch_exists != 'true' && steps.check-update.outputs.update_needed != 'false'
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Update license headers and files
-        if: steps.check-branch.outputs.branch_exists != 'true' && steps.check-update.outputs.update_needed != 'false'
-        run: |
-          python -m venv .venv
-          . .venv/bin/activate
-          which task || curl -sSfL https://taskfile.dev/install.sh | sh -s -- -b ${{ env.TASKFILE_PATH }} ${{ env.TASKFILE_VERSION }}
-          export PATH="${{ env.TASKFILE_PATH }}:$PATH"
-          task license
-
       - name: Create Pull Request
         if: steps.check-branch.outputs.branch_exists != 'true' && steps.check-update.outputs.update_needed != 'false'
         uses: peter-evans/create-pull-request@v8
@@ -89,4 +74,33 @@ jobs:
           commit-message: "Update bricks whl to ${{ steps.get-latest-version.outputs.LATEST_RELEASE }}"
           add-paths: |
             libs/arduino_app_bricks-*.whl
-            THIRD-PARTY-LICENSES.json
+
+      - name: Checkout PR branch
+        if: steps.check-branch.outputs.branch_exists != 'true' && steps.check-update.outputs.update_needed != 'false'
+        uses: actions/checkout@v4
+        with:
+          ref: update-bricks-${{ steps.get-latest-version.outputs.LATEST_RELEASE }}
+
+      - name: Set up Python
+        if: steps.check-branch.outputs.branch_exists != 'true' && steps.check-update.outputs.update_needed != 'false'
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Update license
+        if: steps.check-branch.outputs.branch_exists != 'true' && steps.check-update.outputs.update_needed != 'false'
+        run: |
+          python -m venv .venv
+          . .venv/bin/activate
+          which task || curl -sSfL https://taskfile.dev/install.sh | sh -s -- -b ${{ env.TASKFILE_PATH }} ${{ env.TASKFILE_VERSION }}
+          export PATH="${{ env.TASKFILE_PATH }}:$PATH"
+          task license
+
+      - name: Commit license updates
+        if: steps.check-branch.outputs.branch_exists != 'true' && steps.check-update.outputs.update_needed != 'false'
+        run: |
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            git add .
+            git commit -m "Update license headers and files" || echo "No changes to commit"
+            git push origin update-bricks-${{ steps.get-latest-version.outputs.LATEST_RELEASE }}
