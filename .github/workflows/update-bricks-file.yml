@@ -22,7 +22,7 @@ jobs:
       - name: Get latest bricks version
         id: get-latest-version
         run: |
-          LATEST_RELEASE=$(curl -s https://api.github.com/repos/arduino/app-bricks-py/releases/latest | jq -r .tag_name | sed 's/^release\///')
+          LATEST_RELEASE=0.6.1 #$(curl -s https://api.github.com/repos/arduino/app-bricks-py/releases/latest | jq -r .tag_name | sed 's/^release\///')
           echo "LATEST_RELEASE=$LATEST_RELEASE" >> $GITHUB_OUTPUT
 
       - name: Check if there is an existing branch for the latest version
@@ -63,17 +63,20 @@ jobs:
           LATEST_RELEASE=${{ steps.get-latest-version.outputs.LATEST_RELEASE }}
           find libs/ -name 'arduino_app_bricks-*.whl' ! -name "arduino_app_bricks-${LATEST_RELEASE}-py3-none-any.whl" -delete
 
-      - name: Create Pull Request
+      - name: Create and switch to update branch
         if: steps.check-branch.outputs.branch_exists != 'true' && steps.check-update.outputs.update_needed != 'false'
-        uses: peter-evans/create-pull-request@v8
-        with:
-          base: main
-          branch: update-bricks-${{ steps.get-latest-version.outputs.LATEST_RELEASE }}
-          title: "Update bricks whl file to ${{ steps.get-latest-version.outputs.LATEST_RELEASE }}"
-          body: "This PR updates the Arduino App Bricks wheel file to the latest version ${{ steps.get-latest-version.outputs.LATEST_RELEASE }}."
-          commit-message: "Update bricks whl to ${{ steps.get-latest-version.outputs.LATEST_RELEASE }}"
-          add-paths: |
-            libs/arduino_app_bricks-*.whl
+        run: |
+          LATEST_RELEASE=${{ steps.get-latest-version.outputs.LATEST_RELEASE }}
+          git checkout -b update-bricks-${LATEST_RELEASE}
+
+      - name: Commit and push changes
+        if: steps.check-branch.outputs.branch_exists != 'true' && steps.check-update.outputs.update_needed != 'false'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add libs/arduino_app_bricks-*.whl
+          git commit -m "Update bricks whl to ${LATEST_RELEASE}" || echo "No changes to commit"
+          git push origin update-bricks-${LATEST_RELEASE}
 
       - name: Checkout PR branch
         if: steps.check-branch.outputs.branch_exists != 'true' && steps.check-update.outputs.update_needed != 'false'
