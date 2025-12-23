@@ -72,6 +72,7 @@ jobs:
       - name: Commit and push changes
         if: steps.check-branch.outputs.branch_exists != 'true' && steps.check-update.outputs.update_needed != 'false'
         run: |
+          LATEST_RELEASE=${{ steps.get-latest-version.outputs.LATEST_RELEASE }}
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add libs/arduino_app_bricks-*.whl
