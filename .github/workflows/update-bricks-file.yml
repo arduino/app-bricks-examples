@@ -96,7 +96,7 @@ jobs:
           export PATH="${{ env.TASKFILE_PATH }}:$PATH"
           task license
 
-      - name: Commit license updates
+      - name: Commit and push changes
         if: steps.check-branch.outputs.branch_exists != 'true' && steps.check-update.outputs.update_needed != 'false'
         run: |
             git config --global user.name "github-actions[bot]"
