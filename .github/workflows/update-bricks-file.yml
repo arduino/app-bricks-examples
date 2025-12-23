@@ -75,7 +75,7 @@ jobs:
           LATEST_RELEASE=${{ steps.get-latest-version.outputs.LATEST_RELEASE }}
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add libs/arduino_app_bricks-*.whl
+          git add .
           git commit -m "Update bricks whl to ${LATEST_RELEASE}" || echo "No changes to commit"
           git push origin update-bricks-${LATEST_RELEASE}
 
