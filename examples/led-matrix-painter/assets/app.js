@@ -419,12 +419,20 @@ async function playAnimation() {
 if (playAnimationBtn) playAnimationBtn.addEventListener('click', playAnimation); else console.warn('[ui] play animation button not found');
 
 if (stopAnimationBtn) {
-  stopAnimationBtn.addEventListener('click', () => {
+  stopAnimationBtn.addEventListener('click', async () => {
+    // Stop frontend animation loop
     if (animationTimeout) {
       clearTimeout(animationTimeout);
       animationTimeout = null;
       playAnimationBtn.disabled = false;
+    }
+    // Stop animation on board via backend
+    try {
+      await fetch('/stop_animation', { method: 'POST' });
       showVectorText('Animation stopped');
+    } catch (err) {
+      console.error('Failed to stop animation on board:', err);
+      showVectorText('Animation stopped (frontend only)');
     }
   });
 }
