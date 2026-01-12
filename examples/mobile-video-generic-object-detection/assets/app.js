@@ -139,12 +139,16 @@ function initSocketIO() {
     socket.on('connected', async (message) => {
         console.log("Webcam connected!");
         webcamState.status = "connected";
+        webcamState.clientAddr = message.client_address || "unknown";
+        webcamState.clientName = message.client_name || "unknown";
         updateDisplay();
     });
 
     socket.on('disconnected', async (message) => {
         console.log("Webcam disconnected!");
         webcamState.status = "disconnected";
+        webcamState.clientAddr = "";
+        webcamState.clientName = "";
         updateDisplay();
     });
     
