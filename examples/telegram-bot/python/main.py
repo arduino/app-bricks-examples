@@ -74,7 +74,7 @@ bot.on_photo(handle_photo)
 def proactive_messages():
     """Send proactive messages in a separate thread"""
     time.sleep(60)  # Wait 60 seconds before sending the delayed message, in order to allow time for initial interaction
-    bot.send_message(f"Hi, this is a proactive event from UNO Q Telegram Bot, I'm using the chat_id of the last interaction. Chat ID: {chat_id}", chat_id=chat_id)
+    bot.send_message(chat_id=chat_id, message_text=f"Hi, this is a proactive event from UNO Q Telegram Bot, I'm using the chat_id of the last interaction. Chat ID: {chat_id}")
 
 # Start the proactive messages thread
 message_thread = threading.Thread(target=proactive_messages, daemon=True)
