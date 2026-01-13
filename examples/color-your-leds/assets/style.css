@@ -1,0 +1,408 @@
+/*
+ * SPDX-FileCopyrightText: Copyright (C) ARDUINO SRL (http://www.arduino.cc)
+ *
+ * SPDX-License-Identifier: MPL-2.0
+ */
+
+@import url("fonts/fonts.css");
+
+/*
+ * This CSS is used to center the various elements on the screen
+ */
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    background-color: #ECF1F1;
+    color: #2C353A;
+    padding: 24px 40px;
+    display: flex;
+    overflow-x: hidden;
+}
+
+.unoq-image-container {
+    flex: 0 0 600px; /* Adjust basis as needed */
+    margin-left: -500px;
+    align-self: center;
+    z-index: -1;
+    margin-top: 70px;
+    position: relative;
+}
+
+.unoq-image-container img {
+    width: 100%;
+    height: auto;
+}
+
+.content-wrapper {
+    flex-grow: 1;
+    padding-left: 20px; /* Add some space */
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.arduino-text {
+    color: #008184;
+    font-family: "Roboto Mono", monospace;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+    font-style: normal;
+    line-height: 170%;
+    letter-spacing: 0.28px;
+}
+
+.arduino-logo {
+    height: 24px;
+    width: auto;
+}
+
+.container {
+    text-align: center;
+}
+
+.main-content {
+    display: flex;
+    gap: 16px;
+    align-items: stretch;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.led-card {
+    display: flex;
+    min-width: 200px;
+    max-width: 320px;
+    padding: 16px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+    flex: 1 0 0;
+    border-radius: 8px;
+    background-color: #fff;
+    border: 1px solid #C9D2D2;
+}
+
+.controls-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 60px; /* Approximate height for controls */
+    align-items: center;
+}
+
+#led3-color-controls {
+    align-self: flex-start;
+}
+
+.led-color-circle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 1px solid #C9D2D2;
+    background-color: #FFFFFF; /* Default background */
+}
+
+.led-title {
+    color: var(--text-default, #2C353A);
+    font-family: "Open Sans";
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 140%; /* 28px */
+    letter-spacing: 0.2px;
+}
+
+.icon-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.led-icon-container {
+    width: 30px;
+    height: 34px;
+    border: 1px solid #C9D2D2;
+    border-radius: 4px;
+}
+
+.led-icon-square {
+    rx: 4px;
+    fill: none;
+}
+
+.led-icon-dot {
+    stroke-width: 1px;
+    stroke: #C9D2D2;
+    fill: none;
+}
+
+.led-icon-dot.filled {
+    fill: #5D6A6B;
+}
+
+/* Switch styling */
+.switch-container {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Space between label and switch */
+}
+
+.switch-label {
+    color: var(--text-subtle, #5D6A6B);
+    font-family: "Open Sans";
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 160%;
+    letter-spacing: 0.12px;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 37px;
+    height: 20px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: #008184;
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px #008184;
+}
+
+input:checked + .slider:before {
+    transform: translateX(17px); /* 37px - 2px - 16px - 2px = 17px */
+}
+
+.slider.round {
+    border-radius: 20px; /* Half of height */
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+
+.color-picker-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Color Palette styling */
+.color-palette {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.color-square {
+    width: 24px;
+    height: 24px;
+    border: 1px solid #C9D2D2;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.hex-input {
+    font-family: "Roboto Mono", monospace;
+    font-size: 14px;
+    text-align: center;
+    width: 100px;
+    border: 1px solid #C9D2D2;
+    border-radius: 4px;
+    padding: 4px;
+}
+
+
+
+/*
+ * LED Button styling
+ */
+.led-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 32px;
+    padding-top: 40px;
+}
+
+#led-button {
+    width: 128px;
+    height: 128px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 14px;
+    text-align: center;
+    line-height: 1.2;
+    outline: none;
+    position: relative;
+    border: 2px solid #C9D2D2;
+}
+
+#led-button.led-off {
+    background: #DAE3E3;
+    color: #2C353A;
+    border-color: #C9D2D2;
+}
+
+#led-button.led-on {
+    background: #008184;
+    color: #ffffff;
+    box-shadow: 0 0 20px #008184, 0 0 40px #008184, 0 0 60px #008184;
+    border-color: #008184;
+}
+
+#led-button:hover {
+    transform: scale(1.05);
+}
+
+#led-button:active {
+    transform: scale(0.95);
+}
+
+.instruction-text {
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 160%;
+    letter-spacing: 0.12px;
+    color: #2C353A;
+}
+
+.error-message {
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/*
+ * Responsive design
+ */
+@media (max-width: 768px) {
+    body {
+        padding: 12px 20px;
+        position: relative;
+    }
+
+    .unoq-image-container {
+        position: absolute;
+        top: 220px;
+        left: 10%;
+        transform: translateX(-50%) scale(2.5);
+        width: 100%;
+        max-width: 400px;
+        margin-left: 0;
+        z-index: 0;
+        pointer-events: none;
+        flex-basis: auto;
+    }
+
+    .content-wrapper {
+        width: 100%;
+        position: relative;
+        z-index: 1;
+        padding-left: 0;
+    }
+
+    .main-content {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .led-card {
+        width: 100%;
+    }
+
+    .arduino-text {
+        font-size: 14px;
+    }
+
+    .arduino-logo {
+        height: 16px;
+        width: auto;
+    }
+}
+
+.led-annotation {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    color: #7F8C8D;
+    font-family: "Roboto Mono", monospace;
+    font-size: 14px;
+}
+
+.led-annotation .dashed-line {
+    border-top: 1px dashed #7F8C8D;
+    width: 20px; /* Adjust as needed */
+    margin-right: 5px;
+}
+
+.led-4 {
+    top: 36px;
+    left: 578px; /* 568 + 10px offset */
+}
+
+.led-3 {
+    top: 55px;
+    left: 578px;
+}
+
+.led-2 {
+    top: 72px;
+    left: 578px;
+}
+
+.led-1 {
+    top: 90px;
+    left: 578px;
+}
