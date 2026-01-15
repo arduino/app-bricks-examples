@@ -27,10 +27,9 @@ jobs:
 
       - name: Check license headers and files
         run: |
-          python -m venv .venv
-          . .venv/bin/activate
           which task || curl -sSfL https://taskfile.dev/install.sh | sh -s -- -b ${{ env.TASKFILE_PATH }} ${{ env.TASKFILE_VERSION }}
           export PATH="${{ env.TASKFILE_PATH }}:$PATH"
+          export CI=true
           task license
           if git diff --quiet; then
             echo "License data is up to date!"
