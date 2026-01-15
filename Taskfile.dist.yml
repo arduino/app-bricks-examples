@@ -1,10 +1,29 @@
 version: "3"
 
+vars:
+  # Detect if running in CI environment
+  IS_CI:
+    sh: '[ -n "$CI" ] && echo "true" || echo "false"'
+  # Set Python command prefix based on environment
+  PYTHON_PREFIX:
+    sh: '[ -n "$CI" ] && echo "" || echo ".venv/bin/"'
+
 tasks:
   init:ci:
     desc: Initialize CI environment
     cmds:
-      - pip install libs/arduino_app_bricks-*-py3-none-any.whl reuse pip-licenses
+      # Create fresh venv only in local environment
+      - |
+        if [ "{{.IS_CI}}" != "true" ]; then
+          echo "Local environment detected: creating fresh virtual environment..."
+          rm -rf .venv
+          python3 -m venv .venv
+          {{.PYTHON_PREFIX}}pip install --upgrade pip
+        else
+          echo "CI environment detected: skipping venv creation"
+          pip install --upgrade pip
+        fi
+      - '{{.PYTHON_PREFIX}}pip install libs/arduino_app_bricks-*-py3-none-any.whl reuse pip-licenses'
 
   license:
     deps:
@@ -15,8 +34,8 @@ tasks:
         git ls-files |
         grep -Ev "(^|/)(libs|sketch-libraries|assets)/|THIRD-PARTY-LICENSES.json|\.(md|txt|yml|yaml|toml|gitignore|gitmodules)$" |
         sed 's/ /\\ /g' |
-        xargs reuse annotate -r --skip-unrecognized --copyright-prefix 'spdx-string-c' --copyright 'ARDUINO SRL (http://www.arduino.cc)' --exclude-year --license 'MPL-2.0'
-      - reuse download --all
+        xargs {{.PYTHON_PREFIX}}reuse annotate -r --skip-unrecognized --copyright-prefix 'spdx-string-c' --copyright 'ARDUINO SRL (http://www.arduino.cc)' --exclude-year --license 'MPL-2.0'
+      - '{{.PYTHON_PREFIX}}reuse download --all'
       - |
         licenses_dir="LICENSES"
         if [ -d "$licenses_dir" ]; then
@@ -32,4 +51,4 @@ tasks:
           fi
           rmdir "$licenses_dir"
         fi
-      - pip-licenses --format=json --output-file=THIRD-PARTY-LICENSES.json
+      - '{{.PYTHON_PREFIX}}pip-licenses --format=json --output-file=THIRD-PARTY-LICENSES.json'
