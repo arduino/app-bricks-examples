@@ -10,13 +10,20 @@
  * This CSS is used to center the various elements on the screen
  */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;    margin: 0;
-    padding: 20px;
-    background-color: #DAE3E3;
-    color: #333;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    font-size: 12px;
+    margin: 0;
+    padding: 24px;
+    background-color: #ECF1F1;
+    color: #2C353A;
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+body > div {
+    width: 100%;
+    max-width: 1280px;
 }
 
 .main-content {
@@ -25,7 +32,8 @@ body {
     align-items: stretch;
     justify-content: center;
     width: 100%;
-    max-width: 1200px;
+    border-radius: 8px;
+    max-width: 1280px;
 }
 
 .header {
@@ -35,15 +43,71 @@ body {
     margin-bottom: 32px;
 }
 
+.subheader {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0px;
+    padding-bottom: 24px;
+    gap: 8px;
+}
+
+.subheader-content {
+    flex: 1;
+    font-weight: 600;
+    line-height: 160%;
+    display: flex;
+    gap: 4px;
+}
+
+.subheader-info {
+    background: white;
+    flex-direction: row;
+    display: flex;
+    flex: 1;
+    align-self: stretch;
+    border-radius: 8px;
+    padding: 16px;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+.subheader-info span:last-child {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.subheader-info-bold {
+    font-weight: 700;
+}
+
+[data-webcam-status="disconnected"] .subheader-info :nth-child(n+2) {
+    display: none;
+}
+
+[data-webcam-status="disconnected"] .main-content > .container {
+    max-height: 639px;
+}
+
+[data-webcam-status="disconnected"] .camera-status {
+    display: flex;
+}
+
+[data-webcam-status="disconnected"] .right-column {
+    display: none;
+}
+
 .container {
+    background: white;
     width: 100%;
     max-width: 550px;
-    min-width: 300px;
+    min-width: 320px;
     height: auto;
     min-height: auto;
     border-radius: 16px;
-    background: #FFF;
-    padding: 24px;
+    padding: 16px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -54,8 +118,10 @@ body {
     display: flex;
     flex-direction: column;
     gap: 32px;
+    min-width: 320px;
+    flex-grow: 1;
     width: 100%;
-    max-width: 550px;
+    max-width: 480px;
 }
 
 .right-column .container:last-child {
@@ -69,12 +135,8 @@ body {
     background-color: #f8d7da;
     color: #721c24;
     border: 1px solid #f5c6cb;
-}
-
-.container-right {
-    background: #FFF;
-    padding: 16px;
-    border-radius: 16px;
+    font-weight: bold;
+    text-align: center;
 }
 
 /*
@@ -85,112 +147,18 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 20px;
     width: 100%;
     margin-left: auto;
     margin-right: auto;
 }
 
-#videoCanvas {
-    display: block;
-    width: 100%;
-    height: auto;
-    background-color: #333;
-}
-
 .camera-status {
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     flex-direction: column;
     gap: 16px;
-    width: 1024px;
-    height: 768px;
-}
-
-.search {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #2C353A;
-    font-family: "Roboto Mono", monospace;
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 700;
-    line-height: 170%;
-    letter-spacing: 1.92px;
-}
-
-.search-small {
-    color: #2C353A;
-    text-align: center;
-    font-family: "Open Sans";
-    font-size: 14px;
-    font-style: normal;
-    font-weight: 400;
-}
-
-#scanInfo {
-    text-align: center;
-    margin-bottom: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    align-self: stretch;
-    border-radius: 8px;
-    background: #FFF;
-}
-
-#scanMessage {
-    text-align: center;
-    font-family: "Open Sans";
-    font-size: 10px;
-    color: #2C353A;
-    line-height: 160%;
-    letter-spacing: 0.5px;
-}
-
-#recentScansList {
-    list-style-type: none;
-    padding: 0;
-    flex: 1;
-}
-
-#recentScansList li {
-    border-top: 1px solid #C9D2D2;
-    border-bottom: 1px solid #C9D2D2;
-    padding: 16px 0;
-    font-size: 12px;
-    color: #2C353A;
-}
-
-.error-message {
-    color: red;
-    font-weight: bold;
-    text-align: center;
-    margin-top: 10px;
-}
-
-#rescan-button-container {
-    display: flex;
-    justify-content: flex-end;
-}
-
-#rescanButton {
-    background-color: #008184;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 8px 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-    outline: none;
-    box-shadow: none;
-    font-family: "Open Sans";
-    font-size: 14px;
-    font-style: normal;
-    line-height: 160%;
+    padding: 16px;
 }
 
 .arduino-text {
@@ -204,100 +172,9 @@ body {
     letter-spacing: 0.28px;
 }
 
-.icon-wrapper {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 4px;
-    border-radius: 50%;
-    transition: background-color 0.2s ease;
-    position: relative;
-}
-
-.icon-wrapper:hover {
-    background-color: rgba(0, 129, 132, 0.1);
-    cursor: pointer;
-}
-
-.icon-wrapper::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: #333;
-    color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 11px;
-    font-family: "Open Sans", sans-serif;
-    white-space: nowrap;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s, visibility 0.3s;
-    z-index: 1000;
-    margin-bottom: 5px;
-}
-
-.icon-wrapper::before {
-    content: '';
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border: 4px solid transparent;
-    border-top-color: #333;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s, visibility 0.3s;
-    z-index: 1000;
-    margin-bottom: 1px;
-}
-
-.icon-wrapper:hover::after,
-.icon-wrapper:hover::before {
-    opacity: 1;
-    visibility: visible;
-}
-
-.icon-wrapper.tooltip-success::after {
-    background-color: #16A588;
-    color: #FFF;
-    opacity: 1;
-    visibility: visible;
-}
-
-.icon-wrapper.tooltip-success::before {
-    border-top-color: #16A588;
-    opacity: 1;
-    visibility: visible;
-}
-
-.icon {
-    width: 12px;
-    height: 12px;
-    display: block;
-}
-
-.delete-scan-logo:hover {
-    cursor: pointer;
-    background-color: rgba(0, 129, 132, 0.1);
-    padding: 4px;
-    border-radius: 50%;
-}
-
 .arduino-logo {
     height: 48px;
     width: auto;
-}
-
-.delete-scan-logo {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    transition: background-color 0.2s ease;
-    padding: 4px;
-
 }
 
 .recent-scans-title-container {
@@ -308,7 +185,6 @@ body {
 }
 
 .recent-scans-title {
-    color: #2C353A;
     font-family: "Roboto Mono", monospace;
     font-size: 12px;
     font-style: normal;
@@ -343,13 +219,11 @@ body {
     font-weight: 400;
     line-height: 160%;
     letter-spacing: 0.1px;
-    color: #2C353A;
     text-align: center;
 
 }
 
 .scan-header {
-    color: #2C353A;
     font-family: "Open Sans";
     font-size: 10px;
     font-style: normal;
@@ -360,14 +234,20 @@ body {
 }
 
 .scan-content,
-.scan-content-time {
+.scan-content-time,
+.scan-percentage {
     font-size: 14px;
     font-style: normal;
     font-weight: 600;
     line-height: 160%;
-    color: #2C353A;
     font-family: "Open Sans";
     letter-spacing: 0.5px;
+}
+
+.scan-percentage {
+    font-weight: 400;
+    width: 40px;
+    text-align: right;
 }
 
 .scan-content-time {
@@ -388,32 +268,6 @@ body {
 }
 
 .scan-error {
-    color: #b00020;
-    background: #ffeaea;
-    padding: 8px 12px;
-    border-radius: 4px;
-    margin-top: 8px;
-    font-weight: bold;
-}
-
-/*
- * Responsive design
- */
-
-@media (max-width: 1024px) {
-    .main-content {
-        flex-direction: column;
-        align-items: center;
-        gap: 24px;
-    }
-
-    .container, .right-column {
-        width: 100%;
-        max-width: 800px;
-    }
-}
-
-.scan-error {
     text-align: center;
 }
 
@@ -422,7 +276,6 @@ body {
     font-size: 10px;
     font-style: normal;
     font-weight: 400;
-    color: #2C353A;
 }
 
 .scan-content {
@@ -430,34 +283,30 @@ body {
     display: flex;
     gap: 8px;
     align-items: center;
+    text-transform: capitalize;
 }
 
 /*
  * Responsive design
  */
 
- @media (max-width: 768px) {
+ @media (max-width: 711px) {
     body {
         padding: 12px 16px;
     }
-
-    .container {
-        max-width: none;
-        padding: 20px;
-        min-height: auto;
-    }
-
-    .arduino-text {
-        font-size: 24px;
-    }
-
     .main-content {
-        gap: 20px;
         flex-direction: column;
+        align-items: center;
+        gap: 24px;
+    }
+
+    .container, .right-column {
+        width: 100%;
+        max-width: unset;
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 500px) {
     body {
         padding: 8px 12px;
     }
@@ -467,12 +316,10 @@ body {
     }
 
     .arduino-logo {
-        height: 20px;
-        width: auto;
+        height: 32px;
     }
-
-    #rescanButton {
-        font-size: 12px;
+    .arduino-text {
+        font-size: 14px;
     }
 }
 
@@ -497,7 +344,6 @@ body {
 }
 
 .control-group label {
-    color: #2C353A;
     font-family: "Roboto Mono", monospace;
     font-size: 12px;
     font-style: normal;
@@ -582,7 +428,6 @@ body {
 }
 
 .confidence-limits {
-    color: #2C353A;
     font-family: "Open Sans";
     font-size: 12px;
     font-style: normal;
@@ -609,7 +454,9 @@ body {
 }
 
 .feedback-section {
-    margin-bottom: 8px;
+    gap: 16px;
+    display: flex;
+    flex-direction: column;
 }
 
 .confidence-input {
@@ -653,12 +500,26 @@ body {
     align-items: center;
     justify-content: center;
     height: 100%;
+    min-height: 131px;
+    gap: 16px;
 }
 
-.feedback-text {
-    color: #5D6A6B;
+.camera-status .feedback-text {
     text-align: center;
+    font-size: 16px;
 }
+
+#qrSecretText {
+    font-size: 14px;
+    color: #5D6A6B;
+}
+
+.recent-detections-section {
+    gap: 16px;
+    display: flex;
+    flex-direction: column;
+}
+
 #recentDetections {
     list-style-type: none;
     padding: 0;
@@ -669,7 +530,6 @@ body {
     border-top: 1px solid #C9D2D2;
     border-bottom: 1px solid #C9D2D2;
     font-size: 12px;
-    color: #2C353A;
     padding: 16px 0;
     word-break: break-all;
     display: flex;
@@ -723,25 +583,12 @@ body {
 .popover.active {
     display: block;
 }
-#recentClassifications {
-    list-style-type: none;
-    padding: 0;
-    flex: 1;
-}
-
 
 /* Custom styles for layout */
-.main-content {
-    max-width: 1280px;
-}
-
 .main-content > .container {
     flex-grow: 1;
     max-width: none;
-}
-
-.right-column {
-    flex-shrink: 0;
+    padding: 16px 0;
 }
 
 @media (max-width: 1024px) {
@@ -761,9 +608,9 @@ body {
 }
 
 .feedback-detection .percentage {
-    font-size: 24px;
-    font-weight: bold;
-    color: #008184;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: capitalize;
 }
 
 .feedback-detection img {
@@ -772,14 +619,5 @@ body {
 }
 
 .feedback-detection p {
-    font-size: 18px;
-    font-weight: 500;
-    color: #2C353A;
-    margin: 0;
-}
-
-
-
-#video-container {
-    padding: 24px 0px;
+    font-weight: 700;
 }

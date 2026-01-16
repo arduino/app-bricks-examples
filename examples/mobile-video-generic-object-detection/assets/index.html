@@ -9,23 +9,32 @@ SPDX-License-Identifier: MPL-2.0
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Generic Object Detection</title>
+    <title>Mobile Object Detection</title>
     <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
     <div>
         <div class="header">
-            <h1 class="arduino-text">Video Generic Object Detection</h1>
+            <h1 class="arduino-text">Mobile Object Detection</h1>
             <img class="arduino-logo" src="./img/logo.svg" alt="Arduino Logo">
         </div>
-
+        <div class="subheader">
+            <img src="./img/phone.svg" alt="Phone" />
+            <div class="subheader-info disconnected" id="subheaderInfo">
+                <span class="subheader-content" id="clientName">No device connected</span>
+                <span>Receiving data from</span>
+                <img src="./img/camera.svg" alt="Camera" width="20px"/>
+                <span class="subheader-info-bold">Camera</span>
+            </div>
+        </div>
         <div class="main-content">
             <div class="container" id="video-container">
                 <div id="videoFeedContainer">
                     <div id="qrPlaceholder" class="camera-status">
+                        <img src="./img/camera-teal.svg" alt="Camera" width="48px"/>
+                        <span class="feedback-text">Requires <b>phone camera</b></span>
+                        <span class="feedback-text">Connect your phone by scanning this QR code</span>
                         <div id="qrCodeContainer"></div>
-                        <p class="feedback-text">Scan to connect mobile device</p>
-                        <p class="feedback-text">Or enter this code manually:</p>
                         <div id="qrSecretText" style="font-family:monospace;"></div>
                     </div>
                     <div id="videoPausedPlaceholder" class="camera-status">
@@ -55,8 +64,8 @@ SPDX-License-Identifier: MPL-2.0
                                 <span class="confidence-limits">0</span>
                                 <div class="slider-container">
                                     <div class="slider-progress" id="sliderProgress"></div>
-                                    <div class="confidence-value-display" id="confidenceValueDisplay">0.5</div>
-                                    <input type="range" id="confidenceSlider" min="0" max="1" step="0.01" value="0.5">
+                                    <div class="confidence-value-display" id="confidenceValueDisplay">50</div>
+                                    <input type="range" id="confidenceSlider" min="0" max="100" step="1" value="50">
                                 </div>
                                 <span class="confidence-limits">1</span>
                             </div>
@@ -71,10 +80,10 @@ SPDX-License-Identifier: MPL-2.0
                         <img src="./img/info.svg" alt="Info" class="info-btn feedback"/>
                         <div class="popover"></div>
                     </div>
-                        <div id="feedback-content" class="feedback-content">
-                            <img src="img/stars.svg" alt="Stars">
-                            <p class="feedback-text">System response will appear here</p>
-                        </div>
+                    <div id="feedback-content" class="feedback-content">
+                        <img src="img/stars.svg" alt="Stars">
+                        <span class="feedback-text">System response will appear here</span>
+                    </div>
                     </div>
                 </div>
 
