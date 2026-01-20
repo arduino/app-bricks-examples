@@ -13,11 +13,16 @@ from io import BytesIO
 bot = TelegramBot()
 object_detection = ObjectDetection()
 
-async def greet(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user = update.effective_user
-    await update.message.reply_markdown(f"Hi **{user.first_name}**. This is UNO Q!")
 
-async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
+def greet(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handler for /hello command"""
+    user = update.effective_user
+    chat_id = update.message.chat_id
+    bot.send_message(chat_id, f"Hi **{user.first_name}**. This is UNO Q!")
+
+
+def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handler for /help command"""
     help_text = (
         "🤖 *Available Commands:*\n"
         "/hello - Greet the bot\n"
@@ -25,17 +30,30 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "You can also send me any text message, and I will echo it back to you.\n"
         "Send me a photo, and I will perform object detection on it!"
     )
-    await update.message.reply_markdown(help_text)
+    chat_id = update.message.chat_id
+    bot.send_message(chat_id, help_text)
 
-async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(f'🦜: {update.message.text}')
 
-async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("📷: Detecting objects...")
-    
-    photo_file = await update.message.photo[-1].get_file()
-    photo_bytes = await photo_file.download_as_bytearray()
-    
+def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handler for text messages"""
+    user_message = update.message.text
+    chat_id = update.message.chat_id
+    bot.send_message(chat_id, f"🦜: {user_message}")
+
+
+def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handler for photo messages"""
+    chat_id = update.message.chat_id
+
+    if not bot.send_message(chat_id, "📷: Detecting objects..."):
+        return  # Failed to send initial message
+
+    # Download photo using brick's synchronous method
+    photo_bytes = bot.get_photo(update, context)
+    if not photo_bytes:
+        bot.send_message(chat_id, "❌: Failed to download photo")
+        return
+
     # Image Processing
     image = Image.open(BytesIO(photo_bytes))
 
@@ -43,10 +61,12 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     img_with_boxes = object_detection.draw_bounding_boxes(image, results)
 
     output = BytesIO()
-    img_with_boxes.save(output, format='PNG')
+    img_with_boxes.save(output, format="PNG")
     output.seek(0)
-    
-    await update.message.reply_photo(photo=output, caption="✅: Here is the processed image!")
+
+    if not bot.send_photo(chat_id, photo=output, caption="✅: Here is the processed image!"):
+        bot.send_message(chat_id, "❌: Failed to send processed image")
+
 
 # --- Registration ---
 
@@ -55,5 +75,5 @@ bot.add_command("help", help)
 bot.on_text(echo)
 bot.on_photo(handle_photo)
 
-# Start the Arduino App framework using the bot's run method
-App.run(user_loop=bot.run)
+# Start the Arduino App framework (bot starts automatically)
+App.run()
