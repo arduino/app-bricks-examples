@@ -19,11 +19,15 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    height: calc( 100vh - 68px);
 }
 
 body > div {
     width: 100%;
     max-width: 1280px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
 
 .main-content {
@@ -34,6 +38,7 @@ body > div {
     width: 100%;
     border-radius: 8px;
     max-width: 1280px;
+    flex: 1;
 }
 
 .header {
@@ -88,7 +93,7 @@ body > div {
 }
 
 [data-webcam-status="disconnected"] .main-content > .container {
-    max-height: 639px;
+    flex: 1;
 }
 
 [data-webcam-status="disconnected"] .camera-status {
@@ -122,10 +127,6 @@ body > div {
     flex-grow: 1;
     width: 100%;
     max-width: 480px;
-}
-
-.right-column .container:last-child {
-    flex-grow: 1;
 }
 
 .error-message {
@@ -309,6 +310,10 @@ body > div {
 @media (max-width: 500px) {
     body {
         padding: 8px 12px;
+    }
+
+    body > div {
+        width: unset;
     }
 
     .container {
@@ -562,22 +567,25 @@ body > div {
 
 .popover {
     position: absolute;
-    left: 5%;
-    top: 70%;
-    margin-left: 8px;
+    left: 17%;
+    top: 111%;
     display: none;
     background: #fff;
     padding: 16px 24px;
-    border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: 3px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     z-index: 10;
-    width: 300px;
+    width: 240px;
     color: #2C353A;
-    font-weight: 100;
+    font-weight: 400;
     font-family: "Open Sans";
     font-size: 12px;
-    line-height: 170%;
+    line-height: 160%;
     letter-spacing: 0.12px;
+}
+
+.popover ul {
+    padding-inline-start: 20px;
 }
 
 .popover.active {
