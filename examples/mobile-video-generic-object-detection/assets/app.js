@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Popover logic
     const confidencePopoverText = "Minimum confidence score for detected objects. Lower values show more results but may include false positives.";
-    const feedbackPopoverText = "When the camera detects an object like cat, cell phone, clock, cup, dog or potted plant, a picture and a message will be shown here.";
+    const feedbackPopoverText = "An animation will appear here when the camera detects:<ul><li>Cat<li>Clock<li>Cup<li>Dog<li>Plant";
 
     document.querySelectorAll('.info-btn.confidence').forEach(img => {
         const popover = img.nextElementSibling;
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.info-btn.feedback').forEach(img => {
         const popover = img.nextElementSibling;
         img.addEventListener('mouseenter', () => {
-            popover.textContent = feedbackPopoverText;
+            popover.innerHTML = feedbackPopoverText;
             popover.style.display = 'block';
         });
         img.addEventListener('mouseleave', () => {
@@ -108,7 +108,7 @@ function generateQRCode(secret, protocol, ip, port) {
         correctLevel: QRCode.CorrectLevel.L,
     });
 
-    qrSecretText.textContent = `Password: ${secret.slice(0, 3)}-${secret.slice(3)}`;
+    qrSecretText.textContent = `Password: ${secret}`;
 }
 
 function initSocketIO() {
@@ -183,14 +183,14 @@ function updateFeedback(detection) {
 
     if (detection && objectInfo[detection.content]) {
         const info = objectInfo[detection.content];
-        const confidence = Math.floor(detection.confidence * 100);
+        const confidence = detection.confidence * 100;
         if (feedbackContentElement.getAttribute('data-detection') === detection.content) {
             return; // No need to update
         }
         feedbackContentElement.setAttribute('data-detection', detection.content);
         feedbackContentElement.innerHTML = `
             <div class="feedback-detection">
-                <div class="percentage">${confidence}% ${detection.content}</div>
+                <div class="percentage">${confidence.toFixed(1)}% ${detection.content}</div>
                 <img src="img/${info.gif}" alt="${detection.content}">
                 <span>${info.text}</span>
             </div>
