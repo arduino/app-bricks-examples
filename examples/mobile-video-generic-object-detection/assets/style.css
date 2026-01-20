@@ -64,6 +64,7 @@ body > div {
     line-height: 160%;
     display: flex;
     gap: 4px;
+    align-items: center;
 }
 
 .subheader-info {
@@ -86,6 +87,10 @@ body > div {
 
 .subheader-info-bold {
     font-weight: 700;
+}
+
+[data-webcam-status="disconnected"] .main-content {
+    flex-direction: column;
 }
 
 [data-webcam-status="disconnected"] .subheader-info :nth-child(n+2) {
@@ -284,6 +289,7 @@ body > div {
     gap: 8px;
     align-items: center;
     text-transform: capitalize;
+    flex: 1;
 }
 
 /*
@@ -311,17 +317,19 @@ body > div {
         padding: 8px 12px;
     }
 
-    body > div {
-        width: unset;
+    .subheader-info {
+        flex-direction: column;
+        align-items: flex-start;
     }
 
-    .container {
-        padding: 16px;
+    body > div {
+        width: unset;
     }
 
     .arduino-logo {
         height: 32px;
     }
+
     .arduino-text {
         font-size: 14px;
     }
