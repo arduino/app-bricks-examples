@@ -18,6 +18,7 @@ let iframeLoadIntervalId;
 
 // Webcam state management
 let webcamState = {
+    clientName: "",
     status: "disconnected",
     secret: null,
     protocol: "",
@@ -133,6 +134,9 @@ function initSocketIO() {
     });
 
     socket.on('welcome', async (message) => {
+        if (message.status === "connected") {
+            webcamState.clientName = message.client_name;
+        }
         webcamState.status = message.status;
         webcamState.secret = message.secret;
         webcamState.protocol = message.protocol;
@@ -144,8 +148,8 @@ function initSocketIO() {
     socket.on('connected', async (message) => {
         console.log("Webcam connected!");
         webcamState.status = "connected";
-        webcamState.clientAddr = message.client_address || "unknown";
-        webcamState.clientName = message.client_name || "unknown";
+        webcamState.clientAddr = message.client_address;
+        webcamState.clientName = message.client_name;
         updateDisplay();
     });
 
