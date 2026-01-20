@@ -109,8 +109,7 @@ body > div {
     width: 100%;
     max-width: 550px;
     min-width: 320px;
-    height: auto;
-    min-height: auto;
+    height: fit-content;
     border-radius: 16px;
     padding: 16px;
     box-sizing: border-box;
@@ -528,6 +527,7 @@ body > div {
 #recentDetections {
     list-style-type: none;
     padding: 0;
+    margin: 0;
     flex: 1;
 }
 
