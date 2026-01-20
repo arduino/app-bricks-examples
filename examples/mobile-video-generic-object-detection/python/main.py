@@ -8,22 +8,22 @@ import string
 from arduino.app_utils import App
 from arduino.app_bricks.web_ui import WebUI
 from arduino.app_bricks.video_objectdetection import VideoObjectDetection
-from arduino.app_peripherals.camera import Camera
+from arduino.app_peripherals.camera import WebSocketCamera
 from datetime import datetime, UTC
 
 def generate_secret() -> str:
   characters = string.digits
-  return ''.join(secrets.choice(characters) for i in range(6))
+  return ''.join(secrets.choice(characters) for _ in range(6))
 
 secret = generate_secret()
 
 ui = WebUI(use_ssl=True)
-camera = Camera("ws://0.0.0.0:8080", secret=secret, encrypt=True)
+camera = WebSocketCamera(secret=secret, encrypt=True)
 
 camera.on_status_changed(lambda evt_type, data: ui.send_message(evt_type, data))
 detection = VideoObjectDetection(camera, confidence=0.5, debounce_sec=0.0)
 
-ui.on_connect(lambda sid: ui.send_message("welcome", {"secret": secret, "status": camera.status, "protocol": camera.protocol, "ip": camera.ip, "port": camera.port}))
+ui.on_connect(lambda sid: ui.send_message("welcome", {"client_name": camera.name, "secret": secret, "status": camera.status, "protocol": camera.protocol, "ip": camera.ip, "port": camera.port}))
 ui.on_message("override_th", lambda sid, threshold: detection.override_threshold(threshold))
 
 # Register a callback for when all objects are detected
