@@ -134,7 +134,7 @@ function initSocketIO() {
     });
 
     socket.on('welcome', async (message) => {
-        if (message.status === "connected") {
+        if (message.status !== "disconnected") {
             webcamState.clientName = message.client_name;
         }
         webcamState.status = message.status;
