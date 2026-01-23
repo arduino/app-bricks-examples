@@ -1,0 +1,652 @@
+/*
+ * SPDX-FileCopyrightText: Copyright (C) ARDUINO SRL (http://www.arduino.cc)
+ *
+ * SPDX-License-Identifier: MPL-2.0
+ */
+
+@import url("fonts/fonts.css");
+
+/*
+ * This CSS is used to center the various elements on the screen
+ */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    font-size: 12px;
+    margin: 0;
+    padding: 24px;
+    background-color: #ECF1F1;
+    color: #2C353A;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: calc( 100vh - 68px);
+}
+
+body > div {
+    width: 100%;
+    max-width: 1280px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.main-content {
+    display: flex;
+    gap: 32px;
+    align-items: stretch;
+    justify-content: center;
+    width: 100%;
+    border-radius: 8px;
+    max-width: 1280px;
+    flex: 1;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+}
+
+.subheader {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0px;
+    padding-bottom: 24px;
+    gap: 8px;
+}
+
+.subheader-content {
+    flex: 1;
+    font-weight: 600;
+    line-height: 160%;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.subheader-info {
+    background: white;
+    flex-direction: row;
+    display: flex;
+    flex: 1;
+    align-self: stretch;
+    border-radius: 8px;
+    padding: 16px;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+.subheader-info span:last-child {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.subheader-info-bold {
+    font-weight: 700;
+}
+
+[data-webcam-status="disconnected"] .main-content {
+    flex-direction: column;
+}
+
+#videoPausedPlaceholder, #dynamicIframe {
+    display: none;
+}
+
+[data-webcam-status="connected"] #videoPausedPlaceholder {
+    display: flex;
+}
+
+[data-webcam-status="streaming"] #dynamicIframe {
+    display: block;
+}
+
+[data-webcam-status="disconnected"] .subheader-info :nth-child(n+2) {
+    display: none;
+}
+
+[data-webcam-status="disconnected"] .main-content > .container {
+    flex: 1;
+}
+
+[data-webcam-status="disconnected"] .camera-status {
+    display: flex;
+}
+
+[data-webcam-status="disconnected"] .right-column {
+    display: none;
+}
+
+.container {
+    background: white;
+    width: 100%;
+    max-width: 550px;
+    min-width: 320px;
+    height: fit-content;
+    border-radius: 16px;
+    padding: 16px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.right-column {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    min-width: 320px;
+    flex-grow: 1;
+    width: 100%;
+    max-width: 480px;
+}
+
+.error-message {
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    font-weight: bold;
+    text-align: center;
+}
+
+/*
+ * Components styling
+ */
+
+#videoFeedContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    flex: 1;
+}
+
+.camera-status {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+}
+
+.arduino-text {
+    color: #008184;
+    font-family: "Roboto Mono", monospace;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+    font-style: normal;
+    line-height: 170%;
+    letter-spacing: 0.28px;
+}
+
+.arduino-logo {
+    height: 48px;
+    width: auto;
+}
+
+.recent-scans-title-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: space-between;
+}
+
+.recent-scans-title {
+    font-family: "Roboto Mono", monospace;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 170%;
+    letter-spacing: 1.2px;
+    margin: 0;
+}
+
+.no-recent-scans {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: #5D6A6B;
+    gap: 8px;
+    margin: auto;
+}
+
+.scan-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#scan-message {
+    font-family: "Open Sans";
+    font-size: 10px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 160%;
+    letter-spacing: 0.1px;
+    text-align: center;
+
+}
+
+.scan-header {
+    font-family: "Open Sans";
+    font-size: 10px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 160%;
+    letter-spacing: 0.5px;
+    align-self: stretch;
+}
+
+.scan-content,
+.scan-content-time,
+.scan-percentage {
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 160%;
+    font-family: "Open Sans";
+    letter-spacing: 0.5px;
+}
+
+.scan-percentage {
+    font-weight: 400;
+    width: 40px;
+    text-align: right;
+}
+
+.scan-content-time {
+    font-weight: 400;
+}
+
+.cell-border {
+    border-top: 1px solid #ccc;
+}
+
+.scan-cell-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    padding: 16px 0;
+}
+
+.scan-error {
+    text-align: center;
+}
+
+.scan-header {
+    font-family: "Open Sans";
+    font-size: 10px;
+    font-style: normal;
+    font-weight: 400;
+}
+
+.scan-content {
+    position: relative;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    text-transform: capitalize;
+    flex: 1;
+}
+
+/*
+ * Responsive design
+ */
+
+ @media (max-width: 711px) {
+    body {
+        padding: 12px 16px;
+    }
+    .main-content {
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+    }
+
+    .container, .right-column {
+        width: 100%;
+        max-width: unset;
+    }
+}
+
+@media (max-width: 500px) {
+    body {
+        padding: 8px 12px;
+    }
+
+    .subheader-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    body > div {
+        width: unset;
+    }
+
+    .arduino-logo {
+        height: 32px;
+    }
+
+    .arduino-text {
+        font-size: 14px;
+    }
+}
+
+
+/* Added from anomaly-detection */
+
+.control-group {
+    position: relative;
+}
+
+.slider-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.control-confidence {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.control-group label {
+    font-family: "Roboto Mono", monospace;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 170%;
+    letter-spacing: 1.2px;
+}
+
+#confidenceSlider {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: #DAE3E3;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    position: relative;
+    margin: 20px 0 10px 0;
+}
+
+#confidenceSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #008184;
+    cursor: pointer;
+    position: relative;
+    bottom: 3px;
+    z-index: 2;
+}
+
+#confidenceSlider::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: #DAE3E3;
+}
+
+#confidenceSlider::-moz-range-track {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: #DAE3E3;
+    border: none;
+}
+
+.slider-container {
+    position: relative;
+    width: 100%;
+}
+
+.slider-progress {
+    position: absolute;
+    top: 20px;
+    left: 0;
+    height: 6px;
+    background: #008184;
+    border-radius: 3px;
+    pointer-events: none;
+    z-index: 1;
+    transition: width 0.1s ease;
+}
+
+.confidence-value-display {
+    position: absolute;
+    top: -3px;
+    transform: translateX(-50%);
+    color: #008184;
+    padding: 2px 6px;
+    pointer-events: none;
+    z-index: 3;
+    white-space: nowrap;
+    transition: left 0.1s ease;
+    font-family: "Open Sans";
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 160%;
+    letter-spacing: 0.12px;
+}
+
+.confidence-limits {
+    font-family: "Open Sans";
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 160%;
+    letter-spacing: 0.12px;
+    margin-top: 10px;
+}
+
+.btn-tertiary {
+    border-radius: 6px;
+    border: 1px solid #C9D2D2;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 4px 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 12px;
+    min-width: 50px;
+    height: 36px;
+}
+
+.feedback-section {
+    gap: 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+.confidence-input {
+    border: none;
+    background: transparent;
+    font-size: 12px;
+    font-weight: inherit;
+    color: inherit;
+    text-align: center;
+    width: 40px;
+    padding: 0;
+    margin: 0;
+    outline: none;
+    cursor: text;
+}
+
+.confidence-input:focus {
+    background: rgba(0, 129, 132, 0.1);
+    border-radius: 2px;
+}
+
+.reset-icon {
+    width: 18px;
+    height: 18px;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+    cursor: pointer;
+}
+
+.reset-icon svg path {
+    fill: black;
+}
+
+.btn-tertiary:hover .reset-icon {
+    opacity: 1;
+}
+
+.feedback-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 131px;
+    gap: 16px;
+}
+
+.camera-status .feedback-text {
+    text-align: center;
+    font-size: 16px;
+}
+
+#qrSecretText {
+    font-size: 14px;
+    color: #5D6A6B;
+}
+
+.recent-detections-section {
+    gap: 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+#recentDetections {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    flex: 1;
+}
+
+#recentDetections li {
+    border-top: 1px solid #C9D2D2;
+    border-bottom: 1px solid #C9D2D2;
+    font-size: 12px;
+    padding: 16px 0;
+    word-break: break-all;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.detection-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.detection-time-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.info-btn {
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+    border-radius: 50%;
+    background-color: #C9D2D2;
+    padding: 2px;
+    transition: background 0.2s;
+    position: relative;
+}
+
+.popover {
+    position: absolute;
+    left: 17%;
+    top: 111%;
+    display: none;
+    background: #fff;
+    padding: 16px 24px;
+    border-radius: 3px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    width: 240px;
+    color: #2C353A;
+    font-weight: 400;
+    font-family: "Open Sans";
+    font-size: 12px;
+    line-height: 160%;
+    letter-spacing: 0.12px;
+}
+
+.popover ul {
+    padding-inline-start: 20px;
+}
+
+.popover.active {
+    display: block;
+}
+
+/* Custom styles for layout */
+.main-content > .container {
+    flex-grow: 1;
+    max-width: none;
+    padding: 16px 0;
+}
+
+@media (max-width: 1024px) {
+    #videoFeedContainer iframe {
+        width: 100%;
+        aspect-ratio: 1024 / 768;
+    }
+}
+
+.feedback-detection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 16px;
+}
+
+.feedback-detection .percentage {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: capitalize;
+}
+
+.feedback-detection img {
+    max-width: 64px;
+    max-height: 64px;
+}
+
+.feedback-detection p {
+    font-weight: 700;
+}
