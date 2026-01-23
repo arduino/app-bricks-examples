@@ -65,18 +65,12 @@ document.addEventListener('DOMContentLoaded', () => {
 function updateDisplay() {
     const body = document.getRootNode().body;
     body.setAttribute('data-webcam-status', webcamState.status);
-    const videoPausedPlaceholder = document.getElementById('videoPausedPlaceholder');
     const dynamicIframe = document.getElementById('dynamicIframe');
     const clientName = document.getElementById('clientName');
-
-    // Hide all elements first
-    videoPausedPlaceholder.style.display = 'none';
-    dynamicIframe.style.display = 'none';
 
     if (webcamState.status == "streaming") {
         // Webcam is streaming - show video iframe
         dynamicIframe.src = streamUrl;
-        dynamicIframe.style.display = 'block';
         dynamicIframe.height = Math.min((window.innerWidth - 60) * 4/3 + 60, 768);
         dynamicIframe.width = Math.min(768, (window.innerWidth - 60));
         clientName.textContent = `${webcamState.clientName || "Unknown Device"} connected`;
@@ -87,8 +81,6 @@ function updateDisplay() {
             generateQRCode(webcamState.secret, webcamState.protocol, webcamState.ip, webcamState.port);
         }
     } else {
-        // Webcam is disconnected - show paused placeholder
-        videoPausedPlaceholder.style.display = 'flex';
         clientName.textContent = 'No Device Connected';
     }
 }

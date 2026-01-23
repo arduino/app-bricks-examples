@@ -12,7 +12,7 @@ SPDX-License-Identifier: MPL-2.0
     <title>Mobile Object Detection</title>
     <link rel="stylesheet" type="text/css" href="style.css">
 </head>
-<body>
+<body data-webcam-status="disconnected">
     <div>
         <div class="header">
             <h1 class="arduino-text">Mobile Object Detection</h1>
@@ -43,7 +43,7 @@ SPDX-License-Identifier: MPL-2.0
                         <img src="./img/no-face.svg" alt="Webcam paused">
                         <p class="feedback-text">Webcam paused</p>
                     </div>
-                    <iframe id="dynamicIframe" title="Video stream" width="1024px" height="768px" frameBorder="0" style="display: none;"></iframe>
+                    <iframe id="dynamicIframe" title="Video stream" width="1024px" height="768px" frameBorder="0"></iframe>
                 </div>
             </div>
 
