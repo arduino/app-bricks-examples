@@ -247,17 +247,9 @@ def export_frames(payload: dict = None):
             if not anim_frames:
                 continue
             
-            # Build animation array
+            # Build animation array (delegated to AppFrame exporter)
             header_parts.append(f"// Animation: {anim_name}")
-            header_parts.append(f"const uint32_t {anim_name}[][5] = {{")
-            
-            for frame in anim_frames:
-                hex_values = frame.to_animation_hex()
-                hex_str = ", ".join(hex_values)
-                header_parts.append(f"    {{{hex_str}}},  // {frame._export_name}")
-            
-            header_parts.append("};")
-            header_parts.append("")
+            header_parts.append(AppFrame.frames_to_c_animation_array(anim_frames, anim_name))
         
         header = "\n".join(header_parts).strip() + "\n"
         return {'header': header}
@@ -307,17 +299,8 @@ def play_animation(payload: dict):
     logger.debug(f"Loaded {len(frames)} frames for animation")
     
     # Build animation data as bytes (std::vector<uint8_t> in sketch)
-    # Each uint32_t is sent as 4 bytes (little-endian)
-    animation_bytes = bytearray()
-    for frame in frames:
-        hex_values = frame.to_animation_hex()
-        # First 4 are hex pixel data
-        for i in range(4):
-            value = int(hex_values[i], 16)
-            animation_bytes.extend(value.to_bytes(4, byteorder='little'))
-        # 5th is duration in ms
-        duration = int(hex_values[4])
-        animation_bytes.extend(duration.to_bytes(4, byteorder='little'))
+    # Each frame is 20 bytes (4 uint32_t pixels + 1 uint32_t duration), little-endian
+    animation_bytes = AppFrame.frames_to_animation_bytes(frames)
     
     logger.debug(f"Animation data prepared: {len(animation_bytes)} bytes ({len(animation_bytes)//20} frames)")
     
@@ -326,6 +309,27 @@ def play_animation(payload: dict):
     thread.start()
 
     return {'ok': True, 'frames_played': len(frames)} # Return immediately
+
+
+def stop_animation(payload: dict = None):
+    """Stop any running animation on the board.
+
+    This endpoint calls the sketch provider `stop_animation`. No payload
+    required.
+
+    Args:
+        payload (dict, optional): Not used. Defaults to None.
+    
+    Returns:
+        dict: {'ok': True} on success, {'error': str} on failure.
+    """
+    try:
+        Bridge.call("stop_animation")
+        logger.info("stop_animation called on board")
+        return {'ok': True}
+    except Exception as e:
+        logger.warning(f"Failed to request stop_animation: {e}")
+        return {'error': str(e)}
 
 
 ui.expose_api('POST', '/update_board', update_board)
@@ -338,6 +342,7 @@ ui.expose_api('POST', '/transform_frame', transform_frame)
 ui.expose_api('POST', '/export_frames', export_frames)
 ui.expose_api('POST', '/reorder_frames', reorder_frames)
 ui.expose_api('POST', '/play_animation', play_animation)
+ui.expose_api('POST', '/stop_animation', stop_animation)
 ui.expose_api('GET', '/config', get_config)
 
 App.run()

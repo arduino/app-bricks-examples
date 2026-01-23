@@ -419,12 +419,20 @@ async function playAnimation() {
 if (playAnimationBtn) playAnimationBtn.addEventListener('click', playAnimation); else console.warn('[ui] play animation button not found');
 
 if (stopAnimationBtn) {
-  stopAnimationBtn.addEventListener('click', () => {
+  stopAnimationBtn.addEventListener('click', async () => {
+    // Stop frontend animation loop
     if (animationTimeout) {
       clearTimeout(animationTimeout);
       animationTimeout = null;
       playAnimationBtn.disabled = false;
+    }
+    // Stop animation on board via backend
+    try {
+      await fetch('/stop_animation', { method: 'POST' });
       showVectorText('Animation stopped');
+    } catch (err) {
+      console.error('Failed to stop animation on board:', err);
+      showVectorText('Animation stopped (frontend only)');
     }
   });
 }
@@ -566,7 +574,7 @@ function renderFrames(){
       fetchWithHandling('/persist_frame', {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ id: f.id, name: newName, duration_ms: f.duration_ms, rows: rows })
+        body: JSON.stringify({ id: f.id, name: newName, duration_ms: f.duration_ms, rows: rows, brightness_levels: BRIGHTNESS_LEVELS })
       }).then(() => refreshFrames());
     });
 
@@ -577,7 +585,7 @@ function renderFrames(){
         fetchWithHandling('/persist_frame', {
           method: 'POST',
           headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({ id: f.id, name: f.name, duration_ms: durationMs, rows: rows })
+          body: JSON.stringify({ id: f.id, name: f.name, duration_ms: durationMs, rows: rows, brightness_levels: BRIGHTNESS_LEVELS })
         }).then(() => refreshFrames());
       }
     });
