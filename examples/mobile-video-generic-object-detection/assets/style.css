@@ -167,6 +167,7 @@ body > div {
     width: 100%;
     margin-left: auto;
     margin-right: auto;
+    flex: 1;
 }
 
 .camera-status {
