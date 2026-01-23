@@ -93,6 +93,18 @@ body > div {
     flex-direction: column;
 }
 
+#videoPausedPlaceholder, #dynamicIframe {
+    display: none;
+}
+
+[data-webcam-status="connected"] #videoPausedPlaceholder {
+    display: flex;
+}
+
+[data-webcam-status="streaming"] #dynamicIframe {
+    display: block;
+}
+
 [data-webcam-status="disconnected"] .subheader-info :nth-child(n+2) {
     display: none;
 }
