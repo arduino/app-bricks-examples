@@ -189,9 +189,3 @@ function schedulePersist(){
 }
 ```
 
-## Limitations
-
-Animation playback is subject to the following constraints:
-
-- **Maximum frames**: Up to 10 frames per animation sequence
-- **Maximum duration**: Total animation playback time must not exceed 10 seconds
