@@ -13,17 +13,17 @@ void set_led3_color(int r, int g, int b) {
 
 // Led 4 is a simple ON/OFF LED for each color channel, HIGH = OFF, LOW = ON
 void set_led4_color(bool r, bool g, bool b) {
-  digitalWrite(LED_BUILTIN + 3, r ? LOW : HIGH);
-  digitalWrite(LED_BUILTIN + 4, g ? LOW : HIGH);
-  digitalWrite(LED_BUILTIN + 5, b ? LOW : HIGH);
+  digitalWrite(LED4_R, r ? LOW : HIGH);
+  digitalWrite(LED4_G, g ? LOW : HIGH);
+  digitalWrite(LED4_B, b ? LOW : HIGH);
 }
 
 void setup()
 {
-    pinMode(LED_BUILTIN + 3, OUTPUT);
-    pinMode(LED_BUILTIN + 4, OUTPUT);
-    pinMode(LED_BUILTIN + 5, OUTPUT);
-
+    pinMode(LED4_R, OUTPUT);
+    pinMode(LED4_G, OUTPUT);
+    pinMode(LED4_B, OUTPUT);
+    
     set_led3_color(0, 0, 0);
     set_led4_color(false, false, false);
 
