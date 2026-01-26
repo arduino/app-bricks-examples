@@ -300,44 +300,6 @@ class AppFrame(Frame):
         
         return hex_values
 
-    def to_animation_bytes(self) -> bytes:
-        """Return this frame encoded as bytes for RPC transmission.
-
-        The returned value is the wire format expected by the sketch's
-        `play_animation` provider: 5 uint32_t values per frame (4 words
-        containing packed pixel bits and 1 word for duration), each encoded
-        in little-endian order (20 bytes total).
-
-        Returns:
-            bytes: 20-byte little-endian representation of this frame
-                (4 x uint32_t pixels + 1 x uint32_t duration).
-        """
-        hex_values = self.to_animation_hex()
-        ba = bytearray()
-        for i in range(4):
-            value = int(hex_values[i], 16)
-            ba.extend(value.to_bytes(4, byteorder='little'))
-        duration = int(hex_values[4])
-        ba.extend(duration.to_bytes(4, byteorder='little'))
-        return bytes(ba)
-
-    @staticmethod
-    def frames_to_animation_bytes(frames: list["AppFrame"]) -> bytes:
-        """Aggregate multiple frames into a single bytes blob ready for RPC.
-
-        Args:
-            frames (list[AppFrame]): Sequence of AppFrame instances to include
-                in the resulting animation.
-
-        Returns:
-            bytes: Concatenated little-endian byte sequence where each frame
-                contributes 20 bytes (4 uint32_t pixel words + 1 uint32_t duration).
-        """
-        ba = bytearray()
-        for f in frames:
-            ba.extend(f.to_animation_bytes())
-        return bytes(ba)
-
     @staticmethod
     def frames_to_c_animation_array(frames: list, name: str = 'Animation') -> str:
         """Produce a C initializer for an animation sequence.
