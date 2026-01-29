@@ -68,7 +68,9 @@ def on_move(sid, data=None):
 def on_power(sid, data=None):
     d = data or {}
     on = bool(d.get("on", False))
-    if not on:
+    if on:
+        wave_gen.set_amplitude(1.0)
+    else:
         wave_gen.set_amplitude(0.0)
 
 
