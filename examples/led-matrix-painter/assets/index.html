@@ -38,22 +38,7 @@ SPDX-License-Identifier: MPL-2.0
         <div class="tools-box">
           <h3 class="box-title">Tools</h3>
           <div class="tool-controls">
-            <div class="custom-select-wrapper">
-              <div class="custom-select">
-                <div class="custom-select__trigger">
-                  <img src="img/brush.svg" class="tool-icon" alt="Brush" width="16" height="16" style="vertical-align: middle;">
-                  <img src="img/select-arrow.svg" class="dropdown-arrow" alt="Dropdown" width="7" height="4">
-                </div>
-                <div class="custom-options">
-                  <div class="custom-option" data-value="brush">
-                    <img src="img/brush.svg" class="tool-icon" alt="Brush" width="16" height="16" style="vertical-align: middle;">
-                  </div>
-                  <div class="custom-option" data-value="eraser"><img src="img/eraser.svg" class="tool-icon" alt="Eraser" width="16" height="16" style="vertical-align: middle;"></div>
-                </div>
-              </div>
-            </div>
-
-            <div class="slider-container" style="flex-grow: 1; margin-left: 8px;">
+            <div class="slider-container" style="flex-grow: 1;">
               <div style="display: flex; justify-content: space-between;">
                 <label for="brightness-alpha-slider" class="alpha-label">Brightness (Alpha)</label>
                 <span id="brightness-alpha-value" class="alpha-label">7</span>
@@ -74,6 +59,22 @@ SPDX-License-Identifier: MPL-2.0
             <button id="rotate180" class="transform-btn"><img src="img/rotate.svg" alt="Rotate 180" style="width: 12px; height: 12px; padding-right: 4px; vertical-align: middle;">Rotate 180°</button>
             <button id="invert" class="transform-btn"><img src="img/invert.svg" alt="Invert" style="width: 12px; height: 12px; padding-right: 4px; vertical-align: middle;">Invert Matrix</button>
             <button id="invert-not-null" class="transform-btn"><img src="img/invert-draw.svg" alt="Invert Brightness" style="width: 12px; height: 12px; padding-right: 4px; vertical-align: middle;">Invert Draw</button>
+          </div>
+        </div>
+        <div class="shift-draw-box">
+          <div class="shift-title-container">
+            <h3 class="box-title">Shift draw</h3>
+            <div class="wrap-around-container">
+              <input type="checkbox" id="wrap-around-checkbox">
+              <label for="wrap-around-checkbox">Wrap-around</label>
+            </div>
+          </div>
+          <div class="shift-buttons">
+            <button id="shift-up" class="shift-btn"><img src="img/shift-draw-arrow-up.svg" alt="Up"></button>
+            <button id="shift-left" class="shift-btn"><img src="img/shift-draw-arrow-left.svg" alt="Left"></button>
+            <div></div>
+            <button id="shift-right" class="shift-btn"><img src="img/shift-draw-arrow-right.svg" alt="Right"></button>
+            <button id="shift-down" class="shift-btn"><img src="img/shift-draw-arrow-down.svg" alt="Down"></button>
           </div>
         </div>
       </div>

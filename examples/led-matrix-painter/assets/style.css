@@ -572,7 +572,7 @@ button:hover {
 }
 
 .transform-btn:hover {
-  background-color: rgba(0, 129, 132, 0.08);
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 input {
@@ -623,69 +623,7 @@ input {
   align-items: center;
 }
 
-/* Custom Select */
-.custom-select-wrapper {
-  position: relative;
-  display: inline-block;
-  user-select: none;
-  width: 48px;
-}
 
-.custom-select {
-  position: relative;
-  width: 100%;
-}
-
-.custom-select__trigger {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 8px;
-  border-radius: 8px;
-  background: rgba(0, 129, 132, 0.2);
-  cursor: pointer;
-}
-
-.custom-select.open .custom-options {
-  display: block;
-}
-
-.custom-options {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  display: none;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 0 0 8px 8px;
-  background: #fff;
-  z-index: 2;
-}
-
-.custom-option {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 8px;
-  cursor: pointer;
-}
-
-.custom-option:hover {
-  background-color: rgba(0, 129, 132, 0.08);
-}
-
-.dropdown-arrow {
-  position: absolute;
-  top: 50%;
-  right: 10px;
-  transform: translateY(-50%);
-  transition: transform 0.2s ease-in-out;
-}
-
-.custom-select.open .dropdown-arrow {
-  transform: translateY(-50%) rotate(180deg);
-}
 
 .alpha-label {
   font-family: "Open Sans";
@@ -887,3 +825,121 @@ input {
     }
 }
 
+.shift-draw-box {
+  background: #ECF1F1;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.shift-title-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.wrap-around-container {
+  display: flex;
+  align-items: center;
+}
+
+.wrap-around-container label {
+  font-size: 10px;
+  font-weight: 600;
+  margin-left: 4px;
+}
+
+.wrap-around-container input[type="checkbox"] {
+  /* Hide default checkbox */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  /* Custom checkbox style */
+  width: 18px; /* Slightly larger */
+  height: 18px; /* Slightly larger */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  outline: none;
+  transition: background-color 0.2s, border-color 0.2s;
+  position: relative;
+  background-color: transparent; /* Transparent background */
+}
+
+/* Style for the checked state */
+.wrap-around-container input[type="checkbox"]:checked {
+  background-color: #008184; /* Arduino blue */
+  border-color: #008184;
+}
+
+/* Checkmark icon for checked state */
+.shift-title-container .box-title {
+  margin-bottom: 0;
+}
+
+.wrap-around-container input[type="checkbox"]:checked::before {
+  content: '';
+  position: absolute;
+  top: 50%; /* Center vertically */
+  left: 50%; /* Center horizontally */
+  width: 3px;
+  height: 7px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: translate(-50%, -50%) rotate(45deg); /* Centering with transform */
+}
+
+.shift-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 28px);
+  grid-template-rows: repeat(3, 28px);
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.shift-buttons #shift-up {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.shift-buttons #shift-left {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.shift-buttons #shift-right {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.shift-buttons #shift-down {
+  grid-column: 2;
+  grid-row: 3;
+}
+
+.shift-btn {
+  border: 1px solid #C9D2D2;
+  border-radius: 6px;
+  background: transparent;
+  color: #343a40;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px;
+  height: 28px;
+  width: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shift-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.shift-btn img {
+  width: 16px; /* Keep icon size */
+  height: 16px; /* Keep icon size */
+}

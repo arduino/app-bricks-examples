@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from arduino.app_bricks.web_ui import WebUI
-from arduino.app_utils import App, Bridge, FrameDesigner, Logger
+from arduino.app_utils import App, Bridge, Logger
 from app_frame import AppFrame  # user module defining AppFrame
 import store  # user module for DB operations
 import threading
@@ -12,7 +12,6 @@ BRIGHTNESS_LEVELS = 8  # must match the frontend slider range (0..BRIGHTNESS_LEV
 
 logger = Logger("led-matrix-painter")
 ui = WebUI()
-designer = FrameDesigner()
 
 logger.info("Initializing LED matrix tool")
 store.init_db()
@@ -173,17 +172,22 @@ def transform_frame(payload: dict):
 
     # Apply transformation
     operations = {
-        'invert': designer.invert,
-        'invert_not_null': designer.invert_not_null,
-        'rotate180': designer.rotate180,
-        'flip_h': designer.flip_horizontally,
-        'flip_v': designer.flip_vertically,
+        'invert': lambda frame, **options: frame.invert(),
+        'invert_not_null': lambda frame, **options: frame.invert_not_null(),
+        'rotate180': lambda frame, **options: frame.rotate180(),
+        'flip_h': lambda frame, **options: frame.flip_horizontally(),
+        'flip_v': lambda frame, **options: frame.flip_vertically(),
+        'shift_up': lambda frame, **options: frame.shift_up(**options),
+        'shift_down': lambda frame, **options: frame.shift_down(**options),
+        'shift_left': lambda frame, **options: frame.shift_left(**options),
+        'shift_right': lambda frame, **options: frame.shift_right(**options),
     }
     if op not in operations:
         logger.warning(f"Unsupported transform operation: {op}")
         return {'error': 'unsupported op'}
 
-    operations[op](frame)
+    options = payload.get('options', {})
+    operations[op](frame, **options)
     logger.info(f"Transform applied: op={op}")
     
     # Return transformed frame (frontend will handle board update via persist)

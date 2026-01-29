@@ -256,7 +256,7 @@ function getRows13(){
     let s = '';
     for(let c=0;c<COLS;c++){
       const idx = r*COLS + c;
-      s += cells[idx].classList.contains('on') ? '1' : '0';
+      s += cells[idx].dataset.b ? '1' : '0';
     }
     rows.push(s);
   }
@@ -685,6 +685,54 @@ if (invertNotNullBtn) {
   invertNotNullBtn.addEventListener('click', () => transformFrame('invert_not_null'));
 }
 
+const shiftUpBtn = document.getElementById('shift-up');
+const shiftDownBtn = document.getElementById('shift-down');
+const shiftLeftBtn = document.getElementById('shift-left');
+const shiftRightBtn = document.getElementById('shift-right');
+const wrapAroundCheckbox = document.getElementById('wrap-around-checkbox');
+
+if (shiftUpBtn) {
+  shiftUpBtn.addEventListener('click', () => shiftGrid('up'));
+}
+if (shiftDownBtn) {
+  shiftDownBtn.addEventListener('click', () => shiftGrid('down'));
+}
+if (shiftLeftBtn) {
+  shiftLeftBtn.addEventListener('click', () => shiftGrid('left'));
+}
+if (shiftRightBtn) {
+  shiftRightBtn.addEventListener('click', () => shiftGrid('right'));
+}
+
+async function shiftGrid(direction) {
+  console.debug(`[ui] shift ${direction} button clicked`);
+  const grid = collectGridBrightness();
+  const wrapAround = wrapAroundCheckbox.checked;
+  try {
+    const data = await fetchWithHandling('/transform_frame', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        op: `shift_${direction}`,
+        rows: grid,
+        brightness_levels: BRIGHTNESS_LEVELS,
+        options: {
+          wrap_around: wrapAround
+        }
+      })
+    }, 'json', `shift ${direction}`);
+
+    if (data && data.ok && data.frame) {
+      setGridFromRows(data.frame.rows);
+      if (data.vector) showVectorText(data.vector);
+      schedulePersist();
+    }
+  } catch (e) {
+    console.warn(`[ui] shift ${direction} failed`, e);
+  }
+}
+
+
 async function loadFrameIntoEditor(id){
   try {
     const data = await fetchWithHandling('/load_frame', {
@@ -725,10 +773,18 @@ function setGridFromRows(rows){
       const idx = r*COLS + c;
       if (Array.isArray(row)) {
         const v = clampBrightness(row[c] ?? 0);
-        if (v > 0) { cells[idx].classList.add('on'); cells[idx].dataset.b = String(v); } else { cells[idx].classList.remove('on'); delete cells[idx].dataset.b; }
+        if (v > 0) {
+          cells[idx].dataset.b = String(v);
+        } else {
+          delete cells[idx].dataset.b;
+        }
       } else {
         const s = (row || '').padEnd(COLS,'0');
-        if(s[c] === '1') { cells[idx].classList.add('on'); cells[idx].dataset.b = String(Math.max(0, BRIGHTNESS_LEVELS - 1)); } else { cells[idx].classList.remove('on'); delete cells[idx].dataset.b; }
+        if(s[c] === '1') {
+          cells[idx].dataset.b = String(Math.max(0, BRIGHTNESS_LEVELS - 1));
+        } else {
+          delete cells[idx].dataset.b;
+        }
       }
     }
   }
@@ -744,7 +800,7 @@ async function handleNewFrameClick() {
   console.debug('[ui] new frame button clicked');
 
   // Clear editor
-  cells.forEach(c => { c.classList.remove('on'); delete c.dataset.b; });
+  cells.forEach(c => { delete c.dataset.b; });
   showVectorText('');
 
   // Clear loaded frame reference (we're creating new)
@@ -793,7 +849,7 @@ refreshFrames();
 if (clearBtn) {
   clearBtn.addEventListener('click', ()=>{
     console.debug('[ui] clear button clicked');
-    cells.forEach(c => { c.classList.remove('on'); delete c.dataset.b; });
+    cells.forEach(c => { delete c.dataset.b; });
     showVectorText('');
     schedulePersist();
   });
@@ -804,42 +860,6 @@ if (clearBtn) {
 // 'save-anim' button functionality has been removed as it is no longer part of the UI.
 
 document.addEventListener('DOMContentLoaded', () => {
-  let selectedTool = 'brush';
-  gridEl.dataset.tool = selectedTool;
-
-  const customSelect = document.querySelector('.custom-select');
-  if (customSelect) {
-    const trigger = customSelect.querySelector('.custom-select__trigger');
-    const options = customSelect.querySelectorAll('.custom-option');
-    const triggerImg = trigger.querySelector('img.tool-icon');
-
-    trigger.addEventListener('click', () => {
-      customSelect.classList.toggle('open');
-    });
-
-    options.forEach(option => {
-      option.addEventListener('click', () => {
-        const value = option.getAttribute('data-value');
-        const img = option.querySelector('img.tool-icon');
-
-        if (triggerImg && img) {
-          triggerImg.src = img.src;
-        }
-        customSelect.classList.remove('open');
-
-        selectedTool = value;
-        gridEl.dataset.tool = selectedTool;
-        console.log('Selected tool:', value);
-      });
-    });
-
-    window.addEventListener('click', (e) => {
-      if (!customSelect.contains(e.target)) {
-        customSelect.classList.remove('open');
-      }
-    });
-  }
-
   /* Brightness Alpha Slider */
   const brightnessAlphaSlider = document.getElementById('brightness-alpha-slider');
   const brightnessAlphaValue = document.getElementById('brightness-alpha-value');
@@ -867,11 +887,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!e.target.classList.contains('cell')) return;
 
     const cell = e.target;
-    if (selectedTool === 'brush') {
+    if (cell.dataset.b) {
+      delete cell.dataset.b;
+    } else {
       const brightness = brightnessAlphaSlider.value;
       cell.dataset.b = brightness;
-    } else if (selectedTool === 'eraser') {
-      delete cell.dataset.b;
     }
   }
 
@@ -883,6 +903,15 @@ document.addEventListener('DOMContentLoaded', () => {
   gridEl.addEventListener('mousemove', (e) => {
     if (isDrawing) {
       draw(e);
+    }
+    else {
+      if (!e.target.classList.contains('cell')) return;
+      const cell = e.target;
+      if (cell.dataset.b) {
+        gridEl.dataset.tool = 'eraser';
+      } else {
+        gridEl.dataset.tool = 'brush';
+      }
     }
   });
 

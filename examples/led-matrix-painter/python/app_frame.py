@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+import numpy as np
 import re
 import json
 from arduino.app_utils import Frame
@@ -329,6 +330,49 @@ class AppFrame(Frame):
         parts.append("};")
         parts.append("")
         return "\n".join(parts)
+
+    def invert(self):
+        self.arr = self.brightness_levels - 1 - self.arr
+
+    def invert_not_null(self):
+        self.arr[self.arr > 0] = self.brightness_levels - 1 - self.arr[self.arr > 0]
+
+    def rotate180(self):
+        self.arr = np.rot90(self.arr, 2)
+
+    def flip_horizontally(self):
+        self.arr = np.fliplr(self.arr)
+
+    def flip_vertically(self):
+        self.arr = np.flipud(self.arr)
+
+    def shift_up(self, wrap_around: bool = False):
+        if wrap_around:
+            self.arr = np.roll(self.arr, -1, axis=0)
+        else:
+            self.arr = np.roll(self.arr, -1, axis=0)
+            self.arr[-1, :] = 0
+
+    def shift_down(self, wrap_around: bool = False):
+        if wrap_around:
+            self.arr = np.roll(self.arr, 1, axis=0)
+        else:
+            self.arr = np.roll(self.arr, 1, axis=0)
+            self.arr[0, :] = 0
+
+    def shift_left(self, wrap_around: bool = False):
+        if wrap_around:
+            self.arr = np.roll(self.arr, -1, axis=1)
+        else:
+            self.arr = np.roll(self.arr, -1, axis=1)
+            self.arr[:, -1] = 0
+
+    def shift_right(self, wrap_around: bool = False):
+        if wrap_around:
+            self.arr = np.roll(self.arr, 1, axis=1)
+        else:
+            self.arr = np.roll(self.arr, 1, axis=1)
+            self.arr[:, 0] = 0
 
     # -- Frame.from_rows override (for subclass construction only) ---------------------------
     @classmethod
