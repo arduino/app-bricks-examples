@@ -8,7 +8,7 @@ from app_frame import AppFrame  # user module defining AppFrame
 import store  # user module for DB operations
 import threading
 
-BRIGHTNESS_LEVELS = 8  # must match the frontend slider range (0..BRIGHTNESS_LEVELS-1)
+BRIGHTNESS_LEVELS = 9  # must match the frontend slider range (0..BRIGHTNESS_LEVELS-1)
 
 logger = Logger("led-matrix-painter")
 ui = WebUI()
