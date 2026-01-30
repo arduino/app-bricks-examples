@@ -770,29 +770,65 @@ async function shiftGrid(direction) {
   console.debug(`[ui] shift ${direction} button clicked`);
   const grid = collectGridBrightness();
   const wrapAround = wrapAroundCheckbox.checked;
-  try {
-    const data = await fetchWithHandling('/transform_frame', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        op: `shift_${direction}`,
-        rows: grid,
-        brightness_levels: BRIGHTNESS_LEVELS,
-        options: {
-          wrap_around: wrapAround
-        }
-      })
-    }, 'json', `shift ${direction}`);
+  
+  const newGrid = shiftArray(grid, direction, wrapAround);
 
-    if (data && data.ok && data.frame) {
-      setGridFromRows(data.frame.rows);
-      if (data.vector) showVectorText(data.vector);
-      schedulePersist();
-    }
-  } catch (e) {
-    console.warn(`[ui] shift ${direction} failed`, e);
-  }
+  setGridFromRows(newGrid);
+  pushStateToHistory(newGrid);
+  schedulePersist();
 }
+
+function shiftArray(grid, direction, wrapAround) {
+    const rows = grid.length;
+    if (rows === 0) return [];
+    const cols = grid[0].length;
+    const newGrid = JSON.parse(JSON.stringify(grid)); // Deep copy
+
+    switch (direction) {
+        case 'up':
+            if (wrapAround) {
+                const firstRow = newGrid.shift();
+                newGrid.push(firstRow);
+            } else {
+                newGrid.shift();
+                newGrid.push(new Array(cols).fill(0));
+            }
+            break;
+        case 'down':
+            if (wrapAround) {
+                const lastRow = newGrid.pop();
+                newGrid.unshift(lastRow);
+            } else {
+                newGrid.pop();
+                newGrid.unshift(new Array(cols).fill(0));
+            }
+            break;
+        case 'left':
+            for (let r = 0; r < rows; r++) {
+                if (wrapAround) {
+                    const firstCell = newGrid[r].shift();
+                    newGrid[r].push(firstCell);
+                } else {
+                    newGrid[r].shift();
+                    newGrid[r].push(0);
+                }
+            }
+            break;
+        case 'right':
+            for (let r = 0; r < rows; r++) {
+                if (wrapAround) {
+                    const lastCell = newGrid[r].pop();
+                    newGrid[r].unshift(lastCell);
+                } else {
+                    newGrid[r].pop();
+                    newGrid[r].unshift(0);
+                }
+            }
+            break;
+    }
+    return newGrid;
+}
+
 
 
 async function loadFrameIntoEditor(id){

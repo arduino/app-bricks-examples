@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from arduino.app_bricks.web_ui import WebUI
-from arduino.app_utils import App, Bridge, Logger
+from arduino.app_utils import App, Bridge, FrameDesigner, Logger
 from app_frame import AppFrame  # user module defining AppFrame
 import store  # user module for DB operations
 import threading
@@ -12,6 +12,7 @@ BRIGHTNESS_LEVELS = 9  # must match the frontend slider range (0..BRIGHTNESS_LEV
 
 logger = Logger("led-matrix-painter")
 ui = WebUI()
+designer = FrameDesigner()
 
 logger.info("Initializing LED matrix tool")
 store.init_db()
@@ -37,7 +38,7 @@ def apply_frame_to_board(frame: AppFrame):
 
 def update_board(payload: dict):
     """Update board display in real-time without persisting to DB.
-    
+
     Used for live preview during editing.
     Expected payload: {rows, name, id, position, duration_ms, brightness_levels}
     """
@@ -49,13 +50,13 @@ def update_board(payload: dict):
 
 def persist_frame(payload: dict):
     """Persist frame to DB (insert new or update existing).
-    
+
     Backend (store.save_frame) is responsible for assigning progressive names.
-    
+
     Expected payload: {rows, name, id, position, duration_ms, brightness_levels}
     """
     frame = AppFrame.from_json(payload)
-    
+
     if frame.id is None:
         # Insert new frame - backend assigns name if empty
         logger.debug(f"Creating new frame: name='{frame.name}'")
@@ -69,7 +70,7 @@ def persist_frame(payload: dict):
         # Update existing frame
         logger.debug(f"Updating frame: id={frame.id}, name={frame.name}")
         store.update_frame(frame)
-    
+
     apply_frame_to_board(frame)
     vector_text = frame.to_c_string()
     return {'ok': True, 'frame': frame.to_json(), 'vector': vector_text}
@@ -85,12 +86,12 @@ def bulk_update_frame_duration(payload) -> bool:
 
 def load_frame(payload: dict = None):
     """Load a frame for editing or create empty if none exist.
-    
+
     Optional payload: {id: int} to load specific frame
     If no ID provided, loads last frame or creates empty
     """
     fid = payload.get('id') if payload else None
-    
+
     if fid is not None:
         logger.debug(f"Loading frame by id: {fid}")
         record = store.get_frame_by_id(fid)
@@ -104,7 +105,7 @@ def load_frame(payload: dict = None):
         logger.debug("Loading last frame or creating empty")
         frame = store.get_or_create_active_frame(brightness_levels=BRIGHTNESS_LEVELS)
         logger.info(f"Active frame ready: id={frame.id}, name={frame.name}")
-    
+
     apply_frame_to_board(frame)
     vector_text = frame.to_c_string()
     return {'ok': True, 'frame': frame.to_json(), 'vector': vector_text}
@@ -121,10 +122,10 @@ def get_frame(payload: dict):
     """Get single frame by ID."""
     fid = payload.get('id')
     record = store.get_frame_by_id(fid)
-    
+
     if not record:
         return {'error': 'not found'}
-    
+
     frame = AppFrame.from_record(record)
     return {'frame': frame.to_json()}
 
@@ -149,7 +150,7 @@ def reorder_frames(payload: dict):
 
 def transform_frame(payload: dict):
     """Apply transformation operation to a frame.
-    
+
     Payload: {op: str, rows: list OR id: int}
     Operations: invert, invert_not_null, rotate180, flip_h, flip_v
     """
@@ -174,15 +175,11 @@ def transform_frame(payload: dict):
 
     # Apply transformation
     operations = {
-        'invert': lambda frame, **options: frame.invert(),
-        'invert_not_null': lambda frame, **options: frame.invert_not_null(),
-        'rotate180': lambda frame, **options: frame.rotate180(),
-        'flip_h': lambda frame, **options: frame.flip_horizontally(),
-        'flip_v': lambda frame, **options: frame.flip_vertically(),
-        'shift_up': lambda frame, **options: frame.shift_up(**options),
-        'shift_down': lambda frame, **options: frame.shift_down(**options),
-        'shift_left': lambda frame, **options: frame.shift_left(**options),
-        'shift_right': lambda frame, **options: frame.shift_right(**options),
+        'invert': designer.invert,
+        'invert_not_null': designer.invert_not_null,
+        'rotate180': designer.rotate180,
+        'flip_h': designer.flip_horizontally,
+        'flip_v': designer.flip_vertically,
     }
     if op not in operations:
         logger.warning(f"Unsupported transform operation: {op}")
@@ -191,14 +188,14 @@ def transform_frame(payload: dict):
     options = payload.get('options', {})
     operations[op](frame, **options)
     logger.info(f"Transform applied: op={op}")
-    
+
     # Return transformed frame (frontend will handle board update via persist)
     return {'ok': True, 'frame': frame.to_json(), 'vector': frame.to_c_string()}
 
 
 def export_frames(payload: dict = None):
     """Export multiple frames into a single C header string.
-    
+
     Payload (optional): {frames: [id,...], animations: [{name, frames}]}
     - If no animations: exports frames as individual arrays (Frames mode)
     - If animations present: exports as animation sequences (Animations mode)
@@ -212,15 +209,15 @@ def export_frames(payload: dict = None):
     else:
         logger.info("Exporting all frames")
         records = store.list_frames(order_by='position ASC, id ASC')
-    
+
     logger.debug(f"Exporting {len(records)} frames to C header")
-    
+
     # Build frame objects and check for duplicate names
     frames = [AppFrame.from_record(r) for r in records]
     frame_names = {}  # name -> count
     for frame in frames:
         frame_names[frame.name] = frame_names.get(frame.name, 0) + 1
-    
+
     # Assign unique names if duplicates exist
     name_counters = {}  # name -> current index
     for frame in frames:
@@ -234,29 +231,29 @@ def export_frames(payload: dict = None):
         else:
             # Unique name, use as-is
             frame._export_name = frame.name
-    
+
     # Check if we're in animations mode
     animations = payload.get('animations') if payload else None
-    
+
     if animations:
         # Animation mode: export as animation sequences
         logger.info(f"Animation mode: {len(animations)} animation(s)")
         header_parts = []
-        
+
         for anim in animations:
             anim_name = anim.get('name', 'Animation')
             anim_frame_ids = anim.get('frames', [])
-            
+
             # Get frames for this animation
             anim_frames = [f for f in frames if f.id in anim_frame_ids]
-            
+
             if not anim_frames:
                 continue
-            
+
             # Build animation array (delegated to AppFrame exporter)
             header_parts.append(f"// Animation: {anim_name}")
             header_parts.append(AppFrame.frames_to_c_animation_array(anim_frames, anim_name))
-        
+
         header = "\n".join(header_parts).strip() + "\n"
         return {'header': header}
     else:
@@ -265,7 +262,7 @@ def export_frames(payload: dict = None):
         for frame in frames:
             header_parts.append(f"// {frame._export_name} (id {frame.id})")
             header_parts.append(frame.to_c_string())
-        
+
         header = "\n".join(header_parts).strip() + "\n"
         return {'header': header}
 
