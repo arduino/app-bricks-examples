@@ -67,7 +67,7 @@ if (codePanelToggle && codePanel) {
 }
 
 const ROWS = 8, COLS = 13;
-let BRIGHTNESS_LEVELS = 8;
+let BRIGHTNESS_LEVELS = 9;
 let cells = [];
 let sessionFrames = [];
 let loadedFrameId = null; // ID of the frame currently loaded in editor
@@ -872,6 +872,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const percent = (value / max) * 100;
       brightnessAlphaSlider.style.setProperty('--slider-value-percent', `${percent}%`);
       brightnessAlphaValue.textContent = value;
+      if (value === 0) {
+        gridEl.dataset.tool = 'eraser';
+      } else {
+        gridEl.dataset.tool = 'brush';
+      }
     };
 
     brightnessAlphaSlider.addEventListener('input', updateSliderBackground);
@@ -887,10 +892,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!e.target.classList.contains('cell')) return;
 
     const cell = e.target;
-    if (cell.dataset.b) {
+    const brightness = brightnessAlphaSlider.value;
+
+    if (brightness === "0") {
       delete cell.dataset.b;
     } else {
-      const brightness = brightnessAlphaSlider.value;
       cell.dataset.b = brightness;
     }
   }
@@ -906,8 +912,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     else {
       if (!e.target.classList.contains('cell')) return;
-      const cell = e.target;
-      if (cell.dataset.b) {
+      const brightness = brightnessAlphaSlider.value;
+      if (brightness === "0") {
         gridEl.dataset.tool = 'eraser';
       } else {
         gridEl.dataset.tool = 'brush';
