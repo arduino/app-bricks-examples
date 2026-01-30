@@ -129,11 +129,13 @@ def get_frame(payload: dict):
     return {'frame': frame.to_json()}
 
 
-def delete_frame(payload: dict):
-    """Delete frame by ID."""
-    fid = payload.get('id')
-    logger.info(f"Deleting frame: id={fid}")
-    store.delete_frame(fid)
+def delete_frames(payload: dict):
+    """Delete multiple frames by ID."""
+    fids = payload.get('ids', [])
+    if not fids:
+        return {'error': 'no frame ids provided'}
+    logger.info(f"Deleting frames: ids={fids}")
+    store.delete_frames(fids)
     return {'ok': True}
 
 
@@ -342,7 +344,7 @@ ui.expose_api('POST', '/persist_frame', persist_frame)
 ui.expose_api('POST', '/load_frame', load_frame)
 ui.expose_api('GET', '/list_frames', list_frames)
 ui.expose_api('POST', '/get_frame', get_frame)
-ui.expose_api('POST', '/delete_frame', delete_frame)
+ui.expose_api('POST', '/delete_frames', delete_frames)
 ui.expose_api('POST', '/transform_frame', transform_frame)
 ui.expose_api('POST', '/export_frames', export_frames)
 ui.expose_api('POST', '/reorder_frames', reorder_frames)

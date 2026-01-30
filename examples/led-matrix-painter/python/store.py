@@ -147,6 +147,31 @@ def delete_frame(fid: int) -> bool:
     return True
 
 
+def delete_frames(fids: list[int]) -> bool:
+    """Delete multiple frames and recompact positions.
+    
+    Args:
+        fids (list[int]): list of frame ids to delete
+        
+    Returns:
+        bool: True if deletion succeeded
+    """
+    if not fids:
+        return True
+    
+    id_list_str = ', '.join(map(str, map(int, fids)))
+    condition = f"id IN ({id_list_str})"
+    
+    db.delete("frames", condition=condition)
+    
+    # Recompact positions
+    rows = db.read("frames", order_by="position ASC, id ASC") or []
+    for pos, r in enumerate(rows, start=1):
+        db.update("frames", {"position": pos}, condition=f"id = {int(r.get('id'))}")
+    return True
+
+
+
 def reorder_frames(order: list[int]) -> bool:
     """Reorder frames by assigning new positions based on provided ID list.
     

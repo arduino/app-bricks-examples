@@ -72,6 +72,8 @@ let cells = [];
 let sessionFrames = [];
 let loadedFrameId = null; // ID of the frame currently loaded in editor
 let loadedFrame = null; // Full frame object currently loaded
+let selectedFrameIds = [];
+let lastSelectedFrameId = null;
 
 // Auto-persist timer (unified: board + DB together)
 let persistTimeout = null;
@@ -138,6 +140,18 @@ function updateArrowButtonsState() {
     frameForwardBtn.disabled = currentIndex === sessionFrames.length - 1;
 }
 
+function updateSelectionVisuals() {
+    const frameElements = document.querySelectorAll('.frame-item');
+    frameElements.forEach(el => {
+        const id = parseInt(el.dataset.id, 10);
+        if (selectedFrameIds.includes(id)) {
+            el.classList.add('selected');
+        } else {
+            el.classList.remove('selected');
+        }
+    });
+}
+
 function markLoaded(frame){
   const oldFrameId = loadedFrameId; // Store the old ID
 
@@ -146,7 +160,6 @@ function markLoaded(frame){
     const prev = document.querySelector(`#frames [data-id='${oldFrameId}']`);
     if(prev) {
       prev.classList.remove('loaded');
-      prev.classList.remove('selected');
     }
   }
 
@@ -160,7 +173,6 @@ function markLoaded(frame){
       const el = document.querySelector(`#frames [data-id='${frame.id}']`);
       if(el) {
         el.classList.add('loaded');
-        el.classList.add('selected');
       }
     }catch(e){/* ignore */}
   }
@@ -172,10 +184,11 @@ function clearLoaded(){
   const prev = document.querySelector(`#frames [data-id='${loadedFrameId}']`);
   if(prev) {
     prev.classList.remove('loaded');
-    prev.classList.remove('selected');
   }
   loadedFrameId = null;
   loadedFrame = null;
+  selectedFrameIds = [];
+  lastSelectedFrameId = null;
   updateArrowButtonsState();
 }
 
@@ -501,9 +514,9 @@ async function refreshFrames(){
         const el = document.querySelector(`#frames [data-id='${loadedFrameId}']`);
         if(el) {
             el.classList.add('loaded');
-            el.classList.add('selected');
         }
     }
+    updateSelectionVisuals(); // Update selection visuals
     updateArrowButtonsState();
   }catch(e){ console.warn(e) }
 }
@@ -590,15 +603,31 @@ function renderFrames(){
       }
     });
 
-    // NEW CLICK LOGIC: Single-select and load
+    // NEW CLICK LOGIC: Multi-select and load
     item.addEventListener('click', (e)=>{
-      // Don't do anything if clicking inside an input field during editing
       if (e.target.tagName === 'INPUT') return;
 
-      // If it's already selected, do nothing
-      if (loadedFrameId === f.id) return;
+      const clickedId = f.id;
 
-      loadFrameIntoEditor(f.id); // This function already handles setting loadedFrameId and adding the .loaded class
+      if (e.shiftKey && lastSelectedFrameId !== null) {
+          // Shift-click for range selection
+          const lastIndex = sessionFrames.findIndex(frame => frame.id === lastSelectedFrameId);
+          const currentIndex = sessionFrames.findIndex(frame => frame.id === clickedId);
+
+          const start = Math.min(lastIndex, currentIndex);
+          const end = Math.max(lastIndex, currentIndex);
+
+          selectedFrameIds = sessionFrames.slice(start, end + 1).map(frame => frame.id);
+      } else {
+          // Normal click
+          selectedFrameIds = [clickedId];
+          lastSelectedFrameId = clickedId;
+      }
+
+      if (loadedFrameId !== clickedId) {
+        loadFrameIntoEditor(clickedId);
+      }
+      updateSelectionVisuals();
     });
 
     // drag/drop handlers
@@ -976,26 +1005,63 @@ if (copyAnimBtn) {
 
 if (deleteAnimBtn) {
   deleteAnimBtn.addEventListener('click', async () => {
-    if (loadedFrameId === null) {
+    if (selectedFrameIds.length === 0) {
       showError('Please select a frame to delete.');
       setTimeout(hideError, 3000);
       return;
     }
 
-    const idToDelete = loadedFrameId;
-    await deleteFrame(idToDelete);
+    const idsToDelete = [...selectedFrameIds];
+    
+    // Optimistically find the next frame to load
+    let frameToLoad = null;
+    if (sessionFrames.length > idsToDelete.length) {
+      const remainingFrames = sessionFrames.filter(f => !idsToDelete.includes(f.id));
+      // Find the current position of the loaded frame
+      const loadedIndex = sessionFrames.findIndex(f => f.id === loadedFrameId);
+      // Find the closest remaining frame after the deleted ones
+      let nextBestIndex = -1;
+      for (let i = loadedIndex; i < sessionFrames.length; i++) {
+        if (!idsToDelete.includes(sessionFrames[i].id)) {
+          nextBestIndex = i;
+          break;
+        }
+      }
+      if (nextBestIndex === -1) {
+        for (let i = loadedIndex - 1; i >= 0; i--) {
+          if (!idsToDelete.includes(sessionFrames[i].id)) {
+            nextBestIndex = i;
+            break;
+          }
+        }
+      }
+      if(remainingFrames.length > 0) {
+        frameToLoad = remainingFrames[0]; // fallback to first
+        if (nextBestIndex !== -1) {
+             const found = remainingFrames.find(f => f.id === sessionFrames[nextBestIndex].id);
+             if (found) frameToLoad = found;
+        }
+      }
+    }
+
+    await fetchWithHandling('/delete_frames', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ids: idsToDelete})
+    }, 'json', `delete ${idsToDelete.length} frames`);
+
+    selectedFrameIds = [];
+    lastSelectedFrameId = null;
 
     clearLoaded();
     await refreshFrames();
 
-    const frameToLoad = sessionFrames.find(f => f.id !== idToDelete) || (sessionFrames.length > 0 ? sessionFrames[0] : null);
-
     if (frameToLoad) {
       await loadFrameIntoEditor(frameToLoad.id);
     } else {
-      // If no frames are left, initEditor will create a new empty one
       await initEditor();
     }
+    updateSelectionVisuals();
   });
 }
 

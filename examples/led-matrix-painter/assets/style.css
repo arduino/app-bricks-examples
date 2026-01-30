@@ -486,11 +486,31 @@ input:checked + .slider:before {
 .frames {
     display: flex;
     flex-direction: row;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 8px;
     height: auto;
     align-items: flex-start;
     align-items: center;
+    overflow-x: auto;
+    padding-bottom: 8px; /* Add some padding for the scrollbar */
+}
+
+.frames::-webkit-scrollbar {
+  height: 8px;
+}
+
+.frames::-webkit-scrollbar-track {
+  background: #DAE3E3;
+  border-radius: 4px;
+}
+
+.frames::-webkit-scrollbar-thumb {
+  background: #008184;
+  border-radius: 4px;
+}
+
+.frames::-webkit-scrollbar-thumb:hover {
+  background: #006567;
 }
 .frame-item {
     display: flex;
