@@ -347,31 +347,23 @@ class AppFrame(Frame):
         self.arr = np.flipud(self.arr)
 
     def shift_up(self, wrap_around: bool = False):
-        if wrap_around:
-            self.arr = np.roll(self.arr, -1, axis=0)
-        else:
-            self.arr = np.roll(self.arr, -1, axis=0)
+        self.arr = np.roll(self.arr, -1, axis=0)
+        if not wrap_around:
             self.arr[-1, :] = 0
 
     def shift_down(self, wrap_around: bool = False):
-        if wrap_around:
-            self.arr = np.roll(self.arr, 1, axis=0)
-        else:
-            self.arr = np.roll(self.arr, 1, axis=0)
+        self.arr = np.roll(self.arr, 1, axis=0)
+        if not wrap_around:
             self.arr[0, :] = 0
 
     def shift_left(self, wrap_around: bool = False):
-        if wrap_around:
-            self.arr = np.roll(self.arr, -1, axis=1)
-        else:
-            self.arr = np.roll(self.arr, -1, axis=1)
+        self.arr = np.roll(self.arr, -1, axis=1)
+        if not wrap_around:
             self.arr[:, -1] = 0
 
     def shift_right(self, wrap_around: bool = False):
-        if wrap_around:
-            self.arr = np.roll(self.arr, 1, axis=1)
-        else:
-            self.arr = np.roll(self.arr, 1, axis=1)
+        self.arr = np.roll(self.arr, 1, axis=1)
+        if not wrap_around:
             self.arr[:, 0] = 0
 
     # -- Frame.from_rows override (for subclass construction only) ---------------------------

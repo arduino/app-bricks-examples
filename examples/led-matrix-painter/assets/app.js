@@ -75,9 +75,33 @@ let loadedFrame = null; // Full frame object currently loaded
 let selectedFrameIds = [];
 let lastSelectedFrameId = null;
 
+let history = [];
+let historyIndex = -1;
+
 // Auto-persist timer (unified: board + DB together)
 let persistTimeout = null;
 const AUTO_PERSIST_DELAY_MS = 150; // 150ms unified delay
+
+function updateUndoRedoButtons() {
+    const undoBtn = document.getElementById('undo-btn');
+    const redoBtn = document.getElementById('redo-btn');
+    if (undoBtn) undoBtn.disabled = historyIndex <= 0;
+    if (redoBtn) redoBtn.disabled = historyIndex >= history.length - 1;
+}
+
+function pushStateToHistory(gridState) {
+    // If we are not at the end of the history, truncate it
+    if (historyIndex < history.length - 1) {
+        history = history.slice(0, historyIndex + 1);
+    }
+    // Don't push duplicate states
+    if (history.length > 0 && JSON.stringify(history[history.length-1]) === JSON.stringify(gridState)) {
+      return;
+    }
+    history.push(gridState);
+    historyIndex++;
+    updateUndoRedoButtons();
+}
 
 async function loadConfig(brightnessSlider, brightnessValue){
   try{
@@ -309,6 +333,12 @@ async function initEditor(){
       // Mark as loaded in sidebar
       markLoaded(frame);
 
+      // Reset history for the new frame
+      history = [];
+      historyIndex = -1;
+      pushStateToHistory(collectGridBrightness());
+      updateUndoRedoButtons();
+
       console.debug('[ui] initEditor loaded frame:', frame.id);
     }
   } catch (err) {
@@ -450,24 +480,27 @@ if (stopAnimationBtn) {
   });
 }
 
-if (frameForwardBtn) {
-    frameForwardBtn.addEventListener('click', () => {
-        if (!loadedFrameId) return;
-        const currentIndex = sessionFrames.findIndex(f => f.id === loadedFrameId);
-        if (currentIndex < sessionFrames.length - 1) {
-            const nextFrame = sessionFrames[currentIndex + 1];
-            loadFrameIntoEditor(nextFrame.id);
+const undoBtn = document.getElementById('undo-btn');
+const redoBtn = document.getElementById('redo-btn');
+
+if (undoBtn) {
+    undoBtn.addEventListener('click', () => {
+        if (historyIndex > 0) {
+            historyIndex--;
+            setGridFromRows(history[historyIndex]);
+            schedulePersist();
+            updateUndoRedoButtons();
         }
     });
 }
 
-if (frameBackBtn) {
-    frameBackBtn.addEventListener('click', () => {
-        if (!loadedFrameId) return;
-        const currentIndex = sessionFrames.findIndex(f => f.id === loadedFrameId);
-        if (currentIndex > 0) {
-            const prevFrame = sessionFrames[currentIndex - 1];
-            loadFrameIntoEditor(prevFrame.id);
+if (redoBtn) {
+    redoBtn.addEventListener('click', () => {
+        if (historyIndex < history.length - 1) {
+            historyIndex++;
+            setGridFromRows(history[historyIndex]);
+            schedulePersist();
+            updateUndoRedoButtons();
         }
     });
 }
@@ -786,6 +819,12 @@ async function loadFrameIntoEditor(id){
       if (data.vector) {
         showVectorText(data.vector);
       }
+      
+      // Reset history for the new frame
+      history = [];
+      historyIndex = -1;
+      pushStateToHistory(collectGridBrightness());
+      updateUndoRedoButtons();
 
       console.debug('[ui] loaded frame into editor:', id);
     }
@@ -864,6 +903,12 @@ async function handleNewFrameClick() {
       // Mark as loaded
       markLoaded(data.frame);
 
+      // Reset history for the new frame
+      history = [];
+      historyIndex = -1;
+      pushStateToHistory(collectGridBrightness());
+      updateUndoRedoButtons();
+
       console.debug('[ui] new frame created:', data.frame.id);
     }
   } catch(err) {
@@ -880,6 +925,7 @@ if (clearBtn) {
     console.debug('[ui] clear button clicked');
     cells.forEach(c => { delete c.dataset.b; });
     showVectorText('');
+    pushStateToHistory(collectGridBrightness());
     schedulePersist();
   });
 } else {
@@ -953,6 +999,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('mouseup', () => {
     if (isDrawing) {
       isDrawing = false;
+      pushStateToHistory(collectGridBrightness());
       schedulePersist();
     }
   });
@@ -960,9 +1007,26 @@ document.addEventListener('DOMContentLoaded', () => {
   gridEl.addEventListener('mouseleave', () => {
     if (isDrawing) {
       isDrawing = false;
+      pushStateToHistory(collectGridBrightness());
       schedulePersist();
     }
   });
+
+  const framesContainer = document.getElementById('frames');
+  if (framesContainer) {
+      framesContainer.addEventListener('dragover', (e) => {
+          const containerRect = framesContainer.getBoundingClientRect();
+          const mouseX = e.clientX;
+          const edgeThreshold = 50; // Pixels from the edge to trigger scroll
+          const scrollAmount = 10; // Pixels to scroll by
+
+          if (mouseX < containerRect.left + edgeThreshold) {
+              framesContainer.scrollLeft -= scrollAmount;
+          } else if (mouseX > containerRect.right - edgeThreshold) {
+              framesContainer.scrollLeft += scrollAmount;
+          }
+      });
+  }
 });
 // --- Option Buttons Functionality ---
 const copyAnimBtn = document.getElementById('copy-anim');

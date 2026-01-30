@@ -290,6 +290,7 @@ input:checked + .slider:before {
     flex-direction: column;
     gap: 12px;
     flex: 1;
+    min-width: 0; /* Fix for flexbox overflow */
 }
 
 .row {
@@ -423,14 +424,14 @@ input:checked + .slider:before {
     justify-content: center;
 }
 /* brightness visual using background color intensity */
-.cell[data-b="0"] { background: #3CE2FF33; }
-.cell[data-b="1"] { background: #3CE2FF50; }
-.cell[data-b="2"] { background: #3CE2FF6D; }
-.cell[data-b="3"] { background: #3CE2FF8A; }
-.cell[data-b="4"] { background: #3CE2FFA7; }
-.cell[data-b="5"] { background: #3CE2FFC4; }
-.cell[data-b="6"] { background: #3CE2FFE1; }
-.cell[data-b="7"] { background: #3CE2FF; }
+.cell[data-b="1"] { background: #3CE2FF33; }
+.cell[data-b="2"] { background: #3CE2FF4D; }
+.cell[data-b="3"] { background: #3CE2FF66; }
+.cell[data-b="4"] { background: #3CE2FF80; }
+.cell[data-b="5"] { background: #3CE2FF99; }
+.cell[data-b="6"] { background: #3CE2FFB3; }
+.cell[data-b="7"] { background: #3CE2FFD9; }
+.cell[data-b="8"] { background: #3CE2FF;   }
 
 /* Frame previews */
 .sidebar-header {
