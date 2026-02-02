@@ -221,6 +221,7 @@ input:checked + .slider:before {
     background: #ECF1F1;
     padding: 16px;
     border-radius: 8px;
+    max-width: 310px;
 }
 
 .box-title {
@@ -431,7 +432,6 @@ input:checked + .slider:before {
 .cell[data-b="5"] { background: #3CE2FF99; }
 .cell[data-b="6"] { background: #3CE2FFB3; }
 .cell[data-b="7"] { background: #3CE2FFD9; }
-.cell[data-b="8"] { background: #3CE2FF;   }
 
 /* Frame previews */
 .sidebar-header {
@@ -616,6 +616,8 @@ input {
     color: #2C353A;
     border-radius: 4px;
     border: 1px solid#C9D2D2;
+    white-space: pre-wrap;
+    word-break: break-all;
 }
 
 /* Cell Slider */
