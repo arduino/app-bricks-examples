@@ -67,7 +67,7 @@ if (codePanelToggle && codePanel) {
 }
 
 const ROWS = 8, COLS = 13;
-let BRIGHTNESS_LEVELS = 9;
+let BRIGHTNESS_LEVELS = 8;
 let cells = [];
 let sessionFrames = [];
 let loadedFrameId = null; // ID of the frame currently loaded in editor
