@@ -14,43 +14,48 @@ SPDX-License-Identifier: MPL-2.0
 </head>
 <body>
   <div id="app">
-    <!-- Header -->
     <div class="header">
-      <div class="header-left">
-        <img class="arduino-logo" src="./img/RGB-Arduino-Logo_Color Inline Loop.svg" alt="Arduino Logo">
-        <h1 class="arduino-text">Music Composer</h1>
-      </div>
-      
-      <div class="header-center">
-        <button id="play-btn" class="play-button">
-          <span class="play-icon">▶</span>
-        </button>
-        <button id="pause-btn" class="pause-button" style="display: none;">
-          <span class="pause-icon">⏸</span>
-        </button>
-        <button id="stop-btn" class="stop-button" style="display: none;">
-          <span class="stop-icon">⏹</span>
-        </button>
-        
-        <div class="tempo-control">
-          <div class="tempo-label">4/4 BPM</div>
-          <div class="tempo-value">
-            <input type="number" id="bpm-input" value="120" min="40" max="240">
-            <button id="reset-bpm" class="icon-btn" title="Reset BPM">↻</button>
-          </div>
+        <div class="header-left">
+            <img src="img/RGB-Arduino-Logo_Color Inline Loop.svg" alt="Arduino Logo" class="arduino-logo" />
+            <p class="arduino-text">Music Composer</p>
         </div>
-      </div>
-      
-      <div class="header-right">
-        <button id="undo-btn" class="icon-btn" title="Undo">↶</button>
-        <button id="redo-btn" class="icon-btn" title="Redo">↷</button>
-        <button id="clear-btn" class="icon-btn" title="Clear All">✕</button>
-        <button id="export-btn" class="export-btn">Export .h</button>
-      </div>
+        <div class="header-center">
+          
+        </div>
+        <div class="header-right">
+            <button id="export-btn" class="export-btn">Export .h</button>
+        </div>
     </div>
     
     <!-- Step Sequencer Grid -->
     <div id="sequencer-container">
+      <div class="sequencer-controls">
+        <div class="controls-left">
+          <button id="play-btn" class="play-button">
+            <span class="play-icon">▶</span>
+          </button>
+          <button id="pause-btn" class="pause-button" style="display: none;">
+            <span class="pause-icon">⏸</span>
+          </button>
+          <button id="stop-btn" class="stop-button" style="display: none;">
+            <span class="stop-icon">⏹</span>
+          </button>
+        </div>
+        <div class="controls-center">
+          <div class="tempo-control">
+            <div class="tempo-label">4/4 BPM</div>
+            <div class="tempo-value">
+              <input type="number" id="bpm-input" value="120" min="40" max="240">
+              <button id="reset-bpm" class="icon-btn" title="Reset BPM">↻</button>
+            </div>
+          </div>
+        </div>
+        <div class="controls-right">
+          <button id="undo-btn" class="icon-btn" title="Undo">↶</button>
+          <button id="redo-btn" class="icon-btn" title="Redo">↷</button>
+          <button id="clear-btn" class="icon-btn" title="Clear All">✕</button>
+        </div>
+      </div>
       <div id="sequencer-grid">
         <!-- Grid will be generated dynamically -->
       </div>

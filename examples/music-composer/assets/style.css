@@ -9,7 +9,7 @@
 :root {
   --bg-dark: #1a1a1a;
   --bg-darker: #0d0d0d;
-  --cyan: #00d9ff;
+  --cyan: #008184;
   --purple: #a855f7;
   --text-light: #e0e0e0;
   --text-dim: #888;
@@ -24,44 +24,49 @@
 }
 
 body {
-  font-family: 'Open Sans', Arial, sans-serif;
-  background-color: var(--bg-darker);
-  color: var(--text-light);
-  overflow-x: hidden;
+    font-family: 'Open Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #DAE3E3;
+    line-height: 1.6;
+    color: #343a40;
 }
 
 #app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  gap: 8px;
+  padding: 25px 30px;
 }
 
 /* Header */
 .header {
-  background-color: var(--bg-dark);
-  padding: 15px 30px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 2px solid #000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 12px 20px;
 }
 
 .header-left {
-  display: flex;
-  align-items: center;
-  gap: 15px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
 }
 
 .arduino-logo {
-  height: 32px;
-  filter: brightness(0) invert(1);
+    height: 24px;
+    width: auto;
 }
 
 .arduino-text {
-  font-family: 'Roboto', sans-serif;
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--text-light);
+    color: #008184;
+    font-family: "Roboto Mono", monospace;
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+    font-style: normal;
+    line-height: 170%;
+    letter-spacing: 2.4px;
 }
 
 .header-center {
@@ -69,6 +74,14 @@ body {
   align-items: center;
   gap: 25px;
 }
+.vertical-separator {
+  display: inline-block;
+  width: 1px;
+  height: 24px;
+  background-color: #C9D2D2;
+  vertical-align: middle;
+}
+
 
 .play-button {
   width: 50px;
@@ -84,7 +97,7 @@ body {
 }
 
 .play-button:hover {
-  background: #00bfdd;
+  background: #006567;
   transform: scale(1.05);
 }
 
@@ -94,7 +107,7 @@ body {
 
 .play-icon {
   font-size: 20px;
-  color: #000;
+  color: white;
   margin-left: 3px;
 }
 
@@ -206,27 +219,44 @@ body {
 .export-btn {
   padding: 8px 16px;
   background: var(--cyan);
-  color: #000;
+  color: white;
   border: none;
   font-weight: 600;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
+  font-size: 12px;
 }
 
 .export-btn:hover {
-  background: #00bfdd;
+  background: #006567;
 }
 
 /* Sequencer Container */
 #sequencer-container {
   flex: 1;
-  padding: 20px;
-  overflow-x: auto;  /* Horizontal scroll for infinite grid */
+  padding: 16px;
   overflow-y: auto;
   display: flex;
-  justify-content: flex-start;  /* Align left for scroll */
+  flex-direction: column;
+  background: #171E21;
+  border-radius: 8px;
+  gap: 16px;
   align-items: flex-start;
+}
+
+.sequencer-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+  width: 100%;
+}
+
+.controls-left, .controls-center, .controls-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 
 #sequencer-grid {
@@ -237,6 +267,7 @@ body {
   min-width: min-content;  /* Allow grid to expand beyond viewport */
   border: 1px solid #000;
   padding: 10px;
+  overflow-x: auto;
 }
 
 .grid-row-label {
@@ -303,25 +334,28 @@ body {
 
 /* Control Panel */
 #control-panel {
-  background: var(--bg-dark);
-  padding: 25px 30px;
+  background: transparent;
+  padding: 0;
   display: flex;
-  gap: 40px;
-  border-top: 2px solid #000;
+  gap: 8px;
+  border-top: none;
 }
 
 .control-section {
   display: flex;
   flex-direction: column;
   gap: 15px;
+  background: #171E21;
+  border-radius: 8px;
+  padding: 16px;
 }
 
 .section-title {
+  font-family: 'Roboto', sans-serif;
   font-size: 14px;
+  font-style: normal;
   font-weight: 700;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
+  color: #FFFFFF;
   margin-bottom: 5px;
 }
 
@@ -407,7 +441,7 @@ body {
 
 .wave-btn.active {
   background: var(--cyan);
-  color: #000;
+  color: white;
   border-color: var(--cyan);
 }
 
@@ -427,9 +461,9 @@ body {
 .vertical-slider {
   writing-mode: vertical-lr;
   direction: rtl;
-  width: 8px;
+  width: 6px;
   height: 120px;
-  background: var(--grid-line);
+  background: #25C2C7;
   border-radius: 4px;
   outline: none;
   cursor: pointer;

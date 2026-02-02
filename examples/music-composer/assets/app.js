@@ -16,9 +16,9 @@
   };
   
   // Configuration
-  const INITIAL_GRID_STEPS = 16; // Initial visible steps
+  const INITIAL_GRID_STEPS = 32; // Initial visible steps
   const NOTES = ['B4', 'A#4', 'A4', 'G#4', 'G4', 'F#4', 'F4', 'E4', 'D#4', 'D4', 'C#4', 'C4', 'B3', 'A#3', 'A3', 'G#3', 'G3', 'F#3'];
-  const STEPS_PER_EXPAND = 16; // Add 16 steps when scrolling
+  const STEPS_PER_EXPAND = 32; // Add 32 steps when scrolling
   
   // State
   let grid = null; // {noteIndex: {stepIndex: true/false}} - null until server sends state
