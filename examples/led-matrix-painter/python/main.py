@@ -8,6 +8,7 @@ from app_frame import AppFrame  # user module defining AppFrame
 import store  # user module for DB operations
 
 BRIGHTNESS_LEVELS = 8  # must match the frontend slider range (0..BRIGHTNESS_LEVELS-1)
+MAX_FRAMES = 300  # must match MAX_FRAMES in sketch.ino (animation buffer limit)
 
 logger = Logger("led-matrix-painter")
 ui = WebUI()
@@ -277,6 +278,11 @@ def play_animation(payload: dict):
     if not frame_ids:
         logger.warning("play_animation called with no frames")
         return {"error": "no frames provided"}
+
+    # Check frame count against sketch buffer limit
+    if len(frame_ids) > MAX_FRAMES:
+        logger.error(f"Too many frames for animation: {len(frame_ids)} > {MAX_FRAMES}")
+        return {"error": f"Animation exceeds maximum frame limit ({MAX_FRAMES} frames). Please reduce the number of frames."}
 
     logger.info(f"Playing animation: frame_count={len(frame_ids)}")
 

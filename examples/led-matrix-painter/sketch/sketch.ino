@@ -37,7 +37,7 @@ void load_frame(std::array<uint32_t,5> animation_bytes){
     return;
   }
 
-  // Maximum 50 frames to avoid stack overflow
+  // Limit frames to MAX_FRAMES to avoid buffer overflow
   if (animation_frame_count >= MAX_FRAMES) {
     Serial.print("[sketch] Too many frames, truncating to ");
     Serial.println(MAX_FRAMES);
