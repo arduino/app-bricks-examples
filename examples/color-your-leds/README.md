@@ -19,7 +19,7 @@ The example uses the following Brick:
 ### Hardware
 
 - Arduino UNO Q (x1)
-- USB-C® to USB-A Cable (x1)
+- USB-C® cable (for power and programming) (x1)
 
 ### Software
 
