@@ -380,39 +380,36 @@
   });
   
   // Knobs
-  knobs.forEach(knob => {
-    let isDragging = false;
-    let startY = 0;
-    let startValue = 0;
-    
-    knob.addEventListener('mousedown', (e) => {
-      isDragging = true;
-      startY = e.clientY;
-      startValue = parseFloat(knob.dataset.value) || 0;
-      e.preventDefault();
-    });
-    
-    document.addEventListener('mousemove', (e) => {
-      if (!isDragging) return;
-      
-      const delta = (startY - e.clientY) * 0.5;
-      let newValue = startValue + delta;
-      newValue = Math.max(0, Math.min(100, newValue));
-      
-      knob.dataset.value = newValue;
-      const rotation = (newValue / 100) * 270 - 135;
-      knob.querySelector('.knob-indicator').style.transform = 
-        `translateX(-50%) rotate(${rotation}deg)`;
-      
-      const effectName = knob.id.replace('-knob', '');
-      effects[effectName] = newValue;
-    });
-    
-    document.addEventListener('mouseup', () => {
-      if (isDragging) {
-        isDragging = false;
-        socket.emit('composer:set_effects', { effects });
+  const knobActions = document.querySelectorAll('.knob-action');
+  knobActions.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const action = btn.dataset.action;
+      const knob = btn.closest('.knob');
+      if (!knob) return;
+
+      let currentValue = parseFloat(knob.dataset.value) || 0;
+      const step = 5; // Increment/decrement by 5
+
+      if (action === 'plus') {
+        currentValue += step;
+      } else if (action === 'minus') {
+        currentValue -= step;
       }
+
+      currentValue = Math.max(0, Math.min(100, currentValue)); // Clamp between 0 and 100
+      knob.dataset.value = currentValue;
+
+      // Update the single knob's rotation
+      const rotation = (currentValue / 100) * 270 - 135;
+      const indicator = knob.querySelector('.knob-indicator');
+      if (indicator) {
+        indicator.style.transform = `rotate(${rotation}deg)`;
+      }
+
+      // Update the global state and emit
+      const effectName = knob.id.replace('-knob', '');
+      effects[effectName] = currentValue;
+      socket.emit('composer:set_effects', { effects });
     });
   });
   
@@ -423,8 +420,10 @@
         const value = effects[key] || 0;
         knob.dataset.value = value;
         const rotation = (value / 100) * 270 - 135;
-        knob.querySelector('.knob-indicator').style.transform = 
-          `translateX(-50%) rotate(${rotation}deg)`;
+        const indicator = knob.querySelector('.knob-indicator');
+        if (indicator) {
+          indicator.style.transform = `rotate(${rotation}deg)`;
+        }
       }
     });
   }
