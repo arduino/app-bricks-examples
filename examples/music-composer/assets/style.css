@@ -15,6 +15,24 @@
   --text-dim: #888;
   --grid-line: #333;
   --grid-line-thick: #555;
+  --bg-light: #DAE3E3;
+  --text-dark: #343a40;
+  --separator-light: #C9D2D2;
+  --play-button-bg: #25C2C7;
+  --play-button-hover-bg: #1E9A9E;
+  --pause-button-bg: #25C2C733;
+  --stop-button-bg: #FFBDB433;
+  --white: #FFF;
+  --bpm-bg: #232B2E;
+  --bpm-border: #434F54;
+  --export-hover-bg: #006567;
+  --sequencer-bg: #171E21;
+  --scrollbar-thumb: #374146;
+  --scrollbar-track: #090F11;
+  --scrollbar-thumb-hover: #4a5559;
+  --grid-cell-hover-bg: #222;
+  --grid-cell-playing-border: #AEB8B8;
+  --white-full: #FFFFFF;
 }
 
 * {
@@ -25,9 +43,9 @@
 
 body {
     font-family: 'Open Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #DAE3E3;
+    background-color: var(--bg-light);
     line-height: 1.6;
-    color: #343a40;
+    color: var(--text-dark);
 }
 
 #app {
@@ -58,7 +76,7 @@ body {
 }
 
 .arduino-text {
-    color: #008184;
+    color: var(--cyan);
     font-family: "Roboto Mono", monospace;
     font-size: 20px;
     font-weight: 700;
@@ -77,7 +95,7 @@ body {
   display: inline-block;
   width: 1px;
   height: 24px;
-  background-color: #C9D2D2;
+  background-color: var(--separator-light);
   vertical-align: middle;
 }
 
@@ -86,7 +104,7 @@ body {
   height: 32px;
   width: 80px;
   padding: 0 20px;
-  background: #25C2C7;
+  background: var(--play-button-bg);
   border: none;
   font-weight: 600;
   border-radius: 8px;
@@ -98,7 +116,7 @@ body {
 }
 
 .play-button:hover {
-  background: #1E9A9E;
+  background: var(--play-button-hover-bg);
   transform: scale(1.05);
 }
 
@@ -121,11 +139,11 @@ body {
 }
 
 .pause-button {
-  background: #25C2C733;
+  background: var(--pause-button-bg);
 }
 
 .stop-button {
-  background: #FFBDB433;
+  background: var(--stop-button-bg);
 }
 
 .pause-button:hover, .stop-button:hover {
@@ -145,7 +163,7 @@ body {
 
 .tempo-label {
   font-size: 14px;
-  color: #FFF;
+  color: var(--white);
   font-family: "Roboto Mono", monospace;
   font-weight: 700;
   text-transform: uppercase;
@@ -155,8 +173,8 @@ body {
 .bpm-container {
   display: flex;
   align-items: center;
-  background-color: #232B2E;
-  border: 1px solid #434F54;
+  background-color: var(--bpm-bg);
+  border: 1px solid var(--bpm-border);
   border-radius: 8px;
   padding: 0 5px;
   gap: 2px;
@@ -168,7 +186,7 @@ body {
   padding: 5px 0;
   background: transparent;
   border: none;
-  color: #FFF;
+  color: var(--white);
   font-size: 12px;
   font-style: normal;
   font-weight: 400;
@@ -227,8 +245,8 @@ body {
 .control-group {
   display: flex;
   align-items: center;
-  background-color: #232B2E;
-  border: 1px solid #434F54;
+  background-color: var(--bpm-bg);
+  border: 1px solid var(--bpm-border);
   border-radius: 8px;
 }
 
@@ -256,7 +274,7 @@ body {
   display: block;
   width: 1px;
   height: 35px;
-  background-color: #434F54;
+  background-color: var(--bpm-border);
   margin: 0 5px;
 }
 .icon-btn:hover {
@@ -282,7 +300,7 @@ body {
 }
 
 .export-btn:hover {
-  background: #006567;
+  background: var(--export-hover-bg);
 }
 
 /* Sequencer Container */
@@ -292,7 +310,7 @@ body {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  background: #171E21;
+  background: var(--sequencer-bg);
   border-radius: 8px;
   gap: 16px;
   align-items: flex-start;
@@ -300,7 +318,7 @@ body {
 
 #sequencer-container {
   scrollbar-width: thin;
-  scrollbar-color: #374146 #090F11;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
 
 #sequencer-container::-webkit-scrollbar {
@@ -309,18 +327,18 @@ body {
 }
 
 #sequencer-container::-webkit-scrollbar-track {
-  background-color: #090F11;
+  background-color: var(--scrollbar-track);
   margin-bottom: 8px;
 }
 
 #sequencer-container::-webkit-scrollbar-thumb {
-  background-color: #374146;
+  background-color: var(--scrollbar-thumb);
   border-radius: 6px;
-  border-bottom: 8px solid #090F11;
+  border-bottom: 8px solid var(--scrollbar-track);
 }
 
 #sequencer-container::-webkit-scrollbar-thumb:hover {
-  background-color: #4a5559;
+  background-color: var(--scrollbar-thumb-hover);
 }
 
 .sequencer-controls {
@@ -357,7 +375,7 @@ body {
   padding-right: 10px;
   font-size: 12px;
   font-weight: 600;
-  color: #C9D2D2;
+  color: var(--separator-light);
 }
 
 .grid-col-label {
@@ -367,13 +385,13 @@ body {
   justify-content: center;
   font-size: 11px;
   font-weight: 600;
-  color: #C9D2D2;
+  color: var(--separator-light);
 }
 
 .grid-cell {
   width: 40px;
   height: 35px;
-  background:#232B2E;
+  background: var(--bpm-bg);
   border-radius: 4px;
   cursor: pointer;
   display: flex;
@@ -384,7 +402,7 @@ body {
 }
 
 .grid-cell:hover {
-  background: #222;
+  background: var(--grid-cell-hover-bg);
 }
 
 .grid-cell.active {
@@ -401,7 +419,7 @@ body {
 }
 
 .grid-cell.playing {
-  border: 1px solid #AEB8B8;
+  border: 1px solid var(--grid-cell-playing-border);
 }
 
 .grid-cell.beat-separator {
@@ -416,7 +434,7 @@ body {
   bottom: -1000px;
   right: -3px;
   width: 1px;
-  background-color: #C9D2D2;
+  background-color: var(--separator-light);
 }
 
 /* Control Panel */
@@ -432,7 +450,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  background: #171E21;
+  background: var(--sequencer-bg);
   border-radius: 8px;
   padding: 10px 16px;
 }
@@ -442,7 +460,7 @@ body {
   font-size: 14px;
   font-style: normal;
   font-weight: 700;
-  color: #FFFFFF;
+  color: var(--white-full);
   margin-bottom: 5px;
 }
 
@@ -507,7 +525,7 @@ body {
 
 .knob-control label {
   font-size: 12px;
-  color: #FFF;
+  color: var(--white);
   font-style: normal;
   font-weight: 600;
   text-transform: capitalize;
@@ -528,7 +546,7 @@ body {
   width: 135px;
   height: 80px;
   background: transparent;
-  border: 1px solid #434F54;
+  border: 1px solid var(--bpm-border);
   color: var(--text-light);
   border-radius: 8px;
   cursor: pointer;
@@ -548,7 +566,7 @@ body {
 
 .wave-btn:hover {
   border-color: var(--cyan);
-  background: #1a1a1a;
+  background: var(--bg-dark);
 }
 
 .wave-btn.active {
@@ -575,7 +593,7 @@ body {
   direction: rtl;
   width: 6px;
   height: 100px;
-  background: #25C2C7;
+  background: var(--play-button-bg);
   border-radius: 4px;
   outline: none;
   cursor: pointer;
@@ -587,9 +605,9 @@ body {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #25C2C7 !important;
-  background-color: #25C2C7 !important;
-  color:  #25C2C7 !important;
+  background: var(--play-button-bg) !important;
+  background-color: var(--play-button-bg) !important;
+  color:  var(--play-button-bg) !important;
   cursor: pointer;
 }
 
@@ -597,7 +615,7 @@ body {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #25C2C7 !important;
+  background: var(--play-button-bg) !important;
   cursor: pointer;
   border: none;
 }
