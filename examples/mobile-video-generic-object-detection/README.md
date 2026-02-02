@@ -1,43 +1,51 @@
-# Detect Objects on Camera
+# Detect Objects on Smartphone Camera
 
-The **Detect Objects on Camera** example lets you detect objects on a live feed from a USB camera and visualize bounding boxes around the detections in real-time.
+The **Detect Objects on Smartphone Camera** example lets you detect objects on a live feed from your smartphone's camera and visualize bounding boxes around the detections in real-time.
 
-**Note:** This example must be run in **Network Mode** in the Arduino App Lab, since it requires a USB-C hub and a USB camera.
+**Note:** This example uses your smartphone as a remote camera input. Both the Arduino UNO Q and your smartphone must be connected to the same network.
 
-![Detect Objects on Camera](assets/docs_assets/video-object-detection.png)
+![Detect Objects on Camera](assets/docs_assets/mobile-object-detection.png)
 
-This example uses a pre-trained model to detect objects on a live video feed from a camera. The workflow involves continuously getting the frames from a USB camera, processing it through an AI model using the `video_objectdetection` Brick, and displaying the bounding boxes around detections. The App is managed from an interactive web interface.
+This example uses a pre-trained model to detect objects on a live video feed provided by the **Arduino IoT Remote** mobile app. The workflow involves pairing your phone to the board via a QR code, streaming video over the network, processing it through an AI model using the `video_objectdetection` Brick, and displaying the bounding boxes around detections. The App is managed from an interactive web interface.
 
-## Brick Used
+## Bricks Used
 
 The example uses the following Bricks:
 
-- `web_ui`: Brick to create a web interface to display the classification results and model controls.
-- `video_objectdetection`: Brick to classify objects within a live video feed from a camera.
-  
+- `web_ui`: Brick to create a web interface to display the classification results, model controls, and the pairing QR code.
+- `video_objectdetection`: Brick to classify objects within a live video feed.
+
 ## Hardware and Software Requirements
 
 ### Hardware
 
 - [Arduino® UNO Q](https://store.arduino.cc/products/uno-q)
-- USB camera (x1)
-- USB-C® hub adapter with external power (x1)
-- A power supply (5 V, 3 A) for the USB hub (e.g. a phone charger)
-- Personal computer with internet access
+- Smartphone (iOS or Android)
+- Personal computer with internet access (to view the Web UI)
 
 ### Software
 
-- Arduino App Lab
+- **Arduino App Lab** (running on the board)
+- **Arduino IoT Remote App** (installed on your smartphone)
 
 ## How to Use the Example
 
-1. Connect the USB-C hub to the UNO Q and the USB camera.
-  ![Hardware setup](assets/docs_assets/hardware-setup.png)
-2. Attach the external power supply to the USB-C hub to power everything.
-3. Run the App.
-   ![Arduino App Lab - Run App](assets/docs_assets/launch-app.png)
-4. The App should open automatically in the web browser. You can open it manually via `<board-name>.local:7000`.
-5. Position any object in front of the camera and watch as the App detects and recognizes them.
+### Arduino App Lab Setup
+
+1. Ensure your Arduino UNO Q is powered and connected to the network.
+2. Run the App in Arduino App Lab.
+3. The App should open automatically in the web browser. You can open it manually via `<board-name>.local:7000`.
+4. The Web UI will display a **QR Code**.
+
+### Arduino IoT Remote Setup
+
+5. Install the **Arduino IoT Remote** app on your smartphone from your app store.
+6. Open the Arduino IoT Remote app on your phone and log in with your Arduino account.
+7. Go to Devices, tap on the plus icon to set up a new device and select **Stream phone camera to UNO Q**.
+    ![IoT Remote setup](assets/docs_assets/iot-remote.png)
+8. Scan the QR code.
+8. Once connected, the video stream from your phone will appear on the Web UI.
+9. Point your phone at objects and watch as the App detects and recognizes them.
 
 Try with one of the following objects for a special reaction:
 
@@ -48,128 +56,122 @@ Try with one of the following objects for a special reaction:
 - Dog
 - Potted plant
 
-![Example of special reaction](assets/docs_assets/special-detection.png)
-
 ## How it Works
 
-This example hosts a Web UI where we can see the video input from the camera connected via USB. The video stream is then processed using the `video_objectdetection` Brick. When an object is detected, it is logged along with the confidence score (e.g. 95% potted plant).
+This example hosts a Web UI that orchestrates a connection between your phone's camera and the board. The video stream is received over the network, processed using the `video_objectdetection` Brick, and results are sent back to the browser. When an object is detected, it is logged along with the confidence score (e.g. 95% potted plant).
 
 Here is a brief explanation of the full-stack application:
 
 ### 🔧 Backend (main.py)
 
-- Initializes the app Bricks:
-  - **WebUI** (`ui = WebUI()`): channel to push messages to the frontend.
-  - **VideoObjectDetection** (`detection_stream = VideoObjectDetection()`): runs object detection on the video stream.
+- **Security & Connection**:
+  - Generates a random 6-digit **secret** (`generate_secret`) to secure the connection between the phone and the board.
+  - Initializes a **WebSocketCamera** (`camera = WebSocketCamera(secret=secret, encrypt=True)`). This object acts as the video source.
 
-- Wires detection events to actions using callbacks:
-  - `on_detect_all(send_detections_to_ui)`: sends `{ content, confidence, timestamp }` via `ui.send_message("detection", ...)`
+- **App Initialization**:
+  - **WebUI** (`ui = WebUI()`): Manages the frontend interface.
+  - **VideoObjectDetection**: Initialized with the `camera` object (`VideoObjectDetection(camera, ...)`) to run the object detection on the phone camera stream.
+
+- **Event Handling**:
+  - **Status Updates**: Wires camera status changes (connected, streaming) to the UI.
+  - **UI Connection**: When a user opens the browser (`ui.on_connect`), the backend sends the connection details (IP, port, secret) so the frontend can generate the pairing QR code.
+  - **Detections**: Uses `on_detect_all` to send classification results (`content`, `confidence`, `timestamp`) to the UI.
 
 - **Controls**:
-  - Listens for `override_th` → updates detection threshold
-
-- Exposes:
-  - **Realtime messaging**: publishes detection updates to the frontend via `ui.send_message("detection", message=entry)` so the UI can display live detections.
-
-- Runs with `App.run()` which starts the internal event loop and keeps the detection stream and UI messaging alive.
+  - Listens for `override_th` to update the detection confidence threshold dynamically.
 
 ---
 
 ### 💻 Frontend (index.html + app.js)
 
-- **Video feed**
-  - iframe auto-retries /embed until the camera stream is available
+- **Pairing Process**:
+  - Receives the `secret`, `ip`, and `port` from the backend via Socket.IO.
+  - Generates a **QR Code** using `qrcode.min.js`. This code contains the credentials required for the mobile app to connect.
 
-- **Controls**
-  - Slider, numeric input, and reset button adjust threshold live
-  - Updates sent to backend with: `socket.emit("override_th", value)`
+- **Video Feed**:
+  - Once the phone connects, the interface switches from the QR code view to a live video iframe (`/embed`).
 
-- **Feedback**
-  - Shows GIF + text for known objects (dog, cat, cup, cell phone, clock, potted plant)
-
-- **Recent detections**
-  - Displays the last 5 detections with percentage and timestamp
-
-- **Connection status**
-  - Shows an error message if the WebSocket connection drops
+- **Feedback & Controls**:
+  - **Confidence Slider**: Adjusts the sensitivity of the AI model.
+  - **Visual Feedback**: Displays specific animations when target objects (e.g., "cup", "cat") are detected with high confidence.
+  - **Recent Detections**: Lists the last 5 detected objects with timestamps.
 
 ---
 
 ## Understanding the Code
 
-Once the application is running, you can open it in your browser by navigating to `<BOARD-IP-ADDRESS>:7000`.  
-At that point, the device begins performing the following:
+Once the application is running, you can open it in your browser. At that point, the device begins performing the following:
 
-- Serving the **object detection UI** and exposing realtime transports.
+- **Serving the UI and handling Remote Camera pairing.**
 
-    The UI is hosted by the `WebUI` Brick and communicates with the backend via WebSocket (Socket.IO).  
-    The backend pushes detection messages whenever new objects are found.
+    The backend generates a security code and initializes the WebSocket camera. It waits for the frontend to connect to send these details.
 
     ```python
-    from arduino.app_bricks.web_ui import WebUI
-    from arduino.app_bricks.video_objectdetection import VideoObjectDetection
-    from datetime import datetime, UTC
+    def generate_secret() -> str:
+      characters = string.digits
+      return ''.join(secrets.choice(characters) for _ in range(6))
 
-    ui = WebUI()
-    detection_stream = VideoObjectDetection()
+    secret = generate_secret()
+    ui = WebUI(use_ssl=True)
+    camera = WebSocketCamera(secret=secret, encrypt=True)
 
-    ui.on_message("override_th",
-                  lambda sid, threshold: detection_stream.override_threshold(threshold))
-
-    detection_stream.on_detect_all(send_detections_to_ui)
+    # Send connection details to UI so it can draw the QR code
+    ui.on_connect(lambda sid: ui.send_message("welcome", {
+        "client_name": camera.name, 
+        "secret": secret, 
+        "status": camera.status, 
+        "protocol": camera.protocol, 
+        "ip": camera.ip, 
+        "port": camera.port
+    }))
     ```
 
-    - `detection` (WebSocket message): JSON entry with label, confidence, and timestamp sent to the UI.  
-    - `override_th` (WebSocket → backend): adjusts the confidence threshold live.
+- **Processing video and broadcasting detections.**
 
-- Processing detections and broadcasting updates.
-
-    When the model detects objects, the backend:
-
-    1. Iterates over all detected objects with their confidence scores.  
-    2. Attaches an ISO 8601 UTC timestamp.  
-    3. Publishes each detection as a JSON entry to the frontend channel `detection`.
+    The `VideoObjectDetection` brick consumes frames from the `camera` object. When objects are found, the callback formats the data and sends it to the browser.
 
     ```python
+    detection = VideoObjectDetection(camera, confidence=0.5, debounce_sec=0.0)
+
+    # Register a callback for when all objects are detected
     def send_detections_to_ui(detections: dict):
-        for key, value in detections.items():
-            entry = {
-                "content": key,
-                "confidence": value,
-                "timestamp": datetime.now(UTC).isoformat()
-            }
-            ui.send_message("detection", message=entry)
+      for key, value in detections.items():
+        entry = {
+          "content": key,
+          "confidence": value.get("confidence"),
+          "timestamp": datetime.now(UTC).isoformat()
+        }
+        ui.send_message("detection", entry)
+
+    detection.on_detect_all(send_detections_to_ui)
     ```
 
-- Rendering and interacting on the frontend.
+- **Rendering the QR Code (Frontend).**
 
-    The **index.html + app.js** bundle defines the interface:
-
-    - A **video feed iframe** auto-retries `/embed` until the camera stream is live.  
-    - A **confidence control** (slider + input + reset) lets the user adjust the detection threshold.  
-    - A **feedback section** shows animations and messages for known classes (cat, dog, cup, clock, potted plant, etc.).  
-    - A **recent detections list** displays the latest 5 detections with percentage and timestamp.  
+    In `app.js`, the frontend waits for the `welcome` message to generate the QR code that bridges the phone and the board.
 
     ```javascript
-    const socket = io(`http://${window.location.host}`);
-
-    socket.on('detection', (message) => {
-        printDetection(message);   // update history
-        renderDetections();        // redraw the list
-        updateFeedback(message);   // update feedback panel
+    socket.on('welcome', async (message) => {
+        webcamState.secret = message.secret;
+        // ... update state ...
+        updateDisplay();
     });
+
+    function updateDisplay() {
+        if (webcamState.status != "connected") {
+            // Webcam is not connected yet - show QR code
+            if (webcamState.secret) {
+                generateQRCode(webcamState.secret, webcamState.protocol, webcamState.ip, webcamState.port);
+            }
+        }
+        // ... else show video iframe ...
+    }
     ```
 
-    - `detection` (WebSocket): received whenever the backend publishes results.  
-    - The slider and input dynamically update the backend threshold (`override_th`).  
-    - If the connection drops, an error banner is shown (`error-container`).  
+- **Executing the event loop.**
 
-- Executing the event loop.
-
-    Finally, the backend keeps everything alive with:
+    Finally, the backend keeps the application alive, managing the network traffic between the phone, the AI model, and the browser.
 
     ```python
     App.run()
     ```
-
-    This maintains the object detection stream, callback hooks, threshold overrides, and WebSocket communication with the frontend.
