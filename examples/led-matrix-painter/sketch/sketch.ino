@@ -13,7 +13,7 @@
 Arduino_LED_Matrix matrix;
 
 // Animation playback state (cooperative, interruptible by `stop_animation`)
-static const int MAX_FRAMES = 50;
+static const int MAX_FRAMES = 300;
 static uint32_t animation_buf[MAX_FRAMES][5]; // 4 words + duration
 static int animation_frame_count = 0;
 static volatile bool animation_running = false;
@@ -112,7 +112,7 @@ void animation_tick() {
 
 void setup() {
   matrix.begin();
-  Serial.begin(115200);
+  Serial.begin(9600);
   // configure grayscale bits to 3 so the display accepts 0..7 brightness
   // The backend will send quantized values in 0..(2^3-1) == 0..7.
   matrix.setGrayscaleBits(3);
