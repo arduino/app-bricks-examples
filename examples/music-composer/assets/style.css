@@ -10,7 +10,7 @@
   --bg-dark: #1a1a1a;
   --bg-darker: #0d0d0d;
   --cyan: #008184;
-  --purple: #a855f7;
+  --purple: #734DFF;
   --text-light: #e0e0e0;
   --text-dim: #888;
   --grid-line: #333;
@@ -106,50 +106,30 @@ body {
   background: var(--purple);
 }
 
-.pause-button {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: #ffaa00;
+.pause-button, .stop-button {
+  height: 32px;
+  width: 80px;
+  padding: 0 20px;
   border: none;
+  font-weight: 600;
+  border-radius: 8px;
   cursor: pointer;
+  transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
 }
 
-.pause-button:hover {
-  background: #dd9900;
-  transform: scale(1.05);
-}
-
-.pause-icon {
-  font-size: 20px;
-  color: #000;
+.pause-button {
+  background: #25C2C733;
 }
 
 .stop-button {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: #ff4444;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
+  background: #FFBDB433;
 }
 
-.stop-button:hover {
-  background: #dd3333;
+.pause-button:hover, .stop-button:hover {
   transform: scale(1.05);
-}
-
-.stop-icon {
-  font-size: 20px;
-  color: #000;
 }
 
 .tempo-control {
@@ -421,8 +401,7 @@ body {
 }
 
 .grid-cell.playing {
-  background: var(--cyan) !important;
-  box-shadow: 0 0 15px rgba(0, 217, 255, 0.8);
+  border: 1px solid #AEB8B8;
 }
 
 .grid-cell.beat-separator {
