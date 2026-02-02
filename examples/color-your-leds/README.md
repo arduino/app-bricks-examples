@@ -8,7 +8,7 @@ The **Color your LEDs** example lets you manage the color and state of the four 
 
 Control the four built-in RGB LEDs of the Arduino UNO Q directly from your browser. This example demonstrates how to handle the board's hybrid architecture by simultaneously managing LEDs #1 and #2 connected to the Qualcomm QRB2210 MPU, and LEDs #3 and #4 connected to the STM32U585 MCU. 
 
-## Brick Used
+## Bricks Used
 
 The example uses the following Brick:
 
