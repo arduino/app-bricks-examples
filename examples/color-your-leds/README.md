@@ -30,7 +30,7 @@ The example uses the following Brick:
 ## How to Use the Example
 
 1. Run the App.
-2. Open the App on your browser. This should happen automatically.
+2. The App should open automatically in your browser. You can also open it manually via `<UNO-Q-IP-ADDRESS>:7000`.
 3. Use the toggle switches to turn specific LEDs ON or OFF.
 4. Select a color (for LEDs 1, 2, and 4) or use the color palette (for LED 3) to change the illumination.
 
