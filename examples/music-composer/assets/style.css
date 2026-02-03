@@ -318,7 +318,7 @@ body {
 
 #sequencer-container {
   scrollbar-width: thin;
-  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  scrollbar-color: var(--scrollbar-thumb);
 }
 
 #sequencer-container::-webkit-scrollbar {
@@ -327,14 +327,14 @@ body {
 }
 
 #sequencer-container::-webkit-scrollbar-track {
-  background-color: var(--scrollbar-track);
+  /* background-color: var(--scrollbar-track); */
   margin-bottom: 8px;
 }
 
 #sequencer-container::-webkit-scrollbar-thumb {
   background-color: var(--scrollbar-thumb);
   border-radius: 6px;
-  border-bottom: 8px solid var(--scrollbar-track);
+  /* border-bottom: 8px solid var(--scrollbar-track); */
 }
 
 #sequencer-container::-webkit-scrollbar-thumb:hover {
@@ -358,14 +358,15 @@ body {
 #sequencer-grid {
   display: grid;
   grid-template-columns: 60px repeat(16, 32px);
-  gap: 5px;
+  column-gap: 1px;
+  row-gap: 5px;
   background: transparent;
   padding: 18px 16px 24px 16px;
   overflow-x: auto;
   overflow-y: hidden;
   position: relative;
   scrollbar-width: thin;
-  scrollbar-color: #374146 var(--scrollbar-track);
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
 
 #sequencer-grid::-webkit-scrollbar {
@@ -385,7 +386,7 @@ body {
 
 #sequencer-grid::-webkit-scrollbar-track-piece {
   background-color: var(--scrollbar-track);
-  border-radius: 5px;
+  border-radius: 3px;
 }
 
 #sequencer-grid::-webkit-scrollbar-thumb {
@@ -420,7 +421,7 @@ body {
 }
 
 .grid-cell {
-  width: 40px;
+  width: 35px;
   height: 35px;
   background: var(--bpm-bg);
   border-radius: 4px;
