@@ -62,7 +62,6 @@ body {
     color: #343a40;
 }
 
-/* The switch - a checkbox with a custom look */
 .switch {
   position: relative;
   display: inline-block;
@@ -114,7 +113,6 @@ input:checked + .slider:before {
   transform: translateX(14px);
 }
 
-/* Rounded sliders */
 .slider.round {
   border-radius: 20px;
 }
@@ -291,7 +289,7 @@ input:checked + .slider:before {
     flex-direction: column;
     gap: 12px;
     flex: 1;
-    min-width: 0; /* Fix for flexbox overflow */
+    min-width: 0;
 }
 
 .row {
@@ -383,12 +381,12 @@ input:checked + .slider:before {
     .tools-box, .transform-box, .shift-draw-box {
         flex: 1;
         min-width: 250px;
-        width: 100%; /* Make full width */
+        width: 100%;
     }
 
     .controls-section-right {
-        width: 100%; /* Make full width */
-        max-width: none; /* Remove max-width constraint */
+        width: 100%;
+        max-width: none;
     }
 
     .arduino-text {
@@ -429,7 +427,7 @@ input:checked + .slider:before {
     align-items: center;
     justify-content: center;
 }
-/* brightness visual using background color intensity */
+
 .cell[data-b="1"] { background: #3CE2FF33; }
 .cell[data-b="2"] { background: #3CE2FF4D; }
 .cell[data-b="3"] { background: #3CE2FF66; }
@@ -498,7 +496,7 @@ input:checked + .slider:before {
     align-items: flex-start;
     align-items: center;
     overflow-x: auto;
-    padding-bottom: 8px; /* Add some padding for the scrollbar */
+    padding-bottom: 8px;
 }
 
 .frames::-webkit-scrollbar {
@@ -658,7 +656,7 @@ input {
   font-size: 10px;
   font-style: normal;
   font-weight: 600;
-  line-height: 160%; /* 16px */
+  line-height: 160%;
   letter-spacing: 0.1px;
 }
 
@@ -843,9 +841,9 @@ input {
     .grid {
         grid-template-columns: repeat(13, 20px);
         grid-auto-rows: 20px;
-        gap: 3px; /* Half the original gap for smaller cells */
-        width: calc(13 * 20px + 12 * 3px + 32px); /* 13 cells * 20px + 12 gaps * 3px + 2*16px padding */
-        padding: 16px; /* Keep padding consistent, or adjust as needed */
+        gap: 3px;
+        width: calc(13 * 20px + 12 * 3px + 32px);
+        padding: 16px;
     }
     .cell {
         width: 20px;
@@ -878,25 +876,23 @@ input {
 }
 
 .wrap-around-container input[type="checkbox"] {
-  /* Hide default checkbox */
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  /* Custom checkbox style */
-  width: 18px; /* Slightly larger */
-  height: 18px; /* Slightly larger */
+  width: 18px;
+  height: 18px;
   border: 1px solid #ccc;
   border-radius: 4px;
   cursor: pointer;
   outline: none;
   transition: background-color 0.2s, border-color 0.2s;
   position: relative;
-  background-color: transparent; /* Transparent background */
+  background-color: transparent;
 }
 
 /* Style for the checked state */
 .wrap-around-container input[type="checkbox"]:checked {
-  background-color: #008184; /* Arduino blue */
+  background-color: #008184;
   border-color: #008184;
 }
 
@@ -908,13 +904,13 @@ input {
 .wrap-around-container input[type="checkbox"]:checked::before {
   content: '';
   position: absolute;
-  top: 50%; /* Center vertically */
-  left: 50%; /* Center horizontally */
+  top: 50%;
+  left: 50%;
   width: 3px;
   height: 7px;
   border: solid white;
   border-width: 0 2px 2px 0;
-  transform: translate(-50%, -50%) rotate(45deg); /* Centering with transform */
+  transform: translate(-50%, -50%) rotate(45deg);
 }
 
 .shift-buttons {
@@ -968,8 +964,8 @@ input {
 }
 
 .shift-btn img {
-  width: 16px; /* Keep icon size */
-  height: 16px; /* Keep icon size */
+  width: 16px;
+  height: 16px;
 }
 
 .info-btn {

@@ -623,13 +623,17 @@ function renderFrames(){
     for(let r=0;r<ROWS;r++){
       const row = rows[r];
       for(let c=0;c<COLS;c++){
-        let isOn = false;
-        if (Array.isArray(row)) {
-          isOn = (row[c] || 0) > 0;
-        } else if (typeof row === 'string') {
-          isOn = row[c] === '1';
+        const brightness = Array.isArray(row) ? (row[c] || 0) : (row[c] === '1' ? (BRIGHTNESS_LEVELS - 1) : 0);
+        const dot = document.createElement('div');
+        if (brightness > 0) {
+            const alphaHex = {
+                1: '33', 2: '4D', 3: '66', 4: '80', 5: '99', 6: 'B3', 7: 'D9'
+            }[brightness] || 'FF'; // Default to full opacity if out of range
+            dot.style.background = `#3CE2FF${alphaHex}`;
+        } else {
+            dot.style.background = 'transparent';
         }
-        const dot = document.createElement('div'); dot.style.background = isOn ? '#3CE2FF' : 'transparent'; thumb.appendChild(dot);
+        thumb.appendChild(dot);
       }
     }
     const name = document.createElement('div'); name.className = 'frame-name'; name.textContent = f.name || ('Frame ' + f.id);
