@@ -4,12 +4,14 @@
 
 import secrets
 import string
+from datetime import datetime, UTC
 
 from arduino.app_utils import App
 from arduino.app_bricks.web_ui import WebUI
 from arduino.app_bricks.video_objectdetection import VideoObjectDetection
 from arduino.app_peripherals.camera import WebSocketCamera
-from datetime import datetime, UTC
+from arduino.app_utils.image import resized
+
 
 def generate_secret() -> str:
   characters = string.digits
@@ -17,8 +19,8 @@ def generate_secret() -> str:
 
 secret = generate_secret()
 
-ui = WebUI(use_ssl=True)
-camera = WebSocketCamera(secret=secret, encrypt=True)
+ui = WebUI(use_tls=True)
+camera = WebSocketCamera(secret=secret, encrypt=True, adjustments=resized((640, 480), maintain_ratio=True))
 
 camera.on_status_changed(lambda evt_type, data: ui.send_message(evt_type, data))
 detection = VideoObjectDetection(camera, confidence=0.5, debounce_sec=0.0)
