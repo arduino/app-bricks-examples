@@ -20,7 +20,8 @@ def generate_secret() -> str:
 secret = generate_secret()
 
 ui = WebUI(use_tls=True)
-camera = WebSocketCamera(secret=secret, encrypt=True, adjustments=resized((640, 480), maintain_ratio=True))
+resolution = (480, 640)  # Portrait resolution for mobile devices
+camera = WebSocketCamera(resolution=resolution, secret=secret, encrypt=True, adjustments=resized(resolution, maintain_ratio=True))
 
 camera.on_status_changed(lambda evt_type, data: ui.send_message(evt_type, data))
 detection = VideoObjectDetection(camera, confidence=0.5, debounce_sec=0.0)
