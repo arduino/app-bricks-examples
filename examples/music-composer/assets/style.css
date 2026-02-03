@@ -593,10 +593,17 @@ body {
   direction: rtl;
   width: 6px;
   height: 100px;
-  background: var(--play-button-bg);
+  background: linear-gradient(to top, #25C2C7 80%, #090F11 80%);
   border-radius: 4px;
   outline: none;
   cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.vertical-slider::-webkit-slider-track {
+  background: transparent;
+  border: none;
 }
 
 .vertical-slider::-webkit-slider-thumb {
@@ -605,19 +612,27 @@ body {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: var(--play-button-bg) !important;
-  background-color: var(--play-button-bg) !important;
-  color:  var(--play-button-bg) !important;
+  background: var(--play-button-bg);
   cursor: pointer;
+}
+
+.vertical-slider::-moz-range-track {
+  background: transparent;
+  border: none;
 }
 
 .vertical-slider::-moz-range-thumb {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: var(--play-button-bg) !important;
+  background: var(--play-button-bg);
   cursor: pointer;
   border: none;
+}
+
+.vertical-slider::-moz-range-progress {
+  background: var(--play-button-bg);
+  border-radius: 4px;
 }
 
 .volume-icon {
