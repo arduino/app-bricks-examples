@@ -128,7 +128,9 @@
     for (let step = 0; step < totalSteps; step++) {
       const label = document.createElement('div');
       label.className = 'grid-col-label';
-      label.textContent = step + 1;
+      if (step % 4 === 0) {
+        label.textContent = step / 4 + 1;
+      }
       sequencerGrid.appendChild(label);
     }
 

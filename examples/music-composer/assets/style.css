@@ -382,10 +382,11 @@ body {
   height: 30px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   font-size: 11px;
   font-weight: 600;
   color: var(--separator-light);
+  padding-left: 4px;
 }
 
 .grid-cell {
@@ -514,13 +515,17 @@ body {
 }
 
 .knob-minus {
-  bottom: 5px;
-  left: -5px;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
 }
 
 .knob-plus {
-  bottom: 5px;
-  right: -5px;
+  top: 0;
+  right: 0;
+  width: 50%;
+  height: 100%;
 }
 
 .knob-control label {
