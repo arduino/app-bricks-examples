@@ -220,7 +220,7 @@
 
     // Auto-scroll to keep current step visible
     if (step >= 0) {
-      const container = document.getElementById('sequencer-container');
+      const container = document.getElementById('sequencer-grid');
       const cellWidth = 40; // Width of one grid cell
       const targetScroll = (step * cellWidth) - (container.clientWidth / 2);
       container.scrollLeft = Math.max(0, targetScroll);

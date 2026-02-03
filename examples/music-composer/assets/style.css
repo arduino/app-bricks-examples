@@ -313,7 +313,7 @@ body {
   background: var(--sequencer-bg);
   border-radius: 8px;
   gap: 16px;
-  align-items: flex-start;
+  overflow-x: hidden;
 }
 
 #sequencer-container {
@@ -360,11 +360,41 @@ body {
   grid-template-columns: 60px repeat(16, 32px);
   gap: 5px;
   background: transparent;
-  min-width: min-content;
-  padding: 10px;
+  padding: 18px 16px 24px 16px;
   overflow-x: auto;
   overflow-y: hidden;
   position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: #374146 var(--scrollbar-track);
+}
+
+#sequencer-grid::-webkit-scrollbar {
+  height: 10px;
+  background: transparent;
+}
+
+#sequencer-grid::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+#sequencer-grid::-webkit-scrollbar-track {
+  background: transparent;
+  margin-left: 16px;
+  margin-right: 16px;
+}
+
+#sequencer-grid::-webkit-scrollbar-track-piece {
+  background-color: var(--scrollbar-track);
+  border-radius: 5px;
+}
+
+#sequencer-grid::-webkit-scrollbar-thumb {
+  background-color: #374146;
+  border-radius: 5px;
+}
+
+#sequencer-grid::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
 }
 
 .grid-row-label {
@@ -431,8 +461,8 @@ body {
 .grid-cell.beat-separator::after {
   content: '';
   position: absolute;
-  top: -1000px;
-  bottom: -1000px;
+  top: -18px;
+  bottom: 0;
   right: -3px;
   width: 1px;
   background-color: var(--separator-light);
