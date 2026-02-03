@@ -333,6 +333,11 @@ async function initEditor(){
       // Mark as loaded in sidebar
       markLoaded(frame);
 
+      if (frame) {
+          selectedFrameIds = [frame.id];
+          lastSelectedFrameId = frame.id;
+      }
+
       // Reset history for the new frame
       history = [];
       historyIndex = -1;
@@ -340,6 +345,9 @@ async function initEditor(){
       updateUndoRedoButtons();
 
       console.debug('[ui] initEditor loaded frame:', frame.id);
+
+      // Refresh the frames list to show this new/loaded frame
+      await refreshFrames();
     }
   } catch (err) {
     console.warn('[ui] initEditor failed', err);
@@ -541,6 +549,19 @@ async function refreshFrames(){
     const data = await fetchWithHandling('/list_frames', {}, 'json', 'refresh frames');
     sessionFrames = data.frames || [];
     renderFrames();
+
+    // If no frame is currently loaded, attempt to load the last frame
+    if (loadedFrameId === null && sessionFrames.length > 0) {
+        const lastFrame = sessionFrames[sessionFrames.length - 1];
+        loadedFrameId = lastFrame.id;
+        loadedFrame = lastFrame;
+        selectedFrameIds = [lastFrame.id]; // Select the last frame
+        lastSelectedFrameId = lastFrame.id;
+        // Also update the grid and vector display for this implicitly loaded frame
+        setGridFromRows(lastFrame.rows || []);
+        if (lastFrame.vector) showVectorText(lastFrame.vector);
+        if (frameTitle) frameTitle.textContent = lastFrame.name || `Frame ${lastFrame.id}`;
+    }
 
     // Re-apply loaded state after rendering
     if(loadedFrameId !== null && loadedFrame !== null){
@@ -954,7 +975,6 @@ async function handleNewFrameClick() {
 
 // Initialize editor on page load
 initEditor();
-refreshFrames();
 
 if (clearBtn) {
   clearBtn.addEventListener('click', ()=>{
@@ -1063,6 +1083,20 @@ document.addEventListener('DOMContentLoaded', () => {
           }
       });
   }
+
+  // Popover logic
+  const infoBtns = document.querySelectorAll('.info-btn');
+  infoBtns.forEach(img => {
+      const popover = img.nextElementSibling;
+      if (popover && popover.classList.contains('popover')) {
+          img.addEventListener('mouseover', () => {
+              popover.style.display = 'block';
+          });
+          img.addEventListener('mouseout', () => {
+              popover.style.display = 'none';
+          });
+      }
+  });
 });
 // --- Option Buttons Functionality ---
 const copyAnimBtn = document.getElementById('copy-anim');
@@ -1213,5 +1247,13 @@ if (applyDurationBtn) {
 
     await Promise.all(updatePromises);
     await refreshFrames();
+  });
+}
+
+if (allFramesDurationInput) {
+  allFramesDurationInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      applyDurationBtn.click(); // Simulate a click on the Apply button
+    }
   });
 }

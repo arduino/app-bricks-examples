@@ -380,9 +380,15 @@ input:checked + .slider:before {
         flex-wrap: wrap;
     }
 
-    .tools-box, .transform-box {
+    .tools-box, .transform-box, .shift-draw-box {
         flex: 1;
         min-width: 250px;
+        width: 100%; /* Make full width */
+    }
+
+    .controls-section-right {
+        width: 100%; /* Make full width */
+        max-width: none; /* Remove max-width constraint */
     }
 
     .arduino-text {
@@ -397,7 +403,6 @@ input:checked + .slider:before {
         height: 16px;
         width: auto;
     }
-
 }
 
 /* Specific styles for LED Matrix Painter components */
@@ -965,4 +970,44 @@ input {
 .shift-btn img {
   width: 16px; /* Keep icon size */
   height: 16px; /* Keep icon size */
+}
+
+.info-btn {
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+    border-radius: 50%;
+    background-color: #C9D2D2;
+    padding: 2px;
+    transition: background 0.2s;
+}
+
+.popover {
+    position: absolute;
+    left: 105%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 8px;
+    display: none;
+    background: #fff;
+    padding: 16px 24px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    z-index: 10;
+    width: 220px;
+    color: #2C353A;
+    font-weight: 100;
+    font-family: "Open Sans";
+    font-size: 12px;
+    line-height: 170%;
+    letter-spacing: 0.12px;
+}
+
+.popover.active {
+    display: block;
+}
+
+#brightness-alpha-value {
+  font-size: 12px;
+  font-weight: bold;
 }
