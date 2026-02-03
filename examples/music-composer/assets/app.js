@@ -259,36 +259,23 @@
   }
 
   function startLocalPlayback() {
-    // Calculate sequence length: find last note step, minimum 16
-    const lastNoteStep = findLastNoteStep();
-    const effectiveLength = lastNoteStep >= 0 ? Math.max(lastNoteStep + 1, 16) : 16;
+    // The length of the playback is the total number of steps visible on the grid.
+    const effectiveLength = totalSteps;
 
-    console.log('=== PLAYBACK START ===');
-    console.log('Grid:', grid);
-    console.log('Last note step:', lastNoteStep);
-    console.log('Effective length:', effectiveLength);
-    console.log('BPM:', bpm);
-
-    // Calculate step duration in milliseconds
-    const stepDurationMs = (60000 / bpm) / 2; // Eighth notes: 2 per beat
+    // Calculate step duration in milliseconds for 16th notes (4 per beat)
+    const stepDurationMs = (60000 / bpm) / 4;
 
     currentStep = 0;
     highlightStep(currentStep);
 
     playInterval = setInterval(() => {
       currentStep++;
-      console.log(`Step ${currentStep}/${effectiveLength}`);
       if (currentStep >= effectiveLength) {
-        // Sequence ended
-        console.log('Playback ended at step', currentStep);
         stopLocalPlayback();
         return;
       }
       highlightStep(currentStep);
-      log.debug('Frontend step:', currentStep);
     }, stepDurationMs);
-
-    log.info('Local playback started:', stepDurationMs, 'ms per step, will play', effectiveLength, 'steps');
   }
 
   function stopLocalPlayback() {
@@ -441,6 +428,7 @@
 
   // Initialize grid
   buildGrid();
+  updateEffectsKnobs();
 
   // Ensure play button is visible and stop button is hidden on load
   playBtn.style.display = 'flex';
