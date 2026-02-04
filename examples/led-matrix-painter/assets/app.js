@@ -623,7 +623,7 @@ function renderFrames(){
     for(let r=0;r<ROWS;r++){
       const row = rows[r];
       for(let c=0;c<COLS;c++){
-        const brightness = Array.isArray(row) ? (row[c] || 0) : (row[c] === '1' ? (BRIGHTNESS_LEVELS - 1) : 0);
+        const brightness = Array.isArray(row) ? (row[c] || 0) : (typeof row === 'string' && row[c] === '1' ? (BRIGHTNESS_LEVELS - 1) : 0);
         const dot = document.createElement('div');
         if (brightness > 0) {
             const alphaHex = {
