@@ -112,7 +112,7 @@ void animation_tick() {
 
 void setup() {
   matrix.begin();
-  Serial.begin(9600);
+  Serial.begin(115200);
   // configure grayscale bits to 3 so the display accepts 0..7 brightness
   // The backend will send quantized values in 0..(2^3-1) == 0..7.
   matrix.setGrayscaleBits(3);
