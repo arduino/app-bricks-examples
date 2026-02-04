@@ -113,7 +113,8 @@ Once the application is running, you can open it in your browser. At that point,
 
     secret = generate_secret()
     ui = WebUI(use_ssl=True)
-    camera = WebSocketCamera(secret=secret, encrypt=True)
+    resolution = (480, 640)  # Portrait resolution for mobile devices
+    camera = WebSocketCamera(resolution=resolution, secret=secret, encrypt=True, adjustments=resized(resolution, maintain_ratio=True))
 
     # Send connection details to UI so it can draw the QR code
     ui.on_connect(lambda sid: ui.send_message("welcome", {
