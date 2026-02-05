@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+import numpy as np
+import re
 import json
 from arduino.app_utils import Frame
 
@@ -85,6 +87,8 @@ class AppFrame(Frame):
         self.name = name
         self.position = position
         self.duration_ms = duration_ms
+        # Export-friendly sanitized name used for C identifiers and exports
+        self._export_name = self._sanitize_c_ident(self.name or f"frame_{self.id}")
 
     # -- JSON serialization/deserialization for frontend --------------------------------
     @classmethod
@@ -141,15 +145,20 @@ class AppFrame(Frame):
     def to_c_string(self) -> str:
         """Export the frame as a C vector string.
 
-        The Frame is rescaled to the 0-255 range prior to exporting as board-compatible C source.
+        The frame is rescaled to the quantized range [0..brightness_levels-1]
+        for preview and code-panel output. This produces a `uint8_t` array
+        initializer suitable for display in the UI's code panel.
 
         Returns:
             str: C source fragment containing a const array initializer.
         """
-        c_type = "uint32_t"
-        scaled_arr = self.rescale_quantized_frame(scale_max=255)
+        c_type = "uint8_t"
+        # use export-friendly sanitized name
+        snake_name = self._export_name
+        # represent preview values in the quantized range (0..brightness_levels-1)
+        scaled_arr = self.rescale_quantized_frame(scale_max=max(1, int(self.brightness_levels) - 1))
 
-        parts = [f"const {c_type} {self.name}[] = {{"]
+        parts = [f"{c_type} {snake_name} [] = {{"]
         rows = scaled_arr.tolist()
         # Emit the array as row-major integer values, preserving row breaks for readability
         for r_idx, row in enumerate(rows):
@@ -161,6 +170,59 @@ class AppFrame(Frame):
         parts.append("};")
         parts.append("")
         return "\n".join(parts)
+
+    def to_board_bytes(self) -> bytes:
+        """Return the byte buffer (row-major) representing this frame for board consumption.
+
+        This overrides ``Frame.to_board_bytes()`` to produce bytes scaled to
+        the AppFrame's configured ``brightness_levels - 1`` (for example
+        0..7 when ``brightness_levels == 8``). The override keeps this
+        behaviour local to the application layer and avoids modifying the
+        upstream ``Frame`` implementation.
+
+        Returns:
+            bytes: Flattened row-major byte sequence suitable for the firmware.
+        """
+        scaled = self.rescale_quantized_frame(scale_max=max(1, int(self.brightness_levels) - 1))
+        flat = [int(x) for x in scaled.flatten().tolist()]
+        return bytes(flat)
+
+    @staticmethod
+    def _sanitize_c_ident(name: str, fallback: str = "frame") -> str:
+        """Return a safe C identifier derived from ``name``.
+
+        This produces a lower-case identifier containing only ASCII
+        letters, digits and underscores. Multiple non-allowed
+        characters collapse into a single underscore. Leading digits are
+        prefixed with ``f_`` to ensure the identifier is valid. If the
+        resulting name is empty, ``fallback`` is returned.
+
+        Args:
+            name: The original name to sanitize.
+            fallback: The fallback identifier used when the sanitized
+                result would be empty.
+
+        Returns:
+            A sanitized, C-safe identifier string.
+        """
+
+        if name is None:
+            return fallback
+        s = str(name).strip().lower()
+        if not s:
+            return fallback
+
+        # keep letters, digits and underscore
+        s = re.sub(r'[^a-z0-9_]', '_', s)
+        # collapse multiple underscores
+        s = re.sub(r'_+', '_', s)
+        # remove leading/trailing underscore
+        s = s.strip('_')
+        if not s:
+            return fallback
+        if re.match(r'^[0-9]', s):
+            s = f"f_{s}"
+        return s
     
     # -- create empty AppFrame --------------------------------
     @classmethod
@@ -239,6 +301,36 @@ class AppFrame(Frame):
         
         return hex_values
 
+    @staticmethod
+    def frames_to_c_animation_array(frames: list, name: str = 'Animation') -> str:
+        """Produce a C initializer for an animation sequence.
+
+        Args:
+            frames (list[AppFrame]): Frames that make up the animation.
+            name (str): Desired C identifier for the animation array. Will be
+                sanitized into a valid C identifier.
+
+        Returns:
+            str: C source fragment defining a `const uint32_t NAME[][5]` array
+                where each entry is `{word0, word1, word2, word3, duration}`.
+
+        Example:
+            const uint32_t Animation[][5] = {
+                {0x..., 0x..., 0x..., 0x..., 1000},
+                ...
+            };
+        """
+        # sanitize animation name into a simple C identifier
+        snake = AppFrame._sanitize_c_ident(name or 'Animation')
+        parts = [f"const uint32_t {snake}[][5] = {{"]
+        for frame in frames:
+            hex_values = frame.to_animation_hex()
+            hex_str = ", ".join(hex_values)
+            parts.append(f"    {{{hex_str}}},  // {getattr(frame, '_export_name', frame.name)}")
+        parts.append("};")
+        parts.append("")
+        return "\n".join(parts)
+
     # -- Frame.from_rows override (for subclass construction only) ---------------------------
     @classmethod
     def from_rows(
@@ -255,7 +347,12 @@ class AppFrame(Frame):
         **Do NOT use it in the app directly, please use `AppFrame.from_json()` or `AppFrame.from_record()` instead.**
         
         This method overrides Frame.from_rows which constructs a Frame and it is intended
-        only for subclass construction and coherence with Frame API.
+        only for subclass construction and coherence with Frame API and accepts frontend rows either
+        already expressed in the target brightness range or in 8-bit
+        representation (0..255). If input values are out-of-range for the
+        requested ``brightness_levels``, the method will attempt to interpret
+        the input as 8-bit data and rescale it to the target range
+        automatically for retrocompatibility with previous versions.
 
         We delegate parsing/validation to Frame.from_rows and then construct an
         AppFrame instance with subclass-specific attributes.
@@ -273,12 +370,20 @@ class AppFrame(Frame):
         Returns:
             AppFrame: newly constructed AppFrame instance.
         """
-        # Use Frame to parse rows into a numpy array/frame and to validate it
-        frame_instance = super().from_rows(rows, brightness_levels=brightness_levels)
-
-        # Get the validated numpy array as a writable copy
-        arr = frame_instance.arr.copy()
-
-        # Construct an AppFrame using the validated numpy array and brightness_levels
-        return cls(id, name, position, duration_ms, arr, brightness_levels=frame_instance.brightness_levels)
+        # Try to parse rows assuming they're already in the requested
+        # brightness range. If parsing fails because values are out-of-range
+        # (e.g. legacy rows in 0..255), attempt to parse them as 0..255 and
+        # rescale to the requested `brightness_levels - 1`.
+        try:
+            frame_instance = super().from_rows(rows, brightness_levels=brightness_levels)
+            arr = frame_instance.arr.copy()
+            return cls(id, name, position, duration_ms, arr, brightness_levels=frame_instance.brightness_levels)
+        except ValueError:
+            # Fallback: parse as 8-bit input and rescale down to target levels
+            raw = super().from_rows(rows, brightness_levels=256)
+            # rescale from 0..255 -> 0..(brightness_levels-1)
+            target_max = max(1, int(brightness_levels) - 1)
+            scaled = raw.rescale_quantized_frame(scale_max=target_max)
+            arr = scaled.copy()
+            return cls(id, name, position, duration_ms, arr, brightness_levels=brightness_levels)
 

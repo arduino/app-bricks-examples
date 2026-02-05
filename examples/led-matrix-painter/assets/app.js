@@ -72,10 +72,36 @@ let cells = [];
 let sessionFrames = [];
 let loadedFrameId = null; // ID of the frame currently loaded in editor
 let loadedFrame = null; // Full frame object currently loaded
+let selectedFrameIds = [];
+let lastSelectedFrameId = null;
+
+let history = [];
+let historyIndex = -1;
 
 // Auto-persist timer (unified: board + DB together)
 let persistTimeout = null;
 const AUTO_PERSIST_DELAY_MS = 150; // 150ms unified delay
+
+function updateUndoRedoButtons() {
+    const undoBtn = document.getElementById('undo-btn');
+    const redoBtn = document.getElementById('redo-btn');
+    if (undoBtn) undoBtn.disabled = historyIndex <= 0;
+    if (redoBtn) redoBtn.disabled = historyIndex >= history.length - 1;
+}
+
+function pushStateToHistory(gridState) {
+    // If we are not at the end of the history, truncate it
+    if (historyIndex < history.length - 1) {
+        history = history.slice(0, historyIndex + 1);
+    }
+    // Don't push duplicate states
+    if (history.length > 0 && JSON.stringify(history[history.length-1]) === JSON.stringify(gridState)) {
+      return;
+    }
+    history.push(gridState);
+    historyIndex++;
+    updateUndoRedoButtons();
+}
 
 async function loadConfig(brightnessSlider, brightnessValue){
   try{
@@ -138,6 +164,18 @@ function updateArrowButtonsState() {
     frameForwardBtn.disabled = currentIndex === sessionFrames.length - 1;
 }
 
+function updateSelectionVisuals() {
+    const frameElements = document.querySelectorAll('.frame-item');
+    frameElements.forEach(el => {
+        const id = parseInt(el.dataset.id, 10);
+        if (selectedFrameIds.includes(id)) {
+            el.classList.add('selected');
+        } else {
+            el.classList.remove('selected');
+        }
+    });
+}
+
 function markLoaded(frame){
   const oldFrameId = loadedFrameId; // Store the old ID
 
@@ -146,7 +184,6 @@ function markLoaded(frame){
     const prev = document.querySelector(`#frames [data-id='${oldFrameId}']`);
     if(prev) {
       prev.classList.remove('loaded');
-      prev.classList.remove('selected');
     }
   }
 
@@ -160,7 +197,6 @@ function markLoaded(frame){
       const el = document.querySelector(`#frames [data-id='${frame.id}']`);
       if(el) {
         el.classList.add('loaded');
-        el.classList.add('selected');
       }
     }catch(e){/* ignore */}
   }
@@ -172,10 +208,11 @@ function clearLoaded(){
   const prev = document.querySelector(`#frames [data-id='${loadedFrameId}']`);
   if(prev) {
     prev.classList.remove('loaded');
-    prev.classList.remove('selected');
   }
   loadedFrameId = null;
   loadedFrame = null;
+  selectedFrameIds = [];
+  lastSelectedFrameId = null;
   updateArrowButtonsState();
 }
 
@@ -256,7 +293,7 @@ function getRows13(){
     let s = '';
     for(let c=0;c<COLS;c++){
       const idx = r*COLS + c;
-      s += cells[idx].classList.contains('on') ? '1' : '0';
+      s += cells[idx].dataset.b ? '1' : '0';
     }
     rows.push(s);
   }
@@ -296,7 +333,21 @@ async function initEditor(){
       // Mark as loaded in sidebar
       markLoaded(frame);
 
+      if (frame) {
+          selectedFrameIds = [frame.id];
+          lastSelectedFrameId = frame.id;
+      }
+
+      // Reset history for the new frame
+      history = [];
+      historyIndex = -1;
+      pushStateToHistory(collectGridBrightness());
+      updateUndoRedoButtons();
+
       console.debug('[ui] initEditor loaded frame:', frame.id);
+
+      // Refresh the frames list to show this new/loaded frame
+      await refreshFrames();
     }
   } catch (err) {
     console.warn('[ui] initEditor failed', err);
@@ -419,34 +470,45 @@ async function playAnimation() {
 if (playAnimationBtn) playAnimationBtn.addEventListener('click', playAnimation); else console.warn('[ui] play animation button not found');
 
 if (stopAnimationBtn) {
-  stopAnimationBtn.addEventListener('click', () => {
+  stopAnimationBtn.addEventListener('click', async () => {
+    // Stop frontend animation loop
     if (animationTimeout) {
       clearTimeout(animationTimeout);
       animationTimeout = null;
       playAnimationBtn.disabled = false;
+    }
+    // Stop animation on board via backend
+    try {
+      await fetch('/stop_animation', { method: 'POST' });
       showVectorText('Animation stopped');
+    } catch (err) {
+      console.error('Failed to stop animation on board:', err);
+      showVectorText('Animation stopped (frontend only)');
     }
   });
 }
 
-if (frameForwardBtn) {
-    frameForwardBtn.addEventListener('click', () => {
-        if (!loadedFrameId) return;
-        const currentIndex = sessionFrames.findIndex(f => f.id === loadedFrameId);
-        if (currentIndex < sessionFrames.length - 1) {
-            const nextFrame = sessionFrames[currentIndex + 1];
-            loadFrameIntoEditor(nextFrame.id);
+const undoBtn = document.getElementById('undo-btn');
+const redoBtn = document.getElementById('redo-btn');
+
+if (undoBtn) {
+    undoBtn.addEventListener('click', () => {
+        if (historyIndex > 0) {
+            historyIndex--;
+            setGridFromRows(history[historyIndex]);
+            schedulePersist();
+            updateUndoRedoButtons();
         }
     });
 }
 
-if (frameBackBtn) {
-    frameBackBtn.addEventListener('click', () => {
-        if (!loadedFrameId) return;
-        const currentIndex = sessionFrames.findIndex(f => f.id === loadedFrameId);
-        if (currentIndex > 0) {
-            const prevFrame = sessionFrames[currentIndex - 1];
-            loadFrameIntoEditor(prevFrame.id);
+if (redoBtn) {
+    redoBtn.addEventListener('click', () => {
+        if (historyIndex < history.length - 1) {
+            historyIndex++;
+            setGridFromRows(history[historyIndex]);
+            schedulePersist();
+            updateUndoRedoButtons();
         }
     });
 }
@@ -488,14 +550,27 @@ async function refreshFrames(){
     sessionFrames = data.frames || [];
     renderFrames();
 
+    // If no frame is currently loaded, attempt to load the last frame
+    if (loadedFrameId === null && sessionFrames.length > 0) {
+        const lastFrame = sessionFrames[sessionFrames.length - 1];
+        loadedFrameId = lastFrame.id;
+        loadedFrame = lastFrame;
+        selectedFrameIds = [lastFrame.id]; // Select the last frame
+        lastSelectedFrameId = lastFrame.id;
+        // Also update the grid and vector display for this implicitly loaded frame
+        setGridFromRows(lastFrame.rows || []);
+        if (lastFrame.vector) showVectorText(lastFrame.vector);
+        if (frameTitle) frameTitle.textContent = lastFrame.name || `Frame ${lastFrame.id}`;
+    }
+
     // Re-apply loaded state after rendering
     if(loadedFrameId !== null && loadedFrame !== null){
         const el = document.querySelector(`#frames [data-id='${loadedFrameId}']`);
         if(el) {
             el.classList.add('loaded');
-            el.classList.add('selected');
         }
     }
+    updateSelectionVisuals(); // Update selection visuals
     updateArrowButtonsState();
   }catch(e){ console.warn(e) }
 }
@@ -548,13 +623,17 @@ function renderFrames(){
     for(let r=0;r<ROWS;r++){
       const row = rows[r];
       for(let c=0;c<COLS;c++){
-        let isOn = false;
-        if (Array.isArray(row)) {
-          isOn = (row[c] || 0) > 0;
-        } else if (typeof row === 'string') {
-          isOn = row[c] === '1';
+        const brightness = Array.isArray(row) ? (row[c] || 0) : (typeof row === 'string' && row[c] === '1' ? (BRIGHTNESS_LEVELS - 1) : 0);
+        const dot = document.createElement('div');
+        if (brightness > 0) {
+            const alphaHex = {
+                1: '33', 2: '4D', 3: '66', 4: '80', 5: '99', 6: 'B3', 7: 'D9'
+            }[brightness] || 'FF'; // Default to full opacity if out of range
+            dot.style.background = `#3CE2FF${alphaHex}`;
+        } else {
+            dot.style.background = 'transparent';
         }
-        const dot = document.createElement('div'); dot.style.background = isOn ? '#3CE2FF' : 'transparent'; thumb.appendChild(dot);
+        thumb.appendChild(dot);
       }
     }
     const name = document.createElement('div'); name.className = 'frame-name'; name.textContent = f.name || ('Frame ' + f.id);
@@ -566,7 +645,7 @@ function renderFrames(){
       fetchWithHandling('/persist_frame', {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ id: f.id, name: newName, duration_ms: f.duration_ms, rows: rows })
+        body: JSON.stringify({ id: f.id, name: newName, duration_ms: f.duration_ms, rows: rows, brightness_levels: BRIGHTNESS_LEVELS })
       }).then(() => refreshFrames());
     });
 
@@ -577,20 +656,36 @@ function renderFrames(){
         fetchWithHandling('/persist_frame', {
           method: 'POST',
           headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({ id: f.id, name: f.name, duration_ms: durationMs, rows: rows })
+          body: JSON.stringify({ id: f.id, name: f.name, duration_ms: durationMs, rows: rows, brightness_levels: BRIGHTNESS_LEVELS })
         }).then(() => refreshFrames());
       }
     });
 
-    // NEW CLICK LOGIC: Single-select and load
+    // NEW CLICK LOGIC: Multi-select and load
     item.addEventListener('click', (e)=>{
-      // Don't do anything if clicking inside an input field during editing
       if (e.target.tagName === 'INPUT') return;
 
-      // If it's already selected, do nothing
-      if (loadedFrameId === f.id) return;
+      const clickedId = f.id;
 
-      loadFrameIntoEditor(f.id); // This function already handles setting loadedFrameId and adding the .loaded class
+      if (e.shiftKey && lastSelectedFrameId !== null) {
+          // Shift-click for range selection
+          const lastIndex = sessionFrames.findIndex(frame => frame.id === lastSelectedFrameId);
+          const currentIndex = sessionFrames.findIndex(frame => frame.id === clickedId);
+
+          const start = Math.min(lastIndex, currentIndex);
+          const end = Math.max(lastIndex, currentIndex);
+
+          selectedFrameIds = sessionFrames.slice(start, end + 1).map(frame => frame.id);
+      } else {
+          // Normal click
+          selectedFrameIds = [clickedId];
+          lastSelectedFrameId = clickedId;
+      }
+
+      if (loadedFrameId !== clickedId) {
+        loadFrameIntoEditor(clickedId);
+      }
+      updateSelectionVisuals();
     });
 
     // drag/drop handlers
@@ -677,6 +772,90 @@ if (invertNotNullBtn) {
   invertNotNullBtn.addEventListener('click', () => transformFrame('invert_not_null'));
 }
 
+const shiftUpBtn = document.getElementById('shift-up');
+const shiftDownBtn = document.getElementById('shift-down');
+const shiftLeftBtn = document.getElementById('shift-left');
+const shiftRightBtn = document.getElementById('shift-right');
+const wrapAroundCheckbox = document.getElementById('wrap-around-checkbox');
+
+if (shiftUpBtn) {
+  shiftUpBtn.addEventListener('click', () => shiftGrid('up'));
+}
+if (shiftDownBtn) {
+  shiftDownBtn.addEventListener('click', () => shiftGrid('down'));
+}
+if (shiftLeftBtn) {
+  shiftLeftBtn.addEventListener('click', () => shiftGrid('left'));
+}
+if (shiftRightBtn) {
+  shiftRightBtn.addEventListener('click', () => shiftGrid('right'));
+}
+
+async function shiftGrid(direction) {
+  console.debug(`[ui] shift ${direction} button clicked`);
+  const grid = collectGridBrightness();
+  const wrapAround = wrapAroundCheckbox.checked;
+  
+  const newGrid = shiftArray(grid, direction, wrapAround);
+
+  setGridFromRows(newGrid);
+  pushStateToHistory(newGrid);
+  schedulePersist();
+}
+
+function shiftArray(grid, direction, wrapAround) {
+    const rows = grid.length;
+    if (rows === 0) return [];
+    const cols = grid[0].length;
+    const newGrid = JSON.parse(JSON.stringify(grid)); // Deep copy
+
+    switch (direction) {
+        case 'up':
+            if (wrapAround) {
+                const firstRow = newGrid.shift();
+                newGrid.push(firstRow);
+            } else {
+                newGrid.shift();
+                newGrid.push(new Array(cols).fill(0));
+            }
+            break;
+        case 'down':
+            if (wrapAround) {
+                const lastRow = newGrid.pop();
+                newGrid.unshift(lastRow);
+            } else {
+                newGrid.pop();
+                newGrid.unshift(new Array(cols).fill(0));
+            }
+            break;
+        case 'left':
+            for (let r = 0; r < rows; r++) {
+                if (wrapAround) {
+                    const firstCell = newGrid[r].shift();
+                    newGrid[r].push(firstCell);
+                } else {
+                    newGrid[r].shift();
+                    newGrid[r].push(0);
+                }
+            }
+            break;
+        case 'right':
+            for (let r = 0; r < rows; r++) {
+                if (wrapAround) {
+                    const lastCell = newGrid[r].pop();
+                    newGrid[r].unshift(lastCell);
+                } else {
+                    newGrid[r].pop();
+                    newGrid[r].unshift(0);
+                }
+            }
+            break;
+    }
+    return newGrid;
+}
+
+
+
 async function loadFrameIntoEditor(id){
   try {
     const data = await fetchWithHandling('/load_frame', {
@@ -701,6 +880,12 @@ async function loadFrameIntoEditor(id){
       if (data.vector) {
         showVectorText(data.vector);
       }
+      
+      // Reset history for the new frame
+      history = [];
+      historyIndex = -1;
+      pushStateToHistory(collectGridBrightness());
+      updateUndoRedoButtons();
 
       console.debug('[ui] loaded frame into editor:', id);
     }
@@ -717,10 +902,18 @@ function setGridFromRows(rows){
       const idx = r*COLS + c;
       if (Array.isArray(row)) {
         const v = clampBrightness(row[c] ?? 0);
-        if (v > 0) { cells[idx].classList.add('on'); cells[idx].dataset.b = String(v); } else { cells[idx].classList.remove('on'); delete cells[idx].dataset.b; }
+        if (v > 0) {
+          cells[idx].dataset.b = String(v);
+        } else {
+          delete cells[idx].dataset.b;
+        }
       } else {
         const s = (row || '').padEnd(COLS,'0');
-        if(s[c] === '1') { cells[idx].classList.add('on'); cells[idx].dataset.b = String(Math.max(0, BRIGHTNESS_LEVELS - 1)); } else { cells[idx].classList.remove('on'); delete cells[idx].dataset.b; }
+        if(s[c] === '1') {
+          cells[idx].dataset.b = String(Math.max(0, BRIGHTNESS_LEVELS - 1));
+        } else {
+          delete cells[idx].dataset.b;
+        }
       }
     }
   }
@@ -736,7 +929,7 @@ async function handleNewFrameClick() {
   console.debug('[ui] new frame button clicked');
 
   // Clear editor
-  cells.forEach(c => { c.classList.remove('on'); delete c.dataset.b; });
+  cells.forEach(c => { delete c.dataset.b; });
   showVectorText('');
 
   // Clear loaded frame reference (we're creating new)
@@ -771,6 +964,12 @@ async function handleNewFrameClick() {
       // Mark as loaded
       markLoaded(data.frame);
 
+      // Reset history for the new frame
+      history = [];
+      historyIndex = -1;
+      pushStateToHistory(collectGridBrightness());
+      updateUndoRedoButtons();
+
       console.debug('[ui] new frame created:', data.frame.id);
     }
   } catch(err) {
@@ -780,13 +979,13 @@ async function handleNewFrameClick() {
 
 // Initialize editor on page load
 initEditor();
-refreshFrames();
 
 if (clearBtn) {
   clearBtn.addEventListener('click', ()=>{
     console.debug('[ui] clear button clicked');
-    cells.forEach(c => { c.classList.remove('on'); delete c.dataset.b; });
+    cells.forEach(c => { delete c.dataset.b; });
     showVectorText('');
+    pushStateToHistory(collectGridBrightness());
     schedulePersist();
   });
 } else {
@@ -796,42 +995,6 @@ if (clearBtn) {
 // 'save-anim' button functionality has been removed as it is no longer part of the UI.
 
 document.addEventListener('DOMContentLoaded', () => {
-  let selectedTool = 'brush';
-  gridEl.dataset.tool = selectedTool;
-
-  const customSelect = document.querySelector('.custom-select');
-  if (customSelect) {
-    const trigger = customSelect.querySelector('.custom-select__trigger');
-    const options = customSelect.querySelectorAll('.custom-option');
-    const triggerImg = trigger.querySelector('img.tool-icon');
-
-    trigger.addEventListener('click', () => {
-      customSelect.classList.toggle('open');
-    });
-
-    options.forEach(option => {
-      option.addEventListener('click', () => {
-        const value = option.getAttribute('data-value');
-        const img = option.querySelector('img.tool-icon');
-
-        if (triggerImg && img) {
-          triggerImg.src = img.src;
-        }
-        customSelect.classList.remove('open');
-
-        selectedTool = value;
-        gridEl.dataset.tool = selectedTool;
-        console.log('Selected tool:', value);
-      });
-    });
-
-    window.addEventListener('click', (e) => {
-      if (!customSelect.contains(e.target)) {
-        customSelect.classList.remove('open');
-      }
-    });
-  }
-
   /* Brightness Alpha Slider */
   const brightnessAlphaSlider = document.getElementById('brightness-alpha-slider');
   const brightnessAlphaValue = document.getElementById('brightness-alpha-value');
@@ -844,6 +1007,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const percent = (value / max) * 100;
       brightnessAlphaSlider.style.setProperty('--slider-value-percent', `${percent}%`);
       brightnessAlphaValue.textContent = value;
+      if (value === 0) {
+        gridEl.dataset.tool = 'eraser';
+      } else {
+        gridEl.dataset.tool = 'brush';
+      }
     };
 
     brightnessAlphaSlider.addEventListener('input', updateSliderBackground);
@@ -859,11 +1027,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!e.target.classList.contains('cell')) return;
 
     const cell = e.target;
-    if (selectedTool === 'brush') {
-      const brightness = brightnessAlphaSlider.value;
-      cell.dataset.b = brightness;
-    } else if (selectedTool === 'eraser') {
+    const brightness = brightnessAlphaSlider.value;
+
+    if (brightness === "0") {
       delete cell.dataset.b;
+    } else {
+      cell.dataset.b = brightness;
     }
   }
 
@@ -876,11 +1045,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isDrawing) {
       draw(e);
     }
+    else {
+      if (!e.target.classList.contains('cell')) return;
+      const brightness = brightnessAlphaSlider.value;
+      if (brightness === "0") {
+        gridEl.dataset.tool = 'eraser';
+      } else {
+        gridEl.dataset.tool = 'brush';
+      }
+    }
   });
 
   window.addEventListener('mouseup', () => {
     if (isDrawing) {
       isDrawing = false;
+      pushStateToHistory(collectGridBrightness());
       schedulePersist();
     }
   });
@@ -888,8 +1067,39 @@ document.addEventListener('DOMContentLoaded', () => {
   gridEl.addEventListener('mouseleave', () => {
     if (isDrawing) {
       isDrawing = false;
+      pushStateToHistory(collectGridBrightness());
       schedulePersist();
     }
+  });
+
+  const framesContainer = document.getElementById('frames');
+  if (framesContainer) {
+      framesContainer.addEventListener('dragover', (e) => {
+          const containerRect = framesContainer.getBoundingClientRect();
+          const mouseX = e.clientX;
+          const edgeThreshold = 50; // Pixels from the edge to trigger scroll
+          const scrollAmount = 10; // Pixels to scroll by
+
+          if (mouseX < containerRect.left + edgeThreshold) {
+              framesContainer.scrollLeft -= scrollAmount;
+          } else if (mouseX > containerRect.right - edgeThreshold) {
+              framesContainer.scrollLeft += scrollAmount;
+          }
+      });
+  }
+
+  // Popover logic
+  const infoBtns = document.querySelectorAll('.info-btn');
+  infoBtns.forEach(img => {
+      const popover = img.nextElementSibling;
+      if (popover && popover.classList.contains('popover')) {
+          img.addEventListener('mouseover', () => {
+              popover.style.display = 'block';
+          });
+          img.addEventListener('mouseout', () => {
+              popover.style.display = 'none';
+          });
+      }
   });
 });
 // --- Option Buttons Functionality ---
@@ -933,26 +1143,63 @@ if (copyAnimBtn) {
 
 if (deleteAnimBtn) {
   deleteAnimBtn.addEventListener('click', async () => {
-    if (loadedFrameId === null) {
+    if (selectedFrameIds.length === 0) {
       showError('Please select a frame to delete.');
       setTimeout(hideError, 3000);
       return;
     }
 
-    const idToDelete = loadedFrameId;
-    await deleteFrame(idToDelete);
+    const idsToDelete = [...selectedFrameIds];
+    
+    // Optimistically find the next frame to load
+    let frameToLoad = null;
+    if (sessionFrames.length > idsToDelete.length) {
+      const remainingFrames = sessionFrames.filter(f => !idsToDelete.includes(f.id));
+      // Find the current position of the loaded frame
+      const loadedIndex = sessionFrames.findIndex(f => f.id === loadedFrameId);
+      // Find the closest remaining frame after the deleted ones
+      let nextBestIndex = -1;
+      for (let i = loadedIndex; i < sessionFrames.length; i++) {
+        if (!idsToDelete.includes(sessionFrames[i].id)) {
+          nextBestIndex = i;
+          break;
+        }
+      }
+      if (nextBestIndex === -1) {
+        for (let i = loadedIndex - 1; i >= 0; i--) {
+          if (!idsToDelete.includes(sessionFrames[i].id)) {
+            nextBestIndex = i;
+            break;
+          }
+        }
+      }
+      if(remainingFrames.length > 0) {
+        frameToLoad = remainingFrames[0]; // fallback to first
+        if (nextBestIndex !== -1) {
+             const found = remainingFrames.find(f => f.id === sessionFrames[nextBestIndex].id);
+             if (found) frameToLoad = found;
+        }
+      }
+    }
+
+    await fetchWithHandling('/delete_frames', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ids: idsToDelete})
+    }, 'json', `delete ${idsToDelete.length} frames`);
+
+    selectedFrameIds = [];
+    lastSelectedFrameId = null;
 
     clearLoaded();
     await refreshFrames();
 
-    const frameToLoad = sessionFrames.find(f => f.id !== idToDelete) || (sessionFrames.length > 0 ? sessionFrames[0] : null);
-
     if (frameToLoad) {
       await loadFrameIntoEditor(frameToLoad.id);
     } else {
-      // If no frames are left, initEditor will create a new empty one
       await initEditor();
     }
+    updateSelectionVisuals();
   });
 }
 
@@ -1004,5 +1251,13 @@ if (applyDurationBtn) {
 
     await Promise.all(updatePromises);
     await refreshFrames();
+  });
+}
+
+if (allFramesDurationInput) {
+  allFramesDurationInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      applyDurationBtn.click(); // Simulate a click on the Apply button
+    }
   });
 }

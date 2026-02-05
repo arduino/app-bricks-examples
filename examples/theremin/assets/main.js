@@ -54,10 +54,8 @@
     }
   }
 
-
-
-  accessBtn.addEventListener('click', () => {
-    powerOn = !powerOn;
+  function setPower(isOn) {
+    powerOn = isOn;
     accessBtn.src = powerOn ? 'img/switch-on.svg' : 'img/switch-off.svg';
     powerBtn.src = powerOn ? 'img/power-on.svg' : 'img/power-off.svg';
     thereminSvg.src = powerOn ? 'img/theremin-on.svg' : 'img/theremin.svg';
@@ -79,6 +77,12 @@
       }
       updateStateDisplay(0, 0); // Reset to silent
     }
+  }
+
+
+
+  accessBtn.addEventListener('click', () => {
+    setPower(!powerOn);
   });
 
   gridToggleBtn.addEventListener('click', () => {
@@ -291,6 +295,8 @@
       updateVolumeIndicator(v.volume);
     }
   });
+
+  setPower(true);
 
 
 })();

@@ -6,9 +6,9 @@ from arduino.app_bricks.web_ui import WebUI
 from arduino.app_utils import App, Bridge, FrameDesigner, Logger
 from app_frame import AppFrame  # user module defining AppFrame
 import store  # user module for DB operations
-import threading
 
 BRIGHTNESS_LEVELS = 8  # must match the frontend slider range (0..BRIGHTNESS_LEVELS-1)
+MAX_FRAMES = 300  # must match MAX_FRAMES in sketch.ino (animation buffer limit)
 
 logger = Logger("led-matrix-painter")
 ui = WebUI()
@@ -38,7 +38,7 @@ def apply_frame_to_board(frame: AppFrame):
 
 def update_board(payload: dict):
     """Update board display in real-time without persisting to DB.
-    
+
     Used for live preview during editing.
     Expected payload: {rows, name, id, position, duration_ms, brightness_levels}
     """
@@ -50,13 +50,13 @@ def update_board(payload: dict):
 
 def persist_frame(payload: dict):
     """Persist frame to DB (insert new or update existing).
-    
+
     Backend (store.save_frame) is responsible for assigning progressive names.
-    
+
     Expected payload: {rows, name, id, position, duration_ms, brightness_levels}
     """
     frame = AppFrame.from_json(payload)
-    
+
     if frame.id is None:
         # Insert new frame - backend assigns name if empty
         logger.debug(f"Creating new frame: name='{frame.name}'")
@@ -70,7 +70,7 @@ def persist_frame(payload: dict):
         # Update existing frame
         logger.debug(f"Updating frame: id={frame.id}, name={frame.name}")
         store.update_frame(frame)
-    
+
     apply_frame_to_board(frame)
     vector_text = frame.to_c_string()
     return {'ok': True, 'frame': frame.to_json(), 'vector': vector_text}
@@ -86,12 +86,12 @@ def bulk_update_frame_duration(payload) -> bool:
 
 def load_frame(payload: dict = None):
     """Load a frame for editing or create empty if none exist.
-    
+
     Optional payload: {id: int} to load specific frame
     If no ID provided, loads last frame or creates empty
     """
     fid = payload.get('id') if payload else None
-    
+
     if fid is not None:
         logger.debug(f"Loading frame by id: {fid}")
         record = store.get_frame_by_id(fid)
@@ -105,7 +105,7 @@ def load_frame(payload: dict = None):
         logger.debug("Loading last frame or creating empty")
         frame = store.get_or_create_active_frame(brightness_levels=BRIGHTNESS_LEVELS)
         logger.info(f"Active frame ready: id={frame.id}, name={frame.name}")
-    
+
     apply_frame_to_board(frame)
     vector_text = frame.to_c_string()
     return {'ok': True, 'frame': frame.to_json(), 'vector': vector_text}
@@ -122,19 +122,21 @@ def get_frame(payload: dict):
     """Get single frame by ID."""
     fid = payload.get('id')
     record = store.get_frame_by_id(fid)
-    
+
     if not record:
         return {'error': 'not found'}
-    
+
     frame = AppFrame.from_record(record)
     return {'frame': frame.to_json()}
 
 
-def delete_frame(payload: dict):
-    """Delete frame by ID."""
-    fid = payload.get('id')
-    logger.info(f"Deleting frame: id={fid}")
-    store.delete_frame(fid)
+def delete_frames(payload: dict):
+    """Delete multiple frames by ID."""
+    fids = payload.get('ids', [])
+    if not fids:
+        return {'error': 'no frame ids provided'}
+    logger.info(f"Deleting frames: ids={fids}")
+    store.delete_frames(fids)
     return {'ok': True}
 
 
@@ -148,7 +150,7 @@ def reorder_frames(payload: dict):
 
 def transform_frame(payload: dict):
     """Apply transformation operation to a frame.
-    
+
     Payload: {op: str, rows: list OR id: int}
     Operations: invert, invert_not_null, rotate180, flip_h, flip_v
     """
@@ -183,16 +185,17 @@ def transform_frame(payload: dict):
         logger.warning(f"Unsupported transform operation: {op}")
         return {'error': 'unsupported op'}
 
-    operations[op](frame)
+    options = payload.get('options', {})
+    operations[op](frame, **options)
     logger.info(f"Transform applied: op={op}")
-    
+
     # Return transformed frame (frontend will handle board update via persist)
     return {'ok': True, 'frame': frame.to_json(), 'vector': frame.to_c_string()}
 
 
 def export_frames(payload: dict = None):
     """Export multiple frames into a single C header string.
-    
+
     Payload (optional): {frames: [id,...], animations: [{name, frames}]}
     - If no animations: exports frames as individual arrays (Frames mode)
     - If animations present: exports as animation sequences (Animations mode)
@@ -206,15 +209,15 @@ def export_frames(payload: dict = None):
     else:
         logger.info("Exporting all frames")
         records = store.list_frames(order_by='position ASC, id ASC')
-    
+
     logger.debug(f"Exporting {len(records)} frames to C header")
-    
+
     # Build frame objects and check for duplicate names
     frames = [AppFrame.from_record(r) for r in records]
     frame_names = {}  # name -> count
     for frame in frames:
         frame_names[frame.name] = frame_names.get(frame.name, 0) + 1
-    
+
     # Assign unique names if duplicates exist
     name_counters = {}  # name -> current index
     for frame in frames:
@@ -228,37 +231,29 @@ def export_frames(payload: dict = None):
         else:
             # Unique name, use as-is
             frame._export_name = frame.name
-    
+
     # Check if we're in animations mode
     animations = payload.get('animations') if payload else None
-    
+
     if animations:
         # Animation mode: export as animation sequences
         logger.info(f"Animation mode: {len(animations)} animation(s)")
         header_parts = []
-        
+
         for anim in animations:
             anim_name = anim.get('name', 'Animation')
             anim_frame_ids = anim.get('frames', [])
-            
+
             # Get frames for this animation
             anim_frames = [f for f in frames if f.id in anim_frame_ids]
-            
+
             if not anim_frames:
                 continue
-            
-            # Build animation array
+
+            # Build animation array (delegated to AppFrame exporter)
             header_parts.append(f"// Animation: {anim_name}")
-            header_parts.append(f"const uint32_t {anim_name}[][5] = {{")
-            
-            for frame in anim_frames:
-                hex_values = frame.to_animation_hex()
-                hex_str = ", ".join(hex_values)
-                header_parts.append(f"    {{{hex_str}}},  // {frame._export_name}")
-            
-            header_parts.append("};")
-            header_parts.append("")
-        
+            header_parts.append(AppFrame.frames_to_c_animation_array(anim_frames, anim_name))
+
         header = "\n".join(header_parts).strip() + "\n"
         return {'header': header}
     else:
@@ -267,65 +262,83 @@ def export_frames(payload: dict = None):
         for frame in frames:
             header_parts.append(f"// {frame._export_name} (id {frame.id})")
             header_parts.append(frame.to_c_string())
-        
+
         header = "\n".join(header_parts).strip() + "\n"
         return {'header': header}
 
 
-def play_animation_thread(animation_bytes):
-    try:
-        Bridge.call("play_animation", bytes(animation_bytes))
-        logger.info("Animation sent to board successfully")
-    except Exception as e:
-        logger.warning(f"Failed to send animation to board: {e}")
-
 def play_animation(payload: dict):
     """Play animation sequence on the board.
-    
+
     Payload: {frames: [id,...], loop: bool}
     - frames: list of frame IDs to play in sequence
-    - loop: whether to loop the animation (default: false)
     """
-    frame_ids = payload.get('frames', [])
-    loop = payload.get('loop', False)
-    
+    frame_ids = payload.get("frames", [])
+
     if not frame_ids:
         logger.warning("play_animation called with no frames")
-        return {'error': 'no frames provided'}
-    
-    logger.info(f"Playing animation: frame_count={len(frame_ids)}, loop={loop}")
-    
+        return {"error": "no frames provided"}
+
+    # Check frame count against sketch buffer limit
+    if len(frame_ids) > MAX_FRAMES:
+        logger.error(f"Too many frames for animation: {len(frame_ids)} > {MAX_FRAMES}")
+        return {"error": f"Animation exceeds maximum frame limit ({MAX_FRAMES} frames). Please reduce the number of frames."}
+
+    logger.info(f"Playing animation: frame_count={len(frame_ids)}")
+
     # Load frames from DB
     records = [store.get_frame_by_id(fid) for fid in frame_ids]
     records = [r for r in records if r is not None]
-    
+
     if not records:
         logger.warning("No valid frames found for animation")
-        return {'error': 'no valid frames found'}
-    
+        return {"error": "no valid frames found"}
+
     frames = [AppFrame.from_record(r) for r in records]
     logger.debug(f"Loaded {len(frames)} frames for animation")
-    
-    # Build animation data as bytes (std::vector<uint8_t> in sketch)
-    # Each uint32_t is sent as 4 bytes (little-endian)
-    animation_bytes = bytearray()
-    for frame in frames:
-        hex_values = frame.to_animation_hex()
-        # First 4 are hex pixel data
-        for i in range(4):
-            value = int(hex_values[i], 16)
-            animation_bytes.extend(value.to_bytes(4, byteorder='little'))
-        # 5th is duration in ms
-        duration = int(hex_values[4])
-        animation_bytes.extend(duration.to_bytes(4, byteorder='little'))
-    
-    logger.debug(f"Animation data prepared: {len(animation_bytes)} bytes ({len(animation_bytes)//20} frames)")
-    
-    # Run Bridge.call in a separate thread
-    thread = threading.Thread(target=play_animation_thread, args=(animation_bytes,))
-    thread.start()
 
-    return {'ok': True, 'frames_played': len(frames)} # Return immediately
+    try:
+        for f in frames:
+            logger.debug(
+                f"Frame id={f.id}, name='{f.name}', duration={f.duration_ms}ms"
+            )
+            [hex1, hex2, hex3, hex4, duration] = f.to_animation_hex()
+            Bridge.notify(
+                "load_frame",
+                [
+                    int(hex1, 16),
+                    int(hex2, 16),
+                    int(hex3, 16),
+                    int(hex4, 16),
+                    int(duration),
+                ],
+            )
+
+        Bridge.call("play_animation")
+        logger.info("play_animation called on board")
+
+    except Exception as e:
+        logger.warning(f"Failed to request play_animation: {e}")
+
+    return {"ok": True, "frames_played": len(frames)}
+
+
+def stop_animation():
+    """Stop any running animation on the board.
+
+    This endpoint calls the sketch provider `stop_animation`. No payload
+    required.
+
+    Returns:
+        dict: {'ok': True} on success, {'error': str} on failure.
+    """
+    try:
+        Bridge.call("stop_animation")
+        logger.info("stop_animation called on board")
+        return {'ok': True}
+    except Exception as e:
+        logger.warning(f"Failed to request stop_animation: {e}")
+        return {'error': str(e)}
 
 
 ui.expose_api('POST', '/update_board', update_board)
@@ -333,11 +346,12 @@ ui.expose_api('POST', '/persist_frame', persist_frame)
 ui.expose_api('POST', '/load_frame', load_frame)
 ui.expose_api('GET', '/list_frames', list_frames)
 ui.expose_api('POST', '/get_frame', get_frame)
-ui.expose_api('POST', '/delete_frame', delete_frame)
+ui.expose_api('POST', '/delete_frames', delete_frames)
 ui.expose_api('POST', '/transform_frame', transform_frame)
 ui.expose_api('POST', '/export_frames', export_frames)
 ui.expose_api('POST', '/reorder_frames', reorder_frames)
 ui.expose_api('POST', '/play_animation', play_animation)
+ui.expose_api('POST', '/stop_animation', stop_animation)
 ui.expose_api('GET', '/config', get_config)
 
 App.run()

@@ -38,29 +38,14 @@ SPDX-License-Identifier: MPL-2.0
         <div class="tools-box">
           <h3 class="box-title">Tools</h3>
           <div class="tool-controls">
-            <div class="custom-select-wrapper">
-              <div class="custom-select">
-                <div class="custom-select__trigger">
-                  <img src="img/brush.svg" class="tool-icon" alt="Brush" width="16" height="16" style="vertical-align: middle;">
-                  <img src="img/select-arrow.svg" class="dropdown-arrow" alt="Dropdown" width="7" height="4">
-                </div>
-                <div class="custom-options">
-                  <div class="custom-option" data-value="brush">
-                    <img src="img/brush.svg" class="tool-icon" alt="Brush" width="16" height="16" style="vertical-align: middle;">
-                  </div>
-                  <div class="custom-option" data-value="eraser"><img src="img/eraser.svg" class="tool-icon" alt="Eraser" width="16" height="16" style="vertical-align: middle;"></div>
-                </div>
-              </div>
-            </div>
-
-            <div class="slider-container" style="flex-grow: 1; margin-left: 8px;">
+            <div class="slider-container" style="flex-grow: 1;">
               <div style="display: flex; justify-content: space-between;">
                 <label for="brightness-alpha-slider" class="alpha-label">Brightness (Alpha)</label>
                 <span id="brightness-alpha-value" class="alpha-label">7</span>
               </div>
               <div style="display: flex; align-items: center; gap: 8px;">
                 <span class="slider-limit-label">0</span>
-                <input type="range" id="brightness-alpha-slider" min="0" max="7" value="7" style="flex-grow: 1;">
+                <input type="range" id="brightness-alpha-slider" min="0" max="8" value="8" style="flex-grow: 1;">
                 <span class="slider-limit-label">7</span>
               </div>
             </div>
@@ -76,6 +61,22 @@ SPDX-License-Identifier: MPL-2.0
             <button id="invert-not-null" class="transform-btn"><img src="img/invert-draw.svg" alt="Invert Brightness" style="width: 12px; height: 12px; padding-right: 4px; vertical-align: middle;">Invert Draw</button>
           </div>
         </div>
+        <div class="shift-draw-box">
+          <div class="shift-title-container">
+            <h3 class="box-title">Shift draw</h3>
+            <div class="wrap-around-container">
+              <input type="checkbox" id="wrap-around-checkbox">
+              <label for="wrap-around-checkbox">Wrap-around</label>
+            </div>
+          </div>
+          <div class="shift-buttons">
+            <button id="shift-up" class="shift-btn"><img src="img/shift-draw-arrow-up.svg" alt="Up"></button>
+            <button id="shift-left" class="shift-btn"><img src="img/shift-draw-arrow-left.svg" alt="Left"></button>
+            <div></div>
+            <button id="shift-right" class="shift-btn"><img src="img/shift-draw-arrow-right.svg" alt="Right"></button>
+            <button id="shift-down" class="shift-btn"><img src="img/shift-draw-arrow-down.svg" alt="Down"></button>
+          </div>
+        </div>
       </div>
 
       <div class="center-content">
@@ -84,8 +85,8 @@ SPDX-License-Identifier: MPL-2.0
           <div class="frame-controls">
             <button id="clear" class="transform-btn"><img src="img/clear.svg" alt="Clear" style="width: 16px; height: 16px; padding-right: 4px; vertical-align: middle;">Clear Frame</button>
             <span class="vertical-separator"></span>
-            <button id="frame-back" class="transform-btn"><img src="img/arrow-left.svg" alt="Back" style="width: 16px; height: 16px; vertical-align: middle;"></button>
-            <button id="frame-forward" class="transform-btn"><img src="img/arrow-right.svg" alt="Forward" style="width: 16px; height: 16px; vertical-align: middle;"></button>
+            <button id="undo-btn" class="transform-btn" title="Undo"><img src="img/arrow-left.svg" alt="Back" style="width: 16px; height: 16px; vertical-align: middle;"></button>
+            <button id="redo-btn" class="transform-btn" title="Redo"><img src="img/arrow-right.svg" alt="Forward" style="width: 16px; height: 16px; vertical-align: middle;"></button>
           </div>
         </div>
         <section class="maincol">
@@ -104,10 +105,16 @@ SPDX-License-Identifier: MPL-2.0
   <div class="frames-section-bottom">
     <div class="controls-section-left">
                 <div class="sidebar-header">
-                  <h3 style="margin:0;font-size:0.9rem;color:#666">Animation</h3>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="display: flex; align-items: center; gap: 8px; position: relative;">
+                    <h3 style="margin:0;font-size:0.9rem;color:#666">Animation</h3>
+                    <img src="img/info.svg" alt="Info" class="info-btn"/>
+                    <div class="popover">To select multiple frames at once, hold the shift key.</div>
+                  </div>
+                  </div>
                   <div class="anim-buttons">
                       <button id="play-animation" title="Play Animation"><img src="img/icon-play.svg" alt="Play"></button>
-                      <!-- <button id="stop-animation" title="Stop Animation"><img src="img/icon-stop.svg" alt="Stop"></button> -->
+                      <button id="stop-animation" title="Stop Animation"><img src="img/icon-stop.svg" alt="Stop"></button>
                   </div>
                 </div>
                           <div class="animation-controls-body">
