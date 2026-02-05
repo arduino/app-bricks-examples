@@ -10,7 +10,7 @@ logger = Logger(__name__)
 
 # Components
 ui = WebUI()
-gen = SoundGenerator(wave_form="square", bpm=120, sound_effects=[SoundEffect.adsr()])
+gen = SoundGenerator(wave_form="sine", bpm=120, sound_effects=[SoundEffect.adsr()])
 gen.start()
 gen.set_master_volume(0.8)
 
