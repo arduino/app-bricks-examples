@@ -1,0 +1,6 @@
+name: Music Composer
+icon: 🎵
+description: A music composer app that lets you create melodies by composing notes and play them using sound generator brick.
+bricks:
+  - arduino:web_ui
+  - arduino:sound_generator
