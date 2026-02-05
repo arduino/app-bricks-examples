@@ -5,9 +5,8 @@
 from arduino.app_bricks.web_ui import WebUI
 from arduino.app_bricks.sound_generator import SoundGenerator, SoundEffect
 from arduino.app_utils import App, Logger
-import logging
 
-logger = Logger(__name__, logging.DEBUG)
+logger = Logger(__name__)
 
 # Components
 ui = WebUI()
@@ -159,7 +158,7 @@ def on_play(sid, data=None):
     is_playing = True
     gen.play_step_sequence(
         sequence=sequence,
-        note_duration=1 / 8,
+        note_duration=1 / 16,
         loop=False,  # One-shot playback
         on_step_callback=on_step_callback,
         on_complete_callback=on_sequence_complete,
