@@ -5,13 +5,12 @@
 from arduino.app_bricks.web_ui import WebUI
 from arduino.app_bricks.sound_generator import SoundGenerator, SoundEffect
 from arduino.app_utils import App, Logger
-import logging
 
-logger = Logger(__name__, logging.DEBUG)
+logger = Logger(__name__)
 
 # Components
 ui = WebUI()
-gen = SoundGenerator(wave_form="square", bpm=120, sound_effects=[SoundEffect.adsr()])
+gen = SoundGenerator(wave_form="sine", bpm=120, sound_effects=[SoundEffect.adsr()])
 gen.start()
 gen.set_master_volume(0.8)
 
@@ -159,7 +158,7 @@ def on_play(sid, data=None):
     is_playing = True
     gen.play_step_sequence(
         sequence=sequence,
-        note_duration=1 / 8,
+        note_duration=1 / 16,
         loop=False,  # One-shot playback
         on_step_callback=on_step_callback,
         on_complete_callback=on_sequence_complete,
@@ -254,25 +253,6 @@ def on_export(sid, data=None):
     """Export a MusicComposition object to a Python file."""
     sequence = build_sequence_from_grid(grid_state)
 
-    # Build polyphonic sequences: one track per note
-    tracks = []
-    for note_idx, note_name in enumerate(NOTE_MAP):
-        track = []
-        for step_notes in sequence:
-            if step_notes and note_name in step_notes:
-                # Note is active in this step
-                track.append((note_name, 1 / 8))  # Duration: 1/8 note (eighth note)
-            elif track and track[-1][0] != "REST":
-                # Add REST if previous was not a REST
-                track.append(("REST", 1 / 8))
-            elif not track:
-                # Start with REST if note doesn't start immediately
-                track.append(("REST", 1 / 8))
-
-        # Only include tracks that have actual notes (not just REST)
-        if any(note != "REST" for note, _ in track):
-            tracks.append(track)
-
     # Build effects list code representation
     effects_code = ["SoundEffect.adsr()"]
 
@@ -305,23 +285,23 @@ def on_export(sid, data=None):
         "# Music Composer - Generated Composition",
         "# This file contains a MusicComposition object that can be played with SoundGenerator.play_composition()",
         "",
-        "from arduino.app_bricks.sound_generator import MusicComposition, SoundEffect",
+        "from arduino.app_bricks.sound_generator import SoundGenerator, MusicComposition, SoundEffect",
         "",
         f"# Configuration: {len(sequence)} steps at {bpm} BPM",
         "",
-        "# Define the composition tracks",
+        "# Define the composition (each inner list is a step with notes to play simultaneously)",
         "composition_tracks = [",
     ]
 
-    # Add tracks
-    for i, track in enumerate(tracks):
-        code_lines.append("    [  # Track " + str(i + 1))
-        for j, (note, duration) in enumerate(track):
-            duration_str = f"{duration:.3f}"
-            comma = "," if j < len(track) - 1 else ""
-            code_lines.append(f'        ("{note}", {duration_str}){comma}')
-        comma = "," if i < len(tracks) - 1 else ""
-        code_lines.append("    ]" + comma)
+    # Add steps - each step is a list of (note, duration) tuples
+    for i, step_notes in enumerate(sequence):
+        if step_notes:
+            # Step with notes
+            notes_tuples = ", ".join([f'("{note}", 1/16)' for note in step_notes])
+            code_lines.append(f"    [{notes_tuples}],  # Step {i}")
+        else:
+            # REST step - use empty list (will be filtered in play_composition)
+            code_lines.append(f"    [],  # Step {i} - REST")
 
     code_lines.extend([
         "]",
@@ -343,6 +323,13 @@ def on_export(sid, data=None):
     code_lines.extend([
         "    ]",
         ")",
+        "",
+        "# Create and start the SoundGenerator",
+        "gen = SoundGenerator()",
+        "gen.start()",
+        "",
+        "# Play the composition (block=True waits for completion)",
+        "gen.play_composition(composition, block=True)",
     ])
 
     ui.send_message(
