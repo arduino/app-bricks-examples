@@ -10,6 +10,7 @@ This App allows you to compose music by toggling notes on a grid where each row 
 
 - **Grid-based Step Sequencer:** 18-note polyphonic grid with automatic expansion.
 - **Real-time Playback:** Visual step highlighting synchronized with audio playback.
+- **Undo/Redo:** Full history tracking to easily revert or reapply changes.
 - **Waveform Selection:** Choose from sine, square, and triangle waves.
 - **Effects Rack:** Five knob-controlled effects (Bitcrusher, Chorus, Tremolo, Vibrato, Overdrive).
 - **BPM Control:** Adjustable tempo(default 120 BPM).
