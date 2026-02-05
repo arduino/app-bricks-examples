@@ -14,48 +14,71 @@ SPDX-License-Identifier: MPL-2.0
 </head>
 <body>
   <div id="app">
-    <!-- Header -->
     <div class="header">
-      <div class="header-left">
-        <img class="arduino-logo" src="./img/RGB-Arduino-Logo_Color Inline Loop.svg" alt="Arduino Logo">
-        <h1 class="arduino-text">Music Composer</h1>
-      </div>
-      
-      <div class="header-center">
-        <button id="play-btn" class="play-button">
-          <span class="play-icon">▶</span>
-        </button>
-        <button id="pause-btn" class="pause-button" style="display: none;">
-          <span class="pause-icon">⏸</span>
-        </button>
-        <button id="stop-btn" class="stop-button" style="display: none;">
-          <span class="stop-icon">⏹</span>
-        </button>
-        
-        <div class="tempo-control">
-          <div class="tempo-label">4/4 BPM</div>
-          <div class="tempo-value">
-            <input type="number" id="bpm-input" value="120" min="40" max="240">
-            <button id="reset-bpm" class="icon-btn" title="Reset BPM">↻</button>
+        <div class="header-left">
+            <img src="img/RGB-Arduino-Logo_Color Inline Loop.svg" alt="Arduino Logo" class="arduino-logo" />
+            <p class="arduino-text">Music Composer</p>
+        </div>
+        <div class="header-center">
+
+        </div>
+        <div class="header-right">
+            <button id="export-btn" class="export-btn">Export .py</button>
+        </div>
+    </div>
+
+    <!-- Step Sequencer Grid -->
+    <div id="sequencer-container">
+      <div class="sequencer-controls">
+        <div class="controls-left">
+          <button id="play-btn" class="play-button">
+            <img src="img/icon-play.svg" alt="Play" />
+          </button>
+          <button id="pause-btn" class="pause-button" style="display: none;">
+            <img src="img/icon-pause.svg" alt="Pause" />
+          </button>
+          <button id="stop-btn" class="stop-button" style="display: none;">
+            <img src="img/icon-stop.svg" alt="Stop" />
+          </button>
+        </div>
+        <div class="controls-center">
+          <div class="tempo-control">
+            <div class="tempo-display">
+              <div class="tempo-label">4/4 BPM</div>
+              <div class="bpm-container">
+                <input type="number" id="bpm-input" value="120" min="40" max="240">
+                <button id="reset-bpm" class="icon-btn" title="Reset BPM">
+                  <img src="img/rotate.svg" alt="Reset BPM" style="width: 16px; height: 16px;">
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="controls-right">
+          <div class="control-group">
+            <button id="undo-btn" class="icon-btn" title="Undo">
+              <img src="img/arrow-left.svg" alt="Undo" />
+            </button>
+          </div>
+          <div class="control-group">
+            <button id="redo-btn" class="icon-btn" title="Redo">
+              <img src="img/arrow-right.svg" alt="Redo" />
+            </button>
+          </div>
+          <span class="vertical-separator-custom"></span>
+          <div class="control-group">
+            <button id="clear-btn" class="icon-btn" title="Clear All">
+              <img src="img/clear.svg" alt="Clear All" />
+              <span>Clear all</span>
+            </button>
           </div>
         </div>
       </div>
-      
-      <div class="header-right">
-        <button id="undo-btn" class="icon-btn" title="Undo">↶</button>
-        <button id="redo-btn" class="icon-btn" title="Redo">↷</button>
-        <button id="clear-btn" class="icon-btn" title="Clear All">✕</button>
-        <button id="export-btn" class="export-btn">Export .h</button>
-      </div>
-    </div>
-    
-    <!-- Step Sequencer Grid -->
-    <div id="sequencer-container">
       <div id="sequencer-grid">
         <!-- Grid will be generated dynamically -->
       </div>
     </div>
-    
+
     <!-- Control Panel -->
     <div id="control-panel">
       <!-- Effects Section -->
@@ -64,52 +87,86 @@ SPDX-License-Identifier: MPL-2.0
         <div class="knobs-container">
           <div class="knob-control">
             <div class="knob" id="bitcrusher-knob" data-value="0">
-              <div class="knob-indicator"></div>
+              <img src="img/knob-base.svg" class="knob-base" />
+              <img src="img/knob-shadow.svg" class="knob-shadow" />
+              <img src="img/knob-circle.svg" class="knob-circle" />
+              <img src="img/knob-indicator.svg" class="knob-indicator" />
+              <button class="knob-action knob-minus" data-action="minus"></button>
+              <button class="knob-action knob-plus" data-action="plus"></button>
             </div>
             <label>Bitcrusher</label>
           </div>
           <div class="knob-control">
             <div class="knob" id="chorus-knob" data-value="0">
-              <div class="knob-indicator"></div>
+              <img src="img/knob-base.svg" class="knob-base" />
+              <img src="img/knob-shadow.svg" class="knob-shadow" />
+              <img src="img/knob-circle.svg" class="knob-circle" />
+              <img src="img/knob-indicator.svg" class="knob-indicator" />
+              <button class="knob-action knob-minus" data-action="minus"></button>
+              <button class="knob-action knob-plus" data-action="plus"></button>
             </div>
             <label>Chorus</label>
           </div>
           <div class="knob-control">
             <div class="knob" id="tremolo-knob" data-value="0">
-              <div class="knob-indicator"></div>
+              <img src="img/knob-base.svg" class="knob-base" />
+              <img src="img/knob-shadow.svg" class="knob-shadow" />
+              <img src="img/knob-circle.svg" class="knob-circle" />
+              <img src="img/knob-indicator.svg" class="knob-indicator" />
+              <button class="knob-action knob-minus" data-action="minus"></button>
+              <button class="knob-action knob-plus" data-action="plus"></button>
             </div>
             <label>Tremolo</label>
           </div>
           <div class="knob-control">
             <div class="knob" id="vibrato-knob" data-value="0">
-              <div class="knob-indicator"></div>
+              <img src="img/knob-base.svg" class="knob-base" />
+              <img src="img/knob-shadow.svg" class="knob-shadow" />
+              <img src="img/knob-circle.svg" class="knob-circle" />
+              <img src="img/knob-indicator.svg" class="knob-indicator" />
+              <button class="knob-action knob-minus" data-action="minus"></button>
+              <button class="knob-action knob-plus" data-action="plus"></button>
             </div>
             <label>Vibrato</label>
           </div>
           <div class="knob-control">
             <div class="knob" id="overdrive-knob" data-value="0">
-              <div class="knob-indicator"></div>
+              <img src="img/knob-base.svg" class="knob-base" />
+              <img src="img/knob-shadow.svg" class="knob-shadow" />
+              <img src="img/knob-circle.svg" class="knob-circle" />
+              <img src="img/knob-indicator.svg" class="knob-indicator" />
+              <button class="knob-action knob-minus" data-action="minus"></button>
+              <button class="knob-action knob-plus" data-action="plus"></button>
             </div>
             <label>Overdrive</label>
           </div>
         </div>
       </div>
-      
+
       <!-- Wave Section -->
       <div class="control-section wave-section">
         <h3 class="section-title">Wave</h3>
         <div class="wave-buttons">
-          <button class="wave-btn" data-wave="triangle">Triangle</button>
-          <button class="wave-btn active" data-wave="sine">Sine</button>
-          <button class="wave-btn" data-wave="square">Square</button>
+          <button class="wave-btn" data-wave="triangle">
+            <img src="img/triangle.svg" alt="Triangle" />
+            <span>Triangle</span>
+          </button>
+          <button class="wave-btn active" data-wave="sine">
+            <img src="img/sine.svg" alt="Sine" />
+            <span>Sine</span>
+          </button>
+          <button class="wave-btn" data-wave="square">
+            <img src="img/square.svg" alt="Square" />
+            <span>Square</span>
+          </button>
         </div>
       </div>
-      
+
       <!-- Volume Section -->
       <div class="control-section volume-section">
         <div class="volume-slider-container">
-          <input type="range" id="volume-slider" class="vertical-slider" min="0" max="100" value="80" orient="vertical">
-          <div class="volume-icon">🔊</div>
+          <input type="range" id="volume-slider" class="vertical-slider" min="0" max="100" value="80" orient="vertical" style="background: #25C2C7;">
+          <div class="volume-icon"><img src="img/audio.svg" alt="Volume" /></div>
         </div>
       </div>
     </div>
