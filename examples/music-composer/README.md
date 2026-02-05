@@ -4,7 +4,7 @@ The **Music Composer** example provides a web-based step sequencer interface to 
 
 ![Music Composer Example](assets/docs_assets/thumbnail.png)
 
-This App allows you to compose music by toggling notes on a grid where each row represents a note and each column represents a time step (eighth note). The grid dynamically expands as you add notes, supporting long compositions. Your creation can be played back in real-time with synchronized visual feedback, and you can export your composition as a Python file containing a `MusicComposition` object ready to be used in other Arduino App Lab projects.
+This App allows you to compose music by toggling notes on a grid where each row represents a note and each column represents a time step (sixteenth note). The grid dynamically expands as you add notes, supporting long compositions. Your creation can be played back in real-time with synchronized visual feedback, and you can export your composition as a Python file containing a `MusicComposition` object ready to be used in other Arduino App Lab projects.
 
 **Key features include:**
 
@@ -51,7 +51,7 @@ The Music Composer example uses the following Bricks:
 4. **Create a Pattern**
    - **Toggle Notes:** Click cells in the grid to activate or deactivate notes. Active cells turn green.
    - **Notes:** Each row corresponds to a specific pitch (B4 at the top, F#3 at the bottom).
-   - **Steps:** Each column represents an eighth note (1/8 beat).
+   - **Steps:** Each column represents a sixteenth note (1/16 beat).
    - **Grid Expansion:** The grid automatically expands by 16 steps when you add notes near the right edge.
 
 5. **Adjust BPM**
@@ -108,7 +108,7 @@ Web Browser Interaction  ──►  WebSocket  ──►  Python Backend
 The Python script orchestrates the grid-to-audio conversion and manages the state.
 
 - **Initialization:**
-  - `gen = SoundGenerator(wave_form="square", bpm=120, sound_effects=[SoundEffect.adsr()])`: Initializes the audio engine with a square wave and ADSR envelope.
+  - `gen = SoundGenerator(wave_form="sine", bpm=120, sound_effects=[SoundEffect.adsr()])`: Initializes the audio engine with a sine wave and ADSR envelope.
   - `NOTE_MAP`: A list of 18 note names from B4 down to F#3, corresponding to grid rows.
 
 - **Grid State Management:**
@@ -169,7 +169,7 @@ The JavaScript frontend handles the UI logic, grid rendering, and playback visua
 
   ```javascript
   function startLocalPlayback() {
-      const stepDurationMs = (60000 / bpm) / 2; // Eighth notes: 2 per beat
+      const stepDurationMs = (60000 / bpm) / 4; // Sixteenth notes: 4 per beat
       playInterval = setInterval(() => {
           currentStep++;
           if (currentStep >= effectiveLength) {
@@ -196,21 +196,32 @@ The `on_export` handler generates Python code that defines a `MusicComposition` 
 **Example exported code:**
 
 ```python
-from arduino.app_bricks.sound_generator import MusicComposition, SoundEffect
+from arduino.app_bricks.sound_generator import SoundGenerator, MusicComposition, SoundEffect
+
+# Define the composition (each inner list is a step with notes to play simultaneously)
+composition_tracks = [
+    [("B4", 1/16)],                    # Step 0: single note
+    [("A#4", 1/16), ("D4", 1/16)],    # Step 1: chord (two notes together)
+    [],                                 # Step 2: REST (empty list)
+    [("G#4", 1/16)],                   # Step 3: single note
+    # ...
+]
 
 composition = MusicComposition(
-    composition=[
-        [("C4", 0.125), ("E4", 0.125), ...],  # Track 1
-        [("G4", 0.125), ("REST", 0.125), ...],  # Track 2
-    ],
+    composition=composition_tracks,
     bpm=120,
-    waveform="square",
+    waveform="sine",
     volume=0.80,
     effects=[
         SoundEffect.adsr(),
         SoundEffect.chorus(depth_ms=10, rate_hz=0.25, mix=0.40)
     ]
 )
+
+# Play the composition
+gen = SoundGenerator()
+gen.start()
+gen.play_composition(composition, block=True)
 ```
 
 ## Troubleshooting
@@ -242,9 +253,9 @@ If the interface works but there is no sound:
 ## Technical Details
 
 - **Grid Size:** 18 notes (F#3 to B4) × dynamic steps (initially 16, expands by 16)
-- **Note Duration:** Eighth notes (1/8 beat)
+- **Note Duration:** Sixteenth notes (1/16 beat)
 - **BPM Range:** 40-240 BPM (default: 120)
 - **Waveforms:** Sine, Square, Triangle
 - **Effects:** Bitcrusher, Chorus, Tremolo, Vibrato, Overdrive
-- **Export Format:** Python file with `MusicComposition` object
+- **Export Format:** Python file with `MusicComposition` object (step-based format)
 - **Audio Output:** USB audio device
