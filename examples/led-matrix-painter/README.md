@@ -13,8 +13,9 @@ The application uses the `dbstorage_sqlstore` Brick to automatically save your w
 Key features include:
 - **Real-time Control:** Drawing on the web grid updates the UNO Q matrix instantly.
 - **Grayscale Control:** 8 brightness presets (0-7) for intuitive pixel control; this example configures the board for 3-bit grayscale (0–7).
-- **Persistent Storage:** Frames are automatically saved to a database, allowing you to build complex animations over time.
+- **Persistent Storage:** Frames are automatically saved to a database, allowing you to build complex animations over time (max 300 frames).
 - **Transformation Tools:** Invert, rotate, or flip designs with a single click.
+- **Undo/Redo:** Step backward or forward through your editing history.
 - **Animation Mode:** Sequence frames to create animations and preview them on the board.
 - **Code Export:** Generate `uint32_t` arrays compatible with the `Arduino_LED_Matrix` library for use in standalone sketches.
 
@@ -51,6 +52,7 @@ The LED Matrix Painter example uses the following Bricks:
 
 4. **Use the Design Tools**
    - **Transform:** Use the **Tools** panel on the left to **Flip Vertically/Horizontally**, **Rotate 180°**, **Invert Matrix** (negative), or **Invert Draw** (brightness).
+   - **Undo/Redo:** Use the arrow buttons (◄ ►) next to the Clear Frame button to step backward or forward through your editing history.
    - **Clear:** Use the **Clear Frame** button above the grid to reset the canvas.
 
 5. **Manage Frames (Bottom Panel)**
@@ -58,12 +60,14 @@ The LED Matrix Painter example uses the following Bricks:
    - **Create:** Click the **+** button to add a new empty frame.
    - **Edit Details:** Assign a **Name** and **Duration** (in milliseconds) for each frame using the inputs above the frame list.
    - **Reorder:** Drag and drop frame thumbnails to change their sequence.
-   - **Load/Delete:** Use the **Load** and **Del** buttons on each thumbnail to switch between frames or remove them.
+   - **Load/Delete:** Click a thumbnail to load it. To delete frames, click the **Del** button on individual thumbnails, or select multiple frames (by clicking their thumbnails while holding the selection) and delete them together.
+   - **Note:** The application supports up to 300 frames total due to hardware animation buffer limits.
 
 6. **Create Animations**
    - Switch the mode to **Animations** using the radio buttons in the bottom panel.
    - Select multiple frames by clicking on their thumbnails (they will highlight).
    - Click the **Play Animation** button below the grid to preview the sequence on the board.
+   - Use the **Stop Animation** button to halt playback at any time.
 
 7. **Export Code**
    - Toggle the **Code panel** switch in the top right header to view the C++ code for the current frame or animation in real-time.
@@ -118,12 +122,18 @@ class AppFrame(Frame):
   - `store.init_db()`: Creates the SQLite database and tables for storing frames if they don't exist.
 
 - **API Endpoints**: The backend exposes several HTTP endpoints using `ui.expose_api` to handle frontend requests:
+  - `GET /config`: Returns runtime configuration (brightness levels, matrix dimensions).
+  - `POST /update_board`: Updates board display in real-time without persisting to database (live preview).
   - `POST /persist_frame`: Saves or updates frames in the database and updates the board.
   - `POST /load_frame`: Loads a specific frame by ID or retrieves the last edited frame.
   - `GET /list_frames`: Returns all saved frames to populate the bottom panel.
+  - `POST /get_frame`: Retrieves a single frame by ID.
+  - `POST /delete_frames`: Deletes multiple frames by their IDs.
+  - `POST /reorder_frames`: Reorders frames to match provided ID list order.
+  - `POST /transform_frame`: Applies geometric transformations (invert, rotate, flip) to the pixel data.
+  - `POST /export_frames`: Generates the C++ header file content for frames or animations.
   - `POST /play_animation`: Sends a sequence of frames to the Arduino to play as an animation.
-  - `POST /transform_frame`: Applies geometric transformations to the pixel data.
-  - `POST /export_frames`: Generates the C++ header file content.
+  - `POST /stop_animation`: Stops any running animation on the board.
 
 - **Hardware Update**: The `apply_frame_to_board` function sends the visual data to the microcontroller via the Bridge.
 
@@ -151,24 +161,37 @@ def to_c_string(self) -> str:
 
 The sketch is designed to be a passive renderer, accepting commands from the Python backend.
 
-- **Grayscale Setup**: The matrix is initialized with 8-bit grayscale support to allow for varying brightness levels.
+- **Grayscale Setup**: The matrix is initialized with 3-bit grayscale support (0-7 brightness levels).
 
 ```cpp
 void setup() {
   matrix.begin();
   // configure grayscale bits to 3 so the display accepts 0..7 brightness
-  // The backend sends quantized values in 0..(2^3-1) == 0..7.
+  // The backend will send quantized values in 0..(2^3-1) == 0..7.
   matrix.setGrayscaleBits(3);
   Bridge.begin();
-  // ...
+  Bridge.provide("draw", draw);
+  Bridge.provide("load_frame", load_frame);
+  Bridge.provide("play_animation", play_animation);
+  Bridge.provide("stop_animation", stop_animation);
 }
 ```
 
-- **Drawing**: The `draw` provider accepts a vector of bytes and renders it directly.
+- **Providers**: The sketch exposes four Bridge providers:
+  - `draw(std::vector<uint8_t>)`: Renders a single frame to the LED matrix.
+  - `load_frame(std::array<uint32_t,5>)`: Loads frame data into animation buffer (4 words + duration).
+  - `play_animation()`: Starts playback of loaded animation frames.
+  - `stop_animation()`: Halts any running animation.
 
 ```cpp
 void draw(std::vector<uint8_t> frame) {
   matrix.draw(frame.data());
+}
+
+void play_animation() {
+  animation_current_frame = 0;
+  animation_running = true;
+  animation_next_time = millis();
 }
 ```
 
