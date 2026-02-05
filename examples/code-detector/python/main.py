@@ -6,8 +6,7 @@ from datetime import datetime, UTC
 import io
 import base64
 from PIL.Image import Image
-from arduino.app_utils import *
-from arduino.app_peripherals.usb_camera import USBCamera
+from arduino.app_utils import App
 from arduino.app_bricks.web_ui import WebUI
 from arduino.app_bricks.camera_code_detection import CameraCodeDetection, Detection, draw_bounding_box
 from arduino.app_bricks.dbstorage_sqlstore import SQLStore
@@ -73,8 +72,7 @@ def on_error(e: Exception):
 
 store = SQLStore("code-scanner.db")
 
-camera = USBCamera(resolution=(640, 480), fps=5)
-detector = CameraCodeDetection(camera)
+detector = CameraCodeDetection()  # This also initializes the camera
 detector.on_detect(on_code_detected)
 detector.on_frame(on_frame)
 detector.on_error(on_error)
