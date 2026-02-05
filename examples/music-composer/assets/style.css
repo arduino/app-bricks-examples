@@ -314,6 +314,7 @@ body {
   border-radius: 8px;
   gap: 16px;
   overflow-x: hidden;
+  align-items: flex-start;
 }
 
 #sequencer-container {
@@ -366,6 +367,7 @@ body {
   overflow-y: hidden;
   position: relative;
   scrollbar-width: thin;
+  max-width: 100%;
   scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
 

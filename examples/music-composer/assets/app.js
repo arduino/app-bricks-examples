@@ -21,9 +21,10 @@
   const STEPS_PER_EXPAND = 32; // Add 32 steps when scrolling
 
   // State
-  let grid = null; // {noteIndex: {stepIndex: true/false}} - null until server sends state
+  let grid = {};
   let isPlaying = false;
   let isPaused = false;
+  let isAppInitialized = false;
   let currentStep = 0;
   let totalSteps = INITIAL_GRID_STEPS; // Dynamic grid size
   let sequenceLength = INITIAL_GRID_STEPS; // Actual sequence length from backend
@@ -36,6 +37,11 @@
     vibrato: 0,
     overdrive: 0
   };
+
+  // History for Undo/Redo
+  const MAX_HISTORY_STATES = 50;
+  let history = [{}]; // Start with an initial empty state
+  let historyIndex = 0;
 
   // DOM elements
   const playBtn = document.getElementById('play-btn');
@@ -61,18 +67,17 @@
   // Socket events
   socket.on('composer:state', (data) => {
     log.info('Received state from server:', JSON.stringify(data));
-    if (data.grid) {
-      const oldGrid = JSON.stringify(grid);
-      grid = data.grid;
-      const newGrid = JSON.stringify(grid);
-      if (oldGrid !== newGrid) {
-        log.info('Grid changed from', oldGrid, 'to', newGrid);
-      }
-    } else {
-      // Initialize empty grid if server sends nothing
-      grid = {};
-      log.info('Grid initialized as empty');
+
+    // On first state, reset history to this state as the source of truth
+    if (!isAppInitialized) {
+      log.info('First state received, resetting history.');
+      grid = data.grid || {};
+      history = [JSON.parse(JSON.stringify(grid))];
+      historyIndex = 0;
+      updateUndoRedoButtons();
+      isAppInitialized = true;
     }
+
     if (data.bpm) {
       bpm = data.bpm;
       bpmInput.value = bpm;
@@ -115,6 +120,55 @@
     a.click();
     URL.revokeObjectURL(url);
   });
+
+  // History management
+  function saveStateToHistory() {
+    // If we have undone, and now we make a new change,
+    // we need to discard the 'redo' history.
+    if (historyIndex < history.length - 1) {
+      history = history.slice(0, historyIndex + 1);
+    }
+
+    // Add new state
+    history.push(JSON.parse(JSON.stringify(grid)));
+
+    // Limit history size
+    if (history.length > MAX_HISTORY_STATES) {
+      history.shift();
+    }
+
+    historyIndex = history.length - 1;
+    updateUndoRedoButtons();
+  }
+
+  function updateUndoRedoButtons() {
+    undoBtn.disabled = historyIndex <= 0;
+    redoBtn.disabled = historyIndex >= history.length - 1;
+  }
+
+  function undo() {
+    if (historyIndex > 0) {
+      historyIndex--;
+      grid = JSON.parse(JSON.stringify(history[historyIndex]));
+      renderGrid();
+      socket.emit('composer:update_grid', { grid });
+      updateUndoRedoButtons();
+    }
+  }
+
+  function redo() {
+    if (historyIndex < history.length - 1) {
+      historyIndex++;
+      grid = JSON.parse(JSON.stringify(history[historyIndex]));
+      renderGrid();
+      socket.emit('composer:update_grid', { grid });
+      updateUndoRedoButtons();
+    }
+  }
+
+  undoBtn.addEventListener('click', undo);
+  redoBtn.addEventListener('click', redo);
+
 
   // Build grid with dynamic size
   function buildGrid() {
@@ -164,7 +218,6 @@
   }
 
   function toggleCell(noteIndex, step) {
-    if (grid === null) grid = {}; // Initialize if still null
     const noteKey = String(noteIndex);
     const stepKey = String(step);
     if (!grid[noteKey]) grid[noteKey] = {};
@@ -175,7 +228,8 @@
     grid[noteKey][stepKey] = newValue;
 
     log.info(`Toggle cell [${NOTES[noteIndex]}][step ${step}]: ${currentValue} -> ${newValue}`);
-    log.info('Grid before emit:', JSON.stringify(grid));
+
+    saveStateToHistory();
 
     // Expand grid if clicking near the end
     if (newValue) {
@@ -188,27 +242,19 @@
 
   function renderGrid() {
     if (grid === null) {
-      log.info('Grid is null, skipping render');
-      return; // Don't render until we have state from server
+      return;
     }
-    log.info('Rendering grid:', JSON.stringify(grid));
     const cells = document.querySelectorAll('.grid-cell');
-    let activeCount = 0;
-    let activeCells = [];
     cells.forEach(cell => {
       const noteKey = String(cell.dataset.note);
       const stepKey = String(cell.dataset.step);
       const isActive = grid[noteKey] && grid[noteKey][stepKey] === true;
 
-      // Force remove class first, then add if needed
       cell.classList.remove('active');
       if (isActive) {
         cell.classList.add('active');
-        activeCount++;
-        activeCells.push(`[${NOTES[noteKey]}][step ${stepKey}]`);
       }
     });
-    log.info(`Rendered ${activeCount} active cells: ${activeCells.join(', ')}`);
   }
 
   function highlightStep(step) {
@@ -235,7 +281,6 @@
         Object.keys(grid[noteKey]).forEach(stepKey => {
           if (grid[noteKey][stepKey]) {
             const stepNum = parseInt(stepKey);
-            console.log(`Note ${noteKey} at step ${stepNum}`);
             if (stepNum > lastStep) {
               lastStep = stepNum;
             }
@@ -243,7 +288,6 @@
         });
       });
     }
-    console.log(`findLastNoteStep returned: ${lastStep}`);
     return lastStep;
   }
 
@@ -342,6 +386,7 @@
         const noteKey = String(noteIndex);
         grid[noteKey] = {};
       });
+      saveStateToHistory();
       renderGrid();
       socket.emit('composer:update_grid', { grid });
     }
@@ -429,6 +474,7 @@
   // Initialize grid
   buildGrid();
   updateEffectsKnobs();
+  updateUndoRedoButtons();
 
   // Ensure play button is visible and stop button is hidden on load
   playBtn.style.display = 'flex';
