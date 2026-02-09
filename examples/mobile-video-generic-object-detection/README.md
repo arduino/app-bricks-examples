@@ -45,7 +45,7 @@ The example uses the following Bricks:
     ![IoT Remote setup](assets/docs_assets/iot-remote.png)
 8. Scan the QR code.
 9. Once connected, the video stream from your phone will appear on the Web UI.
-9. Point your phone at objects and watch as the App detects and recognizes them.
+10. Point your phone at objects and watch as the App detects and recognizes them.
 
 Try with one of the following objects for a special reaction:
 
