@@ -1,0 +1,13 @@
+name: Detect Objects on Smartphone Camera
+icon: 📽️
+description: This example showcases object detection within a live feed from a smartphone's camera.
+
+ports:
+  - 8080
+
+bricks:
+  - arduino:video_object_detection
+  - arduino:web_ui
+
+required_devices:
+  - remote_camera
