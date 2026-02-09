@@ -44,7 +44,7 @@ The example uses the following Bricks:
 7. Go to Devices, tap on the plus icon to set up a new device and select **Stream phone camera to UNO Q**.
     ![IoT Remote setup](assets/docs_assets/iot-remote.png)
 8. Scan the QR code.
-8. Once connected, the video stream from your phone will appear on the Web UI.
+9. Once connected, the video stream from your phone will appear on the Web UI.
 9. Point your phone at objects and watch as the App detects and recognizes them.
 
 Try with one of the following objects for a special reaction:
