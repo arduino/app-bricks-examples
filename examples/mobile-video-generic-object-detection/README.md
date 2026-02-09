@@ -112,7 +112,7 @@ Once the application is running, you can open it in your browser. At that point,
       return ''.join(secrets.choice(characters) for _ in range(6))
 
     secret = generate_secret()
-    ui = WebUI(use_ssl=True)
+    ui = WebUI(use_tls=True)
     resolution = (480, 640)  # Portrait resolution for mobile devices
     camera = WebSocketCamera(resolution=resolution, secret=secret, encrypt=True, adjustments=resized(resolution, maintain_ratio=True))
 
