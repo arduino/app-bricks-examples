@@ -7,9 +7,6 @@ ports:
 
 bricks:
   - arduino:video_object_detection:
-    required_devices:
-    - id: remote_camera_0
+    devices:
+      - remote_camera_0
   - arduino:web_ui
-
-required_devices:
-  - remote_camera
