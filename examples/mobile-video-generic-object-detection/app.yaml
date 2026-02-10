@@ -6,8 +6,7 @@ ports:
   - 8080
 
 bricks:
-  - arduino:video_object_detection
+  - arduino:video_object_detection:
+    devices:
+      - remote_camera_0
   - arduino:web_ui
-
-required_devices:
-  - remote_camera
