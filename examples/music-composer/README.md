@@ -1,6 +1,6 @@
 # Music Composer
 
-The **Music Composer** example provides a web-based step sequencer interface to create polyphonic music patterns using the Arduino® UNO Q. It features 18 notes spanning from F#3 to B4, adjustable BPM, multiple waveforms, and a comprehensive effects rack, all powered by the `sound_generator` Brick.
+The **Music Composer** example provides a web-based step sequencer interface to create polyphonic music patterns using the Arduino® UNO™ Q. It features 18 notes spanning from F#3 to B4, adjustable BPM, multiple waveforms, and a comprehensive effects rack, all powered by the `sound_generator` Brick.
 
 ![Music Composer Example](assets/docs_assets/thumbnail.png)
 
@@ -18,7 +18,7 @@ The `web_ui` Brick serves the interactive frontend, while the `sound_generator` 
 - **Waveform Selection:** Choose from sine, square, and triangle waves.
 - **Effects Rack:** Five knob-controlled effects (Bitcrusher, Chorus, Tremolo, Vibrato, Overdrive).
 - **BPM Control:** Adjustable tempo (default 120 BPM).
-- **Code Export:** Generate Python® code with `MusicComposition` objects for reuse with the `SoundGenerator` Brick.
+- **Code Export:** Generate Python code with `MusicComposition` objects for reuse with the `SoundGenerator` Brick.
 
 ## Bricks Used
 
@@ -34,19 +34,19 @@ The Music Composer example uses the following Bricks:
 - Arduino UNO Q (x1)
 - USB-C® cable (for power and programming) (x1)
 - USB speaker, cabled (x1)
-- USB-C® hub with external power (x1) *(required when using a USB audio device)*
-- Power supply (5 V, 3 A) for the USB-C® hub (x1) *(required when using a USB audio device)*
+- USB-C hub with external power (x1) *(required when using a USB audio device)*
+- Power supply (5 V, 3 A) for the USB-C hub (x1) *(required when using a USB audio device)*
 
 ### Software
 
 - Arduino App Lab
 
-**Note:** A **USB-C® hub is mandatory** when using an external USB audio device. The UNO Q's single USB-C® port must be connected to the hub, which provides the necessary connections for both the power supply and the audio device. When using external audio, this example must be run in **Network Mode** or **SBC Mode** (via a USB-C® hub with a mouse, keyboard, and display attached).
+**Note:** A **USB-C hub is mandatory** when using an external USB audio device. The UNO Q's single USB-C port must be connected to the hub, which provides the necessary connections for both the power supply and the audio device. When using external audio, this example must be run in **Network Mode** or **SBC Mode** (via a USB-C hub with a mouse, keyboard, and display attached).
 
 ## How to Use the Example
 
 1. **Connect the Hardware (Optional External Audio)**
-   To use an external USB audio device, connect it to a powered **USB-C® hub** attached to the UNO Q. Ensure the hub has its own power supply.
+   To use an external USB audio device, connect it to a powered **USB-C hub** attached to the UNO Q. Ensure the hub has its own power supply.
 
 2. **Run the App**
    The App will start and initialize the audio engine. Launch it from Arduino App Lab by clicking the **Run** button. Wait until the App has launched completely.
@@ -84,14 +84,14 @@ The Music Composer example uses the following Bricks:
 9. **Undo, Clear, or Export**
    - **Undo/Redo:** Click the arrow buttons to step backward or forward through your editing history.
    - **Clear:** Click the **Clear all** button to remove all notes (a confirmation dialog will appear).
-   - **Export:** Click **Export .py** to download a Python® file containing your composition as a `MusicComposition` object.
+   - **Export:** Click **Export .py** to download a Python file containing your composition as a `MusicComposition` object.
 
 ## How it Works
 
 Once the application is running, the device performs the following operations:
 
 ```
-Web Browser (UI)  ──►  WebSocket (Socket.IO)  ──►  Python® Backend (main.py)
+Web Browser (UI)  ──►  WebSocket (Socket.IO)  ──►  Python Backend (main.py)
        ▲                                                     │
        │                                                     ▼
  (Visual Updates)                                 build_sequence_from_grid()
@@ -144,7 +144,7 @@ sequence = [
   - `on_play`: Builds the sequence from the grid and calls `gen.play_step_sequence()` to start playback.
   - `on_stop`: Stops the sequence playback via `gen.stop_sequence()`.
   - `on_set_bpm`, `on_set_waveform`, `on_set_volume`, `on_set_effects`: Update the audio parameters in real-time.
-  - `on_export`: Generates a Python® file containing the composition as a `MusicComposition` object.
+  - `on_export`: Generates a Python file containing the composition as a `MusicComposition` object.
 
 - **Step Callback:** The `on_step_callback` is invoked by the `SoundGenerator` Brick for each step during playback. It sends a `composer:step_playing` event to the frontend for synchronization.
 
@@ -197,7 +197,7 @@ function startLocalPlayback() {
 
 ### 🛠️ Composition Export
 
-The **Export .py** button triggers the `on_export` handler on the backend, which generates Python® code defining a `MusicComposition` object. This object can be loaded and played in other Arduino App Lab projects using `gen.play_composition(composition)`.
+The **Export .py** button triggers the `on_export` handler on the backend, which generates Python code defining a `MusicComposition` object. This object can be loaded and played in other Arduino App Lab projects using `gen.play_composition(composition)`.
 
 **Example exported code:**
 
@@ -232,7 +232,7 @@ If the application fails to start and you see an error regarding the speaker:
 
 **Fix:**
 
-1. Ensure a **powered USB-C® hub** is connected to the UNO Q.
+1. Ensure a **powered USB-C hub** is connected to the UNO Q.
 2. Verify the **USB audio device** is connected to the hub and turned on.
 3. Restart the application.
 
@@ -243,12 +243,12 @@ If the interface works but there is no sound:
 - **Volume Control:** Check the volume slider in the UI (right side of the control panel).
 - **System Volume:** Ensure your speaker or system volume is not muted.
 - **Grid Empty:** Ensure you have toggled at least one note cell (it should appear purple).
-- **Audio Device:** Remember that **HDMI audio** and **Bluetooth® speakers** are not supported.
+- **Audio Device:** Remember that **HDMI® audio** and **Bluetooth® speakers** are not supported.
 
 ### Choppy or crackling audio
 
 - **CPU Load:** Close other applications running on the UNO Q.
-- **Power Supply:** Ensure you are using a stable 5 V, 3 A power supply for the USB-C® hub. Insufficient power often degrades USB audio performance.
+- **Power Supply:** Ensure you are using a stable 5 V, 3 A power supply for the USB-C hub. Insufficient power often degrades USB audio performance.
 
 ### Grid not expanding
 
