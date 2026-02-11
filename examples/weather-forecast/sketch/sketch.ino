@@ -21,8 +21,7 @@ void setup() {
 
 void loop() {
   String weather_forecast;
-  bool ok = Bridge.call("get_weather_forecast", city).result(weather_forecast);
-  if (!ok) {
+  if (!Bridge.call("get_weather_forecast", city).result(weather_forecast)) {
     Monitor.println("Failed to get weather forecast");
     return;
   }
