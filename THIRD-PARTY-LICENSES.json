@@ -62,12 +62,12 @@
   {
     "License": "MIT-CMU",
     "Name": "pillow",
-    "Version": "12.1.0"
+    "Version": "12.1.1"
   },
   {
     "License": "DFSG approved; GNU General Public License v2 or later (GPLv2+)",
     "Name": "python-debian",
-    "Version": "1.0.1"
+    "Version": "1.1.0"
   },
   {
     "License": "MIT License",
