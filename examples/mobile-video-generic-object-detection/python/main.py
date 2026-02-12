@@ -22,6 +22,7 @@ ui = WebUI(use_tls=True)
 camera = WebSocketCamera(secret=secret, encrypt=True)
 
 camera.on_status_changed(lambda evt_type, data: ui.send_message(evt_type, data))
+
 detection = VideoObjectDetection(camera, confidence=0.5, debounce_sec=0.0)
 
 ui.on_connect(lambda sid: ui.send_message("welcome", {"client_name": camera.name, "secret": secret, "status": camera.status, "protocol": camera.protocol, "ip": camera.ip, "port": camera.port}))
