@@ -131,8 +131,13 @@ jobs:
               else:
                 print(f"::error::{e}")
             sys.exit(1)
-
-          print("All Arduino library dependencies are pinned correctly.")
+          
+          if warnings:
+            print(f"Found {len(warnings)} stale pins (see warnings above).")
+            sys.exit(1)
+          
+          if not errors and not warnings:
+            print("All Arduino library dependencies are pinned correctly.")
           PY
 
       - name: Verify sketches
