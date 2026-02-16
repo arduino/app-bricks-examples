@@ -3,5 +3,5 @@ icon: 🤖
 description: Control your board through a Telegram bot
 
 bricks:
-  - arduino:telegram
+  - arduino:telegram_bot
   - arduino:object_detection

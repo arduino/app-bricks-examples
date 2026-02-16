@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 # EXAMPLE_NAME = "Telegram bot"
-from arduino.app_bricks.telegram_bot import TelegramBot, Message
+from arduino.app_bricks.telegram_bot import TelegramBot, Sender, Message
 from arduino.app_bricks.object_detection import ObjectDetection
 from arduino.app_utils import App
 from PIL import Image
@@ -14,52 +14,55 @@ bot = TelegramBot()
 obj_detection = ObjectDetection()
 
 
-def greet(msg: Message):
-    """Handle /hello command - super simple API!"""
-    bot.send(msg.chat_id, f"👋 Hi {msg.user_name}! This is Arduino UNO Q!")
+def greet(sender: Sender, message: Message):
+    """Handle /hello command - super simple API with reply helper!"""
+    sender.reply(f"👋 Hi {sender.first_name}! This is Arduino UNO Q!")
 
 
-def help_cmd(msg: Message):
+def help_cmd(sender: Sender, message: Message):
     """Handle /help command"""
     help_text = (
         "🤖 *Arduino Bot Commands:*\n\n"
         "/hello - Get a greeting\n"
-        "/help - Show this help\n\n"
-        "Send me text to echo it back!\n"
-        "Send me a photo for object detection!"
+        "/help - Show this help\n"
+        "/record - Record and send a video clip\n\n"
+        "Send me:\n"
+        "📝 Text to echo it back\n"
+        "📷 Photo for object detection\n"
     )
-    bot.send(msg.chat_id, help_text)
+    sender.reply(help_text)
 
 
-def echo(msg: Message):
-    """Echo text messages - no more Update/Context!"""
-    bot.send(msg.chat_id, f"🦜: {msg.text}")
+def echo(sender: Sender, message: Message):
+    """Echo text messages - using convenient reply helper!"""
+    sender.reply(f"🦜: {message.text}")
 
 
-def detect_objects(msg: Message):
-    """Detect objects in photos - photo already downloaded!"""
-    if not msg.photo_bytes:
-        bot.send(msg.chat_id, "❌ No photo received")
-        return
-
+def detect_objects(
+    sender: Sender,
+    message: Message,
+    photo: bytes,
+    filename: str,
+    size: int,
+):
+    """Detect objects in photos - photo data passed as parameter!"""
     # Notify user we're processing
-    if not bot.send(msg.chat_id, "📷 Detecting objects..."):
-        return
+    sender.reply("📷 Detecting objects...")
 
     # Process image
-    image = Image.open(BytesIO(msg.photo_bytes))
+    image = Image.open(BytesIO(photo))
     results = obj_detection.detect(image, confidence=0.1)
     img_with_boxes = obj_detection.draw_bounding_boxes(image, results)
 
-    # Send result
+    # Send result using reply_photo helper
     output = BytesIO()
     img_with_boxes.save(output, format="PNG")
     output.seek(0)
 
     caption = f"✅ Found {len(results)} object(s)!" if results else "No objects detected"
 
-    if not bot.send_photo(msg.chat_id, output.getvalue(), caption):
-        bot.send(msg.chat_id, "❌ Failed to send processed image")
+    if not sender.reply_photo(output.getvalue(), caption):
+        sender.reply("❌ Failed to send processed image")
 
 
 # Register handlers - clean and simple API!
