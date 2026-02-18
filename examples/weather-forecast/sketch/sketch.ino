@@ -16,28 +16,36 @@ void setup() {
   matrix.clear();
 
   Bridge.begin();
+  Monitor.begin(115200);
 }
 
 void loop() {
   String weather_forecast;
-  bool ok = Bridge.call("get_weather_forecast", city).result(weather_forecast);
-  if (ok) {
-    if (weather_forecast == "sunny") {
-      matrix.loadSequence(sunny);
-      playRepeat(10);
-    } else if (weather_forecast == "cloudy") {
-      matrix.loadSequence(cloudy);
-      playRepeat(10);
-    } else if (weather_forecast == "rainy") {
-      matrix.loadSequence(rainy);
-      playRepeat(20);
-    } else if (weather_forecast == "snowy") {
-      matrix.loadSequence(snowy);
-      playRepeat(10);
-    } else if (weather_forecast == "foggy") {
-      matrix.loadSequence(foggy);
-      playRepeat(5);
-    }
+  if (!Bridge.call("get_weather_forecast", city).result(weather_forecast)) {
+    Monitor.println("Failed to get weather forecast");
+    return;
+  }
+
+  Monitor.print("Weather for ");
+  Monitor.print(city);
+  Monitor.print(": ");
+  Monitor.println(weather_forecast);
+
+  if (weather_forecast == "sunny") {
+    matrix.loadSequence(sunny);
+    playRepeat(10);
+  } else if (weather_forecast == "cloudy") {
+    matrix.loadSequence(cloudy);
+    playRepeat(10);
+  } else if (weather_forecast == "rainy") {
+    matrix.loadSequence(rainy);
+    playRepeat(20);
+  } else if (weather_forecast == "snowy") {
+    matrix.loadSequence(snowy);
+    playRepeat(10);
+  } else if (weather_forecast == "foggy") {
+    matrix.loadSequence(foggy);
+    playRepeat(5);
   }
 }
 
