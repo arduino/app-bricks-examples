@@ -125,6 +125,24 @@ function hexToRgb(hex) {
 }
 
 function initSocketIO() {
+    socket.on('connect', () => {
+        const errorContainer = document.getElementById('error-container');
+        if (errorContainer) {
+            errorContainer.style.display = 'none';
+        }
+        // Re-sync all LEDs with the current UI state on every (re)connect,
+        // so the physical LEDs always match the UI after an app restart.
+        for (const ledNumber in ledState) {
+            const state = ledState[ledNumber];
+            if (state.isOn) {
+                const rgb = hexToRgb(state.color);
+                socket.emit('set_color', { led: parseInt(ledNumber), color: rgb });
+            } else {
+                socket.emit('set_color', { led: parseInt(ledNumber), color: { r: 0, g: 0, b: 0 } });
+            }
+        }
+    });
+
     socket.on('disconnect', () => {
         const errorContainer = document.getElementById('error-container');
         if (errorContainer) {
