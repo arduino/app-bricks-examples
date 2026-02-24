@@ -19,7 +19,7 @@ def generate_secret() -> str:
 
 secret = generate_secret()
 
-ui = WebUI()
+ui = WebUI()  # set use_tls=True to enable TLS encryption for HTTPS
 resolution = (480, 640)  # Portrait resolution for mobile devices
 camera = WebSocketCamera(resolution=resolution, secret=secret, encrypt=True, adjustments=resized(resolution, maintain_ratio=True))
 camera.on_status_changed(lambda evt_type, data: ui.send_message(evt_type, data))
