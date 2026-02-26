@@ -103,7 +103,9 @@ The Python script simplifies audio logic by utilizing the `WaveGenerator` Brick.
 - **Event Handling**: Listens for `theremin:move` events from the frontend to update frequency and amplitude.
 
 ```python
-wave_gen = WaveGenerator(sample_rate=16000, ...) 
+wave_gen = WaveGenerator(...) 
+
+SAMPLE_RATE = wave_gen.sample_rate
 
 def _freq_from_x(x):
     # Exponential mapping from 20Hz up to Nyquist frequency
@@ -114,8 +116,8 @@ def on_move(sid, data):
     freq = _freq_from_x(data.get("x"))
     amp = max(0.0, min(1.0, 1.0 - float(data.get("y"))))
     
-    wave_gen.set_frequency(freq)
-    wave_gen.set_amplitude(amp)
+    wave_gen.frequency = freq
+    wave_gen.amplitude = amp
 ```
 
 ### 🔧 Frontend (`main.js`)
@@ -159,8 +161,8 @@ If the interface works but there is no sound:
 
 ## Technical Details
 
-- **Sample rate:** 16,000 Hz
+- **Sample rate:** 48,000 Hz
 - **Audio format:** 32-bit float, little-endian
-- **Latency:** ~30 ms block duration
-- **Frequency range:** ~20 Hz to ~8,000 Hz
+- **Latency:** ~5 ms @ 48KHz
+- **Frequency range:** ~20 Hz to ~24,000 Hz
 - **Envelope:** Attack (0.01s), Release (0.03s), Glide (0.02s)
