@@ -22,7 +22,11 @@ jobs:
           HEAD_SHA="${{ github.sha }}"
           
           # Get changed files
-          mapfile -t CHANGED_FILES < <(git diff --name-only "$BASE_SHA" "$HEAD_SHA")
+          # Get changed files ONLY inside examples/
+          mapfile -t CHANGED_FILES < <(
+          git diff --name-only "$BASE_SHA" "$HEAD_SHA" \
+          | grep '^examples/' || true
+          )
           
           if [ ${#CHANGED_FILES[@]} -eq 0 ]; then
           echo "No files changed."
