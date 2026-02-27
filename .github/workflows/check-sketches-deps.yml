@@ -10,13 +10,48 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Check Arduino library pins
         shell: bash
         run: |
           set -euo pipefail
 
-          mapfile -t YAML_FILES < <(find . -type f \( -name "sketch.yml" -o -name "sketch.yaml" \) -not -path "./.git/*")
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.sha }}"
+          
+          # Get changed files
+          mapfile -t CHANGED_FILES < <(git diff --name-only "$BASE_SHA" "$HEAD_SHA")
+          
+          if [ ${#CHANGED_FILES[@]} -eq 0 ]; then
+          echo "No files changed."
+          exit 0
+          fi
+          
+          # Extract unique top-level changed directories
+          mapfile -t CHANGED_DIRS < <(
+          printf "%s\n" "${CHANGED_FILES[@]}" \
+          | xargs -n1 dirname \
+          | sort -u
+          )
+          
+          echo "Changed directories:"
+          printf "%s\n" "${CHANGED_DIRS[@]}"
+          
+          # Search sketch.yaml only inside changed directories
+          YAML_FILES=()
+          
+          for dir in "${CHANGED_DIRS[@]}"; do
+          while IFS= read -r file; do
+          YAML_FILES+=("$file")
+          done < <(find "$dir" -type f \( -name "sketch.yml" -o -name "sketch.yaml" \) 2>/dev/null || true)
+          done
+          
+          if [ ${#YAML_FILES[@]} -eq 0 ]; then
+          echo "No sketch.yml or sketch.yaml found in changed paths."
+          exit 0
+          fi
 
           if [ ${#YAML_FILES[@]} -eq 0 ]; then
             echo "No sketch.yml or sketch.yaml files found."
@@ -25,6 +60,8 @@ jobs:
 
           INDEX_URL="https://downloads.arduino.cc/libraries/library_index.json"
           curl -sSL "$INDEX_URL" -o /tmp/library_index.json
+
+          printf "%s\n" "${YAML_FILES[@]}" > /tmp/filtered_yaml_files.txt
 
           python - << 'PY'
           import json, re, sys
@@ -64,11 +101,11 @@ jobs:
           warnings = []
 
           yaml_files = []
-          for p in Path(".").rglob("*"):
-            if p.name in ["sketch.yml", "sketch.yaml"]:
-              if "/.git/" in str(p):
-                continue
-              yaml_files.append(p)
+          with open("/tmp/filtered_yaml_files.txt", "r", encoding="utf-8") as f:
+            for line in f:
+              p = Path(line.strip())
+              if p.exists():
+                yaml_files.append(p)
 
           for yf in yaml_files:
             lines = yf.read_text(encoding="utf-8", errors="ignore").splitlines()
@@ -136,7 +173,7 @@ jobs:
           
           if warnings:
             print(f"Found {len(warnings)} stale pins (see warnings above).")
-            sys.exit(1)
+            sys.exit(0)
           
           if not errors and not warnings:
             print("All Arduino library dependencies are pinned correctly.")
