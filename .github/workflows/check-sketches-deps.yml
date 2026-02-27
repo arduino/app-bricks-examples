@@ -118,6 +118,7 @@ jobs:
             m = re.match(r"^(.+?):(\d+):\s*(.+)$", w)
             if m:
               file, line, msg = m.group(1), m.group(2), m.group(3)
+              print(f"::warning::{w}")
               print(f"::warning file={file},line={line}::{msg}")
             else:
               print(f"::warning::{w}")
@@ -127,6 +128,7 @@ jobs:
               m = re.match(r"^(.+?):(\d+):\s*(.+)$", e)
               if m:
                 file, line, msg = m.group(1), m.group(2), m.group(3)
+                print(f"::error::{e}")
                 print(f"::error file={file},line={line}::{msg}")
               else:
                 print(f"::error::{e}")
