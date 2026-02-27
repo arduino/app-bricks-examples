@@ -10,6 +10,178 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check Arduino library pins
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.sha }}"
+          
+          # Get changed files
+          # Get changed files ONLY inside examples/
+          mapfile -t CHANGED_FILES < <(
+          git diff --name-only "$BASE_SHA" "$HEAD_SHA" \
+          | grep '^examples/' || true
+          )
+          
+          if [ ${#CHANGED_FILES[@]} -eq 0 ]; then
+          echo "No files changed."
+          exit 0
+          fi
+          
+          # Extract unique top-level changed directories
+          mapfile -t CHANGED_DIRS < <(
+          printf "%s\n" "${CHANGED_FILES[@]}" \
+          | xargs -n1 dirname \
+          | sort -u
+          )
+          
+          echo "Changed directories:"
+          printf "%s\n" "${CHANGED_DIRS[@]}"
+          
+          # Search sketch.yaml only inside changed directories
+          YAML_FILES=()
+          
+          for dir in "${CHANGED_DIRS[@]}"; do
+          while IFS= read -r file; do
+          YAML_FILES+=("$file")
+          done < <(find "$dir" -type f \( -name "sketch.yml" -o -name "sketch.yaml" \) 2>/dev/null || true)
+          done
+          
+          if [ ${#YAML_FILES[@]} -eq 0 ]; then
+          echo "No sketch.yml or sketch.yaml found in changed paths."
+          exit 0
+          fi
+
+          if [ ${#YAML_FILES[@]} -eq 0 ]; then
+            echo "No sketch.yml or sketch.yaml files found."
+            exit 0
+          fi
+
+          INDEX_URL="https://downloads.arduino.cc/libraries/library_index.json"
+          curl -sSL "$INDEX_URL" -o /tmp/library_index.json
+
+          printf "%s\n" "${YAML_FILES[@]}" > /tmp/filtered_yaml_files.txt
+
+          python - << 'PY'
+          import json, re, sys
+          from pathlib import Path
+          from packaging.version import Version, InvalidVersion
+
+          lib_line_re = re.compile(r"^\s*-\s*(?:dependency:\s*)?(.+?)\s*\(([^)]+)\)\s*$")
+
+          with open("/tmp/library_index.json", "r", encoding="utf-8") as f:
+            index = json.load(f)
+
+          def norm(s: str) -> str:
+            s = s.strip().strip('"').strip("'").lower()
+            s = re.sub(r"\s+", " ", s)
+            return s
+
+          latest_by_name = {}
+
+          for lib in index.get("libraries", []):
+            name = lib.get("name")
+            ver = lib.get("version")
+            if not name or not ver:
+              continue
+            try:
+              v = Version(ver)
+            except InvalidVersion:
+              continue
+
+            k = norm(name)
+            if k not in latest_by_name:
+              latest_by_name[k] = v
+            else:
+              if v > latest_by_name[k]:
+                latest_by_name[k] = v
+
+          errors = []
+          warnings = []
+
+          yaml_files = []
+          with open("/tmp/filtered_yaml_files.txt", "r", encoding="utf-8") as f:
+            for line in f:
+              p = Path(line.strip())
+              if p.exists():
+                yaml_files.append(p)
+
+          for yf in yaml_files:
+            lines = yf.read_text(encoding="utf-8", errors="ignore").splitlines()
+
+            in_libraries_block = False
+            libraries_indent = None
+
+            for i, line in enumerate(lines, start=1):
+              if re.match(r"^\s*libraries:\s*$", line):
+                in_libraries_block = True
+                libraries_indent = len(line) - len(line.lstrip())
+                continue
+
+              if in_libraries_block:
+                if line.strip() and not line.lstrip().startswith("#"):
+                  indent = len(line) - len(line.lstrip())
+                  if indent <= libraries_indent:
+                    in_libraries_block = False
+                    libraries_indent = None
+                    continue
+
+                if re.match(r"^\s*-\s*", line):
+                  m = lib_line_re.match(line)
+
+                  if not m:
+                    errors.append(f"{yf}:{i}: dependency is not pinned using 'Name (x.y.z)': {line.strip()}")
+                    continue
+
+                  name = m.group(1).strip().strip('"').strip("'")
+                  ver = m.group(2).strip()
+
+                  if ver.lower() == "latest" or ver == "":
+                    errors.append(f"{yf}:{i}: invalid version pin '{ver}' for '{name}'")
+                    continue
+
+                  try:
+                    pinned_v = Version(ver)
+                  except InvalidVersion:
+                    errors.append(f"{yf}:{i}: version '{ver}' for '{name}' is not a valid semver")
+                    continue
+
+                  latest_v = latest_by_name.get(norm(name))
+                  if latest_v and pinned_v < latest_v:
+                    warnings.append(f"{yf}:{i}: '{name}' pinned at {pinned_v} but latest is {latest_v}")
+
+          for w in warnings:
+            m = re.match(r"^(.+?):(\d+):\s*(.+)$", w)
+            if m:
+              file, line, msg = m.group(1), m.group(2), m.group(3)
+              print(f"::warning::{w}")
+              print(f"::warning file={file},line={line}::{msg}")
+            else:
+              print(f"::warning::{w}")
+
+          if errors:
+            for e in errors:
+              m = re.match(r"^(.+?):(\d+):\s*(.+)$", e)
+              if m:
+                file, line, msg = m.group(1), m.group(2), m.group(3)
+                print(f"::error::{e}")
+                print(f"::error file={file},line={line}::{msg}")
+              else:
+                print(f"::error::{e}")
+            sys.exit(1)
+          
+          if warnings:
+            print(f"Found {len(warnings)} stale pins (see warnings above).")
+            sys.exit(0)
+          
+          if not errors and not warnings:
+            print("All Arduino library dependencies are pinned correctly.")
+          PY
 
       - name: Verify sketches
         uses: arduino/compile-sketches@v1
