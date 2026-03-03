@@ -25,8 +25,7 @@ def help_cmd(sender: Sender, message: Message):
         "🤖 *Arduino Bot Commands:*\n\n"
         "/hello - Get a greeting\n"
         "/help - Show this help\n"
-        "/record - Record and send a video clip\n\n"
-        "Send me:\n"
+        "Send me:\n\n"
         "📝 Text to echo it back\n"
         "📷 Photo for object detection\n"
     )
@@ -59,7 +58,7 @@ def detect_objects(
     img_with_boxes.save(output, format="PNG")
     output.seek(0)
 
-    caption = f"✅ Found {len(results)} object(s)!" if results else "No objects detected"
+    caption = f"✅ Found {len(results["detection"])} object(s)!" if results else "No objects detected"
 
     if not sender.reply_photo(output.getvalue(), caption):
         sender.reply("❌ Failed to send processed image")
