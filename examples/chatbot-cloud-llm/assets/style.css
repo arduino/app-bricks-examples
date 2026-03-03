@@ -84,6 +84,20 @@ button:hover {
   background: #006567;
 }
 
+.title-label {
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 170%;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #2C353A;
+    border-radius: 4px;
+    background: rgba(55, 65, 70, 0.15);
+    padding: 2px 8px;
+    font-family: "Roboto Mono", monospace;
+}
+
 #clear-chat-button-header.disabled {
     opacity: 0.5;
     pointer-events: none;
