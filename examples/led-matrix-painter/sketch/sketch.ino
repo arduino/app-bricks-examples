@@ -24,7 +24,7 @@ static unsigned long animation_next_time = 0;
 
 void setup() {
   matrix.begin();
-  Serial.begin(115200);
+  Monitor.begin(115200);
   // configure grayscale bits to 3 so the display accepts 0..7 brightness
   // The backend will send quantized values in 0..(2^3-1) == 0..7.
   matrix.setGrayscaleBits(3);
@@ -44,25 +44,25 @@ void loop() {
 
 void draw(std::vector<uint8_t> frame) {
   if (frame.empty()) {
-    Serial.println("[sketch] draw called with empty frame");
+    Monitor.println("[sketch] draw called with empty frame");
     return;
   }
-  Serial.print("[sketch] draw called, frame.size=");
-  Serial.println((int)frame.size());
+  Monitor.print("[sketch] draw called, frame.size=");
+  Monitor.println((int)frame.size());
   matrix.draw(frame.data());
 }
 
 void load_frame(std::array<uint32_t,5> animation_bytes){
-  Serial.print("[sketch] load_frame ");
+  Monitor.print("[sketch] load_frame ");
   if (animation_bytes.empty()) {
-    Serial.println("[sketch] load_frame called with empty data");
+    Monitor.println("[sketch] load_frame called with empty data");
     return;
   }
 
   // Limit frames to MAX_FRAMES to avoid buffer overflow
   if (animation_frame_count >= MAX_FRAMES) {
-    Serial.print("[sketch] Too many frames, truncating to ");
-    Serial.println(MAX_FRAMES);
+    Monitor.print("[sketch] Too many frames, truncating to ");
+    Monitor.println(MAX_FRAMES);
     animation_frame_count = MAX_FRAMES;
     return;
   }
@@ -73,8 +73,8 @@ void load_frame(std::array<uint32_t,5> animation_bytes){
   animation_buf[animation_frame_count][3] = animation_bytes[3];
   animation_buf[animation_frame_count][4] = animation_bytes[4];
 
-  Serial.print(" time=");
-  Serial.println(animation_bytes[4]);
+  Monitor.print(" time=");
+  Monitor.println(animation_bytes[4]);
 
   animation_frame_count++;
 }
@@ -83,19 +83,19 @@ void play_animation() {
   animation_current_frame = 0;
   animation_running = true;
   animation_next_time = millis();
-  Serial.print("[sketch] Animation queued, frames=");
-  Serial.println(animation_frame_count);
+  Monitor.print("[sketch] Animation queued, frames=");
+  Monitor.println(animation_frame_count);
 }
 
 // Provider to stop any running animation
 void stop_animation() {
   if (!animation_running) {
-    Serial.println("[sketch] stop_animation called but no animation running");
+    Monitor.println("[sketch] stop_animation called but no animation running");
     return;
   }
   animation_running = false;
   animation_frame_count = 0;
-  Serial.println("[sketch] stop_animation: animation halted");
+  Monitor.println("[sketch] stop_animation: animation halted");
 }
 
 // Cooperative animation tick executed from loop()
@@ -105,8 +105,8 @@ void animation_tick() {
   unsigned long now = millis();
   if (now < animation_next_time) return;
 
-  Serial.print("animation tick, frame num:");
-  Serial.println(animation_current_frame);
+  Monitor.print("animation tick, frame num:");
+  Monitor.println(animation_current_frame);
   
   // Prepare frame words (reverse bits as the library expects)
   uint32_t frame[4];
@@ -128,6 +128,6 @@ void animation_tick() {
       animation_running = false;
       animation_frame_count = 0;
       animation_current_frame = 0;
-      Serial.println("[sketch] Animation finished");
+      Monitor.println("[sketch] Animation finished");
   }
 }
