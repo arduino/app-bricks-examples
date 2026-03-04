@@ -1,0 +1,572 @@
+/*
+SPDX-FileCopyrightText: Copyright (C) ARDUINO SRL (http://www.arduino.cc)
+
+SPDX-License-Identifier: MPL-2.0
+*/
+
+@import url('fonts/fonts.css');
+
+html {
+    width: 100%;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Open Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #DAE3E3;
+    line-height: 1.6;
+    color: #343a40;
+    width: 100%;
+}
+
+.container {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 20px;
+    width: 100%;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 12px 0;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.arduino-text {
+    color: #008184;
+    font-family: "Roboto Mono", monospace;
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+    font-style: normal;
+    line-height: 170%;
+    letter-spacing: 2.4px;
+}
+
+.arduino-logo {
+    height: 24px;
+    width: auto;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* General button and input styles */
+button {
+  padding: 8px;
+  border-radius: 8px;
+  background: #008184;
+  color: white;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #006567;
+}
+
+.title-label {
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 170%;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #2C353A;
+    border-radius: 4px;
+    background: rgba(55, 65, 70, 0.15);
+    padding: 2px 8px;
+    font-family: "Roboto Mono", monospace;
+}
+
+#clear-chat-button-header.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.header-right button img {
+    filter: brightness(0) invert(1);
+}
+
+#empty-chat-container {
+    width: 100%;
+    text-align: left;
+    padding: 20px 0px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+/* New container for the icon and greeting text */
+.icon-and-greeting {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    align-self: flex-start;
+}
+
+.icon-and-greeting img {
+    width: 32px;
+    height: 32px;
+}
+
+.greeting {
+    font-family: 'Open Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 600;
+    color: #5D6A6B;
+    margin: 0;
+}
+
+.prompt-question {
+    font-family: "Roboto Mono", monospace;
+    font-size: 28px;
+    font-style: normal;
+    font-weight: 700;
+    color: #2C353A;
+    margin-bottom: 8px;
+    align-self: flex-start;
+}
+
+#chat-messages-container {
+    text-align: left;
+    overflow-y: auto;
+    margin-bottom: 60px;
+    width: 100%;
+    position: relative;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.5) transparent;
+    min-height: 0;
+}
+
+#messages {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-message {
+    align-self: flex-end;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    color: #2C353A;
+    background-color: #DAE3E3;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    max-width: 80%;
+}
+
+.ai-response {
+    align-self: flex-start;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    color: #2C353A;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    display: flex;
+    gap: 8px;
+}
+
+.ai-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.circular-loader {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    border: 2px solid rgba(0, 129, 132, 0.2);
+    border-top: 2px solid #008184;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.thinking-message {
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    color: #2C353A;
+}
+
+.thinking-message .dot-1,
+.thinking-message .dot-2,
+.thinking-message .dot-3 {
+    animation: blink 1s infinite steps(1, start);
+}
+
+.thinking-message .dot-1 { animation-delay: 0s; }
+.thinking-message .dot-2 { animation-delay: 0.33s; }
+.thinking-message .dot-3 { animation-delay: 0.66s; }
+
+@keyframes blink {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+.main-content {
+    background: #ECF1F1;
+    padding: 16px;
+    border-radius: 8px;
+    width: 100%;
+    margin: 0 auto;
+    height: calc(100vh - 130px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.main-content.chat-active {
+  justify-content: flex-start;
+}
+
+.main-content.chat-active #chat-container {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content.chat-active #chat-messages-container {
+  flex-grow: 1;
+  margin-bottom: 0;
+}
+
+.card-container {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+    margin-top: 12px;
+}
+
+.card-container > div {
+    flex: 1;
+    border-radius: 8px;
+    border: 1px solid var(--border-default, #C9D2D2);
+    background: var(--surface-bg-baseline, #FFF);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    text-align: center;
+}
+
+.card-container > div p {
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    color: #2C353A;
+    margin-top: 8px;
+}
+
+
+#chat-container {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    max-width: 780px;
+    margin: 0 auto;
+    width: 100%;
+    min-height: 0;
+}
+
+.input-container {
+    display: flex;
+    width: 100%;
+    position: relative;
+    align-items: center;
+}
+
+.quick-action-buttons-container {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.quick-action-button {
+    font-family: 'Open Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    border-radius: 8px;
+    color: #2C353A;
+    font-weight: 600;
+    padding: 8px;
+    border: 1px solid var(--border-default, #C9D2D2);
+    background-color: white;
+    cursor: pointer;
+}
+
+.quick-action-button:hover {
+    background-color: #00818414;
+}
+
+#user-input {
+    flex: 1;
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 14px 56px 0px 16px;
+    font-size: 14px;
+    line-height: 1;
+    height: auto;
+    overflow-y: auto;
+    resize: none;
+    font-family: 'Open Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: left;
+    margin: 0;
+}
+
+/* Custom scrollbar for .textarea-wrapper */
+.textarea-wrapper::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+.textarea-wrapper::-webkit-scrollbar-track {
+    background: transparent;
+    border: none;
+}
+
+.textarea-wrapper::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 0;
+}
+
+/* Custom scrollbar for #chat-messages-container */
+#chat-messages-container::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+#chat-messages-container::-webkit-scrollbar-track {
+    background: transparent;
+    border: none;
+}
+
+#chat-messages-container::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 0;
+}
+
+/* For Firefox */
+.textarea-wrapper {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.5) transparent;
+}
+
+#user-input::placeholder {
+    color: transparent;
+}
+
+.textarea-wrapper {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 46px;
+    box-sizing: border-box;
+    max-height: 200px;
+    overflow: auto;
+    border-radius: 8px;
+    border: 1px solid var(--border-default, #C9D2D2);
+    background-color: #FFFFFF;
+    box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.08);
+}
+
+.textarea-wrapper:focus-within {
+    border-color: var(--border-accent, #008184);
+}
+
+.custom-placeholder {
+    position: absolute;
+    left: 16px;
+    right: 56px;
+    color: #5D6A6B;
+    pointer-events: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    line-height: 1;
+    font-family: 'Open Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+}
+
+.textarea-wrapper:focus-within .custom-placeholder {
+    color: #2C353A;
+}
+
+#send-button {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--component-bg-accent, #008184);
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#send-button.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+#send-button.sending-state {
+    background: rgba(0, 129, 132, 0.20);
+}
+
+#send-button.sending-state img {
+    filter: none;
+}
+
+#send-button img {
+    filter: brightness(0) invert(1);
+}
+
+.disclaimer {
+    width: 100%;
+    text-align: center;
+    color: #5D6A6B;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    margin-top: 8px;
+}
+
+.stop-disclaimer {
+    color: #5D6A6B;
+    font-size: 14px;
+    font-style: italic;
+    font-weight: 400;
+    margin-top: 8px;
+    align-self: flex-start;
+}
+
+#stop-stream-button {
+    margin-left: auto;
+}
+.card-container > div:hover {
+    background: #f0f0f0;
+}
+
+@media (max-width: 768px) {
+    .ai-response {
+        padding: 8px 12px;
+    }
+
+    .card-container {
+        flex-wrap: wrap;
+    }
+
+    .card-container > div {
+        flex-basis: calc(50% - 8px);
+        flex-grow: 0;
+    }
+}
+
+@media (max-width: 400px) {
+    #user-input {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
+    .card-container {
+        flex-direction: column;
+    }
+
+    .card-container > div {
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 8px;
+        flex-basis: auto;
+    }
+
+    .card-container > div p {
+        text-align: left;
+        margin-top: 0;
+    }
+
+    .prompt-question {
+        font-size: 20px;
+    }
+
+    .greeting {
+        font-size: 16px;
+    }
+
+        .arduino-text {
+
+            font-size: 16px;
+
+        }
+
+
+
+        .header {
+
+            margin-bottom: 16px;
+
+        }
+
+    }
+
+#error-banner {
+    border-radius: 8px;
+    border: 1px solid var(--feedback-error-default, #AA4335);
+    background: var(--feedback-error-subtle, #F6D9D5);
+    margin: 0 auto;
+    margin-top: 16px;
+    padding: 12px;
+    max-width: 780px;
+}
+
+#error-banner p {
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 600;
+    color: #AA4335;
+    margin: 0;
+}

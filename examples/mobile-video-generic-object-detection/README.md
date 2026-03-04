@@ -112,7 +112,7 @@ Once the application is running, you can open it in your browser. At that point,
       return ''.join(secrets.choice(characters) for _ in range(6))
 
     secret = generate_secret()
-    ui = WebUI(use_tls=True)
+    ui = WebUI()
     resolution = (480, 640)  # Portrait resolution for mobile devices
     camera = WebSocketCamera(resolution=resolution, secret=secret, encrypt=True, adjustments=resized(resolution, maintain_ratio=True))
 
@@ -176,3 +176,15 @@ Once the application is running, you can open it in your browser. At that point,
     ```python
     App.run()
     ```
+
+## Note
+
+This example is written to use HTTP protocol for example purposes.
+If you want to manage a secure HTTPS connection:
+- create a copy of this example
+- create certificates files `cert.pem` `key.pem` and save them into `/app/certs`
+- instantiate `WebUi` brick in this way:
+
+```python
+ui = WebUI(use_tls=True, certs_dir_path='/app/certs')
+```

@@ -14,13 +14,14 @@ ui.on_message("override_th", lambda sid, threshold: detection_stream.override_th
 
 # Register a callback for when all objects are detected
 def send_detections_to_ui(detections: dict):
-  for key, value in detections.items():
-    entry = {
-      "content": key,
-      "confidence": value.get("confidence"),
-      "timestamp": datetime.now(UTC).isoformat()
-    }
-    ui.send_message("detection", message=entry)
+  for key, values in detections.items():
+    for value in values:
+      entry = {
+        "content": key,
+        "confidence": value.get("confidence"),
+        "timestamp": datetime.now(UTC).isoformat()
+      }
+      ui.send_message("detection", message=entry)
 
 detection_stream.on_detect_all(send_detections_to_ui)
 

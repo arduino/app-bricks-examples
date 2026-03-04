@@ -1,0 +1,85 @@
+<!--
+SPDX-FileCopyrightText: Copyright (C) ARDUINO SRL (http://www.arduino.cc)
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <main>
+            <div class="header">
+                <div class="header-left">
+                    <img src="img/RGB-Arduino-Logo-Color-Inline-Loop.svg" alt="Arduino Logo" class="arduino-logo" />
+                    <p class="arduino-text">AI Assistant</p>
+                    <div class="title-label">cloud llm</div>
+                </div>
+                <div class="header-right">
+                    <button id="clear-chat-button-header"><img src="img/reset.svg" alt="Reset" style="width: 20px; height: 20px; padding-right: 8px; vertical-align: middle;">Reset chat</button>
+                </div>
+            </div>
+            <div class="main-content">
+                <div id="chat-container">
+                    <div id="chat-messages-container">
+                        <div id="empty-chat-container">
+                            <div class="icon-and-greeting">
+                                <img src="img/green-stars.svg" alt="Green Stars" />
+                                <p class="greeting">Hi there!</p>
+                            </div>
+                            <p class="prompt-question">What’s on your mind?</p>
+                            <div class="card-container">
+                                <div id="card-1">
+                                    <img src="img/shining-star.svg" alt="Shining Star" />
+                                    <p>Tell me something cool about Arduino</p>
+                                </div>
+                                <div id="card-2">
+                                    <img src="img/lightbulb.svg" alt="Lightbulb" />
+                                    <p>How can I build an LLM chat like you?</p>
+                                </div>
+                                <div id="card-3">
+                                    <img src="img/emoji.svg" alt="Emoji" />
+                                    <p>Tell me a funny joke</p>
+                                </div>
+                                <div id="card-4">
+                                    <img src="img/sun-cloud.svg" alt="Sun Cloud" />
+                                    <p>Why is the sky blue?</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="messages"></div>
+                    </div>
+                    <div id="quick-action-buttons" class="quick-action-buttons-container" style="display: none;">
+                        <button class="quick-action-button">Act as …</button>
+                        <button class="quick-action-button">Answer briefly</button>
+                        <button class="quick-action-button">Answer in rhyme</button>
+                        <button class="quick-action-button">Explain in detail</button>
+                        <button class="quick-action-button">Step-by-step</button>
+                    </div>
+                    <div class="input-container">
+                        <div class="textarea-wrapper">
+                            <textarea id="user-input"></textarea>
+                            <span class="custom-placeholder">Type your message here...</span>
+                        </div>
+                        <button id="send-button"><img src="img/send.svg" alt="Send"></button>
+                    </div>
+                    <p class="disclaimer">Responses are generated from pre-existing knowledge. No live web access.</p>
+                    <button id="stop-stream-button" hidden>Stop Stream</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    <div id="error-banner" style="display: none;">
+        <p id="error-message"></p>
+    </div>
+    <script src="libs/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
