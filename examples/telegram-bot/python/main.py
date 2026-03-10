@@ -5,6 +5,7 @@
 # EXAMPLE_NAME = "Telegram bot"
 from arduino.app_bricks.telegram_bot import TelegramBot, Sender, Message
 from arduino.app_bricks.object_detection import ObjectDetection
+from arduino.app_bricks.mood_detector import MoodDetector
 from arduino.app_utils import App
 from PIL import Image
 from io import BytesIO
@@ -12,6 +13,7 @@ from io import BytesIO
 # Initialize bricks
 bot = TelegramBot()
 obj_detection = ObjectDetection()
+mood = MoodDetector()
 
 
 def greet(sender: Sender, message: Message):
@@ -24,18 +26,17 @@ def help_cmd(sender: Sender, message: Message):
     help_text = (
         "🤖 *Arduino Bot Commands:*\n\n"
         "/hello - Get a greeting\n"
-        "/help - Show this help\n"
-        "Send me:\n\n"
-        "📝 Text to echo it back\n"
+        "/help - Show this help\n\n"
+        "Send me:\n"
+        "📝 Text for mood detection\n"
         "📷 Photo for object detection\n"
     )
     sender.reply(help_text)
 
-
-def echo(sender: Sender, message: Message):
-    """Echo text messages - using convenient reply helper!"""
-    sender.reply(f"🦜: {message.text}")
-
+def sentiment(sender: Sender, message: Message):
+    """Reply sentiment analysis for text messages - using convenient reply helper!"""
+    result = mood.get_sentiment(message.text)
+    sender.reply(f"Your mood is: {result}")
 
 def detect_objects(
     sender: Sender,
@@ -58,17 +59,17 @@ def detect_objects(
     img_with_boxes.save(output, format="PNG")
     output.seek(0)
 
-    caption = f"✅ Found {len(results["detection"])} object(s)!" if results else "No objects detected"
+    caption = f"✅ Found {len(results['detection'])} object(s)!" if results else "No objects detected"
 
     if not sender.reply_photo(output.getvalue(), caption):
         sender.reply("❌ Failed to send processed image")
 
 
-# Register handlers - clean and simple API!
+# Register handlers
 bot.add_command("hello", greet, "Get a personalized greeting")
 bot.add_command("help", help_cmd, "Show available commands")
-bot.on_text(echo)
+bot.on_text(sentiment)
 bot.on_photo(detect_objects)
 
-# Start the Arduino App framework (bot starts automatically)
+# Start the Arduino App framework
 App.run()
