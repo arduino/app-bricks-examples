@@ -18,7 +18,7 @@ mood = MoodDetector()
 
 def greet(sender: Sender, message: Message):
     """Handle /hello command - super simple API with reply helper!"""
-    sender.reply(f":wave: Hi {sender.first_name}! This is Arduino UNO Q!")
+    sender.reply(f"👋 Hi {sender.first_name}! This is Arduino UNO Q!")
 
 
 def help_cmd(sender: Sender, message: Message):
@@ -33,13 +33,8 @@ def help_cmd(sender: Sender, message: Message):
     )
     sender.reply(help_text)
 
-
-def echo(sender: Sender, message: Message):
-    """Echo text messages - using convenient reply helper!"""
-    sender.reply(f":parrot:: {message.text}")
-
 def sentiment(sender: Sender, message: Message):
-    """Echo text messages - using convenient reply helper!"""
+    """Reply sentiment analysis for text messages - using convenient reply helper!"""
     result = mood.get_sentiment(message.text)
     sender.reply(f"Your mood is: {result}")
 
@@ -52,7 +47,7 @@ def detect_objects(
 ):
     """Detect objects in photos - photo data passed as parameter!"""
     # Notify user we're processing
-    sender.reply(":camera: Detecting objects...")
+    sender.reply("📷 Detecting objects...")
 
     # Process image
     image = Image.open(BytesIO(photo))
