@@ -37,37 +37,52 @@ This example requires a valid API Key from an LLM provider (Google Gemini, OpenA
 ### Configure & Launch App
 
 1. **Duplicate the Example**
+
    Since built-in examples are read-only, you must duplicate this App to edit the configuration. Click the arrow next to the App name and select **Duplicate** or click the **Copy and edit app** button on the top right corner of the App page.
+
    ![Duplicate example](assets/docs_assets/duplicate-app.png)
 
-2. **Open Brick Configuration**
+3. **Open Brick Configuration**
+
    On the App page, locate the **Bricks** section on the left. Click on the **Cloud LLM** Brick, then click the **Brick Configuration** button on the right side of the screen.
+
    ![Open Brick Configuration](assets/docs_assets/brick-config.png)
 
-3. **Add API Key**
+5. **Add API Key**
+
    In the configuration panel, enter your API Key into the corresponding field. This securely saves your credentials for the App to use. You can generate an API key from your preferred provider:
+   
    *   **Google Gemini:** [Get API Key](https://aistudio.google.com/app/apikey)
    *   **OpenAI GPT:** [Get API Key](https://platform.openai.com/api-keys)
    *   **Anthropic Claude:** [Get API Key](https://console.anthropic.com/settings/keys)
 
    ![Enter your API KEY](assets/docs_assets/brick-credentials.png)
 
-4. **Run the App**
+   > Note: You need to modify the python sketch to fit which provider you choose. See the 'Understanding the Code' section.
+
+7. **Run the App**
+
    Launch the App by clicking the **Run** button in the top right corner. Wait for the App to start.
+
    ![Launch the App](assets/docs_assets/launch-app.png)
 
-5. **Access the Web Interface**
+9. **Access the Web Interface**
+
    Open the App in your browser at `<UNO-Q-IP-ADDRESS>:7000`.
 
 ### Interacting with the App
 
 1. **Choose Your Path**
+
    You have two options to create a story:
+   
    *   **Option A: Manual Configuration** (Follow step 2)
    *   **Option B: Random Generation** (Skip to step 3)
 
-2. **Set Parameters (Manual)**
+3. **Set Parameters (Manual)**
+
    Use the interactive interface to configure the story details. The interface unlocks sections sequentially:
+
    - **Age:** Select the target audience (3-5, 6-8, 9-12, 13-16 years, or Adult).
    - **Theme:** Choose a genre (Fantasy/Adventure, Fairy Tale, Mystery/Horror, Science/Universe, Animals, or Comedy).
    - **Story Type (Optional):** Fine-tune the narrative:
@@ -78,11 +93,14 @@ This example requires a valid API Key from an LLM provider (Google Gemini, OpenA
    - **Characters:** You must add **at least one character** (max 5). Define their Name, Description, and Role (Protagonist, Antagonist, Positive/Negative Helper, or Other).
    - **Generate:** Once ready, click the **Generate story** button.
 
-3. **Generate Randomly**
+5. **Generate Randomly**
+
    If you prefer a surprise, click the **Generate Randomly** button on the right side of the screen. The App will automatically select random options for age, theme, tone, and structure to create a unique story instantly.
 
-4. **Interact**
+7. **Interact**
+
    The story streams in real-time. Once complete, you can:
+
    - **Copy** the text to your clipboard.
    - Click **New story** to reset the interface and start over.
 
