@@ -42,13 +42,13 @@ This example requires a valid API Key from an LLM provider (Google Gemini, OpenA
 
    ![Duplicate example](assets/docs_assets/duplicate-app.png)
 
-3. **Open Brick Configuration**
+2. **Open Brick Configuration**
 
    On the App page, locate the **Bricks** section on the left. Click on the **Cloud LLM** Brick, then click the **Brick Configuration** button on the right side of the screen.
 
    ![Open Brick Configuration](assets/docs_assets/brick-config.png)
 
-5. **Add API Key**
+3. **Add API Key**
 
    In the configuration panel, enter your API Key into the corresponding field. This securely saves your credentials for the App to use. You can generate an API key from your preferred provider:
    
@@ -60,13 +60,13 @@ This example requires a valid API Key from an LLM provider (Google Gemini, OpenA
 
    > Note: You need to modify the python sketch to fit which provider you choose. See the 'Understanding the Code' section.
 
-7. **Run the App**
+4. **Run the App**
 
    Launch the App by clicking the **Run** button in the top right corner. Wait for the App to start.
 
    ![Launch the App](assets/docs_assets/launch-app.png)
 
-9. **Access the Web Interface**
+5. **Access the Web Interface**
 
    Open the App in your browser at `<UNO-Q-IP-ADDRESS>:7000`.
 
@@ -79,7 +79,7 @@ This example requires a valid API Key from an LLM provider (Google Gemini, OpenA
    *   **Option A: Manual Configuration** (Follow step 2)
    *   **Option B: Random Generation** (Skip to step 3)
 
-3. **Set Parameters (Manual)**
+2. **Set Parameters (Manual)**
 
    Use the interactive interface to configure the story details. The interface unlocks sections sequentially:
 
@@ -93,11 +93,11 @@ This example requires a valid API Key from an LLM provider (Google Gemini, OpenA
    - **Characters:** You must add **at least one character** (max 5). Define their Name, Description, and Role (Protagonist, Antagonist, Positive/Negative Helper, or Other).
    - **Generate:** Once ready, click the **Generate story** button.
 
-5. **Generate Randomly**
+3. **Generate Randomly**
 
    If you prefer a surprise, click the **Generate Randomly** button on the right side of the screen. The App will automatically select random options for age, theme, tone, and structure to create a unique story instantly.
 
-7. **Interact**
+4. **Interact**
 
    The story streams in real-time. Once complete, you can:
 
