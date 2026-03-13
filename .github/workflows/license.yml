@@ -25,6 +25,15 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
+      - name: Validate bricks version is stable
+        run: |
+          VERSION=$(grep 'arduino_app_bricks' requirements.txt | sed -E 's/.*%2F([^/]+)\/.*/\1/')
+          echo "Pinned bricks version: $VERSION"
+          if [[ "$VERSION" =~ (rc|alpha|beta|dev) ]]; then
+            echo "::error::requirements.txt pins a pre-release version ($VERSION). Only stable versions are allowed."
+            exit 1
+          fi
+
       - name: Check license headers and files
         run: |
           which task || curl -sSfL https://taskfile.dev/install.sh | sh -s -- -b ${{ env.TASKFILE_PATH }} ${{ env.TASKFILE_VERSION }}
