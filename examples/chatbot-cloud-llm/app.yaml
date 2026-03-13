@@ -1,6 +1,6 @@
-name: Arduino Cloud AI Chatbot 
-icon: ☁️
-description: Chatbot for Arduino using Cloud LLM
+name: Cloud AI Assistant
+icon: ✨
+description: Simple chatbot with Cloud LLM
 
 bricks:
   - arduino:web_ui
