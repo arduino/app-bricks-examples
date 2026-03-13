@@ -11,7 +11,7 @@ Morover, there are some tips buttons that help you in building your prompts in t
 
 ## Bricks Used
 
-The cloud AI Assistant example uses the following Bricks:
+The Cloud AI Assistant example uses the following Bricks:
 
 - `cloud_llm`: Brick to interact with cloud-based Large Language Models (LLMs) like Google Gemini, OpenAI GPT, or Anthropic Claude.
 - `web_ui`: Brick to create the web interface for parameter input and story display.
