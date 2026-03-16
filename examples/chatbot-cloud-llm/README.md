@@ -2,12 +2,14 @@
 
 The **Cloud AI Assistant** example demonstrates how to build a generative AI chatbot using the Arduino UNO Q. It uses a Large Language Model (LLM) to create a chatbot that helps you in your daily life.
 
+![Cloud AI Assistant Example](assets/docs_assets/thumbnail.png)
+
 ## Description
 
 This App transforms the UNO Q into an AI assistant. It uses the `cloud_llm` Brick to connect to a cloud-based AI model and the `web_ui` Brick to provide a rich configuration interface.
 
-The interface comes with some pre-built prompts and a free text area, the thread of messages is developed according to a chat style: your enquires on the right and the AI replies on the left. 
-Morover, there are some tips buttons that help you in building your prompts in the input text area.
+The interface includes pre-built prompts and a free text area. The conversation follows a chat style: your inquiries are on the right, and the AI replies are on the left.
+Moreover, tip buttons help you build prompts in the input text area.
 
 ## Bricks Used
 
@@ -61,15 +63,15 @@ This example requires a valid API Key from an LLM provider (Google Gemini, OpenA
 ### Interacting with the App
 
 1. **Choose Your Card**
-   You have the opportunity to start a conversation with the AI starting from pre-built prompt or submitting your own question.
+   You can start a conversation with the AI using a pre-built prompt or by submitting your own question.
 
 2. **Chat page**
    In the chat page you can have a conversation with the AI. 
-   Your enquires are on the left and the AI replies on the right in a chat-like style.
+   Your inquiries are on the right and the AI replies on the left in a chat-like style.
 
 3. **Enhance your prompt**
-   Click on the tips buttons to enhance your prompts to make them more sofisticated.
-   The text inside the clicked button will be appended to your prompt in the text area.
+   Click on the tips buttons to enhance your prompts to make them more sophisticated.
+   The text of the clicked button will be appended to your prompt.
 
 4. **Interact**
    The AI responses are streamed in real-time. Once complete, you can:
