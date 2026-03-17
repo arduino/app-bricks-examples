@@ -45,11 +45,6 @@
     "Version": "8.3.1"
   },
   {
-    "License": "BSD License",
-    "Name": "colorama",
-    "Version": "0.4.6"
-  },
-  {
     "License": "BSD-3-Clause",
     "Name": "idna",
     "Version": "3.11"
