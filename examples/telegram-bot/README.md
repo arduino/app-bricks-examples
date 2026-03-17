@@ -1,89 +1,142 @@
 # Telegram Bot
 
-This directory contains a minimal example of integrating a Telegram bot with this project.
-It shows how to connect to the Telegram Bot API, receive updates, and send replies.
+The **Telegram Bot** example demonstrates how to create an interactive bot that responds to commands, analyzes text sentiment, and detects objects in images sent via Telegram.
 
-## Overview
 
-The example demonstrates:
+## Description
 
-- Connecting a bot to Telegram using a bot token.
-- Polling or receiving updates from chats.
-- Handling basic messages and/or commands.
-- Sending responses back to the user.
+This example transforms your Arduino UNO Q into a Telegram bot that can:
 
-The exact behavior (which commands are implemented, what messages are sent, etc.) is defined
-in the source code in this directory. Consult the example's main source file here (for
-example `main.*`, `index.*`, or similarly named file) to see the precise list of supported
-commands and responses.
+- Respond to commands like `/hello` and `/help`
+- Analyze the sentiment (mood) of text messages
+- Detect objects in photos you send to the bot
 
-## Prerequisites
+The Python® script handles all the bot logic and AI processing using specialized Bricks. The bot communicates with Telegram's servers to receive messages and send responses.
 
-To run this example you will need:
+![Telegram Bot Data Flow](assets/telegramBotExampleDiagram.png)
 
-- A Telegram account.
-- A Telegram bot token created via **@BotFather**.
-- The tooling required to build and run examples in this repository
-  (for example, a specific language runtime, package manager, or build tool).
-  See the repository’s main README or documentation for general setup instructions.
+## Bricks Used
 
-## Obtaining a Telegram bot token
+The Telegram Bot example uses the following Bricks:
 
-1. Open the Telegram app.
-2. Start a chat with [`@BotFather`](https://t.me/BotFather).
-3. Send the command `/newbot`.
-4. Follow the prompts to choose a name and a unique username for your bot.
-5. When finished, BotFather will send you an HTTP API token that looks similar to:
+- `telegram_bot`: Handles communication with the Telegram Bot API for sending/receiving messages and photos
+- `object_detection`: Performs AI-powered object detection on images
+- `mood_detector`: Analyzes sentiment and mood from text messages
 
-   `123456789:AA...your-token-here...`
+## Hardware and Software Requirements
 
-6. Copy this token; you will need it to configure and run the example.
+### Hardware
 
-## Configuration
+- Arduino UNO Q (x1)
+- USB-C® cable (for power and programming) (x1)
 
-The example needs to know your bot token in order to authenticate with Telegram.
+### Software
 
-Check the source code in this directory to see how the token is read. Common patterns are:
+- Arduino App Lab
+- A Telegram account
 
-- An environment variable such as `TELEGRAM_BOT_TOKEN`.
-- A configuration file (for example `.env`, `config.json`, or similar).
-- A command-line argument when starting the example program.
+**Note:** This example requires an active internet connection to communicate with Telegram's servers and AI services.
 
-Configure the bot token using the mechanism that the example code expects. Do **not**
-commit your bot token to source control.
+## How to Use the Example
 
-## Running the example
+### Create a Telegram Bot
 
-Follow the general build/run instructions in the repository’s main documentation, then:
+To use this example, you need to create a bot on Telegram:
 
-1. Open a terminal in `examples/telegram-bot/`.
-2. Build or run the example using the appropriate command for this project
-   (for example, running a file like `main.*` or `index.*`, or using a provided script).
-3. Ensure the process starts without errors and is able to connect to Telegram.
+1. Open Telegram and search for [@BotFather](https://t.me/BotFather)
+2. Send the message `/newbot`
+3. Follow BotFather's instructions to:
+   - Choose a name for your bot
+   - Choose a unique username (must end with "bot")
+4. BotFather will provide you with an **API token** that looks like: `123456789:AA...your-token-here...`
+5. **Save this token securely** - you'll need it to configure the app
 
-If the example prints logs to the console, you should see messages indicating that it is
-polling or listening for updates.
+### Configure the Application
 
-## Using the bot
+1. **Duplicate the Example**
+   Since built-in examples are read-only, duplicate this app to edit the configuration. Click the arrow next to the app name and select **Duplicate** or click the **Copy and edit app** button.
 
-1. In Telegram, search for the bot using the username you created with BotFather.
-2. Start a chat with the bot (usually via the **Start** button or by sending `/start`).
-3. Send messages or any documented commands supported by this example.
-4. Observe the bot’s replies in the chat and, if helpful, in the terminal logs.
+2. **Configure the Bot Token**
+   On the app page, locate the **Bricks** section on the left. Click on the **Telegram Bot** brick, then click the **Brick Configuration** button.
+   
+   ![Configure Telegram Bot Token](assets/brickConfigTelegram.png)
+   
+   In the configuration panel, enter your API token from BotFather into the token field.
 
-The specific commands and responses implemented are defined in the example code. Look in the
-source file(s) in this directory for comments or handler functions that describe what each
-command does.
+### Run the App
 
-## Expected behavior
+1. Click the **Run** button in the top right corner
+2. Wait for the app to start (you should see confirmation in the logs)
 
-When the example is running and correctly configured:
+### Interact with Your Bot
 
-- The bot connects to the Telegram Bot API using your bot token.
-- The bot receives updates from chats where it has been started or added.
-- The bot processes messages and supported commands using simple handler logic.
-- The bot sends replies back to the user according to that logic.
+1. In Telegram, search for your bot using the username you created
+2. Start a chat with the bot by clicking **Start** or sending `/start`
+3. Try these interactions:
+   - Send `/hello` for a greeting
+   - Send `/help` for available commands
+   - Send any text message to get mood analysis
+   - Send a photo to detect objects
 
-This example is intended as a starting point or reference: you can copy it and extend it to
-add more sophisticated commands, error handling, or integration with other parts of your
-application.
+## How it Works
+
+Once the application is running, it performs the following operations:
+
+- **Bot Registration**: The app registers command handlers and message handlers with the Telegram Bot API
+- **Message Processing**: When users send messages, the appropriate handler processes them:
+  - Commands trigger specific responses
+  - Text messages are analyzed for sentiment
+  - Photos are processed for object detection
+- **AI Integration**: The app uses the `mood_detector` and `object_detection` bricks to analyze content
+- **Response Sending**: Results are sent back to the user via Telegram
+
+The high-level data flow looks like this:
+
+```
+Telegram User → Bot API → Python Handlers → AI Bricks → Response → User
+```
+
+
+## Understanding the Code
+
+Here is a brief explanation of the application components:
+
+### 🔧 Backend (`main.py`)
+
+The Python® script manages bot interactions and AI processing.
+
+- **Import statements**: Load the necessary bricks and utilities
+- **Brick initialization**: Create instances of TelegramBot, ObjectDetection, and MoodDetector
+- **Command handlers**: Functions that respond to specific commands like `/hello` and `/help`
+- **Message handlers**: Functions that process text messages and photos
+- **Handler registration**: Connect handlers to the bot using `add_command()`, `on_text()`, and `on_photo()`
+
+Key code sections:
+
+```python
+# Initialize bricks
+bot = TelegramBot()
+obj_detection = ObjectDetection()
+mood = MoodDetector()
+
+def greet(sender: Sender, message: Message):
+    """Handle /hello command"""
+    sender.reply(f"👋 Hi {sender.first_name}! This is Arduino UNO Q!")
+
+def sentiment(sender: Sender, message: Message):
+    """Analyze mood from text"""
+    result = mood.get_sentiment(message.text)
+    sender.reply(f"Your mood is: {result}")
+
+def detect_objects(sender: Sender, message: Message, photo: bytes, filename: str, size: int):
+    """Detect objects in photos"""
+    # Process image and detect objects
+    image = Image.open(BytesIO(photo))
+    results = obj_detection.detect(image, confidence=0.1)
+    
+    # Draw bounding boxes and send result
+    img_with_boxes = obj_detection.draw_bounding_boxes(image, results)
+    # ... send processed image back
+```
+
+The `sender.reply()` method makes it easy to send responses, while `sender.reply_photo()` handles image responses with captions.
