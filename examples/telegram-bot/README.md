@@ -49,15 +49,15 @@ To use this example, you need to create a bot on Telegram:
    - Choose a name for your bot
    - Choose a unique username (must end with "bot")
 4. BotFather will provide you with an **API token** that looks like: `123456789:AA...your-token-here...`
-5. **Save this token securely** - you'll need it to configure the app
+5. **Save this token securely** - you'll need it to configure the App
 
 ### Configure the Application
 
 1. **Duplicate the Example**
-   Since built-in examples are read-only, duplicate this app to edit the configuration. Click the arrow next to the app name and select **Duplicate** or click the **Copy and edit app** button.
+   Since built-in examples are read-only, duplicate this App to edit the configuration. Click the arrow next to the App name and select **Duplicate** or click the **Copy and edit app** button.
 
 2. **Configure the Bot Token**
-   On the app page, locate the **Bricks** section on the left. Click on the **Telegram Bot** brick, then click the **Brick Configuration** button.
+   On the App page, locate the **Bricks** section on the left. Click on the **Telegram Bot** Brick, then click the **Brick Configuration** button.
    
    ![Configure Telegram Bot Token](assets/brickConfigTelegram.png)
    
@@ -66,7 +66,7 @@ To use this example, you need to create a bot on Telegram:
 ### Run the App
 
 1. Click the **Run** button in the top right corner
-2. Wait for the app to start (you should see confirmation in the logs)
+2. Wait for the App to start (you should see confirmation in the logs)
 
 ### Interact with Your Bot
 
@@ -82,12 +82,12 @@ To use this example, you need to create a bot on Telegram:
 
 Once the application is running, it performs the following operations:
 
-- **Bot Registration**: The app registers command handlers and message handlers with the Telegram Bot API
+- **Bot Registration**: The App registers command handlers and message handlers with the Telegram Bot API
 - **Message Processing**: When users send messages, the appropriate handler processes them:
   - Commands trigger specific responses
   - Text messages are analyzed for sentiment
   - Photos are processed for object detection
-- **AI Integration**: The app uses the `mood_detector` and `object_detection` bricks to analyze content
+- **AI Integration**: The App uses the `mood_detector` and `object_detection` bricks to analyze content
 - **Response Sending**: Results are sent back to the user via Telegram
 
 The high-level data flow looks like this:
@@ -105,7 +105,7 @@ Here is a brief explanation of the application components:
 
 The Python® script manages bot interactions and AI processing.
 
-- **Import statements**: Load the necessary bricks and utilities
+- **Import statements**: Load the necessary Bricks and utilities
 - **Brick initialization**: Create instances of TelegramBot, ObjectDetection, and MoodDetector
 - **Command handlers**: Functions that respond to specific commands like `/hello` and `/help`
 - **Message handlers**: Functions that process text messages and photos
