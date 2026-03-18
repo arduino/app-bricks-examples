@@ -10,9 +10,8 @@ vars:
 
 tasks:
   init:ci:
-    desc: Initialize CI environment
+    desc: Initialize environment
     cmds:
-      # Create fresh venv only in local environment
       - |
         if [ "{{.IS_CI}}" != "true" ]; then
           echo "Local environment detected: creating fresh virtual environment..."
@@ -23,13 +22,23 @@ tasks:
           echo "CI environment detected: skipping venv creation"
           pip install --upgrade pip
         fi
-      - '{{.PYTHON_PREFIX}}pip install libs/arduino_app_bricks-*-py3-none-any.whl reuse pip-licenses'
+      - '{{.PYTHON_PREFIX}}pip install -r requirements.txt'
+
+  install-bricks:
+    desc: Install a specific bricks version (e.g. task install-bricks -- 0.8.0rc2)
+    cmds:
+      - |
+        VERSION={{.CLI_ARGS}}
+        if [ -z "$VERSION" ]; then
+          echo "Usage: task install-bricks -- <version>"
+          exit 1
+        fi
+        {{.PYTHON_PREFIX}}pip install "https://github.com/arduino/app-bricks-py/releases/download/release%2F${VERSION}/arduino_app_bricks-${VERSION}-py3-none-any.whl"
 
   license:
-    deps:
-      - init:ci
     desc: Update license headers and files
     cmds:
+      - task: init:ci
       - |
         git ls-files |
         grep -Ev "(^|/)(libs|sketch-libraries|assets)/|THIRD-PARTY-LICENSES.json|\.(md|txt|yml|yaml|toml|gitignore|gitmodules)$" |
