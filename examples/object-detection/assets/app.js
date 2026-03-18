@@ -346,6 +346,15 @@ function handleDetectionResult(data) {
         return;
     }
 
+    if (data.text.length > 0){
+       document.getElementById("textDetected").innerText = data.text;
+       document.getElementById("no-text-container").textContent = '';
+       document.getElementById("no-text-container").style.display = 'none';
+    } else{
+       document.getElementById("no-text-container").textContent = '<no text detected>';
+       document.getElementById("no-text-container").style.display = 'block';
+    }
+
     if (data.result_image) {
         // Store the result image
         resultImage = data.result_image;
