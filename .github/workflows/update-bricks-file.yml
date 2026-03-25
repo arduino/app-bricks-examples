@@ -83,15 +83,24 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
+      - name: Set up Ruby
+        if: steps.check-branch.outputs.branch_exists != 'true' && steps.check-update.outputs.update_needed != 'false'
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ruby
+
+      - name: Install licensed
+        if: steps.check-branch.outputs.branch_exists != 'true' && steps.check-update.outputs.update_needed != 'false'
+        uses: licensee/setup-licensed@v1.3.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          version: 5.x
+
       - name: Update license
         if: steps.check-branch.outputs.branch_exists != 'true' && steps.check-update.outputs.update_needed != 'false'
         run: |
           which task || curl -sSfL https://taskfile.dev/install.sh | sh -s -- -b ${{ env.TASKFILE_PATH }} ${{ env.TASKFILE_VERSION }}
           export PATH="${{ env.TASKFILE_PATH }}:$PATH"
-          # CI=true tells the Taskfile init:ci task to skip venv creation and
-          # install packages with the system Python (GHA already sets this, but
-          # we make it explicit here for clarity).
-          export CI=true
           task license
 
       - name: Commit and push changes

@@ -1,3 +1,2 @@
 arduino_app_bricks @ https://github.com/arduino/app-bricks-py/releases/download/release%2F0.8.0/arduino_app_bricks-0.8.0-py3-none-any.whl
 reuse
-pip-licenses

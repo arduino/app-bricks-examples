@@ -1,28 +1,17 @@
 version: "3"
 
 vars:
-  # Detect if running in CI environment
-  IS_CI:
-    sh: '[ -n "$CI" ] && echo "true" || echo "false"'
-  # Set Python command prefix based on environment
-  PYTHON_PREFIX:
-    sh: '[ -n "$CI" ] && echo "" || echo ".venv/bin/"'
+  LICENSED_VERSION: '5.0.1'
 
 tasks:
   init:ci:
-    desc: Initialize environment
+    desc: Initialize environment (venv + dependencies)
     cmds:
       - |
-        if [ "{{.IS_CI}}" != "true" ]; then
-          echo "Local environment detected: creating fresh virtual environment..."
-          rm -rf .venv
-          python3 -m venv .venv
-          {{.PYTHON_PREFIX}}pip install --upgrade pip
-        else
-          echo "CI environment detected: skipping venv creation"
-          pip install --upgrade pip
-        fi
-      - '{{.PYTHON_PREFIX}}pip install -r requirements.txt'
+        rm -rf .venv
+        python3 -m venv .venv
+        .venv/bin/pip install --upgrade pip
+      - '.venv/bin/pip install -r requirements.txt'
 
   install-bricks:
     desc: Install a specific bricks version (e.g. task install-bricks -- 0.8.0rc2)
@@ -33,7 +22,7 @@ tasks:
           echo "Usage: task install-bricks -- <version>"
           exit 1
         fi
-        {{.PYTHON_PREFIX}}pip install "https://github.com/arduino/app-bricks-py/releases/download/release%2F${VERSION}/arduino_app_bricks-${VERSION}-py3-none-any.whl"
+        .venv/bin/pip install "https://github.com/arduino/app-bricks-py/releases/download/release%2F${VERSION}/arduino_app_bricks-${VERSION}-py3-none-any.whl"
 
   license:
     desc: Update license headers and files
@@ -41,10 +30,10 @@ tasks:
       - task: init:ci
       - |
         git ls-files |
-        grep -Ev "(^|/)(libs|sketch-libraries|assets)/|THIRD-PARTY-LICENSES.json|\.(md|txt|yml|yaml|toml|gitignore|gitmodules)$" |
+        grep -Ev "(^|/)(libs|sketch-libraries|assets)/|\.(md|txt|yml|yaml|toml|gitignore|gitmodules)$" |
         sed 's/ /\\ /g' |
-        xargs {{.PYTHON_PREFIX}}reuse annotate -r --skip-unrecognized --copyright-prefix 'spdx-string-c' --copyright 'ARDUINO SRL (http://www.arduino.cc)' --exclude-year --license 'MPL-2.0'
-      - '{{.PYTHON_PREFIX}}reuse download --all'
+        xargs .venv/bin/reuse annotate -r --skip-unrecognized --copyright-prefix 'spdx-string-c' --copyright 'ARDUINO SRL (http://www.arduino.cc)' --exclude-year --license 'MPL-2.0'
+      - '.venv/bin/reuse download --all'
       - |
         licenses_dir="LICENSES"
         if [ -d "$licenses_dir" ]; then
@@ -60,4 +49,10 @@ tasks:
           fi
           rmdir "$licenses_dir"
         fi
-      - '{{.PYTHON_PREFIX}}pip-licenses --format=json --output-file=THIRD-PARTY-LICENSES.json'
+      - |
+        if ! which licensed &>/dev/null; then
+          echo "Installing licensed v{{.LICENSED_VERSION}}..."
+          gem install licensed -v {{.LICENSED_VERSION}}
+        fi
+        licensed cache
+        licensed status

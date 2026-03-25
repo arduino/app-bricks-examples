@@ -34,11 +34,21 @@ jobs:
             exit 1
           fi
 
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ruby
+
+      - name: Install licensed
+        uses: licensee/setup-licensed@v1.3.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          version: 5.x
+
       - name: Check license headers and files
         run: |
           which task || curl -sSfL https://taskfile.dev/install.sh | sh -s -- -b ${{ env.TASKFILE_PATH }} ${{ env.TASKFILE_VERSION }}
           export PATH="${{ env.TASKFILE_PATH }}:$PATH"
-          export CI=true
           task license
           if git diff --quiet; then
             echo "License data is up to date!"

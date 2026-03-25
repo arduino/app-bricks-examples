@@ -1,0 +1,27 @@
+sources:
+  pip: true
+
+python:
+  virtual_env_dir: ".venv"
+
+cache_path: .licenses
+
+ignored:
+  pip:
+    # Dev-only tools, not distributed runtime dependencies
+    - reuse
+    - pip-licenses
+
+# Source: https://github.com/arduino/tooling-project-assets/blob/main/workflow-templates/assets/check-dependencies/GPL-3.0/.licensed.yml
+allowed:
+  - mpl-2.0
+  - apache-2.0
+  - mit
+  - mit-cmu
+  - bsd-2-clause
+  - bsd-3-clause
+  - cc0-1.0
+  - isc
+  - psf-2.0
+  - unlicense
+  - ofl-1.1
