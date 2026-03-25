@@ -11,6 +11,7 @@ Taskfile.yml
 
 # Python
 .venv
+libs/*.whl
 
 # Examples
 *.db
