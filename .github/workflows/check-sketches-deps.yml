@@ -16,7 +16,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          mapfile -t YAML_FILES < <(find . -type f \( -name "sketch.yml" -o -name "sketch.yaml" \) -not -path "./.git/*")
+          mapfile -t YAML_FILES < <(find examples/ -type f \( -name "sketch.yml" -o -name "sketch.yaml" \))
 
           if [ ${#YAML_FILES[@]} -eq 0 ]; then
             echo "No sketch.yml or sketch.yaml files found."
@@ -64,10 +64,8 @@ jobs:
           warnings = []
 
           yaml_files = []
-          for p in Path(".").rglob("*"):
+          for p in Path("examples").rglob("*"):
             if p.name in ["sketch.yml", "sketch.yaml"]:
-              if "/.git/" in str(p):
-                continue
               yaml_files.append(p)
 
           for yf in yaml_files:
