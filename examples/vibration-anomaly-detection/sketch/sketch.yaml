@@ -1,9 +1,10 @@
 profiles:
   default:
+    fqbn: 
     platforms:
       - platform: arduino:zephyr
     libraries:
-      - Arduino_RouterBridge (0.3.0)
+      - Arduino_RouterBridge (0.4.0)
       - dependency: Arduino_RPClite (0.2.1)
       - dependency: ArxContainer (0.7.0)
       - dependency: ArxTypeTraits (0.3.2)
@@ -17,4 +18,5 @@ profiles:
       - dependency: Arduino_LTR381RGB (1.0.0)
       - dependency: STM32duino VL53L4CD (1.0.5)
       - dependency: STM32duino VL53L4ED (1.0.1)
+
 default_profile: default
