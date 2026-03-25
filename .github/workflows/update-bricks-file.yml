@@ -88,6 +88,9 @@ jobs:
         run: |
           which task || curl -sSfL https://taskfile.dev/install.sh | sh -s -- -b ${{ env.TASKFILE_PATH }} ${{ env.TASKFILE_VERSION }}
           export PATH="${{ env.TASKFILE_PATH }}:$PATH"
+          # CI=true tells the Taskfile init:ci task to skip venv creation and
+          # install packages with the system Python (GHA already sets this, but
+          # we make it explicit here for clarity).
           export CI=true
           task license
 
