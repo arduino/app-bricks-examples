@@ -27,32 +27,42 @@ tasks:
         .venv/bin/pip install "https://github.com/arduino/app-bricks-py/releases/download/release%2F${VERSION}/arduino_app_bricks-${VERSION}-py3-none-any.whl"
 
   license:
-    desc: Update license headers and files
+    desc: |
+      Update license headers, validate REUSE compliance and check dependency licenses.
+      Requires Ruby and the 'licensed' gem for dependency license checking.
+      If Ruby is not installed, install it with one of:
+        - Linux (apt):   sudo apt-get install ruby-full
+        - Linux (rbenv): curl -fsSL https://github.com/rbenv/rbenv-installer/raw/HEAD/bin/rbenv-installer | bash
+                         rbenv install 3.3.10 && rbenv global 3.3.10
+        - macOS:         brew install ruby
+      Then install licensed: gem install licensed -v 5.0.1
     cmds:
       - task: init:ci
       - |
         git ls-files |
-        grep -Ev "(^|/)(libs|sketch-libraries|assets)/|\.(md|txt|yml|yaml|toml|gitignore|gitmodules)$" |
+        grep -E '\.(py|js|css|html|ino|h|c|cpp)$' |
         sed 's/ /\\ /g' |
         xargs .venv/bin/reuse annotate -r --skip-unrecognized --copyright-prefix 'spdx-string-c' --copyright 'ARDUINO SRL (http://www.arduino.cc)' --exclude-year --license 'MPL-2.0'
       - '.venv/bin/reuse download --all'
-      - |
-        licenses_dir="LICENSES"
-        if [ -d "$licenses_dir" ]; then
-          count=$(find "$licenses_dir" -type f | wc -l)
-          if [ "$count" -gt 1 ]; then
-            for f in "$licenses_dir"/*; do
-              base=$(basename "$f")
-              mv "$f" "LICENSE-${base}"
-            done
-          elif [ "$count" -eq 1 ]; then
-            f=$(find "$licenses_dir" -type f | head -n1)
-            mv "$f" LICENSE.txt
-          fi
-          rmdir "$licenses_dir"
-        fi
+      - '.venv/bin/reuse lint'
       - |
         if ! which licensed &>/dev/null; then
+          if ! which gem &>/dev/null; then
+            echo ""
+            echo "============================================================"
+            echo "  ERROR: 'licensed' requires Ruby, which was not found."
+            echo ""
+            echo "  Install Ruby with one of the following methods:"
+            echo "    Linux (apt):    sudo apt-get install ruby-full"
+            echo "    Linux (rbenv):  curl -fsSL https://github.com/rbenv/rbenv-installer/raw/HEAD/bin/rbenv-installer | bash"
+            echo "                    rbenv install 3.3.10 && rbenv global 3.3.10"
+            echo "    macOS:          brew install ruby"
+            echo ""
+            echo "  Then install licensed:"
+            echo "    gem install licensed -v {{.LICENSED_VERSION}}"
+            echo "============================================================"
+            exit 1
+          fi
           echo "Installing licensed v{{.LICENSED_VERSION}}..."
           gem install licensed -v {{.LICENSED_VERSION}}
         fi
