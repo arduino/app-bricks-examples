@@ -27,7 +27,7 @@ jobs:
           curl -sSL "$INDEX_URL" -o /tmp/library_index.json
 
           python - << 'PY'
-          import json, re, sys
+          import json, os, re, sys
           from pathlib import Path
           from packaging.version import Version, InvalidVersion
 
@@ -110,16 +110,19 @@ jobs:
 
                   latest_v = latest_by_name.get(norm(name))
                   if latest_v and pinned_v < latest_v:
-                    warnings.append(f"{yf}:{i}: '{name}' pinned at {pinned_v} but latest is {latest_v}")
+                    example = str(yf).split("/")[1] if len(str(yf).split("/")) > 1 else str(yf)
+                    warnings.append({
+                      "file": str(yf),
+                      "line": i,
+                      "example": example,
+                      "library": name,
+                      "pinned": str(pinned_v),
+                      "latest": str(latest_v),
+                    })
 
           for w in warnings:
-            m = re.match(r"^(.+?):(\d+):\s*(.+)$", w)
-            if m:
-              file, line, msg = m.group(1), m.group(2), m.group(3)
-              print(f"::warning::{w}")
-              print(f"::warning file={file},line={line}::{msg}")
-            else:
-              print(f"::warning::{w}")
+            msg = f"'{w['library']}' pinned at {w['pinned']} but latest is {w['latest']}"
+            print(f"::warning file={w['file']},line={w['line']}::{msg}")
 
           if errors:
             for e in errors:
@@ -133,6 +136,15 @@ jobs:
             sys.exit(1)
           
           if warnings:
+            summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+            if summary_path:
+              with open(summary_path, "a", encoding="utf-8") as f:
+                f.write("## ⚠️ Stale library pins\n\n")
+                f.write("| Example | Library | Pinned | Latest |\n")
+                f.write("|---------|---------|--------|--------|\n")
+                for w in warnings:
+                  f.write(f"| {w['example']} | {w['library']} | {w['pinned']} | {w['latest']} |\n")
+                f.write("\n")
             print(f"Found {len(warnings)} stale pins (see warnings above).")
             sys.exit(0)
           
