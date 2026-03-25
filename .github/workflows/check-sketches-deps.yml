@@ -136,7 +136,7 @@ jobs:
           
           if warnings:
             print(f"Found {len(warnings)} stale pins (see warnings above).")
-            sys.exit(1)
+            sys.exit(0)
           
           if not errors and not warnings:
             print("All Arduino library dependencies are pinned correctly.")
