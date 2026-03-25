@@ -2,6 +2,7 @@ version: "3"
 
 vars:
   LICENSED_VERSION: '5.0.1'
+  REUSE_VERSION: '5.0.2'
 
 tasks:
   init:ci:
@@ -12,6 +13,7 @@ tasks:
         python3 -m venv .venv
         .venv/bin/pip install --upgrade pip
       - '.venv/bin/pip install -r requirements.txt'
+      - '.venv/bin/pip install reuse=={{.REUSE_VERSION}}'
 
   install-bricks:
     desc: Install a specific bricks version (e.g. task install-bricks -- 0.8.0rc2)

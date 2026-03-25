@@ -8,9 +8,8 @@ cache_path: .licenses
 
 ignored:
   pip:
-    # Dev-only tools, not distributed runtime dependencies
+    # Dev-only tool installed separately, not a runtime dependency
     - reuse
-    - pip-licenses
 
 # Source: https://github.com/arduino/tooling-project-assets/blob/main/workflow-templates/assets/check-dependencies/GPL-3.0/.licensed.yml
 allowed:
