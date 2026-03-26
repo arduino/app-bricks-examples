@@ -1,4 +1,5 @@
-// SPDX-FileCopyrightText: Copyright (C) 2025
+// SPDX-FileCopyrightText: Copyright (C) ARDUINO SRL (http://www.arduino.cc)
+//
 // SPDX-License-Identifier: MPL-2.0
 
 const socket = io(`http://${window.location.host}`);
