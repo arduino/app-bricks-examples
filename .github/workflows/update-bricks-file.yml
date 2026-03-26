@@ -89,13 +89,6 @@ jobs:
         with:
           ruby-version: ruby
 
-      - name: Install licensed
-        if: steps.check-branch.outputs.branch_exists != 'true' && steps.check-update.outputs.update_needed != 'false'
-        uses: licensee/setup-licensed@v1.3.2
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          version: 5.x
-
       - name: Update license
         if: steps.check-branch.outputs.branch_exists != 'true' && steps.check-update.outputs.update_needed != 'false'
         run: |

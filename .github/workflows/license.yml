@@ -39,12 +39,6 @@ jobs:
         with:
           ruby-version: ruby
 
-      - name: Install licensed
-        uses: licensee/setup-licensed@v1.3.2
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          version: 5.x
-
       - name: Check license headers and files
         run: |
           which task || curl -sSfL https://taskfile.dev/install.sh | sh -s -- -b ${{ env.TASKFILE_PATH }} ${{ env.TASKFILE_VERSION }}

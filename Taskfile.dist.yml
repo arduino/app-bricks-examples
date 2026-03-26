@@ -1,19 +1,30 @@
 version: "3"
 
 vars:
-  LICENSED_VERSION: '5.0.1'
+  LICENSED_VERSION: '5.0.6'
   REUSE_VERSION: '5.0.2'
+  LICENSE_VENV_DIR: '.venv'
+  REUSE_VENV_DIR: '.reuse-venv'
 
 tasks:
-  init:ci:
-    desc: Initialize environment (venv + dependencies)
+  init:license:
+    desc: Recreate the environments used by the license task
     cmds:
       - |
-        rm -rf .venv
-        python3 -m venv .venv
-        .venv/bin/pip install --upgrade pip
-      - '.venv/bin/pip install -r requirements.txt'
-      - '.venv/bin/pip install reuse=={{.REUSE_VERSION}}'
+        rm -rf "{{.LICENSE_VENV_DIR}}"
+        python3 -m venv "{{.LICENSE_VENV_DIR}}"
+        "{{.LICENSE_VENV_DIR}}"/bin/pip install --upgrade pip
+        "{{.LICENSE_VENV_DIR}}"/bin/pip install -r requirements.txt
+      - |
+        rm -rf "{{.REUSE_VENV_DIR}}"
+        python3 -m venv "{{.REUSE_VENV_DIR}}"
+        "{{.REUSE_VENV_DIR}}"/bin/pip install --upgrade pip
+        "{{.REUSE_VENV_DIR}}"/bin/pip install reuse=={{.REUSE_VERSION}}
+
+  init:ci:
+    desc: Backward-compatible alias for initializing license environments
+    cmds:
+      - task: init:license
 
   install-bricks:
     desc: Install a specific bricks version (e.g. task install-bricks -- 0.8.0rc2)
@@ -24,47 +35,119 @@ tasks:
           echo "Usage: task install-bricks -- <version>"
           exit 1
         fi
-        .venv/bin/pip install "https://github.com/arduino/app-bricks-py/releases/download/release%2F${VERSION}/arduino_app_bricks-${VERSION}-py3-none-any.whl"
+        "{{.LICENSE_VENV_DIR}}"/bin/pip install "https://github.com/arduino/app-bricks-py/releases/download/release%2F${VERSION}/arduino_app_bricks-${VERSION}-py3-none-any.whl"
+
+  install:licensed:
+    internal: true
+    cmds:
+      - |
+        if [ -d "$HOME/.rbenv" ]; then
+          export PATH="$HOME/.rbenv/bin:$HOME/.rbenv/shims:$PATH"
+        fi
+
+        if ! command -v ruby >/dev/null 2>&1 || ! command -v gem >/dev/null 2>&1; then
+          echo ""
+          echo "============================================================"
+          echo "  ERROR: 'licensed' requires Ruby and RubyGems, but they were not found."
+          echo ""
+          echo "  Install Ruby with one of the following methods:"
+          echo "    Linux (apt):    sudo apt-get install ruby-full"
+          echo "    Linux (brew):   brew install ruby"
+          echo "    Linux (rbenv):  curl -fsSL https://github.com/rbenv/rbenv-installer/raw/HEAD/bin/rbenv-installer | bash"
+          echo "                    sudo apt-get update && sudo apt-get install -y build-essential libssl-dev zlib1g-dev libreadline-dev libyaml-dev libffi-dev rustc"
+          echo "                    rbenv install 3.3.10 && rbenv global 3.3.10"
+          echo "    macOS:          brew install ruby"
+          echo "    Windows:        use WSL (for example: wsl --install) and then follow one of the Linux options above"
+          echo ""
+          echo "  Verify the installation with:"
+          echo "    ruby --version"
+          echo "    gem --version"
+          echo ""
+          echo "  Then install licensed:"
+          echo "    gem install licensed -v {{.LICENSED_VERSION}}"
+          echo "============================================================"
+          exit 1
+        fi
+
+        INSTALLED_VERSION=""
+        if which licensed &>/dev/null; then
+          INSTALLED_VERSION="$(licensed version 2>/dev/null | grep -Eo '[0-9]+(\.[0-9]+)+' | head -n1)"
+        fi
+
+        if [ "$INSTALLED_VERSION" != "{{.LICENSED_VERSION}}" ]; then
+          echo "Installing licensed v{{.LICENSED_VERSION}}..."
+          if ! gem install licensed -v {{.LICENSED_VERSION}} --no-document; then
+            echo ""
+            echo "============================================================"
+            echo "  ERROR: failed to install licensed v{{.LICENSED_VERSION}} with gem."
+            echo ""
+            echo "  If Ruby was installed with rbenv on Debian/Ubuntu, make sure"
+            echo "  the required system packages are available before retrying:"
+            echo "    sudo apt-get update && sudo apt-get install -y build-essential libssl-dev zlib1g-dev libreadline-dev libyaml-dev libffi-dev rustc"
+            echo ""
+            echo "  Alternative setup options:"
+            echo "    Linux (brew):   brew install ruby"
+            echo "    Windows:        use WSL (for example: wsl --install)"
+            echo "============================================================"
+            exit 1
+          fi
+          if which rbenv &>/dev/null; then
+            rbenv rehash
+          fi
+        fi
 
   license:
     desc: |
       Update license headers, validate REUSE compliance and check dependency licenses.
+      Uses a dedicated virtualenv for REUSE and a separate one for pip dependency scanning.
       Requires Ruby and the 'licensed' gem for dependency license checking.
       If Ruby is not installed, install it with one of:
         - Linux (apt):   sudo apt-get install ruby-full
+        - Linux (brew):  brew install ruby
         - Linux (rbenv): curl -fsSL https://github.com/rbenv/rbenv-installer/raw/HEAD/bin/rbenv-installer | bash
+                         sudo apt-get update && sudo apt-get install -y build-essential libssl-dev zlib1g-dev libreadline-dev libyaml-dev libffi-dev rustc
                          rbenv install 3.3.10 && rbenv global 3.3.10
         - macOS:         brew install ruby
-      Then install licensed: gem install licensed -v 5.0.1
+        - Windows:       use WSL (e.g. `wsl --install`) and then follow one of the Linux options above
+      Then install licensed: gem install licensed -v {{.LICENSED_VERSION}}
     cmds:
-      - task: init:ci
+      - task: init:license
       - |
-        git ls-files |
-        grep -E '\.(py|js|css|html|ino|h|c|cpp)$' |
-        sed 's/ /\\ /g' |
-        xargs .venv/bin/reuse annotate -r --skip-unrecognized --copyright-prefix 'spdx-string-c' --copyright 'ARDUINO SRL (http://www.arduino.cc)' --exclude-year --license 'MPL-2.0'
-      - '.venv/bin/reuse download --all'
-      - '.venv/bin/reuse lint'
+        git ls-files -z -- '*.py' '*.js' '*.css' '*.html' '*.ino' '*.h' '*.c' '*.cpp' ':(exclude)examples/**/assets/libs/**' |
+        xargs -0 "{{.REUSE_VENV_DIR}}"/bin/reuse annotate --skip-unrecognized --merge-copyrights --copyright-prefix 'spdx-string-c' --copyright 'ARDUINO SRL (http://www.arduino.cc)' --exclude-year --license 'MPL-2.0'
+      - '"{{.REUSE_VENV_DIR}}"/bin/reuse download --all'
+      - '"{{.REUSE_VENV_DIR}}"/bin/reuse lint'
+      - task: install:licensed
       - |
-        if ! which licensed &>/dev/null; then
-          if ! which gem &>/dev/null; then
-            echo ""
-            echo "============================================================"
-            echo "  ERROR: 'licensed' requires Ruby, which was not found."
-            echo ""
-            echo "  Install Ruby with one of the following methods:"
-            echo "    Linux (apt):    sudo apt-get install ruby-full"
-            echo "    Linux (rbenv):  curl -fsSL https://github.com/rbenv/rbenv-installer/raw/HEAD/bin/rbenv-installer | bash"
-            echo "                    rbenv install 3.3.10 && rbenv global 3.3.10"
-            echo "    macOS:          brew install ruby"
-            echo ""
-            echo "  Then install licensed:"
-            echo "    gem install licensed -v {{.LICENSED_VERSION}}"
-            echo "============================================================"
-            exit 1
-          fi
-          echo "Installing licensed v{{.LICENSED_VERSION}}..."
-          gem install licensed -v {{.LICENSED_VERSION}}
+        if [ -d "$HOME/.rbenv" ]; then
+          export PATH="$HOME/.rbenv/bin:$HOME/.rbenv/shims:$PATH"
         fi
+
         licensed cache
+        "{{.LICENSE_VENV_DIR}}"/bin/python - <<'PY'
+        import json
+        import pathlib
+        import re
+        import subprocess
+
+        cache_dir = pathlib.Path(".licenses/pip")
+        if not cache_dir.exists():
+          raise SystemExit(0)
+
+        def canonicalize(name: str) -> str:
+          return re.sub(r"[-_.]+", "-", name).lower()
+
+        packages = json.loads(
+          subprocess.check_output(
+            ["{{.LICENSE_VENV_DIR}}/bin/pip", "--disable-pip-version-check", "list", "--format=json"],
+            text=True,
+          )
+        )
+        expected = {canonicalize(package["name"]) for package in packages}
+
+        for dep_file in cache_dir.glob("*.dep.yml"):
+          dep_name = dep_file.name[:-8]
+          if canonicalize(dep_name) not in expected:
+            dep_file.unlink()
+        PY
         licensed status

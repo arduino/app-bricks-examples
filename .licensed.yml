@@ -8,11 +8,12 @@ python:
   virtual_env_dir: ".venv"
 
 cache_path: .licenses
+stale_records_action: error
 
 ignored:
   pip:
-    # Dev-only tool installed separately, not a runtime dependency
-    - reuse
+    # Package manager installed in the dependency-scanning virtualenv
+    - pip
 
 # Source: https://github.com/arduino/tooling-project-assets/blob/main/workflow-templates/assets/check-dependencies/GPL-3.0/.licensed.yml
 allowed:
