@@ -41,17 +41,6 @@ tasks:
     internal: true
     cmds:
       - |
-        if [ -d "$HOME/.rbenv" ]; then
-          export PATH="$HOME/.rbenv/bin:$HOME/.rbenv/shims:$PATH"
-        fi
-
-        if command -v ruby >/dev/null 2>&1; then
-          GEM_BINDIR="$(ruby -e 'require "rubygems"; print Gem.bindir' 2>/dev/null || true)"
-          if [ -n "$GEM_BINDIR" ] && [ -d "$GEM_BINDIR" ]; then
-            export PATH="$GEM_BINDIR:$PATH"
-          fi
-        fi
-
         INSTALLED_VERSION=""
         if command -v licensed >/dev/null 2>&1; then
           INSTALLED_VERSION="$(licensed version 2>/dev/null | grep -Eo '[0-9]+(\.[0-9]+)+' | head -n1)"
@@ -61,57 +50,41 @@ tasks:
           exit 0
         fi
 
-        echo "Installing licensed v{{.LICENSED_VERSION}}..."
-        if ! command -v gem >/dev/null 2>&1 || ! gem install licensed -v {{.LICENSED_VERSION}} --no-document; then
-          echo ""
-          echo "============================================================"
-          echo "  ERROR: licensed v{{.LICENSED_VERSION}} is not available and automatic installation failed."
-          echo ""
-          echo "  Install Ruby 3.1+ and RubyGems, make sure they are available in PATH,"
-          echo "  and then retry."
-          echo ""
-          echo "  Verify the installation with:"
-          echo "    ruby --version"
-          echo "    gem --version"
-          echo ""
-          echo "  You can also install licensed manually with:"
-          echo "    gem install licensed -v {{.LICENSED_VERSION}} --no-document"
-          echo "============================================================"
-          exit 1
+        if [ "${CI:-}" = "true" ]; then
+          echo "Installing licensed v{{.LICENSED_VERSION}} for CI..."
+          if ! gem install licensed -v {{.LICENSED_VERSION}} --no-document; then
+            echo ""
+            echo "============================================================"
+            echo "  ERROR: licensed v{{.LICENSED_VERSION}} could not be installed in CI."
+            echo ""
+            echo "  Make sure the workflow provides Ruby and RubyGems correctly,"
+            echo "  then retry."
+            echo "============================================================"
+            exit 1
+          fi
+
+          exit 0
         fi
 
-        if command -v ruby >/dev/null 2>&1; then
-          GEM_BINDIR="$(ruby -e 'require "rubygems"; print Gem.bindir' 2>/dev/null || true)"
-          if [ -n "$GEM_BINDIR" ] && [ -d "$GEM_BINDIR" ]; then
-            export PATH="$GEM_BINDIR:$PATH"
-          fi
-        fi
-        if command -v rbenv >/dev/null 2>&1; then
-          rbenv rehash
-        fi
-        INSTALLED_VERSION=""
-        if command -v licensed >/dev/null 2>&1; then
-          INSTALLED_VERSION="$(licensed version 2>/dev/null | grep -Eo '[0-9]+(\.[0-9]+)+' | head -n1)"
-        fi
-        if [ "$INSTALLED_VERSION" != "{{.LICENSED_VERSION}}" ]; then
-          echo ""
-          echo "============================================================"
-          echo "  ERROR: licensed is installed, but version {{.LICENSED_VERSION}} is still not available in PATH."
-          echo ""
-          echo "  Check that your RubyGems executable directory is in PATH, then retry."
-          echo "  Current RubyGems bindir:"
-          echo "    ${GEM_BINDIR:-<unavailable>}"
-          echo "============================================================"
-          exit 1
-        fi
+        echo ""
+        echo "============================================================"
+        echo "  ERROR: licensed v{{.LICENSED_VERSION}} is required to run 'task license'."
+        echo ""
+        echo "  Install licensed v{{.LICENSED_VERSION}} manually, make sure it is available in PATH,"
+        echo "  and then retry."
+        echo ""
+        echo "  Verify the installation with:"
+        echo "    licensed version"
+        echo "============================================================"
+        exit 1
 
   license:
     desc: |
       Update license headers, validate REUSE compliance and check dependency licenses.
       Uses a dedicated virtualenv for REUSE and a separate one for pip dependency scanning.
       Requires licensed v{{.LICENSED_VERSION}} for dependency license checking.
-      If licensed v{{.LICENSED_VERSION}} is not already installed, the task tries to install it with gem.
-      If that fails, install Ruby 3.1+ and RubyGems and retry.
+      In local environments, install licensed v{{.LICENSED_VERSION}} manually before running this task.
+      In CI, the task installs licensed v{{.LICENSED_VERSION}} with gem after Ruby has been set up by the workflow.
     cmds:
       - task: init:license
       - |
@@ -121,9 +94,5 @@ tasks:
       - rm -rf "{{.REUSE_VENV_DIR}}"
       - task: install:licensed
       - |
-        if [ -d "$HOME/.rbenv" ]; then
-          export PATH="$HOME/.rbenv/bin:$HOME/.rbenv/shims:$PATH"
-        fi
-
         licensed cache
         licensed status
