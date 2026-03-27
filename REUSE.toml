@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (C) ARDUINO SRL (http://www.arduino.cc)
+# SPDX-FileCopyrightText: Copyright (C) Arduino s.r.l. and/or its affiliated companies
 # SPDX-License-Identifier: MPL-2.0
 
 version = 1
@@ -14,7 +14,7 @@ path = [
   "learn-docs/**/assets/**",
   "learn-docs/_icons/**",
 ]
-SPDX-FileCopyrightText = "Copyright (C) ARDUINO SRL (http://www.arduino.cc)"
+SPDX-FileCopyrightText = "Copyright (C) Arduino s.r.l. and/or its affiliated companies"
 SPDX-License-Identifier = "MPL-2.0"
 precedence = "override"
 
@@ -48,7 +48,7 @@ path = [
   "examples/**/assets/*.html",
   "examples/**/assets/*.css",
 ]
-SPDX-FileCopyrightText = "Copyright (C) ARDUINO SRL (http://www.arduino.cc)"
+SPDX-FileCopyrightText = "Copyright (C) Arduino s.r.l. and/or its affiliated companies"
 SPDX-License-Identifier = "MPL-2.0"
 
 # App metadata & text content authored by Arduino
@@ -60,7 +60,7 @@ path = [
   "examples/**/python/system_prompt.txt",
   "learn-docs/**/*.md",
 ]
-SPDX-FileCopyrightText = "Copyright (C) ARDUINO SRL (http://www.arduino.cc)"
+SPDX-FileCopyrightText = "Copyright (C) Arduino s.r.l. and/or its affiliated companies"
 SPDX-License-Identifier = "MPL-2.0"
 
 # Configuration & generated files
@@ -75,11 +75,11 @@ path = [
   "examples/**/python/requirements.txt",
   "REUSE.toml",
 ]
-SPDX-FileCopyrightText = "Copyright (C) ARDUINO SRL (http://www.arduino.cc)"
+SPDX-FileCopyrightText = "Copyright (C) Arduino s.r.l. and/or its affiliated companies"
 SPDX-License-Identifier = "CC0-1.0"
 
 # Root documentation
 [[annotations]]
 path = "README.md"
-SPDX-FileCopyrightText = "Copyright (C) ARDUINO SRL (http://www.arduino.cc)"
+SPDX-FileCopyrightText = "Copyright (C) Arduino s.r.l. and/or its affiliated companies"
 SPDX-License-Identifier = "MPL-2.0"
