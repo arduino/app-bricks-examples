@@ -77,7 +77,7 @@ def on_set_volume(sid, data=None):
     d = data or {}
     volume = int(d.get("volume", 100))
     volume = max(0, min(100, volume))
-    wave_gen.set_volume(volume)
+    wave_gen.volume = volume
     ui.send_message("theremin:volume", {"volume": volume})
 
 
