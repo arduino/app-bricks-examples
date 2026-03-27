@@ -115,10 +115,10 @@ tasks:
     cmds:
       - task: init:license
       - |
-        git ls-files -z -- '*.py' '*.js' '*.css' '*.html' '*.ino' '*.h' '*.c' '*.cpp' ':(exclude)examples/**/assets/libs/**' |
-        xargs -0 "{{.REUSE_VENV_DIR}}"/bin/reuse annotate --skip-unrecognized --merge-copyrights --copyright-prefix 'spdx-string-c' --copyright 'Arduino s.r.l. and/or its affiliated companies' --exclude-year --license 'MPL-2.0'
+        "{{.REUSE_VENV_DIR}}"/bin/reuse annotate --skip-unrecognized --merge-copyrights --copyright-prefix 'spdx-string-c' --copyright 'Arduino s.r.l. and/or its affiliated companies' --exclude-year --license 'MPL-2.0'
       - '"{{.REUSE_VENV_DIR}}"/bin/reuse download --all'
       - '"{{.REUSE_VENV_DIR}}"/bin/reuse lint'
+      - rm -rf "{{.REUSE_VENV_DIR}}"
       - task: install:licensed
       - |
         if [ -d "$HOME/.rbenv" ]; then
