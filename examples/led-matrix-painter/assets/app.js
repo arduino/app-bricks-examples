@@ -1,8 +1,11 @@
-// SPDX-FileCopyrightText: Copyright (C) 2025 ARDUINO SA <http://www.arduino.cc>
+// SPDX-FileCopyrightText: Copyright (C) Arduino s.r.l. and/or its affiliated companies
 //
 // SPDX-License-Identifier: MPL-2.0
 
+//
+
 // Simple frontend for 8x13 clickable grid
+
 const gridEl = document.getElementById('grid');
 const vectorEl = document.getElementById('vector');
 const exportBtn = document.getElementById('export');

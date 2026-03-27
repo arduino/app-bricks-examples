@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright (C) ARDUINO SRL (http://www.arduino.cc)
+// SPDX-FileCopyrightText: Copyright (C) Arduino s.r.l. and/or its affiliated companies
 //
 // SPDX-License-Identifier: MPL-2.0
 
@@ -8,6 +8,7 @@
 //  - "load_frame"      — appends one frame to the animation buffer
 //  - "play_animation"  — starts sequential playback of buffered frames
 //  - "stop_animation"  — halts any running animation
+
 #include <Arduino_RouterBridge.h>
 #include <Arduino_LED_Matrix.h>
 #include <vector>

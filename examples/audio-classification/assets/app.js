@@ -1,8 +1,11 @@
-// SPDX-FileCopyrightText: Copyright (C) ARDUINO SRL (http://www.arduino.cc)
+// SPDX-FileCopyrightText: Copyright (C) Arduino s.r.l. and/or its affiliated companies
 //
 // SPDX-License-Identifier: MPL-2.0
 
+//
+
 // Global variables to hold the application state
+
 let socket;
 let currentAudio = null; // This will hold base64 data for UPLOADED files only
 let resultAudio = null;

@@ -1,8 +1,6 @@
-/*
- * SPDX-FileCopyrightText: Copyright (C) ARDUINO SRL (http://www.arduino.cc)
- *
- * SPDX-License-Identifier: MPL-2.0
- */
+// SPDX-FileCopyrightText: Copyright (C) Arduino s.r.l. and/or its affiliated companies
+//
+// SPDX-License-Identifier: MPL-2.0
 
 (function(){
   const TEST_MODE = false;

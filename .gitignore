@@ -11,6 +11,7 @@ Taskfile.yml
 
 # Python
 .venv
+.reuse-venv
 libs/*.whl
 
 # Examples

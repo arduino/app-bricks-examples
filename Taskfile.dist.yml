@@ -1,28 +1,30 @@
 version: "3"
 
 vars:
-  # Detect if running in CI environment
-  IS_CI:
-    sh: '[ -n "$CI" ] && echo "true" || echo "false"'
-  # Set Python command prefix based on environment
-  PYTHON_PREFIX:
-    sh: '[ -n "$CI" ] && echo "" || echo ".venv/bin/"'
+  LICENSED_VERSION: '5.0.6'
+  REUSE_VERSION: '5.0.2'
+  LICENSE_VENV_DIR: '.venv'
+  REUSE_VENV_DIR: '.reuse-venv'
 
 tasks:
-  init:ci:
-    desc: Initialize environment
+  init:license:
+    desc: Recreate the environments used by the license task
     cmds:
       - |
-        if [ "{{.IS_CI}}" != "true" ]; then
-          echo "Local environment detected: creating fresh virtual environment..."
-          rm -rf .venv
-          python3 -m venv .venv
-          {{.PYTHON_PREFIX}}pip install --upgrade pip
-        else
-          echo "CI environment detected: skipping venv creation"
-          pip install --upgrade pip
-        fi
-      - '{{.PYTHON_PREFIX}}pip install -r requirements.txt'
+        rm -rf "{{.LICENSE_VENV_DIR}}"
+        python3 -m venv "{{.LICENSE_VENV_DIR}}"
+        "{{.LICENSE_VENV_DIR}}"/bin/pip install --upgrade pip
+        "{{.LICENSE_VENV_DIR}}"/bin/pip install -r requirements.txt
+      - |
+        rm -rf "{{.REUSE_VENV_DIR}}"
+        python3 -m venv "{{.REUSE_VENV_DIR}}"
+        "{{.REUSE_VENV_DIR}}"/bin/pip install --upgrade pip
+        "{{.REUSE_VENV_DIR}}"/bin/pip install reuse=={{.REUSE_VERSION}}
+
+  init:ci:
+    desc: Backward-compatible alias for initializing license environments
+    cmds:
+      - task: init:license
 
   install-bricks:
     desc: Install a specific bricks version (e.g. task install-bricks -- 0.8.0rc2)
@@ -33,31 +35,64 @@ tasks:
           echo "Usage: task install-bricks -- <version>"
           exit 1
         fi
-        {{.PYTHON_PREFIX}}pip install "https://github.com/arduino/app-bricks-py/releases/download/release%2F${VERSION}/arduino_app_bricks-${VERSION}-py3-none-any.whl"
+        "{{.LICENSE_VENV_DIR}}"/bin/pip install "https://github.com/arduino/app-bricks-py/releases/download/release%2F${VERSION}/arduino_app_bricks-${VERSION}-py3-none-any.whl"
+
+  install:licensed:
+    internal: true
+    cmds:
+      - |
+        INSTALLED_VERSION=""
+        if command -v licensed >/dev/null 2>&1; then
+          INSTALLED_VERSION="$(licensed version 2>/dev/null | grep -Eo '[0-9]+(\.[0-9]+)+' | head -n1)"
+        fi
+
+        if [ "$INSTALLED_VERSION" = "{{.LICENSED_VERSION}}" ]; then
+          exit 0
+        fi
+
+        if [ "${CI:-}" = "true" ]; then
+          echo "Installing licensed v{{.LICENSED_VERSION}} for CI..."
+          if ! gem install licensed -v {{.LICENSED_VERSION}} --no-document; then
+            echo ""
+            echo "============================================================"
+            echo "  ERROR: licensed v{{.LICENSED_VERSION}} could not be installed in CI."
+            echo ""
+            echo "  Make sure the workflow provides Ruby and RubyGems correctly,"
+            echo "  then retry."
+            echo "============================================================"
+            exit 1
+          fi
+
+          exit 0
+        fi
+
+        echo ""
+        echo "============================================================"
+        echo "  ERROR: licensed v{{.LICENSED_VERSION}} is required to run 'task license'."
+        echo ""
+        echo "  Install licensed v{{.LICENSED_VERSION}} manually, make sure it is available in PATH,"
+        echo "  and then retry."
+        echo ""
+        echo "  Verify the installation with:"
+        echo "    licensed version"
+        echo "============================================================"
+        exit 1
 
   license:
-    desc: Update license headers and files
+    desc: |
+      Update license headers, validate REUSE compliance and check dependency licenses.
+      Uses a dedicated virtualenv for REUSE and a separate one for pip dependency scanning.
+      Requires licensed v{{.LICENSED_VERSION}} for dependency license checking.
+      In local environments, install licensed v{{.LICENSED_VERSION}} manually before running this task.
+      In CI, the task installs licensed v{{.LICENSED_VERSION}} with gem after Ruby has been set up by the workflow.
     cmds:
-      - task: init:ci
+      - task: init:license
       - |
-        git ls-files |
-        grep -Ev "(^|/)(libs|sketch-libraries|assets)/|THIRD-PARTY-LICENSES.json|\.(md|txt|yml|yaml|toml|gitignore|gitmodules)$" |
-        sed 's/ /\\ /g' |
-        xargs {{.PYTHON_PREFIX}}reuse annotate -r --skip-unrecognized --copyright-prefix 'spdx-string-c' --copyright 'ARDUINO SRL (http://www.arduino.cc)' --exclude-year --license 'MPL-2.0'
-      - '{{.PYTHON_PREFIX}}reuse download --all'
+        "{{.REUSE_VENV_DIR}}"/bin/reuse annotate --skip-unrecognized --merge-copyrights --copyright-prefix 'spdx-string-c' --copyright 'Arduino s.r.l. and/or its affiliated companies' --exclude-year --license 'MPL-2.0'
+      - '"{{.REUSE_VENV_DIR}}"/bin/reuse download --all'
+      - '"{{.REUSE_VENV_DIR}}"/bin/reuse lint'
+      - rm -rf "{{.REUSE_VENV_DIR}}"
+      - task: install:licensed
       - |
-        licenses_dir="LICENSES"
-        if [ -d "$licenses_dir" ]; then
-          count=$(find "$licenses_dir" -type f | wc -l)
-          if [ "$count" -gt 1 ]; then
-            for f in "$licenses_dir"/*; do
-              base=$(basename "$f")
-              mv "$f" "LICENSE-${base}"
-            done
-          elif [ "$count" -eq 1 ]; then
-            f=$(find "$licenses_dir" -type f | head -n1)
-            mv "$f" LICENSE.txt
-          fi
-          rmdir "$licenses_dir"
-        fi
-      - '{{.PYTHON_PREFIX}}pip-licenses --format=json --output-file=THIRD-PARTY-LICENSES.json'
+        licensed cache
+        licensed status
