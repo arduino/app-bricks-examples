@@ -126,30 +126,4 @@ tasks:
         fi
 
         licensed cache
-        "{{.LICENSE_VENV_DIR}}"/bin/python - <<'PY'
-        import json
-        import pathlib
-        import re
-        import subprocess
-
-        cache_dir = pathlib.Path(".licenses/pip")
-        if not cache_dir.exists():
-          raise SystemExit(0)
-
-        def canonicalize(name: str) -> str:
-          return re.sub(r"[-_.]+", "-", name).lower()
-
-        packages = json.loads(
-          subprocess.check_output(
-            ["{{.LICENSE_VENV_DIR}}/bin/pip", "--disable-pip-version-check", "list", "--format=json"],
-            text=True,
-          )
-        )
-        expected = {canonicalize(package["name"]) for package in packages}
-
-        for dep_file in cache_dir.glob("*.dep.yml"):
-          dep_name = dep_file.name[:-8]
-          if canonicalize(dep_name) not in expected:
-            dep_file.unlink()
-        PY
         licensed status
