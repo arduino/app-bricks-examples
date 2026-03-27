@@ -1,8 +1,11 @@
-# SPDX-FileCopyrightText: Copyright (C) ARDUINO SRL (http://www.arduino.cc)
+# SPDX-FileCopyrightText: Copyright (C) Arduino s.r.l. and/or its affiliated companies
 #
 # SPDX-License-Identifier: MPL-2.0
 
+#
+
 # EXAMPLE_NAME = "Arduino Cloud LED Blink Example"
+
 from arduino.app_bricks.arduino_cloud import ArduinoCloud
 from arduino.app_utils import App, Bridge
 
