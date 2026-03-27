@@ -3,20 +3,33 @@
 
 version = 1
 
-# Arduino images, icons, audio & docs assets (binary files that cannot embed headers)
+# Arduino-authored source, docs and assets.
+# Keep this broad, but avoid swallowing vendored third-party trees.
 [[annotations]]
 path = [
-  "examples/**/assets/img/**",
-  "examples/**/assets/audio/**",
-  "examples/**/assets/docs_assets/**",
-  "examples/**/assets/docs_images/**",
-  "examples/**/assets/*.png",
+  "README.md",
+  "learn-docs/**/*.md",
   "learn-docs/**/assets/**",
   "learn-docs/_icons/**",
+  "examples/**/*.py",
+  "examples/**/*.ino",
+  "examples/**/*.h",
+  "examples/**/*.md",
+  "examples/**/*.yaml",
+  "examples/**/*.txt",
+  "examples/**/assets/*.html",
+  "examples/**/assets/*.css",
+  "examples/**/assets/*.js",
+  "examples/**/assets/**/*.png",
+  "examples/**/assets/**/*.jpg",
+  "examples/**/assets/**/*.jpeg",
+  "examples/**/assets/**/*.svg",
+  "examples/**/assets/**/*.gif",
+  "examples/**/assets/**/*.webp",
+  "examples/**/assets/**/*.wav",
 ]
 SPDX-FileCopyrightText = "Copyright (C) Arduino s.r.l. and/or its affiliated companies"
 SPDX-License-Identifier = "MPL-2.0"
-precedence = "override"
 
 # Third-party fonts (Open Sans, Roboto) distributed under OFL-1.1
 [[annotations]]
@@ -42,44 +55,17 @@ SPDX-FileCopyrightText = "Copyright (c) David Shim"
 SPDX-License-Identifier = "MIT"
 precedence = "override"
 
-# Arduino source files under assets (HTML/CSS served as static content)
-[[annotations]]
-path = [
-  "examples/**/assets/*.html",
-  "examples/**/assets/*.css",
-]
-SPDX-FileCopyrightText = "Copyright (C) Arduino s.r.l. and/or its affiliated companies"
-SPDX-License-Identifier = "MPL-2.0"
-
-# App metadata & text content authored by Arduino
-[[annotations]]
-path = [
-  "examples/**/app.yaml",
-  "examples/**/sketch/sketch.yaml",
-  "examples/**/README.md",
-  "examples/**/python/system_prompt.txt",
-  "learn-docs/**/*.md",
-]
-SPDX-FileCopyrightText = "Copyright (C) Arduino s.r.l. and/or its affiliated companies"
-SPDX-License-Identifier = "MPL-2.0"
-
 # Configuration & generated files
 [[annotations]]
 path = [
-  ".gitignore",
   ".github/**",
-  ".licensed.yml",
   ".licenses/**",
-  "Taskfile.dist.yml",
-  "requirements.txt",
-  "examples/**/python/requirements.txt",
+  ".gitignore",
+  ".licensed.yml",
+  "*.dist.yml",
+  "**/requirements.txt",
   "REUSE.toml",
 ]
 SPDX-FileCopyrightText = "Copyright (C) Arduino s.r.l. and/or its affiliated companies"
 SPDX-License-Identifier = "CC0-1.0"
-
-# Root documentation
-[[annotations]]
-path = "README.md"
-SPDX-FileCopyrightText = "Copyright (C) Arduino s.r.l. and/or its affiliated companies"
-SPDX-License-Identifier = "MPL-2.0"
+precedence = "override"
