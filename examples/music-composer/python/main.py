@@ -328,8 +328,11 @@ def on_export(sid, data=None):
         "gen = SoundGenerator()",
         "gen.start()",
         "",
-        "# Play the composition (block=True waits for completion)",
-        "gen.play_composition(composition, block=True)",
+        "# Play once and wait automatically until it finishes",
+        "gen.play_composition(composition)",
+        "# Loop forever instead: gen.play_composition(composition, loop=True)",
+        "# Loop for 10 seconds: gen.play_composition(composition, loop=True, play_for=10.0)",
+        "# Use block=False to start playback without blocking the next instructions.",
     ])
 
     ui.send_message(
