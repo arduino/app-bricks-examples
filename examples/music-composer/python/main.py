@@ -2,11 +2,42 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+import re
+
 from arduino.app_bricks.web_ui import WebUI
 from arduino.app_bricks.sound_generator import SoundGenerator, SoundEffect
 from arduino.app_utils import App, Logger
 
 logger = Logger(__name__)
+
+NOTE_ORDER = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+NOTE_PATTERN = re.compile(r"^([A-G](?:#)?)(\d+)$")
+
+
+def _note_to_index(note: str) -> int:
+    """Convert a note name like C#4 into a semitone index."""
+    match = NOTE_PATTERN.match(note)
+    if match is None:
+        raise ValueError(f"Invalid note format: {note}")
+
+    note_name, octave_text = match.groups()
+    return int(octave_text) * len(NOTE_ORDER) + NOTE_ORDER.index(note_name)
+
+
+def _index_to_note(note_index: int) -> str:
+    """Convert a semitone index into a note name."""
+    octave, note_offset = divmod(note_index, len(NOTE_ORDER))
+    return f"{NOTE_ORDER[note_offset]}{octave}"
+
+
+def build_note_range(highest_note: str, lowest_note: str) -> list[str]:
+    """Build a descending note list between two note names, inclusive."""
+    high_index = _note_to_index(highest_note)
+    low_index = _note_to_index(lowest_note)
+    if high_index < low_index:
+        raise ValueError("highest_note must be greater than or equal to lowest_note")
+
+    return [_index_to_note(note_index) for note_index in range(high_index, low_index - 1, -1)]
 
 # Components
 ui = WebUI()
@@ -14,8 +45,8 @@ gen = SoundGenerator(wave_form="sine", bpm=120, sound_effects=[SoundEffect.adsr(
 gen.start()
 gen.set_master_volume(0.8)
 
-# Note map (18 notes from B4 down to F#3)
-NOTE_MAP = ["B4", "A#4", "A4", "G#4", "G4", "F#4", "F4", "E4", "D#4", "D4", "C#4", "C4", "B3", "A#3", "A3", "G#3", "G3", "F#3"]
+# Note map (36 notes from B5 down to C3)
+NOTE_MAP = build_note_range("B5", "C3")
 
 # State
 grid_state = {}  # {"noteIdx": {"stepIdx": bool}}
@@ -24,7 +55,29 @@ is_playing = False
 current_step = 0
 waveform = "sine"
 volume = 0.8
-effects_state = {}
+effects_state = {
+    "bitcrusher": 0,
+    "chorus": 0,
+    "tremolo": 0,
+    "vibrato": 0,
+    "overdrive": 0,
+}
+
+
+def send_state(room=None, **extra):
+    """Send the current composer state to the frontend."""
+    payload = {
+        "grid": grid_state,
+        "bpm": bpm,
+        "is_playing": is_playing,
+        "current_step": current_step,
+        "waveform": waveform,
+        "volume": volume,
+        "effects": effects_state,
+        "notes": NOTE_MAP,
+    }
+    payload.update(extra)
+    ui.send_message("composer:state", payload, room=room)
 
 
 def on_step_callback(step: int, total_steps: int):
@@ -78,20 +131,12 @@ def build_sequence_from_grid(grid: dict) -> list[list[str]]:
 def on_connect(sid, data=None):
     """Send initial state to new client."""
     logger.info(f"Client connected: {sid}")
-    ui.send_message(
-        "composer:state",
-        {"grid": grid_state, "bpm": bpm, "is_playing": is_playing, "current_step": current_step},
-        room=sid,
-    )
+    send_state(room=sid)
 
 
 def on_get_state(sid, data=None):
     """Send current state."""
-    ui.send_message(
-        "composer:state",
-        {"grid": grid_state, "bpm": bpm, "is_playing": is_playing, "current_step": current_step},
-        room=sid,
-    )
+    send_state(room=sid)
 
 
 def on_update_grid(sid, data=None):
@@ -105,15 +150,7 @@ def on_update_grid(sid, data=None):
     grid_state = data.get("grid", {})
     logger.debug("Grid updated")
 
-    ui.send_message(
-        "composer:state",
-        {
-            "grid": grid_state,
-            "bpm": bpm,
-            "is_playing": is_playing,
-            "current_step": current_step,
-        },
-    )
+    send_state()
 
 
 def on_set_bpm(sid, data=None):
@@ -131,15 +168,7 @@ def on_set_bpm(sid, data=None):
     else:
         logger.warning("No BPM data received")
 
-    ui.send_message(
-        "composer:state",
-        {
-            "grid": grid_state,
-            "bpm": bpm,
-            "is_playing": is_playing,
-            "current_step": current_step,
-        },
-    )
+    send_state()
 
 
 def on_play(sid, data=None):
@@ -164,16 +193,7 @@ def on_play(sid, data=None):
         on_complete_callback=on_sequence_complete,
     )
 
-    ui.send_message(
-        "composer:state",
-        {
-            "grid": grid_state,
-            "bpm": bpm,
-            "is_playing": is_playing,
-            "current_step": current_step,
-            "total_steps": len(sequence),  # Tell frontend how many steps
-        },
-    )
+    send_state(total_steps=len(sequence))
 
 
 def on_stop(sid, data=None):
@@ -191,15 +211,7 @@ def on_stop(sid, data=None):
     current_step = 0
     logger.info("Playback stopped")
 
-    ui.send_message(
-        "composer:state",
-        {
-            "grid": grid_state,
-            "bpm": bpm,
-            "is_playing": is_playing,
-            "current_step": current_step,
-        },
-    )
+    send_state()
 
 
 def on_set_waveform(sid, data=None):

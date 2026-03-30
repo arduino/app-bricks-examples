@@ -15,17 +15,18 @@
 
   // Configuration
   const INITIAL_GRID_STEPS = 32; // Initial visible steps
-  const NOTES = ['B4', 'A#4', 'A4', 'G#4', 'G4', 'F#4', 'F4', 'E4', 'D#4', 'D4', 'C#4', 'C4', 'B3', 'A#3', 'A3', 'G#3', 'G3', 'F#3'];
   const STEPS_PER_EXPAND = 32; // Add 32 steps when scrolling
+  const DEFAULT_VISIBLE_TOP_NOTE = 'B4';
 
   // State
   let grid = {};
+  let notes = [];
   let isPlaying = false;
   let isPaused = false;
   let isAppInitialized = false;
   let currentStep = 0;
   let totalSteps = INITIAL_GRID_STEPS; // Dynamic grid size
-  let sequenceLength = INITIAL_GRID_STEPS; // Actual sequence length from backend
+  let sequenceLength = 16; // Actual sequence length from backend
   let bpm = 120;
   let playInterval = null;
   let effects = {
@@ -51,6 +52,7 @@
   const redoBtn = document.getElementById('redo-btn');
   const clearBtn = document.getElementById('clear-btn');
   const exportBtn = document.getElementById('export-btn');
+  const sequencerViewport = document.getElementById('sequencer-grid-viewport');
   const sequencerGrid = document.getElementById('sequencer-grid');
   const volumeSlider = document.getElementById('volume-slider');
   const waveButtons = document.querySelectorAll('.wave-btn');
@@ -66,17 +68,31 @@
   socket.on('composer:state', (data) => {
     log.info('Received state from server:', JSON.stringify(data));
 
+    const nextNotes = Array.isArray(data.notes) ? data.notes : [];
+    const hadRenderedGrid = sequencerViewport.dataset.ready === 'true';
+    const notesChanged = nextNotes.length > 0 && (
+      nextNotes.length !== notes.length ||
+      nextNotes.some((note, index) => note !== notes[index])
+    );
+
+    if (notesChanged) {
+      notes = nextNotes.slice();
+    }
+
+    if (data.grid) {
+      grid = data.grid;
+    }
+
     // On first state, reset history to this state as the source of truth
     if (!isAppInitialized) {
       log.info('First state received, resetting history.');
-      grid = data.grid || {};
       history = [JSON.parse(JSON.stringify(grid))];
       historyIndex = 0;
       updateUndoRedoButtons();
       isAppInitialized = true;
     }
 
-    if (data.bpm) {
+    if (data.bpm !== undefined) {
       bpm = data.bpm;
       bpmInput.value = bpm;
       log.info('BPM updated:', bpm);
@@ -93,6 +109,11 @@
       sequenceLength = data.total_steps;
       log.info('Sequence length from backend:', sequenceLength);
     }
+
+    if ((notes.length > 0 && notesChanged) || (notes.length > 0 && !hadRenderedGrid)) {
+      buildGrid({ preserveScroll: hadRenderedGrid, scrollToDefault: !hadRenderedGrid });
+    }
+
     renderGrid();
     updateEffectsKnobs();
   });
@@ -168,12 +189,50 @@
   redoBtn.addEventListener('click', redo);
 
 
+  function getEffectiveSequenceLength() {
+    return Math.max(sequenceLength || 0, findLastNoteStep() + 1, 16);
+  }
+
+  function scrollToDefaultNote() {
+    const defaultNoteIndex = notes.indexOf(DEFAULT_VISIBLE_TOP_NOTE);
+    if (defaultNoteIndex < 0) {
+      return;
+    }
+
+    const referenceCell = sequencerGrid.querySelector(`.grid-cell[data-note="${defaultNoteIndex}"][data-step="0"]`);
+    if (!referenceCell) {
+      return;
+    }
+
+    sequencerViewport.scrollTop = Math.max(0, referenceCell.offsetTop - 8);
+  }
+
+  function scrollStepIntoView(step) {
+    const referenceCell = sequencerGrid.querySelector(`.grid-cell[data-note="0"][data-step="${step}"]`)
+      || sequencerGrid.querySelector(`.grid-cell[data-step="${step}"]`);
+
+    if (!referenceCell) {
+      return;
+    }
+
+    const targetScroll = referenceCell.offsetLeft - ((sequencerViewport.clientWidth - referenceCell.offsetWidth) / 2);
+    sequencerViewport.scrollLeft = Math.max(0, targetScroll);
+  }
+
   // Build grid with dynamic size
-  function buildGrid() {
+  function buildGrid({ preserveScroll = true, scrollToDefault = false } = {}) {
+    if (!notes.length) {
+      return;
+    }
+
+    const previousScrollLeft = preserveScroll ? sequencerViewport.scrollLeft : 0;
+    const previousScrollTop = preserveScroll ? sequencerViewport.scrollTop : 0;
+
     sequencerGrid.innerHTML = '';
 
     // Top-left corner (empty)
     const corner = document.createElement('div');
+    corner.className = 'grid-corner';
     sequencerGrid.appendChild(corner);
 
     // Column labels (step numbers)
@@ -187,7 +246,7 @@
     }
 
     // Grid rows
-    NOTES.forEach((note, noteIndex) => {
+    notes.forEach((note, noteIndex) => {
       // Row label (note name)
       const rowLabel = document.createElement('div');
       rowLabel.className = 'grid-row-label';
@@ -212,7 +271,20 @@
     });
 
     // Update grid CSS for dynamic columns
-    sequencerGrid.style.gridTemplateColumns = `auto repeat(${totalSteps}, 40px)`;
+    sequencerGrid.style.gridTemplateColumns = `var(--note-label-width) repeat(${totalSteps}, var(--grid-track-size))`;
+    sequencerViewport.dataset.ready = 'true';
+
+    requestAnimationFrame(() => {
+      if (preserveScroll) {
+        sequencerViewport.scrollLeft = previousScrollLeft;
+        sequencerViewport.scrollTop = previousScrollTop;
+        return;
+      }
+
+      if (scrollToDefault) {
+        scrollToDefaultNote();
+      }
+    });
   }
 
   function toggleCell(noteIndex, step) {
@@ -225,7 +297,7 @@
     const newValue = !currentValue;
     grid[noteKey][stepKey] = newValue;
 
-    log.info(`Toggle cell [${NOTES[noteIndex]}][step ${step}]: ${currentValue} -> ${newValue}`);
+    log.info(`Toggle cell [${notes[noteIndex]}][step ${step}]: ${currentValue} -> ${newValue}`);
 
     saveStateToHistory();
 
@@ -264,10 +336,7 @@
 
     // Auto-scroll to keep current step visible
     if (step >= 0) {
-      const container = document.getElementById('sequencer-grid');
-      const cellWidth = 40; // Width of one grid cell
-      const targetScroll = (step * cellWidth) - (container.clientWidth / 2);
-      container.scrollLeft = Math.max(0, targetScroll);
+      scrollStepIntoView(step);
     }
   }
 
@@ -294,15 +363,15 @@
     // Expand if we're within 8 steps of the edge
     if (lastNote >= totalSteps - 8) {
       totalSteps += STEPS_PER_EXPAND;
-      buildGrid();
+      buildGrid({ preserveScroll: true });
       renderGrid();
       log.info('Grid expanded to', totalSteps, 'steps');
     }
   }
 
   function startLocalPlayback() {
-    // The length of the playback is the total number of steps visible on the grid.
-    const effectiveLength = totalSteps;
+    // Keep UI playback aligned with the actual generated sequence length.
+    const effectiveLength = getEffectiveSequenceLength();
 
     // Calculate step duration in milliseconds for 16th notes (4 per beat)
     const stepDurationMs = (60000 / bpm) / 4;
@@ -380,7 +449,7 @@
   clearBtn.addEventListener('click', () => {
     if (confirm('Clear all notes?')) {
       grid = {};
-      NOTES.forEach((note, noteIndex) => {
+      notes.forEach((note, noteIndex) => {
         const noteKey = String(noteIndex);
         grid[noteKey] = {};
       });
@@ -470,13 +539,12 @@
   }
 
   // Initialize grid
-  buildGrid();
   updateEffectsKnobs();
   updateUndoRedoButtons();
 
   // Ensure play button is visible and stop button is hidden on load
   playBtn.style.display = 'flex';
   stopBtn.style.display = 'none';
-  log.info('Grid UI built, waiting for server state...');
+  log.info('Sequencer UI ready, waiting for server state...');
 
 })();

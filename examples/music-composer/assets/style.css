@@ -33,6 +33,12 @@
   --grid-cell-hover-bg: #222;
   --grid-cell-playing-border: #AEB8B8;
   --white-full: #FFFFFF;
+  --app-gap: 8px;
+  --grid-cell-size: 35px;
+  --grid-track-size: 40px;
+  --note-label-width: 64px;
+  --grid-header-height: 30px;
+  --grid-row-gap: 5px;
 }
 
 * {
@@ -41,19 +47,26 @@
   box-sizing: border-box;
 }
 
+html, body {
+    height: 100%;
+}
+
 body {
     font-family: 'Open Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: var(--bg-light);
     line-height: 1.6;
     color: var(--text-dark);
+    overflow: hidden;
 }
 
 #app {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 25px 30px;
+  height: 100vh;
+  height: 100dvh;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: var(--app-gap);
+  padding: clamp(12px, 2vw, 30px);
+  overflow: hidden;
 }
 
 /* Header */
@@ -305,41 +318,14 @@ body {
 
 /* Sequencer Container */
 #sequencer-container {
-  flex: 1;
+  min-height: 0;
   padding: 16px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   background: var(--sequencer-bg);
   border-radius: 8px;
   gap: 16px;
-  overflow-x: hidden;
-  align-items: flex-start;
-}
-
-#sequencer-container {
-  scrollbar-width: thin;
-  scrollbar-color: var(--scrollbar-thumb);
-}
-
-#sequencer-container::-webkit-scrollbar {
-  width: 12px;
-  height: 6px;
-}
-
-#sequencer-container::-webkit-scrollbar-track {
-  /* background-color: var(--scrollbar-track); */
-  margin-bottom: 8px;
-}
-
-#sequencer-container::-webkit-scrollbar-thumb {
-  background-color: var(--scrollbar-thumb);
-  border-radius: 6px;
-  /* border-bottom: 8px solid var(--scrollbar-track); */
-}
-
-#sequencer-container::-webkit-scrollbar-thumb:hover {
-  background-color: var(--scrollbar-thumb-hover);
 }
 
 .sequencer-controls {
@@ -348,71 +334,100 @@ body {
   align-items: center;
   padding: 0 10px;
   width: 100%;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .controls-left, .controls-center, .controls-right {
   display: flex;
   align-items: center;
   gap: 15px;
+  flex-wrap: wrap;
+}
+
+#sequencer-grid-viewport {
+  min-height: 0;
+  width: 100%;
+  overflow: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-x pan-y;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+#sequencer-grid-viewport::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+#sequencer-grid-viewport::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+#sequencer-grid-viewport::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#sequencer-grid-viewport::-webkit-scrollbar-track-piece {
+  background-color: var(--scrollbar-track);
+  border-radius: 5px;
+}
+
+#sequencer-grid-viewport::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 5px;
+}
+
+#sequencer-grid-viewport::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
 }
 
 #sequencer-grid {
   display: grid;
-  grid-template-columns: 60px repeat(16, 32px);
+  grid-template-columns: var(--note-label-width) repeat(16, var(--grid-track-size));
   column-gap: 1px;
-  row-gap: 5px;
+  row-gap: var(--grid-row-gap);
   background: transparent;
-  padding: 18px 16px 24px 16px;
-  overflow-x: auto;
-  overflow-y: hidden;
+  padding: 0 8px 16px 0;
   position: relative;
-  scrollbar-width: thin;
-  max-width: 100%;
-  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  width: max-content;
+  min-width: 100%;
 }
 
-#sequencer-grid::-webkit-scrollbar {
-  height: 10px;
-  background: transparent;
-}
-
-#sequencer-grid::-webkit-scrollbar-corner {
-  background: transparent;
-}
-
-#sequencer-grid::-webkit-scrollbar-track {
-  background: transparent;
-  margin-left: 16px;
-  margin-right: 16px;
-}
-
-#sequencer-grid::-webkit-scrollbar-track-piece {
-  background-color: var(--scrollbar-track);
-  border-radius: 3px;
-}
-
-#sequencer-grid::-webkit-scrollbar-thumb {
-  background-color: #374146;
-  border-radius: 5px;
-}
-
-#sequencer-grid::-webkit-scrollbar-thumb:hover {
-  background-color: var(--scrollbar-thumb-hover);
-}
-
+.grid-corner,
 .grid-row-label {
-  height: 35px;
+  height: var(--grid-cell-size);
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  padding-right: 10px;
   font-size: 12px;
   font-weight: 600;
   color: var(--separator-light);
+  background: var(--sequencer-bg);
+}
+
+.grid-corner {
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 4;
+  width: var(--note-label-width);
+  height: var(--grid-header-height);
+}
+
+.grid-row-label {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  padding-right: 10px;
+  box-shadow: 10px 0 14px -14px rgba(0, 0, 0, 0.9);
 }
 
 .grid-col-label {
-  height: 30px;
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  height: var(--grid-header-height);
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -420,11 +435,14 @@ body {
   font-weight: 600;
   color: var(--separator-light);
   padding-left: 4px;
+  background: var(--sequencer-bg);
 }
 
 .grid-cell {
-  width: 35px;
-  height: 35px;
+  width: var(--grid-cell-size);
+  min-width: var(--grid-cell-size);
+  height: var(--grid-cell-size);
+  justify-self: start;
   background: var(--bpm-bg);
   border-radius: 4px;
   cursor: pointer;
@@ -475,9 +493,12 @@ body {
 #control-panel {
   background: transparent;
   padding: 0;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 340px) 88px;
   gap: 8px;
   border-top: none;
+  min-height: 0;
+  align-items: stretch;
 }
 
 .control-section {
@@ -486,7 +507,8 @@ body {
   gap: 15px;
   background: var(--sequencer-bg);
   border-radius: 8px;
-  padding: 10px 16px;
+  padding: 12px 16px;
+  min-width: 0;
 }
 
 .section-title {
@@ -504,8 +526,9 @@ body {
 }
 
 .knobs-container {
-  display: flex;
-  justify-content: space-around;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
 }
 
 .knob-control {
@@ -516,8 +539,8 @@ body {
 }
 
 .knob {
-  width: 68px;
-  height: 72px;
+  width: clamp(56px, 6vw, 68px);
+  height: clamp(60px, 6.5vw, 72px);
   position: relative;
   display: flex;
   align-items: center;
@@ -534,7 +557,7 @@ body {
 
 .knob-indicator {
   transition: transform 0.2s ease-out;
-  transform-origin: 34px 25px;
+  transform-origin: 50% 35%;
 }
 
 .knob-action {
@@ -575,14 +598,16 @@ body {
 }
 
 .wave-buttons {
-  display: flex;
-  flex-direction: row;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  height: 100%;
 }
 
 .wave-btn {
-  width: 135px;
-  height: 80px;
+  width: 100%;
+  min-width: 0;
+  height: clamp(68px, 10vh, 80px);
   background: transparent;
   border: 1px solid var(--bpm-border);
   color: var(--text-light);
@@ -617,6 +642,8 @@ body {
 .volume-section {
   flex-shrink: 0;
   align-items: center;
+  justify-content: center;
+  padding-inline: 12px;
 }
 
 .volume-slider-container {
@@ -624,13 +651,15 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 15px;
+  height: 100%;
+  justify-content: center;
 }
 
 .vertical-slider {
   writing-mode: vertical-lr;
   direction: rtl;
   width: 6px;
-  height: 100px;
+  height: clamp(88px, 14vh, 112px);
   background: linear-gradient(to top, #25C2C7 80%, #090F11 80%);
   border-radius: 4px;
   outline: none;
@@ -684,38 +713,145 @@ body {
 
 /* Responsive */
 @media (max-width: 1200px) {
-  #sequencer-grid {
-    grid-template-columns: 50px repeat(16, 35px);
+  :root {
+    --grid-cell-size: 32px;
+    --grid-track-size: 36px;
+    --note-label-width: 58px;
   }
 
-  .grid-cell {
-    width: 35px;
-    height: 30px;
+  #control-panel {
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 300px) 78px;
   }
 
   .knobs-container {
-    gap: 20px;
+    gap: 10px;
   }
 
-  .knob {
-    width: 50px;
-    height: 50px;
+  .wave-buttons {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 960px) {
+  #control-panel {
+    grid-template-columns: minmax(0, 1fr) 78px;
+    grid-template-areas:
+      "effects effects"
+      "wave volume";
+  }
+
+  .effects-section {
+    grid-area: effects;
+  }
+
+  .wave-section {
+    grid-area: wave;
+  }
+
+  .volume-section {
+    grid-area: volume;
+  }
+
+  .control-section {
+    padding: 10px 12px;
   }
 }
 
 @media (max-width: 768px) {
-  .header {
-    flex-direction: column;
-    gap: 15px;
+  :root {
+    --app-gap: 6px;
+    --grid-cell-size: 30px;
+    --grid-track-size: 34px;
+    --note-label-width: 54px;
+  }
+
+  #sequencer-container {
+    padding: 12px;
+    gap: 12px;
   }
 
   #control-panel {
+    gap: 6px;
+  }
+
+  .header {
     flex-direction: column;
-    gap: 25px;
+    align-items: stretch;
+    gap: 12px;
+    padding: 4px 0;
+  }
+
+  .header-right {
+    justify-content: flex-end;
+  }
+
+  .sequencer-controls {
+    padding: 0;
+    gap: 10px;
+  }
+
+  .controls-left, .controls-center, .controls-right {
+    gap: 10px;
+  }
+
+  #clear-btn span {
+    display: none;
   }
 
   .knobs-container {
-    flex-wrap: wrap;
-    justify-content: center;
+    gap: 8px;
+  }
+
+  .knob-control label {
+    font-size: 11px;
+  }
+
+  .wave-btn {
+    height: 64px;
+    gap: 6px;
+    font-size: 12px;
+  }
+
+  .vertical-slider {
+    height: 84px;
+  }
+
+  .arduino-text {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 560px) {
+  :root {
+    --grid-cell-size: 28px;
+    --grid-track-size: 32px;
+    --note-label-width: 50px;
+  }
+
+  #app {
+    padding: 10px;
+  }
+
+  #sequencer-container {
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .play-button,
+  .pause-button,
+  .stop-button {
+    width: 64px;
+  }
+
+  .bpm-container {
+    width: 74px;
+  }
+
+  #bpm-input {
+    width: 34px;
+  }
+
+  .wave-buttons {
+    gap: 8px;
   }
 }
