@@ -495,7 +495,7 @@ body {
   padding: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(260px, 340px) 88px;
-  gap: 8px;
+  gap: 6px;
   border-top: none;
   min-height: 0;
   align-items: stretch;
@@ -504,10 +504,10 @@ body {
 .control-section {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 8px;
   background: var(--sequencer-bg);
   border-radius: 8px;
-  padding: 12px 16px;
+  padding: 8px 16px;
   min-width: 0;
 }
 
@@ -517,12 +517,13 @@ body {
   font-style: normal;
   font-weight: 700;
   color: var(--white-full);
-  margin-bottom: 5px;
+  line-height: 1.1;
 }
 
 /* Effects Section */
 .effects-section {
   flex: 1;
+  justify-content: flex-start;
 }
 
 .knobs-container {
@@ -595,13 +596,14 @@ body {
 /* Wave Section */
 .wave-section {
   flex-shrink: 0;
+  justify-content: flex-start;
 }
 
 .wave-buttons {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
-  height: 100%;
+  align-content: start;
 }
 
 .wave-btn {
@@ -643,15 +645,14 @@ body {
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  padding-inline: 12px;
+  padding: 6px 10px;
 }
 
 .volume-slider-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 15px;
-  height: 100%;
+  gap: 4px;
   justify-content: center;
 }
 
@@ -704,11 +705,12 @@ body {
 
 .volume-icon {
   font-size: 24px;
-  padding: 8px;
+  padding: 2px 0 0;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
+  line-height: 0;
 }
 
 /* Responsive */
@@ -753,7 +755,7 @@ body {
   }
 
   .control-section {
-    padding: 10px 12px;
+    padding: 7px 12px;
   }
 }
 
@@ -814,6 +816,10 @@ body {
 
   .vertical-slider {
     height: 84px;
+  }
+
+  .volume-section {
+    padding: 6px 8px;
   }
 
   .arduino-text {
