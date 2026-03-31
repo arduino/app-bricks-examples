@@ -15,7 +15,6 @@ ignored:
     # Package manager installed in the dependency-scanning virtualenv
     - pip
 
-# Source: https://github.com/arduino/tooling-project-assets/blob/main/workflow-templates/assets/check-dependencies/GPL-3.0/.licensed.yml
 allowed:
   - mpl-2.0
   - apache-2.0
