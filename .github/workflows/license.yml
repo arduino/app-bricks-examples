@@ -43,11 +43,15 @@ jobs:
         run: |
           which task || curl -sSfL https://taskfile.dev/install.sh | sh -s -- -b ${{ env.TASKFILE_PATH }} ${{ env.TASKFILE_VERSION }}
           export PATH="${{ env.TASKFILE_PATH }}:$PATH"
-          task license
+          if ! task license; then
+            echo "::error::License check failed while running 'task license'. Please run 'task license' locally, review the output, then commit and push the updated files."
+            exit 1
+          fi
           if git diff --quiet; then
             echo "License data is up to date!"
           else
-            echo "Please update license headers and files by running 'task license'. Found the following differences:"
+            echo "::error::License headers or dependency records are out of date. Please run 'task license' locally, then commit and push the updated files."
+            echo "Found the following differences:"
             echo "$(git diff)"
             exit 1
           fi
