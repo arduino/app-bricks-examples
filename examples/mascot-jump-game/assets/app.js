@@ -1,7 +1,11 @@
-// SPDX-FileCopyrightText: Copyright (C) 2025
+// SPDX-FileCopyrightText: Copyright (C) Arduino s.r.l. and/or its affiliated companies
+//
 // SPDX-License-Identifier: MPL-2.0
 
+//
+
 // Game configuration received from backend
+
 let gameConfig = null;
 let gameState = null;
 let socket = null;

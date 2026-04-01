@@ -1,0 +1,29 @@
+name: app-bricks-examples
+root: true
+
+sources:
+  pip: true
+
+python:
+  virtual_env_dir: ".venv"
+
+cache_path: .licenses
+stale_records_action: error
+
+ignored:
+  pip:
+    # Package manager installed in the dependency-scanning virtualenv
+    - pip
+
+allowed:
+  - mpl-2.0
+  - apache-2.0
+  - mit
+  - mit-cmu
+  - bsd-2-clause
+  - bsd-3-clause
+  - cc0-1.0
+  - isc
+  - psf-2.0
+  - unlicense
+  - ofl-1.1
