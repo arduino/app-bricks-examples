@@ -1,0 +1,82 @@
+<!--
+SPDX-FileCopyrightText: Copyright (C) ARDUINO SRL (http://www.arduino.cc)
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gesture Booth</title>
+    <link rel="icon" type="image/png" href="./img/favicon.png" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Gesture Booth</h1>
+        <img src="./img/logo.svg" alt="Arduino Logo" />
+      </div>
+
+      <div id="content" class="content">
+        <div class="video-container box">
+          <div class="video">
+            <div id="videoPlaceholder">
+              <img src="./img/no-face.svg" alt="Searching webcam" />
+              <p class="title-secondary">Searching Webcam...</p>
+            </div>
+
+            <img id="videoFeed" src="" crossorigin="anonymous" />
+            <dotlottie-player
+              id="videoOverlay"
+              background="transparent"
+              loop
+              autoplay
+            ></dotlottie-player>
+            <div id="countdown">5</div>
+            <img id="resultImage" />
+          </div>
+        </div>
+
+        <div class="gestures box" data-state="initial">
+          <img id="icon" src="./img/camera.svg" alt="Camera" />
+          <p id="title" class="title-primary">Try one of these gestures</p>
+          <p id="subtitle" class="title-primary"></p>
+
+          <dotlottie-player
+            id="animatedGesture"
+            background="transparent"
+            loop
+            autoplay
+          ></dotlottie-player>
+
+          <button id="mainCta" onclick="takePicture()">
+            <img src="./img/camera-icon.svg" alt="Take Picture" /> Take picture
+          </button>
+
+          <div class="gestures-list">
+            <img src="./img/gestures/static/open_palm.svg" alt="👋" />
+            <img src="./img/gestures/static/victory.svg" alt="✌️" />
+            <img src="./img/gestures/static/rock.svg" alt="🤟" />
+            <img src="./img/gestures/static/thumb_up.svg" alt="👍" />
+            <img src="./img/gestures/static/thumb_down.svg" alt="👎" />
+            <img src="./img/gestures/static/pointing_up.svg" alt="☝️" />
+            <img src="./img/gestures/static/closed_fist.svg" alt="✊" />
+          </div>
+
+          <button id="bottomCta" onclick="resetToInitialState()">
+            <img src="./img/stop.svg" alt="Stop" /> Stop
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="libs/socket.io.min.js"></script>
+    <script src="libs/dotlottie-player.js"></script>
+    <script src="libs/arduino.js"></script>
+    <script src="function.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
