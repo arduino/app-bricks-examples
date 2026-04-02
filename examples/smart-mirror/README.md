@@ -1,0 +1,3 @@
+# Smart Mirror (JavaScript)
+
+TODO

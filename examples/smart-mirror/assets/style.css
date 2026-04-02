@@ -1,0 +1,203 @@
+/*
+ * SPDX-FileCopyrightText: Copyright (C) ARDUINO SRL (http://www.arduino.cc)
+ *
+ * SPDX-License-Identifier: MPL-2.0
+ */
+
+@import url('fonts/fonts.css');
+
+* {
+  margin: 0;
+  padding: 0;
+  font-family: 'Open Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: rgb(55, 65, 70, 0.4);
+  color: white;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  background: linear-gradient(180deg, rgba(55, 65, 70, 0.7), transparent);
+  position: relative;
+}
+
+.header h1 {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.7;
+  letter-spacing: 0.28px;
+}
+
+.header img {
+  height: 14px;
+}
+
+#videoIframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+}
+
+#scanBox {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: calc(100% - 32px);
+  padding: 24px 32px;
+  color: black;
+
+  position: absolute;
+  left: 16px;
+  bottom: 32px;
+  align-items: center;
+
+  border-radius: 20px;
+  background: rgba(236, 241, 241, 0.8);
+  backdrop-filter: blur(30px);
+}
+
+#scanBoxTitle {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.7;
+  letter-spacing: 1.9px;
+  text-align: center;
+}
+
+#scanBoxDescription {
+  display: flex;
+  font-size: 16px;
+  line-height: 1.6;
+  letter-spacing: 0.16px;
+  text-align: center;
+}
+
+#scanButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  width: fit-content;
+  cursor: pointer;
+  letter-spacing: 0.14px;
+  line-height: 1.6;
+  font-size: 14px;
+  padding: 7px 12px;
+  color: white;
+  background: #008184;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+/* data-state state overrides */
+#scanBox[data-state='initial'] #scanBoxDescription {
+  display: none;
+}
+
+#scanBox[data-state='preparing'] button {
+  padding: 7px 0;
+  background: transparent;
+  font-weight: 700;
+  color: #008184;
+}
+
+#scanBox[data-state='analysing'] button {
+  display: none;
+}
+
+#scanBox[data-state='result'] {
+  width: calc(100% - 32px);
+}
+
+#scanBox[data-state='result'] #scanBoxDescription.long-result {
+  font-size: 14px;
+}
+
+#scanBox[data-state='error'] button,
+#scanBox[data-state='error'] #scanBoxDescription {
+  display: none;
+}
+
+/* Tablet and up (769px and above) */
+@media (min-width: 769px) {
+  .header h1 {
+    font-size: 20px;
+    letter-spacing: 2.4px;
+    font-weight: 700;
+  }
+
+  .header img {
+    height: 21px;
+  }
+
+  #scanBox {
+    width: 360px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+  }
+
+  #scanBoxTitle {
+    font-size: 20px;
+    letter-spacing: 2.4px;
+  }
+
+  #scanBox[data-state='result'] {
+    width: 640px;
+  }
+}
+
+/* Desktop (1024px and above) */
+@media (min-width: 1024px) {
+  .header {
+    padding: 24px 80px;
+  }
+
+  .header h1 {
+    font-size: 20px;
+  }
+
+  .header img {
+    height: 24px;
+  }
+
+  #scanBox {
+    width: 360px;
+    padding: 32px;
+    left: 80px;
+    bottom: 80px;
+    transform: none;
+    align-items: flex-start;
+  }
+
+  #scanBoxTitle {
+    text-align: left;
+  }
+
+  #scanBoxDescription {
+    font-size: 20px;
+    letter-spacing: 0.2px;
+    text-align: left;
+  }
+
+  #scanBox[data-state='analysing'] #scanBoxDescription,
+  #scanBox[data-state='result'] #scanBoxDescription {
+    font-size: 16px;
+    line-height: 1.6;
+    letter-spacing: 0.16px;
+  }
+
+  #scanBox[data-state='result'] {
+    width: 360px;
+  }
+}

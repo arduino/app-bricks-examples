@@ -1,0 +1,8 @@
+name: Smart Mirror
+icon: 🪞
+description: Control a smart mirror with a web interface
+
+bricks:
+  - arduino:vlm:
+      model: face-detection
+  - arduino:web_ui
