@@ -4,5 +4,5 @@ description: Control a smart mirror with a web interface
 
 bricks:
   - arduino:vlm:
-      model: face-detection
+      model: genie:qwen3-vl-4b
   - arduino:web_ui
