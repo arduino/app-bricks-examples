@@ -2,61 +2,50 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-const ledButton = document.getElementById('led-button');
-const ledText = document.getElementById('led-text');
-let errorContainer;
+// Initialize UI
+const ui = new WebUI();
+ui.on_connect(onUIConnected);
+ui.on_disconnect(onUiDisconnected);
+ui.on_message('led_status_update', updateLedStatus);
 
-/*
- * Socket initialization. We need it to communicate with the server
- */
-const socket = io(`http://${window.location.host}`); // Initialize socket.io connection
+let ledText, ledButton, errorContainer;
 
-// Start the application
-document.addEventListener('DOMContentLoaded', () => {
-    errorContainer = document.getElementById('error-container');
-    initSocketIO();
+// Called when the websocket connection is established.
+function onUIConnected() {
+  // We initialize DOM elements here to ensure they are available before being used,
+  // as this handler is called after the page is fully loaded.
+  ledText = document.getElementById('led-text');
+  ledButton = document.getElementById('led-button');
+  errorContainer = document.getElementById('error-container');
+  errorContainer.textContent = '';
+  errorContainer.style.display = 'none';
 
-    // Add event listener to LED button
-    ledButton.addEventListener('click', handleLedClick);
-});
+  // Register event listener to LED button
+  ledButton.addEventListener('click', handleLedClick);
 
-function initSocketIO() {
-    socket.on('connect', () => {
-        // Request initial LED state
-        socket.emit('get_initial_state', {});
-        if (errorContainer) {
-            errorContainer.style.display = 'none';
-            errorContainer.textContent = '';
-        }
-    });
-
-    socket.on('led_status_update', (message) => {
-        updateLedStatus(message);
-    });
-
-    socket.on('disconnect', () => {
-        if (errorContainer) {
-            errorContainer.textContent = 'Connection to the board lost. Please check the connection.';
-            errorContainer.style.display = 'block';
-        }
-    });
+  // Requests the initial state from the board.
+  ui.send_message('get_initial_state');
 }
 
-/*
- * These functions are used to update the UI based on the server's LED status.
- */
+// Called when the websocket connection is lost.
+function onUiDisconnected() {
+  errorContainer.style.display = 'block';
+  errorContainer.textContent =
+    'Connection to the board lost. Please check the connection.';
+}
 
 // Function to update LED status in the UI
 function updateLedStatus(status) {
-    const isOn = status.led_is_on;
-
-    // Update LED button appearance and text
-    ledButton.className = isOn ? 'led-on' : 'led-off';
-    ledText.textContent = isOn ? 'LED IS ON' : 'LED IS OFF';
+  if (status.led_is_on) {
+    ledButton.className = 'led-on';
+    ledText.textContent = 'LED IS ON';
+  } else {
+    ledButton.className = 'led-off';
+    ledText.textContent = 'LED IS OFF';
+  }
 }
 
 // Function to handle LED button click
 function handleLedClick() {
-    // Send toggle message to server via socket
-    socket.emit('toggle_led', {});
+  ui.send_message('toggle_led');
 }

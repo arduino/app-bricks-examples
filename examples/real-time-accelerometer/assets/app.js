@@ -7,7 +7,8 @@ const classesRoot = document.getElementById('classes');
 // plotting helpers
 const canvas = document.getElementById('plot');
 const ctx = canvas.getContext('2d');
-const width = canvas.width, height = canvas.height;
+const width = canvas.width,
+  height = canvas.height;
 const maxSamples = 200;
 const samples = [];
 let errorContainer;
@@ -15,16 +16,16 @@ let errorContainer;
 function drawPlot() {
   // clear
   ctx.fillStyle = '#fff';
-  ctx.fillRect(0,0,width,height);
+  ctx.fillRect(0, 0, width, height);
 
   // All grid lines (every 0.5) - same size
   ctx.strokeStyle = '#f0f0f0';
   ctx.lineWidth = 0.5;
   ctx.beginPath();
-  for (let i=0; i<=8; i++){
-    const y = 10 + i*((height-20)/8);
-    ctx.moveTo(40,y);
-    ctx.lineTo(width,y);
+  for (let i = 0; i <= 8; i++) {
+    const y = 10 + i * ((height - 20) / 8);
+    ctx.moveTo(40, y);
+    ctx.lineTo(width, y);
   }
   ctx.stroke();
 
@@ -34,8 +35,8 @@ function drawPlot() {
   ctx.textAlign = 'right';
   ctx.textBaseline = 'middle';
 
-  for (let i=0; i<=8; i++) {
-    const y = 10 + i*((height-20)/8);
+  for (let i = 0; i <= 8; i++) {
+    const y = 10 + i * ((height - 20) / 8);
     const value = (2.0 - i * 0.5).toFixed(1);
     ctx.fillText(value, 35, y);
   }
@@ -45,30 +46,31 @@ function drawPlot() {
     ctx.strokeStyle = color;
     ctx.lineWidth = 1;
     ctx.beginPath();
-    for (let i=0;i<samples.length;i++){
+    for (let i = 0; i < samples.length; i++) {
       const s = samples[i];
-      const x = 40 + (i/(maxSamples-1))*(width-40);
+      const x = 40 + (i / (maxSamples - 1)) * (width - 40);
       const v = s[key];
-      const y = (height/2) - (v * ((height-20)/4));
-      if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      const y = height / 2 - v * ((height - 20) / 4);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
     }
     ctx.stroke();
   }
 
-  drawSeries('x','#0068C9');
-  drawSeries('y','#FF9900');
-  drawSeries('z','#FF2B2B');
+  drawSeries('x', '#0068C9');
+  drawSeries('y', '#FF9900');
+  drawSeries('z', '#FF2B2B');
 }
 
-function pushSample(s){
+function pushSample(s) {
   samples.push(s);
-  if (samples.length>maxSamples) samples.shift();
+  if (samples.length > maxSamples) samples.shift();
   drawPlot();
 }
 
-function renderClasses(d){
+function renderClasses(d) {
   const orderedKeys = ['snake', 'wave', 'updown', 'idle'];
-  
+
   let maxKey = null;
   let maxValue = -1;
   for (const key in d) {
@@ -84,17 +86,17 @@ function renderClasses(d){
     snake: '🐍',
     updown: '↕',
     wave: '🌊',
-    idle: '💤'
+    idle: '💤',
   };
 
   const names = {
     snake: 'Snake',
     updown: 'Up Down',
     wave: 'Wave',
-    idle: 'Idle'
+    idle: 'Idle',
   };
 
-  orderedKeys.forEach(key => {
+  orderedKeys.forEach((key) => {
     const value = d[key] || 0;
     const row = document.createElement('div');
     row.className = 'row';
@@ -103,7 +105,9 @@ function renderClasses(d){
     const percentage = value.toFixed(1);
 
     const isMax = key === maxKey;
-    const progressClass = isMax ? 'progress-fill primary' : 'progress-fill secondary';
+    const progressClass = isMax
+      ? 'progress-fill primary'
+      : 'progress-fill secondary';
     const valueClass = isMax ? 'value primary' : 'value secondary';
 
     row.innerHTML = `
@@ -124,49 +128,54 @@ function setValues(d) {
 }
 
 // Try to fetch current value via HTTP first
-fetch('/detection').then(r => r.json()).then(d => {
-  console.debug('Fetched /detection', d);
-  setValues(d);
-}).catch((e) => {
-  console.debug('Failed to fetch /detection', e);
-});
+fetch('/detection')
+  .then((r) => r.json())
+  .then((d) => {
+    console.debug('Fetched /detection', d);
+    setValues(d);
+  })
+  .catch((e) => {
+    console.debug('Failed to fetch /detection', e);
+  });
 
 // Fetch recent samples on load
-fetch('/samples').then(r=>r.json()).then(list=>{
-  if (Array.isArray(list)){
-    list.forEach(s => pushSample(s));
-  }
-}).catch(e=>console.debug('Failed to load /samples',e));
+fetch('/samples')
+  .then((r) => r.json())
+  .then((list) => {
+    if (Array.isArray(list)) {
+      list.forEach((s) => pushSample(s));
+    }
+  })
+  .catch((e) => console.debug('Failed to load /samples', e));
 
-// Connect explicitly using the full origin and the /socket.io path
-const serverOrigin = window.location.origin;
-console.debug('Attempting socket.io connect to', serverOrigin);
-const socket = io(serverOrigin, {
+// Connect to board using WebUI with custom socket.io options
+const ui = new WebUI({
   path: '/socket.io',
-  transports: ['polling','websocket'],
-  autoConnect: true
+  transports: ['polling', 'websocket'],
+  autoConnect: true,
 });
 
-socket.on('movement', (data) => {
+ui.on_message('movement', (data) => {
   console.debug('received movement', data);
   setValues(data);
 });
 
-socket.on('sample', (s) => {
+ui.on_message('sample', (s) => {
   pushSample(s);
 });
 
-socket.on('connect', () => {
+ui.on_connect(() => {
   if (errorContainer) {
     errorContainer.style.display = 'none';
     errorContainer.textContent = '';
   }
 });
 
-socket.on('disconnect', () => {
+ui.on_disconnect(() => {
   errorContainer = document.getElementById('error-container');
   if (errorContainer) {
-    errorContainer.textContent = 'Connection to the board lost. Please check the connection.';
+    errorContainer.textContent =
+      'Connection to the board lost. Please check the connection.';
     errorContainer.style.display = 'block';
   }
 });
