@@ -2,15 +2,15 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-// Initialize WebSocket connection
-const socket = io(`http://${window.location.host}`);
+// Initialize WebUI
+const ui = new WebUI();
 
-socket.on('connect', () => {
+ui.on_connect(() => {
   loadWebcam();
   resetToInitialState();
 });
 
-socket.on('disconnect', () => {
+ui.on_disconnect(() => {
   content.setAttribute('data-state', 'error');
   title.className = 'title-secondary';
   title.textContent =
@@ -18,4 +18,4 @@ socket.on('disconnect', () => {
 });
 
 // Listen for analysis results from the backend and display them when received
-socket.on('gesture_detected', handleGestureDetected);
+ui.on_message('gesture_detected', handleGestureDetected);

@@ -2,15 +2,15 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-// Initialize WebSocket connection
-const socket = io(`http://${window.location.host}`);
+// Initialize WebUI
+const ui = new WebUI();
 
-socket.on('connect', () => {
+ui.on_connect(() => {
   resetToInitialState();
   loadWebcam();
 });
 
-socket.on('disconnect', () => {
+ui.on_disconnect(() => {
   videoFeed.style.display = 'none';
   scanBox.setAttribute('data-state', 'error');
   scanBoxTitle.textContent =
@@ -18,4 +18,4 @@ socket.on('disconnect', () => {
 });
 
 // Listen for analysis results from the backend and display them when received
-socket.on('analysis_result', showScanResult);
+ui.on_message('analysis_result', showScanResult);

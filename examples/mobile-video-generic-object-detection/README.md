@@ -42,7 +42,7 @@ The example uses the following Bricks:
 5. Install the **Arduino IoT Remote** app on your smartphone from your app store.
 6. Open the Arduino IoT Remote app on your phone and log in with your Arduino account.
 7. Go to Devices, tap on the plus icon to set up a new device and select **Stream phone camera to UNO Q**.
-    ![IoT Remote setup](assets/docs_assets/iot-remote.png)
+   ![IoT Remote setup](assets/docs_assets/iot-remote.png)
 8. Scan the QR code.
 9. Once connected, the video stream from your phone will appear on the Web UI.
 10. Point your phone at objects and watch as the App detects and recognizes them.
@@ -85,7 +85,7 @@ Here is a brief explanation of the full-stack application:
 ### 💻 Frontend (index.html + app.js)
 
 - **Pairing Process**:
-  - Receives the `secret`, `ip`, and `port` from the backend via Socket.IO.
+  - Receives the `secret`, `ip`, and `port` from the backend via WebUI.
   - Generates a **QR Code** using `qrcode.min.js`. This code contains the credentials required for the mobile app to connect.
 
 - **Video Feed**:
@@ -104,83 +104,89 @@ Once the application is running, you can open it in your browser. At that point,
 
 - **Serving the UI and handling Remote Camera pairing.**
 
-    The backend generates a security code and initializes the WebSocket camera. It waits for the frontend to connect to send these details.
+  The backend generates a security code and initializes the WebSocket camera. It waits for the frontend to connect to send these details.
 
-    ```python
-    def generate_secret() -> str:
-      characters = string.digits
-      return ''.join(secrets.choice(characters) for _ in range(6))
+  ```python
+  def generate_secret() -> str:
+    characters = string.digits
+    return ''.join(secrets.choice(characters) for _ in range(6))
 
-    secret = generate_secret()
-    ui = WebUI()
-    resolution = (480, 640)  # Portrait resolution for mobile devices
-    camera = WebSocketCamera(resolution=resolution, secret=secret, encrypt=True, adjustments=resized(resolution, maintain_ratio=True))
+  secret = generate_secret()
+  ui = WebUI()
+  resolution = (480, 640)  # Portrait resolution for mobile devices
+  camera = WebSocketCamera(resolution=resolution, secret=secret, encrypt=True, adjustments=resized(resolution, maintain_ratio=True))
 
-    # Send connection details to UI so it can draw the QR code
-    ui.on_connect(lambda sid: ui.send_message("welcome", {
-        "client_name": camera.name, 
-        "secret": secret, 
-        "status": camera.status, 
-        "protocol": camera.protocol, 
-        "ip": camera.ip, 
-        "port": camera.port
-    }))
-    ```
+  # Send connection details to UI so it can draw the QR code
+  ui.on_connect(lambda sid: ui.send_message("welcome", {
+      "client_name": camera.name,
+      "secret": secret,
+      "status": camera.status,
+      "protocol": camera.protocol,
+      "ip": camera.ip,
+      "port": camera.port
+  }))
+  ```
 
 - **Processing video and broadcasting detections.**
 
-    The `VideoObjectDetection` brick consumes frames from the `camera` object. When objects are found, the callback formats the data and sends it to the browser.
+  The `VideoObjectDetection` brick consumes frames from the `camera` object. When objects are found, the callback formats the data and sends it to the browser.
 
-    ```python
-    detection = VideoObjectDetection(camera, confidence=0.5, debounce_sec=0.0)
+  ```python
+  detection = VideoObjectDetection(camera, confidence=0.5, debounce_sec=0.0)
 
-    # Register a callback for when all objects are detected
-    def send_detections_to_ui(detections: dict):
-      for key, value in detections.items():
-        entry = {
-          "content": key,
-          "confidence": value.get("confidence"),
-          "timestamp": datetime.now(UTC).isoformat()
-        }
-        ui.send_message("detection", entry)
+  # Register a callback for when all objects are detected
+  def send_detections_to_ui(detections: dict):
+    for key, value in detections.items():
+      entry = {
+        "content": key,
+        "confidence": value.get("confidence"),
+        "timestamp": datetime.now(UTC).isoformat()
+      }
+      ui.send_message("detection", entry)
 
-    detection.on_detect_all(send_detections_to_ui)
-    ```
+  detection.on_detect_all(send_detections_to_ui)
+  ```
 
 - **Rendering the QR Code (Frontend).**
 
-    In `app.js`, the frontend waits for the `welcome` message to generate the QR code that bridges the phone and the board.
+  In `app.js`, the frontend waits for the `welcome` message to generate the QR code that bridges the phone and the board.
 
-    ```javascript
-    socket.on('welcome', async (message) => {
-        webcamState.secret = message.secret;
-        // ... update state ...
-        updateDisplay();
-    });
+  ```javascript
+  ui.on_message('welcome', async (message) => {
+    webcamState.secret = message.secret;
+    // ... update state ...
+    updateDisplay();
+  });
 
-    function updateDisplay() {
-        if (webcamState.status != "connected") {
-            // Webcam is not connected yet - show QR code
-            if (webcamState.secret) {
-                generateQRCode(webcamState.secret, webcamState.protocol, webcamState.ip, webcamState.port);
-            }
-        }
-        // ... else show video iframe ...
+  function updateDisplay() {
+    if (webcamState.status != 'connected') {
+      // Webcam is not connected yet - show QR code
+      if (webcamState.secret) {
+        generateQRCode(
+          webcamState.secret,
+          webcamState.protocol,
+          webcamState.ip,
+          webcamState.port,
+        );
+      }
     }
-    ```
+    // ... else show video iframe ...
+  }
+  ```
 
 - **Executing the event loop.**
 
-    Finally, the backend keeps the application alive, managing the network traffic between the phone, the AI model, and the browser.
+  Finally, the backend keeps the application alive, managing the network traffic between the phone, the AI model, and the browser.
 
-    ```python
-    App.run()
-    ```
+  ```python
+  App.run()
+  ```
 
 ## Note
 
 This example is written to use HTTP protocol for example purposes.
 If you want to manage a secure HTTPS connection:
+
 - create a copy of this example
 - create certificates files `cert.pem` `key.pem` and save them into `/app/certs`
 - instantiate `WebUi` brick in this way:

@@ -2,16 +2,14 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-const socket = io(`http://${window.location.host}`);
+const ui = new WebUI();
 
 let thinkingMessageElement = null;
 let lastUserPrompt = '';
 let isFirstPrompt = true;
 let thinkingMessageInterval = null;
 
-const firstPromptMessages = [
-  'Loading Model'
-];
+const firstPromptMessages = ['Loading Model'];
 
 const errorBanner = document.getElementById('error-banner');
 const errorMessage = document.getElementById('error-message');
@@ -165,7 +163,7 @@ function handleCommandError(data) {
 
 /** Emits a clear_chat command to the backend. */
 function sendClearChatCommand() {
-  socket.emit('commands', { command: 'clear_chat' });
+  ui.send_message('commands', { command: 'clear_chat' });
 }
 
 /**
@@ -180,19 +178,19 @@ function handleLLMError(data) {
   handleStreamEnd();
 }
 
-/** Initialises all Socket.IO event listeners. */
-function initSocketIO() {
-  socket.on('response', handleResponse);
-  socket.on('stream_end', handleStreamEnd);
-  socket.on('llm_error', handleLLMError);
-  socket.on('command_ok', handleCompletedCommand);
-  socket.on('command_error', handleCommandError);
+/** Initialises all WebUI event listeners. */
+function initUI() {
+  ui.on_message('response', handleResponse);
+  ui.on_message('stream_end', handleStreamEnd);
+  ui.on_message('llm_error', handleLLMError);
+  ui.on_message('command_ok', handleCompletedCommand);
+  ui.on_message('command_error', handleCommandError);
 
-  socket.on('connect', () => {
+  ui.on_connect(() => {
     console.log('Connected to backend');
   });
 
-  socket.on('disconnect', () => {
+  ui.on_disconnect(() => {
     showError(
       'Connection to backend lost. Please refresh the page or check the backend server.',
     );
@@ -309,7 +307,7 @@ function sendMessage(text) {
   messagesContainer.appendChild(thinkingMessageElement);
   scrollToBottom();
 
-  socket.emit('prompt', { prompt: text });
+  ui.send_message('prompt', { prompt: text });
   updateClearChatButtonState();
   userInput.focus();
 }
@@ -323,7 +321,7 @@ function updatePlaceholderVisibility() {
   }
 }
 
-initSocketIO();
+initUI();
 
 // Initial state
 updateSendButtonState();
@@ -355,7 +353,7 @@ sendButton.addEventListener('click', (event) => {
   if (sendButton.classList.contains('disabled')) {
     return;
   } else if (sendButton.classList.contains('sending-state')) {
-    socket.emit('commands', { command: 'stop_stream' });
+    ui.send_message('commands', { command: 'stop_stream' });
   } else {
     sendMessage();
   }

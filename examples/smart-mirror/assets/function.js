@@ -98,7 +98,7 @@ function startScan() {
     currentPhraseIndex = (currentPhraseIndex + 1) % phrases.length;
   }, 1200);
 
-  socket.emit('start_scan', {});
+  ui.send_message('start_scan');
 }
 
 /**

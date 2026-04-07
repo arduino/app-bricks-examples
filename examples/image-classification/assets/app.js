@@ -2,94 +2,98 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-let socket;
+const ui = new WebUI();
+
 let currentImage = null;
 let imageType = null;
 let imageInput;
 let errorContainer;
 
 function onImagePreviewClick() {
-    if (!currentImage) {
-        imageInput.click();
-    }
+  if (!currentImage) {
+    imageInput.click();
+  }
 }
 
 /*
  * Socket and elements initialization. We need it to communicate with the server
  */
-
-document.addEventListener('DOMContentLoaded', () => {
-    initializeElements();
-    initSocketIO();
-});
+initializeElements();
+initWebUI();
 
 function initializeElements() {
-    imageInput = document.getElementById('imageInput');
-    const imagePreview = document.getElementById('imagePreview');
-    const confidenceSlider = document.getElementById('confidenceSlider');
-    const confidenceInput = document.getElementById('confidenceInput');
-    const confidenceResetButton = document.getElementById('confidenceResetButton');
-    const classifyButton = document.getElementById('classifyButton');
-    const uploadNewButton = document.getElementById('uploadNewButton');
-    errorContainer = document.getElementById('error-container');
+  imageInput = document.getElementById('imageInput');
+  const imagePreview = document.getElementById('imagePreview');
+  const confidenceSlider = document.getElementById('confidenceSlider');
+  const confidenceInput = document.getElementById('confidenceInput');
+  const confidenceResetButton = document.getElementById(
+    'confidenceResetButton',
+  );
+  const classifyButton = document.getElementById('classifyButton');
+  const uploadNewButton = document.getElementById('uploadNewButton');
+  errorContainer = document.getElementById('error-container');
 
-    imageInput.addEventListener('change', handleImageUpload);
-    imagePreview.addEventListener('click', onImagePreviewClick);
+  imageInput.addEventListener('change', handleImageUpload);
+  imagePreview.addEventListener('click', onImagePreviewClick);
 
-    // Drag and drop functionality
-    imagePreview.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        imagePreview.classList.add('drag-over');
+  // Drag and drop functionality
+  imagePreview.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    imagePreview.classList.add('drag-over');
+  });
+
+  imagePreview.addEventListener('dragleave', () => {
+    imagePreview.classList.remove('drag-over');
+  });
+
+  imagePreview.addEventListener('drop', (e) => {
+    e.preventDefault();
+    imagePreview.classList.remove('drag-over');
+    const files = e.dataTransfer.files;
+    if (files.length > 0 && files[0].type.startsWith('image/')) {
+      handleImageFile(files[0]);
+    }
+  });
+
+  // Confidence slider and input
+  confidenceSlider.addEventListener('input', updateConfidenceDisplay);
+  confidenceInput.addEventListener('input', handleConfidenceInputChange);
+  confidenceInput.addEventListener('blur', validateConfidenceInput);
+  updateConfidenceDisplay();
+
+  confidenceResetButton.addEventListener('click', (e) => {
+    if (
+      e.target.classList.contains('reset-icon') ||
+      e.target.closest('.reset-icon')
+    ) {
+      resetConfidence();
+    }
+  });
+
+  const confidencePopoverText =
+    'Minimum confidence score for detected objects. Lower values show more results but may include false positives.';
+  document.querySelectorAll('.info-btn.confidence').forEach((img) => {
+    const popover = img.parentElement.querySelector('.popover');
+    img.addEventListener('mouseenter', () => {
+      popover.textContent = confidencePopoverText;
+      popover.style.display = 'block';
     });
-
-    imagePreview.addEventListener('dragleave', () => {
-        imagePreview.classList.remove('drag-over');
+    img.addEventListener('mouseleave', () => {
+      popover.style.display = 'none';
     });
+  });
 
-    imagePreview.addEventListener('drop', (e) => {
-        e.preventDefault();
-        imagePreview.classList.remove('drag-over');
-        const files = e.dataTransfer.files;
-        if (files.length > 0 && files[0].type.startsWith('image/')) {
-            handleImageFile(files[0]);
-        }
-    });
-
-    // Confidence slider and input
-    confidenceSlider.addEventListener('input', updateConfidenceDisplay);
-    confidenceInput.addEventListener('input', handleConfidenceInputChange);
-    confidenceInput.addEventListener('blur', validateConfidenceInput);
-    updateConfidenceDisplay();
-
-    confidenceResetButton.addEventListener('click', (e) => {
-        if (e.target.classList.contains('reset-icon') || e.target.closest('.reset-icon')) {
-            resetConfidence();
-        }
-    });
-
-    const confidencePopoverText = "Minimum confidence score for detected objects. Lower values show more results but may include false positives.";
-    document.querySelectorAll('.info-btn.confidence').forEach(img => {
-        const popover = img.parentElement.querySelector('.popover');
-        img.addEventListener('mouseenter', () => {
-            popover.textContent = confidencePopoverText;
-            popover.style.display = 'block';
-        });
-        img.addEventListener('mouseleave', () => {
-            popover.style.display = 'none';
-        });
-    });
-
-    // Buttons
-    classifyButton.addEventListener('click', runClassification);
-    uploadNewButton.addEventListener('click', uploadNewImage);
+  // Buttons
+  classifyButton.addEventListener('click', runClassification);
+  uploadNewButton.addEventListener('click', uploadNewImage);
 }
 
 function uploadNewImage() {
-    currentImage = null;
-    const imagePreview = document.getElementById('imagePreview');
-    const resultsTable = document.getElementById('resultsTable');
+  currentImage = null;
+  const imagePreview = document.getElementById('imagePreview');
+  const resultsTable = document.getElementById('resultsTable');
 
-    imagePreview.innerHTML = `
+  imagePreview.innerHTML = `
         <div class="upload-placeholder">
             <p class="drag-and-drop">Drag & drop an image here, or</p>
             <button class="drag-and-drop-button">
@@ -104,222 +108,235 @@ function uploadNewImage() {
             <input type="file" id="imageInput" accept="image/*" style="display: none;">
         </div>
     `;
-    imagePreview.style.border = '1px dashed #7F8C8D';
-    resultsTable.innerHTML = '';
+  imagePreview.style.border = '1px dashed #7F8C8D';
+  resultsTable.innerHTML = '';
 
-    // Re-assign global and re-attach listener
-    imageInput = document.getElementById('imageInput');
-    imageInput.addEventListener('change', handleImageUpload);
+  // Re-assign global and re-attach listener
+  imageInput = document.getElementById('imageInput');
+  imageInput.addEventListener('change', handleImageUpload);
 
-    setButtonState('initial');
-    clearStatus();
+  setButtonState('initial');
+  clearStatus();
 }
 
 function handleConfidenceInputChange() {
-    const confidenceInput = document.getElementById('confidenceInput');
-    const confidenceSlider = document.getElementById('confidenceSlider');
+  const confidenceInput = document.getElementById('confidenceInput');
+  const confidenceSlider = document.getElementById('confidenceSlider');
 
-    let value = parseFloat(confidenceInput.value);
+  let value = parseFloat(confidenceInput.value);
 
-    if (isNaN(value)) value = 0.5;
-    if (value < 0) value = 0;
-    if (value > 1) value = 1;
+  if (isNaN(value)) value = 0.5;
+  if (value < 0) value = 0;
+  if (value > 1) value = 1;
 
-    confidenceSlider.value = value;
-    updateConfidenceDisplay();
+  confidenceSlider.value = value;
+  updateConfidenceDisplay();
 }
 
 function validateConfidenceInput() {
-    const confidenceInput = document.getElementById('confidenceInput');
-    let value = parseFloat(confidenceInput.value);
+  const confidenceInput = document.getElementById('confidenceInput');
+  let value = parseFloat(confidenceInput.value);
 
-    if (isNaN(value)) value = 0.5;
-    if (value < 0) value = 0;
-    if (value > 1) value = 1;
+  if (isNaN(value)) value = 0.5;
+  if (value < 0) value = 0;
+  if (value > 1) value = 1;
 
-    confidenceInput.value = value.toFixed(2);
+  confidenceInput.value = value.toFixed(2);
 
-    handleConfidenceInputChange();
+  handleConfidenceInputChange();
 }
 
 function updateConfidenceDisplay() {
-    const confidenceSlider = document.getElementById('confidenceSlider');
-    const confidenceInput = document.getElementById('confidenceInput');
-    const confidenceValueDisplay = document.getElementById('confidenceValueDisplay');
-    const sliderProgress = document.getElementById('sliderProgress');
+  const confidenceSlider = document.getElementById('confidenceSlider');
+  const confidenceInput = document.getElementById('confidenceInput');
+  const confidenceValueDisplay = document.getElementById(
+    'confidenceValueDisplay',
+  );
+  const sliderProgress = document.getElementById('sliderProgress');
 
-    const value = parseFloat(confidenceSlider.value);
-    const percentage = (value - confidenceSlider.min) / (confidenceSlider.max - confidenceSlider.min) * 100;
+  const value = parseFloat(confidenceSlider.value);
+  const percentage =
+    ((value - confidenceSlider.min) /
+      (confidenceSlider.max - confidenceSlider.min)) *
+    100;
 
-    const displayValue = value.toFixed(2);
-    confidenceValueDisplay.textContent = displayValue;
+  const displayValue = value.toFixed(2);
+  confidenceValueDisplay.textContent = displayValue;
 
-    if (document.activeElement !== confidenceInput) {
-        confidenceInput.value = displayValue;
-    }
+  if (document.activeElement !== confidenceInput) {
+    confidenceInput.value = displayValue;
+  }
 
-    sliderProgress.style.width = percentage + '%';
-    confidenceValueDisplay.style.left = percentage + '%';
+  sliderProgress.style.width = percentage + '%';
+  confidenceValueDisplay.style.left = percentage + '%';
 }
 
 function resetConfidence() {
-    const confidenceSlider = document.getElementById('confidenceSlider');
-    const confidenceInput = document.getElementById('confidenceInput');
+  const confidenceSlider = document.getElementById('confidenceSlider');
+  const confidenceInput = document.getElementById('confidenceInput');
 
-    confidenceSlider.value = '0.5';
-    confidenceInput.value = '0.50';
-    updateConfidenceDisplay();
+  confidenceSlider.value = '0.5';
+  confidenceInput.value = '0.50';
+  updateConfidenceDisplay();
 }
 
-function initSocketIO() {
-    socket = io(`http://${window.location.host}`);
+function initWebUI() {
+  ui.on_connect(() => {
+    if (errorContainer) {
+      errorContainer.style.display = 'none';
+      errorContainer.textContent = '';
+    }
+  });
 
-    socket.on('connect', () => {
-        if (errorContainer) {
-            errorContainer.style.display = 'none';
-            errorContainer.textContent = '';
-        }
-    });
+  ui.on_message('classification_result', (data) => {
+    console.log('📥 Received classification_result:', data);
+    handleClassificationResult(data);
+  });
 
-    socket.on('classification_result', (data) => {
-        console.log('📥 Received classification_result:', data);
-        handleClassificationResult(data);
-    });
+  ui.on_message('classification_error', (data) => {
+    console.log('📥 Received classification_error:', data);
+    showError(`Classification failed: ${data.error}`);
+    setButtonState('ready');
+  });
 
-    socket.on('classification_error', (data) => {
-        console.log('📥 Received classification_error:', data);
-        showError(`Classification failed: ${data.error}`);
-        setButtonState('ready');
-    });
-
-    socket.on('disconnect', () => {
-        if (errorContainer) {
-            errorContainer.textContent = 'Connection to the board lost. Please check the connection.';
-            errorContainer.style.display = 'block';
-        }
-    });
+  ui.on_disconnect(() => {
+    if (errorContainer) {
+      errorContainer.textContent =
+        'Connection to the board lost. Please check the connection.';
+      errorContainer.style.display = 'block';
+    }
+  });
 }
 
 function handleImageUpload(event) {
-    const file = event.target.files[0];
-    if (file) {
-        handleImageFile(file);
-    }
+  const file = event.target.files[0];
+  if (file) {
+    handleImageFile(file);
+  }
 }
 
 function handleImageFile(file) {
-    if (!file.type.startsWith('image/')) {
-        showError('Please select a valid image file');
-        return;
-    }
+  if (!file.type.startsWith('image/')) {
+    showError('Please select a valid image file');
+    return;
+  }
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        currentImage = e.target.result.split(',')[1];
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    currentImage = e.target.result.split(',')[1];
 
-        const imagePreview = document.getElementById('imagePreview');
-        imagePreview.innerHTML = `<img src="${e.target.result}" alt="Uploaded image" class="preview-image">`;
-        imagePreview.style.border = 'none';
+    const imagePreview = document.getElementById('imagePreview');
+    imagePreview.innerHTML = `<img src="${e.target.result}" alt="Uploaded image" class="preview-image">`;
+    imagePreview.style.border = 'none';
 
-        setButtonState('ready');
-        clearStatus();
-    };
-    reader.readAsDataURL(file);
+    setButtonState('ready');
+    clearStatus();
+  };
+  reader.readAsDataURL(file);
 }
 
 function runClassification() {
-    if (!currentImage) {
-        showError('No image available for classification');
-        return;
-    }
+  if (!currentImage) {
+    showError('No image available for classification');
+    return;
+  }
 
-    setButtonState('classifying');
-    showStatus('Running classification...', 'info');
+  setButtonState('classifying');
+  showStatus('Running classification...', 'info');
 
-    const confidence = parseFloat(document.getElementById('confidenceSlider').value);
+  const confidence = parseFloat(
+    document.getElementById('confidenceSlider').value,
+  );
 
-    socket.emit('classify_image', {
-        image: currentImage,
-        confidence: confidence,
-        image_type: imageType
-    });
+  ui.send_message('classify_image', {
+    image: currentImage,
+    confidence: confidence,
+    image_type: imageType,
+  });
 }
 
 function handleClassificationResult(data) {
-    if (data.error || !data.success) {
-        showError(`Classification failed: ${data.error || 'Unknown error'}`);
-        setButtonState('ready');
-        return;
-    }
+  if (data.error || !data.success) {
+    showError(`Classification failed: ${data.error || 'Unknown error'}`);
+    setButtonState('ready');
+    return;
+  }
 
-    const resultsTable = document.getElementById('resultsTable');
-    resultsTable.innerHTML = ''; // Clear previous results
+  const resultsTable = document.getElementById('resultsTable');
+  resultsTable.innerHTML = ''; // Clear previous results
 
-    if (data.results && data.results.classification && data.results.classification.length > 0) {
-        const table = document.createElement('table');
-        table.className = 'results-table';
-        const thead = document.createElement('thead');
-        thead.innerHTML = '<tr><th>Detected object</th><th>Confidence</th></tr>';
-        const tbody = document.createElement('tbody');
+  if (
+    data.results &&
+    data.results.classification &&
+    data.results.classification.length > 0
+  ) {
+    const table = document.createElement('table');
+    table.className = 'results-table';
+    const thead = document.createElement('thead');
+    thead.innerHTML = '<tr><th>Detected object</th><th>Confidence</th></tr>';
+    const tbody = document.createElement('tbody');
 
-        data.results.classification.forEach(item => {
-            const row = document.createElement('tr');
-            row.innerHTML = `<td class="class-name">${item.class_name}</td><td class="confidence">${item.confidence}%</td>`;
-            tbody.appendChild(row);
-        });
+    data.results.classification.forEach((item) => {
+      const row = document.createElement('tr');
+      row.innerHTML = `<td class="class-name">${item.class_name}</td><td class="confidence">${item.confidence}%</td>`;
+      tbody.appendChild(row);
+    });
 
-        table.appendChild(thead);
-        table.appendChild(tbody);
-        resultsTable.appendChild(table);
+    table.appendChild(thead);
+    table.appendChild(tbody);
+    resultsTable.appendChild(table);
 
-        showStatus('Classification completed successfully!', 'success');
-    } else {
-        showStatus('No objects detected with the current confidence threshold.', 'info');
-    }
-    setButtonState('completed');
+    showStatus('Classification completed successfully!', 'success');
+  } else {
+    showStatus(
+      'No objects detected with the current confidence threshold.',
+      'info',
+    );
+  }
+  setButtonState('completed');
 }
 
 function setButtonState(state) {
-    const classifyButton = document.getElementById('classifyButton');
-    const uploadNewButton = document.getElementById('uploadNewButton');
+  const classifyButton = document.getElementById('classifyButton');
+  const uploadNewButton = document.getElementById('uploadNewButton');
 
-    switch (state) {
-        case 'initial':
-            classifyButton.style.display = 'none';
-            uploadNewButton.style.display = 'none';
-            break;
-        case 'ready':
-            classifyButton.style.display = 'inline-block';
-            classifyButton.disabled = false;
-            classifyButton.textContent = 'Run Classification ▶';
-            uploadNewButton.style.display = 'flex';
-            break;
-        case 'classifying':
-            classifyButton.disabled = true;
-            classifyButton.textContent = 'Running...';
-            break;
-        case 'completed':
-            classifyButton.style.display = 'inline-block';
-            classifyButton.disabled = false;
-            classifyButton.textContent = 'Run Again ▶';
-            uploadNewButton.style.display = 'flex';
-            break;
-    }
+  switch (state) {
+    case 'initial':
+      classifyButton.style.display = 'none';
+      uploadNewButton.style.display = 'none';
+      break;
+    case 'ready':
+      classifyButton.style.display = 'inline-block';
+      classifyButton.disabled = false;
+      classifyButton.textContent = 'Run Classification ▶';
+      uploadNewButton.style.display = 'flex';
+      break;
+    case 'classifying':
+      classifyButton.disabled = true;
+      classifyButton.textContent = 'Running...';
+      break;
+    case 'completed':
+      classifyButton.style.display = 'inline-block';
+      classifyButton.disabled = false;
+      classifyButton.textContent = 'Run Again ▶';
+      uploadNewButton.style.display = 'flex';
+      break;
+  }
 }
 
 function showStatus(message, type = 'info') {
-    const statusElement = document.getElementById('statusMessage');
-    statusElement.textContent = message;
-    statusElement.className = `status-message ${type}`;
-    statusElement.style.display = 'block';
+  const statusElement = document.getElementById('statusMessage');
+  statusElement.textContent = message;
+  statusElement.className = `status-message ${type}`;
+  statusElement.style.display = 'block';
 }
 
 function showError(message) {
-    showStatus(message, 'error');
+  showStatus(message, 'error');
 }
 
 function clearStatus() {
-    const statusElement = document.getElementById('statusMessage');
-    statusElement.style.display = 'none';
-    statusElement.textContent = '';
+  const statusElement = document.getElementById('statusMessage');
+  statusElement.style.display = 'none';
+  statusElement.textContent = '';
 }
