@@ -197,7 +197,7 @@ function startLocalPlayback() {
 
 ### 🛠️ Composition Export
 
-The **Export .py** button triggers the `on_export` handler on the backend, which generates Python code defining a `MusicComposition` object. This object can be loaded and played in other Arduino App Lab projects using `gen.play_composition(composition)`.
+The **Export .py** button triggers the `on_export` handler on the backend, which generates Python code defining a `MusicComposition` object. This object can be loaded and played in other Arduino App Lab projects using `gen.play_composition(composition)`, or with `loop=True` / `play_for=...` when you want looping playback.
 
 **Example exported code:**
 
@@ -221,7 +221,10 @@ composition = MusicComposition(
 
 gen = SoundGenerator()
 gen.start()
-gen.play_composition(composition, block=True)
+gen.play_composition(composition)
+# Loop forever instead: gen.play_composition(composition, loop=True)
+# Loop for 10 seconds: gen.play_composition(composition, loop=True, play_for=10.0)
+# Use block=False to start playback without blocking the next instructions.
 ```
 
 ## Troubleshooting
