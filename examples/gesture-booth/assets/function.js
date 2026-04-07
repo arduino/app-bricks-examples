@@ -8,12 +8,16 @@ const resultImage = document.querySelector('#resultImage');
 const subtitle = document.querySelector('#subtitle');
 const title = document.querySelector('#title');
 const videoFeed = document.querySelector('#videoFeed');
+const videoOverlay = document.querySelector('#videoOverlay');
 const videoPlaceholder = document.querySelector('#videoPlaceholder');
 
 let countdownInterval,
   resetTimeout,
+  gestureLockedTimeout,
   latestGestureDetected = 'None',
-  isTakingPicture = false;
+  isGestureLocked = false,
+  isTakingPicture = false,
+  isResultReady = false;
 
 const LOTTIE_DATA = {
   ['Victory']: { src: 'victory.json', label: 'Victory' },
@@ -52,8 +56,12 @@ function loadWebcam() {
 function resetToInitialState() {
   content.setAttribute('data-state', 'initial');
   clearInterval(countdownInterval);
+  clearTimeout(gestureLockedTimeout);
+  clearTimeout(resetTimeout);
   latestGestureDetected = 'None';
+  isGestureLocked = false;
   isTakingPicture = false;
+  isResultReady = false;
 
   title.className = 'title-primary';
   title.textContent = 'Try one of these gestures';
@@ -76,9 +84,17 @@ function resetToInitialState() {
  *   or 'None' when no gesture is currently recognised.
  */
 function handleGestureDetected(event) {
+  if (
+    event.gesture === latestGestureDetected ||
+    isGestureLocked ||
+    isResultReady
+  ) {
+    return;
+  }
+
   latestGestureDetected = event.gesture;
 
-  if (latestGestureDetected === 'None') {
+  if (event.gesture === 'None') {
     resetTimeout = setTimeout(() => {
       resetToInitialState();
     }, 5000);
@@ -87,17 +103,23 @@ function handleGestureDetected(event) {
   }
 
   clearTimeout(resetTimeout);
+
+  // Lock the gesture for 5 seconds
+  isGestureLocked = true;
+  gestureLockedTimeout = setTimeout(() => {
+    isGestureLocked = false;
+  }, 2000);
+
   const gestureData = LOTTIE_DATA[latestGestureDetected];
 
   // Set video overlay
-  const videoOverlay = document.querySelector('#videoOverlay');
   videoOverlay.load(`./img/overlays/animated/${gestureData.src}`);
 
   if (!isTakingPicture) {
     content.setAttribute('data-state', 'gesture-recognized');
 
     // Set gesture label
-    title.textContent = gestureData?.label;
+    title.textContent = gestureData.label;
     title.className = 'title-secondary';
 
     // Set gesture animation
@@ -160,6 +182,7 @@ function takePicture() {
  * Shows the captured photo with applied effects/overlays.
  */
 function showResult() {
+  isResultReady = true;
   content.setAttribute('data-state', 'picture-ready');
 
   const canvas = document.createElement('canvas');
