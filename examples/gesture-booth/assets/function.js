@@ -71,13 +71,14 @@ function resetToInitialState() {
  * animation and video overlay.
  * If no valid gesture is detected ('None') for a continuous period of 5 seconds,
  * the current session is terminated and the UI resets to the initial view.
- * @param {string} gesture - The name of the detected gesture (e.g., 'Victory', 'Closed Fist'),
+ * @param {Object} event - The gesture detection event object.
+ * @param {string} event.gesture - The name of the detected gesture (e.g., 'Victory', 'Closed Fist'),
  *   or 'None' when no gesture is currently recognised.
  */
-function handleGestureDetected(gesture) {
-  latestGestureDetected = gesture;
+function handleGestureDetected(event) {
+  latestGestureDetected = event.gesture;
 
-  if (gesture === 'None') {
+  if (latestGestureDetected === 'None') {
     resetTimeout = setTimeout(() => {
       resetToInitialState();
     }, 5000);
@@ -86,7 +87,7 @@ function handleGestureDetected(gesture) {
   }
 
   clearTimeout(resetTimeout);
-  const gestureData = LOTTIE_DATA[gesture];
+  const gestureData = LOTTIE_DATA[latestGestureDetected];
 
   // Set video overlay
   const videoOverlay = document.querySelector('#videoOverlay');
