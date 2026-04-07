@@ -6,7 +6,7 @@ const scanBox = document.querySelector('#scanBox');
 const scanBoxTitle = document.querySelector('#scanBoxTitle');
 const scanBoxDescription = document.querySelector('#scanBoxDescription');
 const scanButton = document.querySelector('#scanButton');
-const videoIframe = document.querySelector('#videoIframe');
+const videoFeed = document.querySelector('#videoFeed');
 
 // Minimum duration (in ms) to show scanning animation before displaying results
 const MINIMUM_SCAN_DURATION = 3000;
@@ -36,24 +36,10 @@ function updateButton(config) {
 function loadWebcam() {
   const streamUrl = `http://${window.location.hostname}:7000/stream`;
 
-  let intervalId;
-
-  const startLoading = async () => {
-    try {
-      await fetch(streamUrl);
-      clearInterval(intervalId);
-      videoIframe.src = streamUrl;
-    } catch {
-      // Server not reachable yet, interval will retry
-    }
+  videoFeed.src = streamUrl;
+  videoFeed.onload = () => {
+    videoFeed.style.display = 'block';
   };
-
-  videoIframe.onload = () => {
-    videoIframe.style.display = 'block';
-  };
-
-  intervalId = setInterval(startLoading, 1000);
-  startLoading();
 }
 
 /**
