@@ -68,7 +68,7 @@ def scan_look(sid, _data):
 
     ui.send_message("analysis_result", result, room=sid)
 
-camera = Camera(fps=120)
+camera = Camera(fps=30, adjustments=compressed_to_jpeg())
 
 
 def loop():

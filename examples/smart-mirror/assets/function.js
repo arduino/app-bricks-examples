@@ -34,7 +34,7 @@ function updateButton(config) {
  * Retries connection every second if initial load fails
  */
 function loadWebcam() {
-  const streamUrl = `http://${window.location.hostname}:4912/embed`;
+  const streamUrl = `http://${window.location.hostname}:7000/stream`;
 
   let intervalId;
 
