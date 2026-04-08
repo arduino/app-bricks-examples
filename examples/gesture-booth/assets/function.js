@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Copyright (C) Arduino s.r.l. and/or its affiliated companies
+//
+// SPDX-License-Identifier: MPL-2.0
+
 const animatedGesture = document.querySelector('#animatedGesture');
 const bottomCta = document.querySelector('#bottomCta');
 const content = document.querySelector('#content');
