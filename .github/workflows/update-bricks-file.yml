@@ -23,8 +23,16 @@ jobs:
         id: get-latest-version
         run: |
           LATEST_RELEASE=$(curl -s https://api.github.com/repos/arduino/app-bricks-py/releases \
-            | jq -r '[.[] | select(.prerelease == false and .draft == false)][0].tag_name' \
+            | jq -r '[.[] | select(
+                .prerelease == false
+                and .draft == false
+                and (.tag_name | test("^release/[0-9]+\\.[0-9]+\\.[0-9]+$"))
+              )][0].tag_name // empty' \
             | sed 's/^release\///')
+          if [[ -z "$LATEST_RELEASE" ]]; then
+            echo "::error::No stable app-bricks release found (expected tag release/X.Y.Z)"
+            exit 1
+          fi
           echo "LATEST_RELEASE=$LATEST_RELEASE"
           if [[ ! "$LATEST_RELEASE" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "::error::Invalid version format: $LATEST_RELEASE (expected X.Y.Z)"
