@@ -1,6 +1,6 @@
 ---
 name: charset-normalizer
-version: 3.4.6
+version: 3.4.7
 type: pip
 summary: The Real First Universal Charset Detector. Open, modern and actively maintained
   alternative to Chardet.
