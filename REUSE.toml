@@ -20,6 +20,7 @@ path = [
   "examples/**/assets/*.html",
   "examples/**/assets/*.css",
   "examples/**/assets/*.js",
+  "examples/**/assets/**/*.json",
   "examples/**/assets/**/*.png",
   "examples/**/assets/**/*.jpg",
   "examples/**/assets/**/*.jpeg",
@@ -35,10 +36,19 @@ SPDX-License-Identifier = "MPL-2.0"
 [[annotations]]
 path = [
   "examples/**/assets/fonts/**/*.ttf",
+  "examples/**/assets/fonts/**/*.css",
   "examples/**/assets/fonts/**/OFL.txt",
 ]
 SPDX-FileCopyrightText = "Copyright (c) Google LLC"
 SPDX-License-Identifier = "OFL-1.1"
+precedence = "override"
+
+# Arduino support modules that may live alongside third-party files in
+# assets/libs/ remain first-party code and should keep the project license.
+[[annotations]]
+path = "examples/**/assets/libs/arduino.js"
+SPDX-FileCopyrightText = "Copyright (C) Arduino s.r.l. and/or its affiliated companies"
+SPDX-License-Identifier = "MPL-2.0"
 precedence = "override"
 
 # Third-party JS libraries. Keep them out of automatic header rewriting and
