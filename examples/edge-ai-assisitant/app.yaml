@@ -1,7 +1,6 @@
 name: Edge AI Assistant
 icon: 💬
 description: Chatbot powered by a local LLM
-supported_boards: ["ventunoq"]
 
 bricks:
   - arduino:web_ui
