@@ -30,12 +30,12 @@ This example requires an active Arduino Cloud account, with a device, thing and 
 ### Setting Up Arduino Cloud
 
 1. Navigate to the [Arduino Cloud](https://app.arduino.cc/) page and log in / create an account.
-2. Go to the [devices](https://app.arduino.cc/devices) page and create a device, selecting the "manual device" type. Follow the instructions and take note of the **device_id** and **secret_key** provided in the setup. 
+2. Go to the [devices](https://app.arduino.cc/devices) page and create a device, selecting the Arduino UNO Q under "manual setup". Follow the instructions and take note of the **device_id** and **secret_key** provided in the setup. 
     ![Arduino Cloud credentials](assets/docs_images/cloud-blink-device.png)
 3. Go to the [things](https://app.arduino.cc/things) page and create a new thing.
 4. Inside the thing, create a new **boolean** variable, and name it **"led"**. We also need to associate the device we created with this thing.
     ![Arduino Cloud thing](assets/docs_images/cloud-blink-thing.png)
-5. Finally, navigate to the [dashboards](https://app.arduino.cc/dashboards), and create a dashboard. Inside the dashboard, click on **"Edit"**, and select the thing we just created. This will automatically assign a switch widget to the **led** variable.
+5. Finally, navigate to the [dashboards](https://app.arduino.cc/dashboards), and create a dashboard. Inside the dashboard, click on **"Edit"**, and select the **Thing** tab, and select the Thing we just created. This will automatically assign a switch widget to the **led** variable.
     ![Arduino Cloud dashboard](assets/docs_images/cloud-blink-dashboard.png)
 
 ### Configure & Launch App
