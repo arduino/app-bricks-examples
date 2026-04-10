@@ -109,7 +109,7 @@ Here is a brief explanation of the App components:
           current_frame = frame.tobytes()
   ```
 
-- **Scan handler (`scan_look`)**: Grabs the current frame, sends it to the VLM with a randomized prompt, and returns the result to the requesting client via WebSocket.
+- **Scan handler (`scan_look`)**: Grabs the current frame, sends it to the VLM with the predefined system prompt and the randomized user prompt, and returns the result to the requesting client via WebSocket.
 
   ```python
   def scan_look(sid, _data):
