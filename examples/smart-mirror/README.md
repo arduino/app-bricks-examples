@@ -76,7 +76,7 @@ Once the application is running, the device performs the following operations:
 1. **Camera capture loop** — the `Camera` peripheral captures JPEG frames at 30 fps. Each frame is stored in a thread-safe buffer (`frame_lock`).
 2. **Video streaming** — the backend exposes a `/stream` endpoint that serves an MJPEG stream. The browser displays this as a full-screen background image.
 3. **Scan trigger** — when the user taps "Scan your look", the frontend sends a `start_scan` WebSocket event after a four-second countdown.
-4. **AI analysis** — the backend grabs the latest frame and calls `vlm.chat()` with a randomized prompt built from `prompt.yaml`. The VLM identifies the most prominent clothing item, its color, and generates a two-sentence response.
+4. **AI analysis** — the backend grabs the latest frame and calls `vlm.chat()` using the predefined system prompt and a randomized user prompt generated from the user prompt template in `prompt.yaml`. The VLM identifies the most prominent clothing item, its color, and generates a two-sentence response.
 5. **Result delivery** — the response is sent back to the requesting client via a `analysis_result` WebSocket event and displayed in the overlay panel.
 
 ## Understanding the Code
