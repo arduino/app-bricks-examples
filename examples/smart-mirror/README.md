@@ -59,18 +59,23 @@ The Smart Mirror example uses the following Bricks:
 Once the application is running, the device performs the following operations:
 
 ```
-┌────────────┐     ┌─────────────┐     ┌──────────────┐     ┌──────────────────┐
-│ USB Camera │────▶│  Python     │────▶│  VLM Brick   │────▶│ Local VLM Service│
-│ (30 fps)   │     │  Backend    │     │ (LangChain)  │     │ (Docker/qwen3-vl)│
-└────────────┘     └──┬──────┬──┘     └──────────────┘     └──────────────────┘
-                      │      │
-              MJPEG   │      │ WebSocket
-              stream  │      │ (analysis_result)
-                      ▼      ▼
-               ┌──────────────────┐
-               │   Browser UI     │
-               │ (mirror overlay) │
-               └──────────────────┘
+┌────────────┐     ┌──────────────────────────┐     ┌──────────────────┐
+│ USB Camera │────▶│      Python Backend      │────▶│ Local VLM Service│
+│  (30 fps)  │     │                          │◀────│    (qwen3-vl)    │
+└────────────┘     │  ┌────────────────────┐  │     └──────────────────┘
+                   │  │      VLM Brick     │  │        ▲
+                   │  └────────────────────┘  │        │ frame + prompt
+                   │  ┌────────────────────┐  │        │ (on scan)
+                   │  │     WebUI Brick    │  │        │
+                   │  └────────────────────┘  │
+                   └───────────┬──────────────┘
+                               │ ▲
+                  MJPEG stream │ │ start_scan
+                               ▼ │ analysis_result
+                        ┌───────────────┐
+                        │  Browser UI   │
+                        │ mirror overlay│
+                        └───────────────┘
 ```
 
 1. **Camera capture loop** — the `Camera` peripheral captures JPEG frames at 30 fps. The latest frame is stored in a lock-protected shared variable (`frame_lock`).
