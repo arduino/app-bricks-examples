@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import os
-from arduino.app_bricks.local_llm import LargeLanguageModel
+from arduino.app_bricks.llm import LargeLanguageModel
 from arduino.app_bricks.web_ui import WebUI
 from arduino.app_utils import App
 
