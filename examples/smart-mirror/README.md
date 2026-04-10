@@ -2,7 +2,7 @@
 
 The **Smart Mirror** example turns your Arduino® UNO™ Q into an AI-powered style advisor. Point a USB camera at yourself, tap "Scan your look", and get a real-time outfit description with a personalized styling tip — all powered by a Vision Language Model running locally on the board.
 
-<!-- ![Smart Mirror Example](assets/docs_assets/thumbnail.png) -->
+![Smart Mirror Example](assets/docs_assets/thumbnail.png)
 
 **Note:** This example requires Network Mode and a USB camera connected to the board.
 
