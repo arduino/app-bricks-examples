@@ -1,6 +1,6 @@
 # Smart Mirror
 
-The **Smart Mirror** example turns your Arduino® UNO™ Q into an AI-powered style advisor. Point a USB camera at yourself, tap "Scan your look", and get a real-time outfit description with a personalized styling tip — all powered by a Vision Language Model running locally on the board.
+The **Smart Mirror** example turns your Arduino® Ventuno™ Q into an AI-powered style advisor. Point a USB camera at yourself, tap "Scan your look", and get a real-time outfit description with a personalized styling tip — all powered by a Vision Language Model running locally on the board.
 
 ![Smart Mirror Example](assets/docs_assets/thumbnail.png)
 
@@ -30,19 +30,19 @@ The Smart Mirror example uses the following Bricks:
 
 ### Hardware
 
-- Arduino UNO Q (x1)
-- USB-C® cable (for power and programming) (x1)
+- Arduino Ventuno Q (x1)
+- USB-C® cable (for power) (x1)
 - USB camera (x1)
 
 ### Software
 
 - Arduino App Lab
 
-**Note:** You can also run this example using your Arduino UNO Q as a Single Board Computer (SBC) using a [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and display attached.
+**Note:** You can also run this example using your Arduino Ventuno Q as a Single Board Computer (SBC) using a [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and display attached.
 
 ## How to Use the Example
 
-1. **Connect a USB camera to the board.** Plug the camera into one of the available USB ports on the UNO Q.
+1. **Connect a USB camera to the board.** Plug the camera into one of the available USB ports on the Ventuno Q.
 
 2. **Run the app from Arduino App Lab.** Deploy and start the Smart Mirror example. The backend initializes the camera, the VLM model, and the web server.
 
