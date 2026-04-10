@@ -130,7 +130,7 @@ Here is a brief explanation of the App components:
   ui.expose_api("GET", "/stream", video_stream)
   ```
 
-### 💻 Frontend (`index.html` + `app.js`)
+### 💻 Frontend (`index.html`, `app.js` & `function.js`)
 
 - **Live video feed**: The browser loads the MJPEG stream from `http://<hostname>:7000/stream` as an `<img>` element that fills the entire viewport, creating the mirror effect.
 
