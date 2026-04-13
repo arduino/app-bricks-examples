@@ -540,13 +540,18 @@ button:hover {
     }
 
 #error-banner {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
     border-radius: 8px;
     border: 1px solid var(--feedback-error-default, #AA4335);
     background: var(--feedback-error-subtle, #F6D9D5);
-    margin: 0 auto;
-    margin-top: 16px;
-    padding: 12px;
+    padding: 12px 24px;
     max-width: 780px;
+    width: calc(100% - 40px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 #error-banner p {
