@@ -2,7 +2,8 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-let socket;
+const ui = new WebUI();
+
 let currentImage = null;
 let resultImage = null;
 let errorContainer;
@@ -11,92 +12,94 @@ let errorContainer;
  * Socket initialization: required for communication with the server.
  * Also initializes all elements used in the Anomaly Detection UI, which are manipulated throughout the application's lifecycle.
  */
-
-document.addEventListener('DOMContentLoaded', () => {
-    initializeElements();
-    initSocketIO();
-});
+initializeElements();
+initSocketIO();
 
 function initializeElements() {
-    const imageInput = document.getElementById('imageInput');
-    const imagePreview = document.getElementById('imagePreview');
-    const confidenceSlider = document.getElementById('confidenceSlider');
-    const confidenceInput = document.getElementById('confidenceInput');
-    const confidenceResetButton = document.getElementById('confidenceResetButton');
-    const detectButton = document.getElementById('detectButton');
-    const uploadNewButton = document.getElementById('uploadNewButton');
-    const downloadButton = document.getElementById('downloadButton');
-    errorContainer = document.getElementById('error-container');
+  const imageInput = document.getElementById('imageInput');
+  const imagePreview = document.getElementById('imagePreview');
+  const confidenceSlider = document.getElementById('confidenceSlider');
+  const confidenceInput = document.getElementById('confidenceInput');
+  const confidenceResetButton = document.getElementById(
+    'confidenceResetButton',
+  );
+  const detectButton = document.getElementById('detectButton');
+  const uploadNewButton = document.getElementById('uploadNewButton');
+  const downloadButton = document.getElementById('downloadButton');
+  errorContainer = document.getElementById('error-container');
 
-    imageInput.addEventListener('change', handleImageUpload);
-    imagePreview.addEventListener('click', () => {
-        if (!currentImage) {
-            imageInput.click();
-        }
+  imageInput.addEventListener('change', handleImageUpload);
+  imagePreview.addEventListener('click', () => {
+    if (!currentImage) {
+      imageInput.click();
+    }
+  });
+
+  // Drag and drop functionality
+  imagePreview.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    imagePreview.classList.add('drag-over');
+  });
+
+  imagePreview.addEventListener('dragleave', () => {
+    imagePreview.classList.remove('drag-over');
+  });
+
+  imagePreview.addEventListener('drop', (e) => {
+    e.preventDefault();
+    imagePreview.classList.remove('drag-over');
+    const files = e.dataTransfer.files;
+    if (files.length > 0 && files[0].type.startsWith('image/')) {
+      handleImageFile(files[0]);
+    }
+  });
+
+  // Confidence slider and input
+  confidenceSlider.addEventListener('input', updateConfidenceDisplay);
+  confidenceInput.addEventListener('input', handleConfidenceInputChange);
+  confidenceInput.addEventListener('blur', validateConfidenceInput);
+  updateConfidenceDisplay();
+
+  confidenceResetButton.addEventListener('click', (e) => {
+    if (
+      e.target.classList.contains('reset-icon') ||
+      e.target.closest('.reset-icon')
+    ) {
+      resetConfidence();
+    }
+  });
+
+  // Buttons
+  detectButton.addEventListener('click', runDetection);
+  uploadNewButton.addEventListener('click', uploadNewImage);
+  downloadButton.addEventListener('click', downloadResult);
+  setButtonState('initial');
+
+  const confidencePopoverText =
+    'Minimum confidence score for detected objects. Lower values show more results but may include false positives.';
+  document.querySelectorAll('.info-btn.confidence').forEach((img) => {
+    const popover = img.parentElement.querySelector('.popover');
+    img.addEventListener('mouseenter', () => {
+      popover.textContent = confidencePopoverText;
+      popover.style.display = 'block';
     });
-
-    // Drag and drop functionality
-    imagePreview.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        imagePreview.classList.add('drag-over');
+    img.addEventListener('mouseleave', () => {
+      popover.style.display = 'none';
     });
-
-    imagePreview.addEventListener('dragleave', () => {
-        imagePreview.classList.remove('drag-over');
-    });
-
-    imagePreview.addEventListener('drop', (e) => {
-        e.preventDefault();
-        imagePreview.classList.remove('drag-over');
-        const files = e.dataTransfer.files;
-        if (files.length > 0 && files[0].type.startsWith('image/')) {
-            handleImageFile(files[0]);
-        }
-    });
-
-    // Confidence slider and input
-    confidenceSlider.addEventListener('input', updateConfidenceDisplay);
-    confidenceInput.addEventListener('input', handleConfidenceInputChange);
-    confidenceInput.addEventListener('blur', validateConfidenceInput);
-    updateConfidenceDisplay();
-
-    confidenceResetButton.addEventListener('click', (e) => {
-        if (e.target.classList.contains('reset-icon') || e.target.closest('.reset-icon')) {
-            resetConfidence();
-        }
-    });
-
-    // Buttons
-    detectButton.addEventListener('click', runDetection);
-    uploadNewButton.addEventListener('click', uploadNewImage);
-    downloadButton.addEventListener('click', downloadResult);
-    setButtonState('initial');
-
-    const confidencePopoverText = "Minimum confidence score for detected objects. Lower values show more results but may include false positives.";
-    document.querySelectorAll('.info-btn.confidence').forEach(img => {
-        const popover = img.parentElement.querySelector('.popover');
-        img.addEventListener('mouseenter', () => {
-            popover.textContent = confidencePopoverText;
-            popover.style.display = 'block';
-        });
-        img.addEventListener('mouseleave', () => {
-            popover.style.display = 'none';
-        });
-    });
+  });
 }
-
 
 // Upload new image function
 function uploadNewImage() {
-    currentImage = null;
-    resultImage = null;
+  currentImage = null;
+  resultImage = null;
 
-    // Reset image display
-    resetImageDisplay();
+  // Reset image display
+  resetImageDisplay();
 
-    // Recreate the complete structure of image-container
-    const imageContainer = document.querySelector('.image-container');
-    imageContainer.innerHTML = `
+  // Recreate the complete structure of image-container
+  const imageContainer = document.querySelector('.image-container');
+  imageContainer.innerHTML = `
         <div id="imagePreview" class="image-preview">
             <div class="upload-placeholder">
                 <p class="drag-and-drop">Drag & drop an image here, or</p>
@@ -114,338 +117,347 @@ function uploadNewImage() {
         </div>
     `;
 
-    // Reset container style
-    imageContainer.style.display = '';
-    imageContainer.style.justifyContent = '';
-    imageContainer.style.alignItems = '';
+  // Reset container style
+  imageContainer.style.display = '';
+  imageContainer.style.justifyContent = '';
+  imageContainer.style.alignItems = '';
 
-    // Reattach event listeners
-    const newImageInput = document.getElementById('imageInput');
-    const newImagePreview = document.getElementById('imagePreview');
+  // Reattach event listeners
+  const newImageInput = document.getElementById('imageInput');
+  const newImagePreview = document.getElementById('imagePreview');
 
-    if (newImageInput) {
-        newImageInput.addEventListener('change', handleImageUpload);
-    }
+  if (newImageInput) {
+    newImageInput.addEventListener('change', handleImageUpload);
+  }
 
-    if (newImagePreview) {
-        // Reattach all event listeners for drag & drop
-        newImagePreview.addEventListener('click', () => {
-            if (!currentImage) {
-                newImageInput.click();
-            }
-        });
+  if (newImagePreview) {
+    // Reattach all event listeners for drag & drop
+    newImagePreview.addEventListener('click', () => {
+      if (!currentImage) {
+        newImageInput.click();
+      }
+    });
 
-        newImagePreview.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            newImagePreview.classList.add('drag-over');
-        });
+    newImagePreview.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      newImagePreview.classList.add('drag-over');
+    });
 
-        newImagePreview.addEventListener('dragleave', () => {
-            newImagePreview.classList.remove('drag-over');
-        });
+    newImagePreview.addEventListener('dragleave', () => {
+      newImagePreview.classList.remove('drag-over');
+    });
 
-        newImagePreview.addEventListener('drop', (e) => {
-            e.preventDefault();
-            newImagePreview.classList.remove('drag-over');
-            const files = e.dataTransfer.files;
-            if (files.length > 0 && files[0].type.startsWith('image/')) {
-                handleImageFile(files[0]);
-            }
-        });
-    }
+    newImagePreview.addEventListener('drop', (e) => {
+      e.preventDefault();
+      newImagePreview.classList.remove('drag-over');
+      const files = e.dataTransfer.files;
+      if (files.length > 0 && files[0].type.startsWith('image/')) {
+        handleImageFile(files[0]);
+      }
+    });
+  }
 
-    setButtonState('initial');
-    clearStatus();
+  setButtonState('initial');
+  clearStatus();
 
-    // Hide result title when resetting
-    hideResultTitle();
+  // Hide result title when resetting
+  hideResultTitle();
 }
 
 // Show/Hide result title
 function showResultTitle() {
-    const resultTitle = document.getElementById('resultTitle');
-    resultTitle.style.display = 'block';
+  const resultTitle = document.getElementById('resultTitle');
+  resultTitle.style.display = 'block';
 }
 
 function hideResultTitle() {
-    const resultTitle = document.getElementById('resultTitle');
-    resultTitle.style.display = 'none';
+  const resultTitle = document.getElementById('resultTitle');
+  resultTitle.style.display = 'none';
 }
 
 // Handle confidence input change
 function handleConfidenceInputChange() {
-    const confidenceInput = document.getElementById('confidenceInput');
-    const confidenceSlider = document.getElementById('confidenceSlider');
+  const confidenceInput = document.getElementById('confidenceInput');
+  const confidenceSlider = document.getElementById('confidenceSlider');
 
-    let value = parseFloat(confidenceInput.value);
+  let value = parseFloat(confidenceInput.value);
 
-    if (isNaN(value)) value = 0.5;
-    if (value < 0) value = 0;
-    if (value > 1) value = 1;
+  if (isNaN(value)) value = 0.5;
+  if (value < 0) value = 0;
+  if (value > 1) value = 1;
 
-    confidenceSlider.value = value;
-    updateConfidenceDisplay();
+  confidenceSlider.value = value;
+  updateConfidenceDisplay();
 }
 
 function validateConfidenceInput() {
-    const confidenceInput = document.getElementById('confidenceInput');
-    let value = parseFloat(confidenceInput.value);
+  const confidenceInput = document.getElementById('confidenceInput');
+  let value = parseFloat(confidenceInput.value);
 
-    if (isNaN(value)) value = 0.5;
-    if (value < 0) value = 0;
-    if (value > 1) value = 1;
+  if (isNaN(value)) value = 0.5;
+  if (value < 0) value = 0;
+  if (value > 1) value = 1;
 
-    confidenceInput.value = value.toFixed(2);
+  confidenceInput.value = value.toFixed(2);
 
-    handleConfidenceInputChange();
+  handleConfidenceInputChange();
 }
 
 // Update confidence display
 function updateConfidenceDisplay() {
-    const confidenceSlider = document.getElementById('confidenceSlider');
-    const confidenceInput = document.getElementById('confidenceInput');
-    const confidenceValueDisplay = document.getElementById('confidenceValueDisplay');
-    const sliderProgress = document.getElementById('sliderProgress');
+  const confidenceSlider = document.getElementById('confidenceSlider');
+  const confidenceInput = document.getElementById('confidenceInput');
+  const confidenceValueDisplay = document.getElementById(
+    'confidenceValueDisplay',
+  );
+  const sliderProgress = document.getElementById('sliderProgress');
 
-    const value = parseFloat(confidenceSlider.value);
-    const percentage = (value - confidenceSlider.min) / (confidenceSlider.max - confidenceSlider.min) * 100;
+  const value = parseFloat(confidenceSlider.value);
+  const percentage =
+    ((value - confidenceSlider.min) /
+      (confidenceSlider.max - confidenceSlider.min)) *
+    100;
 
-    const displayValue = value.toFixed(2);
-    confidenceValueDisplay.textContent = displayValue;
+  const displayValue = value.toFixed(2);
+  confidenceValueDisplay.textContent = displayValue;
 
-    if (document.activeElement !== confidenceInput) {
-        confidenceInput.value = displayValue;
-    }
+  if (document.activeElement !== confidenceInput) {
+    confidenceInput.value = displayValue;
+  }
 
-    sliderProgress.style.width = percentage + '%';
-    confidenceValueDisplay.style.left = percentage + '%';
+  sliderProgress.style.width = percentage + '%';
+  confidenceValueDisplay.style.left = percentage + '%';
 }
 
 // Reset confidence
 function resetConfidence() {
-    const confidenceSlider = document.getElementById('confidenceSlider');
-    const confidenceInput = document.getElementById('confidenceInput');
+  const confidenceSlider = document.getElementById('confidenceSlider');
+  const confidenceInput = document.getElementById('confidenceInput');
 
-    confidenceSlider.value = '0.5';
-    confidenceInput.value = '0.50';
-    updateConfidenceDisplay();
+  confidenceSlider.value = '0.5';
+  confidenceInput.value = '0.50';
+  updateConfidenceDisplay();
 }
 
 function initSocketIO() {
-    socket = io(`http://${window.location.host}`);
+  ui.on_connect(() => {
+    if (errorContainer) {
+      errorContainer.style.display = 'none';
+      errorContainer.textContent = '';
+    }
+  });
 
-    socket.on('connect', () => {
-        if (errorContainer) {
-            errorContainer.style.display = 'none';
-            errorContainer.textContent = '';
-        }
-    });
+  ui.on_message('detection_result', (data) => {
+    console.log('📥 Received detection_result:', data);
+    handleDetectionResult(data);
+  });
 
-    socket.on('detection_result', (data) => {
-        console.log('📥 Received detection_result:', data);
-        handleDetectionResult(data);
-    });
+  ui.on_message('detection_error', (data) => {
+    console.log('📥 Received detection_error:', data);
+    showError(`Object detection failed: ${data.error}`);
+    setButtonState('ready');
+  });
 
-    socket.on('detection_error', (data) => {
-        console.log('📥 Received detection_error:', data);
-        showError(`Object detection failed: ${data.error}`);
-        setButtonState('ready');
-    });
-
-    socket.on('disconnect', () => {
-        if (errorContainer) {
-            errorContainer.textContent = 'Connection to the board lost. Please check the connection.';
-            errorContainer.style.display = 'block';
-        }
-    });
+  ui.on_disconnect(() => {
+    if (errorContainer) {
+      errorContainer.textContent =
+        'Connection to the board lost. Please check the connection.';
+      errorContainer.style.display = 'block';
+    }
+  });
 }
 
 function handleImageUpload(event) {
-    const file = event.target.files[0];
-    if (file) {
-        handleImageFile(file);
-    }
+  const file = event.target.files[0];
+  if (file) {
+    handleImageFile(file);
+  }
 }
 
 function handleImageFile(file) {
-    if (!file.type.startsWith('image/')) {
-        showError('Please select a valid image file');
-        return;
-    }
+  if (!file.type.startsWith('image/')) {
+    showError('Please select a valid image file');
+    return;
+  }
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        currentImage = e.target.result.split(',')[1];
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    currentImage = e.target.result.split(',')[1];
 
-        const imagePreview = document.getElementById('imagePreview');
-        imagePreview.innerHTML = `<img src="${e.target.result}" alt="Uploaded image" class="preview-image">`;
-        imagePreview.style.border = 'none';
+    const imagePreview = document.getElementById('imagePreview');
+    imagePreview.innerHTML = `<img src="${e.target.result}" alt="Uploaded image" class="preview-image">`;
+    imagePreview.style.border = 'none';
 
-        setButtonState('ready');
-        clearStatus();
-    };
-    reader.readAsDataURL(file);
+    setButtonState('ready');
+    clearStatus();
+  };
+  reader.readAsDataURL(file);
 }
 
 function runDetection() {
-    setButtonState('detecting');
-    showStatus('Running object detection...', 'info');
-    showResultTitle();
-    sendDetectionRequest();
+  setButtonState('detecting');
+  showStatus('Running object detection...', 'info');
+  showResultTitle();
+  sendDetectionRequest();
 }
 
 function sendDetectionRequest() {
-    if (!currentImage) {
-        showError('No image available for detection');
-        setButtonState('ready');
-        return;
-    }
+  if (!currentImage) {
+    showError('No image available for detection');
+    setButtonState('ready');
+    return;
+  }
 
-    const confidence = parseFloat(document.getElementById('confidenceSlider').value);
+  const confidence = parseFloat(
+    document.getElementById('confidenceSlider').value,
+  );
 
-    socket.emit('detect_objects', {
-        image: currentImage,
-        confidence: confidence
-    });
+  ui.send_message('detect_objects', {
+    image: currentImage,
+    confidence: confidence,
+  });
 }
 
 function displayImage(imageSrc, container) {
-    const imageContainer = document.querySelector(container);
+  const imageContainer = document.querySelector(container);
 
-    // Clear existing content
-    imageContainer.innerHTML = '';
+  // Clear existing content
+  imageContainer.innerHTML = '';
 
-    // Create image element
-    const img = document.createElement('img');
-    img.src = imageSrc;
-    img.alt = 'Detection Result';
-    img.className = 'preview-image';
-    img.style.maxWidth = '100%';
-    img.style.maxHeight = '500px';
-    img.style.objectFit = 'contain';
-    img.style.borderRadius = '8px';
+  // Create image element
+  const img = document.createElement('img');
+  img.src = imageSrc;
+  img.alt = 'Detection Result';
+  img.className = 'preview-image';
+  img.style.maxWidth = '100%';
+  img.style.maxHeight = '500px';
+  img.style.objectFit = 'contain';
+  img.style.borderRadius = '8px';
 
-    // Add image to container
-    imageContainer.appendChild(img);
+  // Add image to container
+  imageContainer.appendChild(img);
 
-    // Show the image container and hide sample grid
-    imageContainer.style.display = 'flex';
-    imageContainer.style.justifyContent = 'center';
-    imageContainer.style.alignItems = 'center';
+  // Show the image container and hide sample grid
+  imageContainer.style.display = 'flex';
+  imageContainer.style.justifyContent = 'center';
+  imageContainer.style.alignItems = 'center';
 
-    const imagePreview = document.getElementById('imagePreview');
-    if (imagePreview) {
-        imagePreview.style.display = 'none';
-    }
+  const imagePreview = document.getElementById('imagePreview');
+  if (imagePreview) {
+    imagePreview.style.display = 'none';
+  }
 }
 
 function handleDetectionResult(data) {
-    if (data.error) {
-        showError(`Detection failed: ${data.error}`);
-        setButtonState('ready');
-        return;
-    }
+  if (data.error) {
+    showError(`Detection failed: ${data.error}`);
+    setButtonState('ready');
+    return;
+  }
 
-    if (data.result_image) {
-        // Store the result image
-        resultImage = data.result_image;
+  if (data.result_image) {
+    // Store the result image
+    resultImage = data.result_image;
 
-        // Display the result image in the image container
-        displayImage(`data:image/png;base64,${data.result_image}`, '.image-container');
+    // Display the result image in the image container
+    displayImage(
+      `data:image/png;base64,${data.result_image}`,
+      '.image-container',
+    );
 
-        // Show result title and download button
-        showResultTitle();
+    // Show result title and download button
+    showResultTitle();
 
-        showStatus('Detection completed successfully!', 'success');
-    } else {
-        showError('No result image received from detection');
-        setButtonState('ready');
-        return;
-    }
+    showStatus('Detection completed successfully!', 'success');
+  } else {
+    showError('No result image received from detection');
+    setButtonState('ready');
+    return;
+  }
 
-    setButtonState('completed');
+  setButtonState('completed');
 }
 
 function setButtonState(state) {
-    const detectButton = document.getElementById('detectButton');
-    const uploadNewButton = document.getElementById('uploadNewButton');
-    const downloadButton = document.getElementById('downloadButton');
+  const detectButton = document.getElementById('detectButton');
+  const uploadNewButton = document.getElementById('uploadNewButton');
+  const downloadButton = document.getElementById('downloadButton');
 
-    switch (state) {
-        case 'initial':
-            detectButton.style.display = 'none';
-            uploadNewButton.style.display = 'none';
-            downloadButton.style.display = 'none';
-            break;
-        case 'ready':
-            detectButton.style.display = 'inline-block';
-            detectButton.disabled = false;
-            detectButton.textContent = 'Run Detection ▶';
-            uploadNewButton.style.display = 'flex';
-            downloadButton.style.display = 'none';
-            break;
-        case 'detecting':
-            detectButton.style.display = 'none';
-            uploadNewButton.style.display = 'none';
-            downloadButton.style.display = 'none';
-            break;
-        case 'completed':
-            detectButton.style.display = 'inline-block';
-            detectButton.disabled = false;
-            detectButton.textContent = 'Run Again ▶';
-            uploadNewButton.style.display = 'flex';
-            downloadButton.style.display = 'inline-block';
-            break;
-    }
+  switch (state) {
+    case 'initial':
+      detectButton.style.display = 'none';
+      uploadNewButton.style.display = 'none';
+      downloadButton.style.display = 'none';
+      break;
+    case 'ready':
+      detectButton.style.display = 'inline-block';
+      detectButton.disabled = false;
+      detectButton.textContent = 'Run Detection ▶';
+      uploadNewButton.style.display = 'flex';
+      downloadButton.style.display = 'none';
+      break;
+    case 'detecting':
+      detectButton.style.display = 'none';
+      uploadNewButton.style.display = 'none';
+      downloadButton.style.display = 'none';
+      break;
+    case 'completed':
+      detectButton.style.display = 'inline-block';
+      detectButton.disabled = false;
+      detectButton.textContent = 'Run Again ▶';
+      uploadNewButton.style.display = 'flex';
+      downloadButton.style.display = 'inline-block';
+      break;
+  }
 }
 
 function showStatus(message, type = 'info') {
-    const statusElement = document.getElementById('statusMessage');
-    statusElement.textContent = message;
-    statusElement.className = `status-message ${type}`;
-    statusElement.style.display = 'block';
+  const statusElement = document.getElementById('statusMessage');
+  statusElement.textContent = message;
+  statusElement.className = `status-message ${type}`;
+  statusElement.style.display = 'block';
 }
 
 function showError(message) {
-    showStatus(message, 'error');
+  showStatus(message, 'error');
 }
 
 function clearStatus() {
-    const statusElement = document.getElementById('statusMessage');
-    statusElement.style.display = 'none';
-    statusElement.textContent = '';
+  const statusElement = document.getElementById('statusMessage');
+  statusElement.style.display = 'none';
+  statusElement.textContent = '';
 }
 
 function downloadResult() {
-    if (!resultImage) {
-        showError('No result image to download');
-        return;
-    }
+  if (!resultImage) {
+    showError('No result image to download');
+    return;
+  }
 
-    // Create download link
-    const link = document.createElement('a');
-    link.href = `data:image/png;base64,${resultImage}`;
-    link.download = 'object-detection-result.png';
+  // Create download link
+  const link = document.createElement('a');
+  link.href = `data:image/png;base64,${resultImage}`;
+  link.download = 'object-detection-result.png';
 
-    // Trigger download
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  // Trigger download
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 
-    console.log('📥 Result image downloaded');
+  console.log('📥 Result image downloaded');
 }
 
 // Also add a function to reset the view when changing images
 function resetImageDisplay() {
-    const imageContainer = document.querySelector('.image-container');
-    const imagePreview = document.getElementById('imagePreview');
+  const imageContainer = document.querySelector('.image-container');
+  const imagePreview = document.getElementById('imagePreview');
 
-    if (imagePreview) imagePreview.style.display = 'flex';
+  if (imagePreview) imagePreview.style.display = 'flex';
 
-    // Reset the image container style in case it was modified by displayImage
-    if (imageContainer) {
-        imageContainer.style.display = '';
-        imageContainer.style.justifyContent = '';
-        imageContainer.style.alignItems = '';
-    }
+  // Reset the image container style in case it was modified by displayImage
+  if (imageContainer) {
+    imageContainer.style.display = '';
+    imageContainer.style.justifyContent = '';
+    imageContainer.style.alignItems = '';
+  }
 }
