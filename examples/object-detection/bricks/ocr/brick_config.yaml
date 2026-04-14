@@ -1,0 +1,5 @@
+id:  ocr
+name: OCR 
+description: "Extract text from an image using tesseract"
+require_container: true
+

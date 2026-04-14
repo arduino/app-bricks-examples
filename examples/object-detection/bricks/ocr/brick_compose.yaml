@@ -1,0 +1,3 @@
+services:
+  tesserect-server:
+    image: hertzg/tesseract-server:latest
