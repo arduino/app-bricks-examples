@@ -45,7 +45,7 @@ def commands_handler(_, data):
         ui.send_message("command_error", {"command": command, "error": str(e)})
 
 llm = LargeLanguageModel(
-                model="genie:qwen2.5-7b",
+                model="genie:qwen3-4b",
                 system_prompt=load_system_prompt()
             )
 
