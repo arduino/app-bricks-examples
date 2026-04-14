@@ -1,0 +1,7 @@
+name: Gesture Booth
+icon: ✌️
+description: Detects gesture and provide feedback to the user. Gesture Recognition Example
+
+bricks:
+  - arduino:gesture_recognition
+  - arduino:web_ui
