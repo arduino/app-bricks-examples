@@ -1,0 +1,41 @@
+<!--
+SPDX-FileCopyrightText: Copyright (C) Arduino s.r.l. and/or its affiliated companies
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Mirror</title>
+    <link rel="icon" type="image/png" href="./img/favicon.png" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+  </head>
+  <body>
+    <img id="videoFeed" src="" crossorigin="anonymous" />
+
+    <div class="header">
+      <h1>Smart Mirror</h1>
+      <img
+        class="arduino-logo"
+        src="./img/Arduino-Logo.svg"
+        alt="Arduino Logo"
+      />
+    </div>
+
+    <div id="scanBox" data-state="initial">
+      <p id="scanBoxTitle">Get a real-time style tip based on your outfit</p>
+      <p id="scanBoxDescription"></p>
+      <button id="scanButton" class="button-primary" onclick="prepareScan()">
+        <img src="./img/play.svg" alt="Scan Icon" /> Scan your look
+      </button>
+    </div>
+
+    <script src="libs/socket.io.min.js"></script>
+    <script src="libs/arduino.js"></script>
+    <script src="function.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
