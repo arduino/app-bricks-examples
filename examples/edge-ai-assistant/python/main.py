@@ -2,19 +2,11 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-import os
 from arduino.app_bricks.llm import LargeLanguageModel
 from arduino.app_bricks.web_ui import WebUI
 from arduino.app_utils import App
+from .prompts import load_system_prompt
 
-def load_system_prompt():
-    try:
-        with open(os.path.join(os.path.dirname(__file__), "system_prompt.txt"), "r") as f:
-            system_prompt = f.read()
-            f.close()
-    except Exception:
-            system_prompt = "You are a generic AI Chatbot Assistant."
-    return system_prompt
 
 def generate_prompt(_, data):
     try:
