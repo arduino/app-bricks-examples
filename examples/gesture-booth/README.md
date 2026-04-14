@@ -12,7 +12,7 @@ If the user changes their gesture, the frame asset changes accordingly to provid
 
 ![Gesture Change](assets/img/gesture-change.png)
 
-The model can recognize up to 2 gestures simultaneously. If 2 gestures are recognized, landmarks on the hands will appear for both. However, the first gesture to be recognized rules the frame asset and is the one shown in the right-hand UI container.
+The model can track up to two hands simultaneously, recognizing a gesture on each one independently. When two hands are detected, landmarks appear on both. However, the first gesture to be recognized rules the frame asset and is the one shown in the right-hand UI container.
 
 ![Two Gestures](assets/img/2-gesture.png)
 
