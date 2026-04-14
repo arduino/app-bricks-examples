@@ -13,7 +13,7 @@ Morover, there are some tips buttons that help you in building your prompts in t
 
 The Edge AI assistant example uses the following Bricks:
 
-- `llm`: Brick to interact with the local Large Language Models (LLMs) and to exploit the powerful Neural Processing Unit onboarded on the Arduino Ventuno Q.
+- `llm`: Brick to interact with the local Large Language Models (LLMs) and to exploit the powerful Neural Processing Unit onboard the Arduino Ventuno Q.
 - `web_ui`: Brick to create the chatbot-like web interface.
 
 ## Hardware and Software Requirements
@@ -45,7 +45,7 @@ The Edge AI assistant example uses the following Bricks:
 ### Interacting with the App
 
 1. **Choose Your Card**
-   You have the opportunity to start a conversation with the AI starting from pre-built prompt or submit your own question.
+   You have the opportunity to start a conversation with the AI using a pre-built prompt or submit your own question.
 
 2. **Chat page**
    In the chat page you can have a conversation with the AI. 
@@ -64,9 +64,9 @@ The Edge AI assistant example uses the following Bricks:
 
 Once the App is running, it performs the following operations:
 
-- **Chatbot UI**: The `web_ui` Brick serves an HTML page where users can interact with the LLM in a chat-like style.
+- **Chatbot UI**: The `web_ui` Brick creates a HTML page where users can interact with the LLM in a chat-like style.
 - **AI Inference**: The `llm` Brick sends the prompt to the local LLM.
-- **Stream Processing**: Instead of waiting for the full text, the backend receives the response in chunks (tokens) and forwards them immediately to the frontend via WebSockets, ensuring the user sees progress instantly.
+- **Stream Processing**: Instead of waiting for the full text, the backend receives the response in chunks (tokens) and forwards them immediately to the frontend via WebSockets, ensuring that the user sees progress instantly.
 
 ## Understanding the Code
 
