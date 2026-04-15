@@ -1,19 +1,19 @@
 # Edge AI Assistant
 
-The **Edge AI Assistant** example demonstrates how to build a generative AI chatbot using the Arduino Ventuno Q. It uses a Large Language Model (LLM) to create a chatbot that helps you in your daily life. The board exploits its own hardware features to run the model locally, preserving the confidentiality of your data.
+The **Edge AI Assistant** example demonstrates how to build a generative AI chatbot using the Arduino® VENTUNO™ Q. It uses a Large Language Model (LLM) to create a chatbot that helps you in your daily life. The board exploits its own hardware features to run the model locally, preserving the confidentiality of your data.
 
 ## Description
 
-This App transforms the Ventuno Q into an AI assistant. It uses the `llm` Brick to connect to a local AI model (qwen 2.5 7b) and the `web_ui` Brick to provide a chat-like interface.
+This App transforms the VENTUNO Q into an AI assistant. It uses the `llm` Brick to connect to a local AI model (qwen3-4b) and the `web_ui` Brick to provide a chat-like interface.
 
-The interface come with some pre-built prompts and a free text area, the thread of messages is developed according to a chat style: your enquires on the right and the AI replies on the left. 
-Morover, there are some tips buttons that help you in building your prompts in the input text area.
+The interface comes with some pre-built prompts and a free text area. The thread of messages is developed according to a chat style: your enquiries on the right and the AI replies on the left.
+Moreover, there are some tips buttons that help you in building your prompts in the input text area.
 
 ## Bricks Used
 
-The Edge AI assistant example uses the following Bricks:
+The Edge AI Assistant example uses the following Bricks:
 
-- `llm`: Brick to interact with the local Large Language Models (LLMs) and to exploit the powerful Neural Processing Unit onboarded on the Arduino Ventuno Q.
+- `llm`: Brick to interact with the local Large Language Models (LLMs) and to exploit the powerful Neural Processing Unit onboard the Arduino VENTUNO Q.
 - `web_ui`: Brick to create the chatbot-like web interface.
 
 ## Hardware and Software Requirements
@@ -45,14 +45,14 @@ The Edge AI assistant example uses the following Bricks:
 ### Interacting with the App
 
 1. **Choose Your Card**
-   You have the opportunity to start a conversation with the AI starting from pre-built prompt or submit your own question.
+   You have the opportunity to start a conversation with the AI using a pre-built prompt or submit your own question.
 
 2. **Chat page**
    In the chat page you can have a conversation with the AI. 
-   Your enquires are on the left and the AI replies on the right in a chat-like style.
+   Your enquiries are on the right and the AI replies on the left in a chat-like style.
 
 3. **Enhance your prompt**
-   Click on the tips buttons to enhance your prompts to make them more sofisticated.
+   Click on the tips buttons to enhance your prompts to make them more sophisticated.
    The text inside the clicked button will be appended to your prompt in the text area.
 
 4. **Interact**
@@ -64,28 +64,28 @@ The Edge AI assistant example uses the following Bricks:
 
 Once the App is running, it performs the following operations:
 
-- **Chatbot UI**: The `web_ui` Brick serves an HTML page where users can interact with the LLM in a chat-like style.
+- **Chatbot UI**: The `web_ui` Brick creates an HTML page where users can interact with the LLM in a chat-like style.
 - **AI Inference**: The `llm` Brick sends the prompt to the local LLM.
-- **Stream Processing**: Instead of waiting for the full text, the backend receives the response in chunks (tokens) and forwards them immediately to the frontend via WebSockets, ensuring the user sees progress instantly.
+- **Stream Processing**: Instead of waiting for the full text, the backend receives the response in chunks (tokens) and forwards them immediately to the frontend via WebSockets, ensuring that the user sees progress instantly.
 
 ## Understanding the Code
 
 ### 🔧 Backend (`main.py`)
 
-The Python script handles the logic of connecting to the AI and managing the data flow. Note that the API Key is not hardcoded; it is retrieved automatically from the Brick configuration.
+The Python® script handles the logic of connecting to the AI and managing the data flow. Note that the API Key is not hardcoded; it is retrieved automatically from the Brick configuration.
 
 - **Initialization**: The `LargeLanguageModel` is set up with a system prompt that enforces HTML formatting for the output, and for meaningful responses.
 
 ```python
 llm = LargeLanguageModel(
-                model="genie:qwen2.5-7b",
+                model="genie:qwen3-4b",
                 system_prompt=load_system_prompt()
             )
 
 llm.with_memory(20)
 ```
 
-- **Prompt execution**: The `generate_prompt` function gets the prompt from the user and queries the LLM. The LLM response is streamed to the UI with the function `ui.send_message("response", resp)`
+- **Prompt execution**: The `generate_prompt` function gets the prompt from the user and queries the LLM. The LLM response is streamed to the UI with the function `ui.send_message("response", resp)`.
 
 ```python
 def generate_prompt(_, data):
@@ -101,7 +101,7 @@ def generate_prompt(_, data):
         ui.send_message("llm_error", {"error": str(e)})
 ```
 
-### 🔧 Frontend (`app.js`)
+### 💻 Frontend (`app.js`)
 
 The JavaScript manages the complex UI interactions, buttons, and WebSocket communication.
 
@@ -112,7 +112,10 @@ The JavaScript manages the complex UI interactions, buttons, and WebSocket commu
 function initSocketIO() {
     socket.on('response', handleResponse);
     socket.on('stream_end', handleStreamEnd);
-    ```omissis```
+    socket.on('llm_error', handleLLMError);
+    socket.on('command_ok', handleCompletedCommand);
+    socket.on('command_error', handleCommandError);
+    // ...
 }
 
 function handleResponse(data) {
