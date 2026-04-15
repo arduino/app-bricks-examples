@@ -133,7 +133,6 @@ function handleClearChat() {
   lastUserPrompt = '';
   updateSendButtonState();
   updateClearChatButtonState();
-
   userInput.focus();
 }
 
