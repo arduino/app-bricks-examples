@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Copyright (C) Arduino s.r.l. and/or its affiliated companies
+#
+# SPDX-License-Identifier: MPL-2.0
+
 from arduino.app_bricks.asr import AutomaticSpeechRecognition
 from arduino.app_bricks.web_ui import WebUI
 from arduino.app_peripherals.microphone import Microphone
