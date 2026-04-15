@@ -5,12 +5,12 @@
 from arduino.app_bricks.llm import LargeLanguageModel
 from arduino.app_bricks.web_ui import WebUI
 from arduino.app_utils import App
-from .prompts import load_system_prompt
+from prompts import load_system_prompt
 
 
 def generate_prompt(_, data):
     try:
-        prompt = data.get('prompt', '')
+        prompt = data.get("prompt", "")
         # Use the plain text prompt for the LLM and stream the response
         for resp in llm.chat_stream(prompt):
             ui.send_message("response", resp)
@@ -22,7 +22,7 @@ def generate_prompt(_, data):
 
 
 def commands_handler(_, data):
-    command = data.get('command', '')
+    command = data.get("command", "")
     try:
         if command == "clear_chat":
             llm.stop_stream()
@@ -32,14 +32,14 @@ def commands_handler(_, data):
             llm.stop_stream()
             ui.send_message("command_ok", {"command": command})
         else:
-            ui.send_message("command_error", {"command": command, "error": "Unknown command"})
+            ui.send_message(
+                "command_error", {"command": command, "error": "Unknown command"}
+            )
     except Exception as e:
         ui.send_message("command_error", {"command": command, "error": str(e)})
 
-llm = LargeLanguageModel(
-                model="genie:qwen3-4b",
-                system_prompt=load_system_prompt()
-            )
+
+llm = LargeLanguageModel(model="genie:qwen3-4b", system_prompt=load_system_prompt())
 
 llm.with_memory(20)
 
