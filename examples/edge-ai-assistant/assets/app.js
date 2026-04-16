@@ -6,6 +6,15 @@ const socket = io(`http://${window.location.host}`);
 
 let thinkingMessageElement = null;
 let lastUserPrompt = '';
+let isFirstPrompt = true;
+let thinkingMessageInterval = null;
+
+const firstPromptMessages = [
+  'Waking up the brain',
+  'Loading Model',
+  'Stretching neurons',
+  'Ready in a moment',
+];
 
 const errorBanner = document.getElementById('error-banner');
 const errorMessage = document.getElementById('error-message');
@@ -50,6 +59,10 @@ function scrollToBottom() {
 
 /** Removes the thinking/loading message from the chat if present. */
 function removeThinkingMessage() {
+  if (thinkingMessageInterval) {
+    clearInterval(thinkingMessageInterval);
+    thinkingMessageInterval = null;
+  }
   if (thinkingMessageElement && thinkingMessageElement.parentNode) {
     thinkingMessageElement.parentNode.removeChild(thinkingMessageElement);
     thinkingMessageElement = null;
@@ -65,6 +78,13 @@ function handleResponse(data) {
   const ai_msg = document.getElementById('active-ai-response');
   if (thinkingMessageElement) {
     // First chunk of stream
+    if (thinkingMessageInterval) {
+      clearInterval(thinkingMessageInterval);
+      thinkingMessageInterval = null;
+    }
+    if (isFirstPrompt) {
+      isFirstPrompt = false;
+    }
     thinkingMessageElement.querySelector('.text-content').innerHTML = '';
     thinkingMessageElement.classList.remove('thinking-message');
     thinkingMessageElement.dataset.rawText = '';
@@ -262,8 +282,31 @@ function sendMessage(text) {
 
   const textContent = document.createElement('div');
   textContent.className = 'text-content';
-  textContent.innerHTML =
-    '<span class="circular-loader"></span>Thinking<span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span>';
+
+  const thinkingDots =
+    '<span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span>';
+
+  if (isFirstPrompt) {
+    let messageIndex = 0;
+    textContent.innerHTML =
+      '<span class="circular-loader"></span>' +
+      firstPromptMessages[messageIndex] +
+      thinkingDots;
+    messageIndex++;
+    thinkingMessageInterval = setInterval(() => {
+      if (messageIndex < firstPromptMessages.length) {
+        textContent.innerHTML =
+          '<span class="circular-loader"></span>' +
+          firstPromptMessages[messageIndex] +
+          thinkingDots;
+        messageIndex++;
+      }
+    }, 3000);
+  } else {
+    textContent.innerHTML =
+      '<span class="circular-loader"></span>Thinking' + thinkingDots;
+  }
+
   thinkingMessageElement.appendChild(textContent);
 
   messagesContainer.appendChild(thinkingMessageElement);
