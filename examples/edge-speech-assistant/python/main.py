@@ -7,11 +7,7 @@ import threading
 
 from arduino.app_bricks.tts import TextToSpeech
 from arduino.app_bricks.web_ui import WebUI
-from arduino.app_peripherals.speaker import Speaker
 from arduino.app_utils import App
-
-speaker = Speaker(sample_rate=Speaker.RATE_44K)
-speaker.start()
 
 tts = TextToSpeech()
 ui = WebUI()
@@ -21,7 +17,6 @@ stop_event = threading.Event()
 
 def speak(session_id, data):
     text = data.get("text", "")
-    language = data.get("language", "en")
     if not text:
         return
 
@@ -33,7 +28,7 @@ def speak(session_id, data):
         if stop_event.is_set():
             break
         if chunk.strip():
-            tts.speak(chunk, language=language, speaker=speaker)
+            tts.speak(chunk)
     ui.send_message("speaking", {"status": "finished"})
 
 
