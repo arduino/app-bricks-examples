@@ -10,10 +10,7 @@ let isFirstPrompt = true;
 let thinkingMessageInterval = null;
 
 const firstPromptMessages = [
-  'Waking up the brain',
-  'Loading Model',
-  'Stretching neurons',
-  'Ready in a moment',
+  'Loading Model'
 ];
 
 const errorBanner = document.getElementById('error-banner');
