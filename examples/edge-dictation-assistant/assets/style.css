@@ -1,0 +1,238 @@
+/*
+ * SPDX-FileCopyrightText: Copyright (C) Arduino s.r.l. and/or its affiliated companies
+ *
+ * SPDX-License-Identifier: MPL-2.0
+ */
+
+@import url('fonts/fonts.css');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    font-family: 'Open Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #DAE3E3;
+    color: #2C353A;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 20px;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 12px 0;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.arduino-logo {
+    height: 24px;
+    width: auto;
+}
+
+.arduino-text {
+    color: #008184;
+    font-family: "Roboto Mono", monospace;
+    font-size: 20px;
+    font-weight: 700;
+    font-style: normal;
+    line-height: 170%;
+    letter-spacing: 2.4px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Buttons */
+button {
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #008184;
+    color: #fff;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+button:hover {
+    background: #006567;
+}
+
+button.disabled,
+button:disabled {
+    opacity: 0.5;
+    cursor: default;
+    pointer-events: none;
+}
+
+button img {
+    filter: brightness(0) invert(1);
+    width: 14px;
+    height: 14px;
+}
+
+.secondary-button {
+    background: transparent;
+    color: #008184;
+    border: 1px solid #008184;
+}
+
+.secondary-button img {
+    filter: none;
+    opacity: 0.8;
+}
+
+.secondary-button:hover {
+    background: rgba(0, 129, 132, 0.08);
+}
+
+.secondary-button.disabled {
+    opacity: 0.4;
+    border-color: #95A0A0;
+    color: #95A0A0;
+}
+
+/* Main content */
+.main-content {
+    background: #ECF1F1;
+    padding: 24px;
+    border-radius: 8px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-height: 0;
+}
+
+/* Transcription area */
+.transcription-area {
+    flex: 1;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #C9D2D2;
+    border-radius: 8px;
+    padding: 20px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
+}
+
+#transcription-container {
+    min-height: 100%;
+}
+
+.transcription-text {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    color: #2C353A;
+    line-height: 1.8;
+    white-space: pre-wrap;
+}
+
+.partial-text {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    color: #95A0A0;
+    font-style: italic;
+    line-height: 1.8;
+    display: inline;
+}
+
+.placeholder-text {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    color: #95A0A0;
+}
+
+/* Controls bar */
+.controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 8px 0;
+}
+
+.mic-button {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #008184;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: background 0.2s;
+}
+
+.mic-button img {
+    width: 24px;
+    height: 24px;
+    filter: brightness(0) invert(1);
+}
+
+.mic-button:hover {
+    background: #006567;
+}
+
+.mic-button.recording {
+    background: #c0392b;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.mic-button.recording:hover {
+    background: #a93226;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.4); }
+    70% { box-shadow: 0 0 0 12px rgba(192, 57, 43, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0); }
+}
+
+.status-label {
+    font-family: "Roboto Mono", monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: #5D6A6B;
+}
+
+.status-label.recording {
+    color: #c0392b;
+}
