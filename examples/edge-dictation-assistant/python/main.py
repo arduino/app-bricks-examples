@@ -14,23 +14,15 @@ mic.start()
 asr = AutomaticSpeechRecognition()
 ui = WebUI()
 
-stream = None
-
 
 def start_dictation(session_id, data):
-    global stream
     stream = asr.transcribe_mic_stream(mic)
     for chunk in stream:
         ui.send_message("transcription", {"type": chunk.type, "text": chunk.data})
-    stream = None
 
 
 def stop_dictation(session_id, data):
-    global stream
-    if stream:
-        stream.close()
-        stream = None
-
+    asr.cancel()
 
 def new_recording(session_id, data):
     stop_dictation(session_id, data)
