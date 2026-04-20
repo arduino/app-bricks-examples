@@ -231,8 +231,6 @@ function makeGrid(){
   }
 }
 
-
-
 // Unified persist: save to DB and update board together
 function schedulePersist(){
   if (persistTimeout) clearTimeout(persistTimeout);
@@ -536,8 +534,6 @@ function normalizeSymbolInput(s){
   if(/^[0-9]/.test(cand)) cand = 'f_' + cand;
   return cand;
 }
-
-
 
 if(animNameInput){
   animNameInput.addEventListener('blur', ()=>{
@@ -857,8 +853,6 @@ function shiftArray(grid, direction, wrapAround) {
     return newGrid;
 }
 
-
-
 async function loadFrameIntoEditor(id){
   try {
     const data = await fetchWithHandling('/load_frame', {
@@ -921,8 +915,6 @@ function setGridFromRows(rows){
     }
   }
 }
-
-
 
 async function deleteFrame(id){
   await fetchWithHandling('/delete_frame', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id})}, 'json', `delete frame ${id}`);
@@ -996,114 +988,111 @@ if (clearBtn) {
 }
 
 // 'save-anim' button functionality has been removed as it is no longer part of the UI.
+/* Brightness Alpha Slider */
+const brightnessAlphaSlider = document.getElementById('brightness-alpha-slider');
+const brightnessAlphaValue = document.getElementById('brightness-alpha-value');
 
-document.addEventListener('DOMContentLoaded', () => {
-  /* Brightness Alpha Slider */
-  const brightnessAlphaSlider = document.getElementById('brightness-alpha-slider');
-  const brightnessAlphaValue = document.getElementById('brightness-alpha-value');
-
-  if (brightnessAlphaSlider && brightnessAlphaValue) {
-    // Function to update the slider's background gradient
-    const updateSliderBackground = () => {
-      const value = parseInt(brightnessAlphaSlider.value);
-      const max = parseInt(brightnessAlphaSlider.max);
-      const percent = (value / max) * 100;
-      brightnessAlphaSlider.style.setProperty('--slider-value-percent', `${percent}%`);
-      brightnessAlphaValue.textContent = value;
-      if (value === 0) {
-        gridEl.dataset.tool = 'eraser';
-      } else {
-        gridEl.dataset.tool = 'brush';
-      }
-    };
-
-    brightnessAlphaSlider.addEventListener('input', updateSliderBackground);
-    // Call once to set initial state
-    updateSliderBackground();
-  }
-
-  loadConfig(brightnessAlphaSlider, brightnessAlphaValue);
-
-  let isDrawing = false;
-
-  function draw(e) {
-    if (!e.target.classList.contains('cell')) return;
-
-    const cell = e.target;
-    const brightness = brightnessAlphaSlider.value;
-
-    if (brightness === "0") {
-      delete cell.dataset.b;
+if (brightnessAlphaSlider && brightnessAlphaValue) {
+  // Function to update the slider's background gradient
+  const updateSliderBackground = () => {
+    const value = parseInt(brightnessAlphaSlider.value);
+    const max = parseInt(brightnessAlphaSlider.max);
+    const percent = (value / max) * 100;
+    brightnessAlphaSlider.style.setProperty('--slider-value-percent', `${percent}%`);
+    brightnessAlphaValue.textContent = value;
+    if (value === 0) {
+      gridEl.dataset.tool = 'eraser';
     } else {
-      cell.dataset.b = brightness;
+      gridEl.dataset.tool = 'brush';
     }
-  }
+  };
 
-  gridEl.addEventListener('mousedown', (e) => {
-    isDrawing = true;
+  brightnessAlphaSlider.addEventListener('input', updateSliderBackground);
+  // Call once to set initial state
+  updateSliderBackground();
+}
+
+loadConfig(brightnessAlphaSlider, brightnessAlphaValue);
+
+let isDrawing = false;
+
+function draw(e) {
+  if (!e.target.classList.contains('cell')) return;
+
+  const cell = e.target;
+  const brightness = brightnessAlphaSlider.value;
+
+  if (brightness === "0") {
+    delete cell.dataset.b;
+  } else {
+    cell.dataset.b = brightness;
+  }
+}
+
+gridEl.addEventListener('mousedown', (e) => {
+  isDrawing = true;
+  draw(e);
+});
+
+gridEl.addEventListener('mousemove', (e) => {
+  if (isDrawing) {
     draw(e);
-  });
-
-  gridEl.addEventListener('mousemove', (e) => {
-    if (isDrawing) {
-      draw(e);
-    }
-    else {
-      if (!e.target.classList.contains('cell')) return;
-      const brightness = brightnessAlphaSlider.value;
-      if (brightness === "0") {
-        gridEl.dataset.tool = 'eraser';
-      } else {
-        gridEl.dataset.tool = 'brush';
-      }
-    }
-  });
-
-  window.addEventListener('mouseup', () => {
-    if (isDrawing) {
-      isDrawing = false;
-      pushStateToHistory(collectGridBrightness());
-      schedulePersist();
-    }
-  });
-
-  gridEl.addEventListener('mouseleave', () => {
-    if (isDrawing) {
-      isDrawing = false;
-      pushStateToHistory(collectGridBrightness());
-      schedulePersist();
-    }
-  });
-
-  const framesContainer = document.getElementById('frames');
-  if (framesContainer) {
-      framesContainer.addEventListener('dragover', (e) => {
-          const containerRect = framesContainer.getBoundingClientRect();
-          const mouseX = e.clientX;
-          const edgeThreshold = 50; // Pixels from the edge to trigger scroll
-          const scrollAmount = 10; // Pixels to scroll by
-
-          if (mouseX < containerRect.left + edgeThreshold) {
-              framesContainer.scrollLeft -= scrollAmount;
-          } else if (mouseX > containerRect.right - edgeThreshold) {
-              framesContainer.scrollLeft += scrollAmount;
-          }
-      });
   }
+  else {
+    if (!e.target.classList.contains('cell')) return;
+    const brightness = brightnessAlphaSlider.value;
+    if (brightness === "0") {
+      gridEl.dataset.tool = 'eraser';
+    } else {
+      gridEl.dataset.tool = 'brush';
+    }
+  }
+});
 
-  // Popover logic
-  const infoBtns = document.querySelectorAll('.info-btn');
-  infoBtns.forEach(img => {
-      const popover = img.nextElementSibling;
-      if (popover && popover.classList.contains('popover')) {
-          img.addEventListener('mouseover', () => {
-              popover.style.display = 'block';
-          });
-          img.addEventListener('mouseout', () => {
-              popover.style.display = 'none';
-          });
-      }
-  });
+window.addEventListener('mouseup', () => {
+  if (isDrawing) {
+    isDrawing = false;
+    pushStateToHistory(collectGridBrightness());
+    schedulePersist();
+  }
+});
+
+gridEl.addEventListener('mouseleave', () => {
+  if (isDrawing) {
+    isDrawing = false;
+    pushStateToHistory(collectGridBrightness());
+    schedulePersist();
+  }
+});
+
+const framesContainer = document.getElementById('frames');
+if (framesContainer) {
+    framesContainer.addEventListener('dragover', (e) => {
+        const containerRect = framesContainer.getBoundingClientRect();
+        const mouseX = e.clientX;
+        const edgeThreshold = 50; // Pixels from the edge to trigger scroll
+        const scrollAmount = 10; // Pixels to scroll by
+
+        if (mouseX < containerRect.left + edgeThreshold) {
+            framesContainer.scrollLeft -= scrollAmount;
+        } else if (mouseX > containerRect.right - edgeThreshold) {
+            framesContainer.scrollLeft += scrollAmount;
+        }
+    });
+}
+
+// Popover logic
+const infoBtns = document.querySelectorAll('.info-btn');
+infoBtns.forEach(img => {
+    const popover = img.nextElementSibling;
+    if (popover && popover.classList.contains('popover')) {
+        img.addEventListener('mouseover', () => {
+            popover.style.display = 'block';
+        });
+        img.addEventListener('mouseout', () => {
+            popover.style.display = 'none';
+        });
+    }
 });
 // --- Option Buttons Functionality ---
 const copyAnimBtn = document.getElementById('copy-anim');

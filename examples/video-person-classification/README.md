@@ -8,14 +8,13 @@ The **Person Classifier** example lets you detect people on a live feed from a c
 
 This example uses a pre-trained model to detect people on a live video feed from a camera. The workflow involves continuously getting the frames from a USB camera, processing it through an AI model using the `video_imageclassification` Brick, and displaying the classification along with their corresponding probabilities. The code is structured to be easily adaptable to different models.
 
-
 ## Brick Used
 
 The example uses the following Bricks:
 
 - `web_ui`: Brick to create a web interface to display the classification results and model controls.
 - `video_imageclassification`: Brick to classify objects within a live video feed from a camera.
-  
+
 ## Hardware and Software Requirements
 
 ### Hardware
@@ -35,13 +34,13 @@ The example uses the following Bricks:
 ## How to Use the Example
 
 1. Connect the USB-C hub to the UNO Q and the USB camera.
-  ![Hardware setup](assets/docs_assets/hardware-setup.png)
+   ![Hardware setup](assets/docs_assets/hardware-setup.png)
 2. Attach the external power supply to the USB-C hub to power everything.
 3. Run the App.
    ![Arduino App Lab - Run App](assets/docs_assets/launch-app.png)
 4. The App should open automatically in the web browser. You can open it manually via `<board-name>.local:7000`.
 5. Position yourself in front of the camera and watch as the App detects and recognizes a person.
-   
+
 ## How it Works
 
 This example hosts a Web UI where we can see the video input from the camera connected via USB. The video stream is then processed using the `video_imageclassification` Brick. When a person is detected, it is logged along with the confidence score (e.g. 95% person).
@@ -57,10 +56,10 @@ Here is a brief explanation of the full-stack application:
 - Wires detection events to actions using callbacks:
   - `on_detect("person", person_detected)`: when a **person** is detected, logs `"Detected a person!!!"`.
   - `on_detect_all(send_detections_to_ui)`: for **every detection batch**, builds a JSON list with:
-    - `content`: label of the detected object  
-    - `confidence`: detection confidence score  
+    - `content`: label of the detected object
+    - `confidence`: detection confidence score
     - `timestamp`: ISO 8601 UTC timestamp  
-    Then sends the JSON to the UI.
+      Then sends the JSON to the UI.
 
 - Exposes:
   - **Realtime messaging**: publishes detection updates to the frontend via `ui.send_message("classifications", message=<json>)` so the UI can display live classifications.
@@ -69,7 +68,7 @@ Here is a brief explanation of the full-stack application:
 
 ### 💻 Frontend (index.html + app.js)
 
-- Connects to the backend using **Socket.IO** (`io()`).
+- Connects to the backend using **WebUI** (`arduino.js`).
 - Renders:
   - A **video feed iframe** with placeholder when the webcam is not yet available.
   - A **confidence control panel** with slider and numeric input to adjust detection threshold.
@@ -93,79 +92,77 @@ At that point, the device begins performing the following:
 
 - Serving the **video classification UI** and exposing realtime transports.
 
-    The UI is hosted by the `WebUI` Brick and communicates with the backend via WebSocket (Socket.IO).  
-    The backend pushes classification messages whenever new objects are detected.
+  The UI is hosted by the `WebUI` Brick and communicates with the backend via WebSocket.  
+   The backend pushes classification messages whenever new objects are detected.
 
-    ```python
-    from arduino.app_bricks.web_ui import WebUI
-    from arduino.app_bricks.video_imageclassification import VideoImageClassification
-    
-    ui = WebUI()
-    detection_stream = VideoImageClassification()
+  ```python
+  from arduino.app_bricks.web_ui import WebUI
+  from arduino.app_bricks.video_imageclassification import VideoImageClassification
 
-    detection_stream.on_detect("person", person_detected)      # single-class callback
-    detection_stream.on_detect_all(send_detections_to_ui)      # all-classes callback
-    ```
+  ui = WebUI()
+  detection_stream = VideoImageClassification()
 
-    - `person` (event): triggers a simple callback printing `"Detected a person!!!"`.
-    - `classifications` (WebSocket message): JSON list with label, confidence, and timestamp sent to the UI.
+  detection_stream.on_detect("person", person_detected)      # single-class callback
+  detection_stream.on_detect_all(send_detections_to_ui)      # all-classes callback
+  ```
+
+  - `person` (event): triggers a simple callback printing `"Detected a person!!!"`.
+  - `classifications` (WebSocket message): JSON list with label, confidence, and timestamp sent to the UI.
 
 - Processing detections and broadcasting updates.
 
-    When the video model detects objects, the backend:
+  When the video model detects objects, the backend:
+  1. Collects all current classifications with their confidence scores.
+  2. Attaches an ISO 8601 UTC timestamp.
+  3. Builds a JSON message and publishes it to the frontend channel `classifications`.
 
-    1. Collects all current classifications with their confidence scores.
-    2. Attaches an ISO 8601 UTC timestamp.
-    3. Builds a JSON message and publishes it to the frontend channel `classifications`.
+  ```python
+  def send_detections_to_ui(classifications: dict):
+  if len(classifications) == 0:
+      return
 
-    ```python
-    def send_detections_to_ui(classifications: dict):
-    if len(classifications) == 0:
-        return
-        
-    entries = []
-    for key, value in classifications.items():
-        entry = {
-        "content": key,
-        "confidence": value,
-        "timestamp": datetime.now(UTC).isoformat()
-        }
-        entries.append(entry)    
-    
-    if len(entries) > 0:
-        msg = json.dumps(entries)
-        ui.send_message("classifications", message=msg)
-    ```
+  entries = []
+  for key, value in classifications.items():
+      entry = {
+      "content": key,
+      "confidence": value,
+      "timestamp": datetime.now(UTC).isoformat()
+      }
+      entries.append(entry)
+
+  if len(entries) > 0:
+      msg = json.dumps(entries)
+      ui.send_message("classifications", message=msg)
+  ```
 
 - Rendering and interacting on the frontend.
 
-    The **index.html + app.js** bundle defines the interface:
+  The **index.html + app.js** bundle defines the interface:
+  - A **video feed iframe** attempts to connect to the embedded camera stream (`/embed`).
+  - A **confidence control** (slider + input) lets the user adjust the detection threshold.
+  - A **feedback section** displays animated messages when a person is classified.
+  - A **recent detections list** shows the latest entries with percentage and timestamp.
 
-    - A **video feed iframe** attempts to connect to the embedded camera stream (`/embed`).
-    - A **confidence control** (slider + input) lets the user adjust the detection threshold.
-    - A **feedback section** displays animated messages when a person is classified.
-    - A **recent detections list** shows the latest entries with percentage and timestamp.
+  ```javascript
+  const ui = new WebUI();
 
-    ```javascript
-    const socket = io(`http://${window.location.host}`);
+  ui.on_message('classifications', (message) => {
+    printClassifications(message); // update history
+    renderClasses(); // redraw the list
+    updateFeedback(true); // show greeting animation
+  });
+  ```
 
-    socket.on('classifications', (message) => {
-        printClassifications(message);   // update history
-        renderClasses();                 // redraw the list
-        updateFeedback(true);            // show greeting animation
-    });
-    ```
-
-    - `classifications` (WebSocket): received whenever the backend publishes detection results.
-    - Confidence slider and reset button dynamically adjust the filtering threshold in the UI.
-    - If the connection drops, an error message is shown in the frontend (`error-container`).
+  - `classifications` (WebSocket): received whenever the backend publishes detection results.
+  - Confidence slider and reset button dynamically adjust the filtering threshold in the UI.
+  - If the connection drops, an error message is shown in the frontend (`error-container`).
 
 - Executing the event loop.
 
-    Finally, the backend keeps everything alive with:
+  Finally, the backend keeps everything alive with:
 
-    ```python
-    App.run()
-    ```
+  ```python
+  App.run()
+  ```
 
-    This maintains the video classification stream, event callbacks, and WebSocket communication with the frontend.
+  This maintains the video classification stream, event callbacks, and WebSocket communication with the frontend.

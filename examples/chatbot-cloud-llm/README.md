@@ -47,9 +47,9 @@ This example requires a valid API Key from an LLM provider (Google Gemini, OpenA
 
 3. **Add API Key**
    In the configuration panel, enter your API Key into the corresponding field. This securely saves your credentials for the App to use. You can generate an API key from your preferred provider:
-   *   **Google Gemini:** [Get API Key](https://aistudio.google.com/app/apikey)
-   *   **OpenAI GPT:** [Get API Key](https://platform.openai.com/api-keys)
-   *   **Anthropic Claude:** [Get API Key](https://console.anthropic.com/settings/keys)
+   - **Google Gemini:** [Get API Key](https://aistudio.google.com/app/apikey)
+   - **OpenAI GPT:** [Get API Key](https://platform.openai.com/api-keys)
+   - **Anthropic Claude:** [Get API Key](https://console.anthropic.com/settings/keys)
 
    ![Enter your API KEY](assets/docs_assets/brick-credentials.png)
 
@@ -66,7 +66,7 @@ This example requires a valid API Key from an LLM provider (Google Gemini, OpenA
    You can start a conversation with the AI using a pre-built prompt or by submitting your own question.
 
 2. **Chat page**
-   In the chat page you can have a conversation with the AI. 
+   In the chat page you can have a conversation with the AI.
    Your inquiries are on the right and the AI replies on the left in a chat-like style.
 
 3. **Enhance your prompt**
@@ -93,9 +93,9 @@ Once the App is running, it performs the following operations:
 The Python script handles the logic of connecting to the AI and managing the data flow. Note that the API Key is not hardcoded; it is retrieved automatically from the Brick configuration.
 
 - **Initialization**: The `CloudLLM` is set up with a system prompt that enforces HTML formatting for the output. The `CloudModel` constants map to specific efficient model versions:
-  *   `CloudModel.GOOGLE_GEMINI` → `gemini-2.5-flash`
-  *   `CloudModel.OPENAI_GPT` → `gpt-4o-mini`
-  *   `CloudModel.ANTHROPIC_CLAUDE` → `claude-3-7-sonnet-latest`
+  - `CloudModel.GOOGLE_GEMINI` → `gemini-2.5-flash`
+  - `CloudModel.OPENAI_GPT` → `gpt-4o-mini`
+  - `CloudModel.ANTHROPIC_CLAUDE` → `claude-3-7-sonnet-latest`
 
 ```python
 # The API Key is loaded automatically from the Brick Configuration
@@ -127,51 +127,50 @@ def generate_prompt(_, data):
 
 The JavaScript manages the complex UI interactions, buttons, and WebSocket communication.
 
-- **Socket Listeners**: The frontend listens for chunks of text and appends them to the display buffer, creating the streaming effect.
+- **UI event listeners**: The frontend listens for chunks of text and appends them to the display buffer, creating the streaming effect.
 
-```javascript
-
-function initSocketIO() {
-    socket.on('response', handleResponse);
-    socket.on('stream_end', handleStreamEnd);
-    ```omissis```
+````javascript
+function initUI() {
+  ui.on_message('response', handleResponse);
+  ui.on_message('stream_end', handleStreamEnd);
+  ```omissis```;
 }
 
 function handleResponse(data) {
-    const ai_msg = document.getElementById('active-ai-response');
-    if (thinkingMessageElement) {
-        // First chunk of stream
-        const textContent = thinkingMessageElement.querySelector('.text-content');
-        if (textContent) {
-            textContent.innerHTML = '';
-        }
-        thinkingMessageElement.classList.remove('thinking-message');
-        thinkingMessageElement.dataset.rawText = '';
-        thinkingMessageElement = null;
+  const ai_msg = document.getElementById('active-ai-response');
+  if (thinkingMessageElement) {
+    // First chunk of stream
+    const textContent = thinkingMessageElement.querySelector('.text-content');
+    if (textContent) {
+      textContent.innerHTML = '';
     }
+    thinkingMessageElement.classList.remove('thinking-message');
+    thinkingMessageElement.dataset.rawText = '';
+    thinkingMessageElement = null;
+  }
 
-    if (ai_msg) {
-        ai_msg.dataset.rawText += data;
-        const textContent = ai_msg.querySelector('.text-content');
-        if (textContent) {
-            textContent.innerHTML = marked.parse(ai_msg.dataset.rawText);
-        }
+  if (ai_msg) {
+    ai_msg.dataset.rawText += data;
+    const textContent = ai_msg.querySelector('.text-content');
+    if (textContent) {
+      textContent.innerHTML = marked.parse(ai_msg.dataset.rawText);
     }
+  }
 }
 
 function handleStreamEnd() {
-    removeThinkingMessage(); // Ensure it's removed if stream ends
-    ai_msg = document.getElementById('active-ai-response');
-    if (ai_msg) {
-        ai_msg.id = '';
+  removeThinkingMessage(); // Ensure it's removed if stream ends
+  ai_msg = document.getElementById('active-ai-response');
+  if (ai_msg) {
+    ai_msg.id = '';
+  }
+  if (sendButton) {
+    sendButton.classList.remove('sending-state');
+    if (sendButtonImg) {
+      sendButtonImg.src = 'img/send.svg';
     }
-    if (sendButton) {
-        sendButton.classList.remove('sending-state');
-        if (sendButtonImg) {
-            sendButtonImg.src = 'img/send.svg';
-        }
-    }
-    updateSendButtonState(); // Update button state after stream ends
-    updateClearChatButtonState(); // Update clear chat button state after stream ends
+  }
+  updateSendButtonState(); // Update button state after stream ends
+  updateClearChatButtonState(); // Update clear chat button state after stream ends
 }
-```
+````
