@@ -28,6 +28,23 @@ path = [
   "examples/**/assets/**/*.gif",
   "examples/**/assets/**/*.webp",
   "examples/**/assets/**/*.wav",
+  "examples-basics/**/**/*.py",
+  "examples-basics/**/**/*.ino",
+  "examples-basics/**/**/*.h",
+  "examples-basics/**/**/*.md",
+  "examples-basics/**/**/*.yaml",
+  "examples-basics/**/**/*.txt",
+  "examples-basics/**/**/assets/*.html",
+  "examples-basics/**/**/assets/*.css",
+  "examples-basics/**/**/assets/*.js",
+  "examples-basics/**/**/assets/**/*.json",
+  "examples-basics/**/**/assets/**/*.png",
+  "examples-basics/**/**/assets/**/*.jpg",
+  "examples-basics/**/**/assets/**/*.jpeg",
+  "examples-basics/**/**/assets/**/*.svg",
+  "examples-basics/**/**/assets/**/*.gif",
+  "examples-basics/**/**/assets/**/*.webp",
+  "examples-basics/**/**/assets/**/*.wav",
 ]
 SPDX-FileCopyrightText = "Copyright (C) Arduino s.r.l. and/or its affiliated companies"
 SPDX-License-Identifier = "MPL-2.0"
@@ -38,6 +55,9 @@ path = [
   "examples/**/assets/fonts/**/*.ttf",
   "examples/**/assets/fonts/**/*.css",
   "examples/**/assets/fonts/**/OFL.txt",
+  "examples-basics/**/**/assets/fonts/**/*.ttf",
+  "examples-basics/**/**/assets/fonts/**/*.css",
+  "examples-basics/**/**/assets/fonts/**/OFL.txt",
 ]
 SPDX-FileCopyrightText = "Copyright (c) Google LLC"
 SPDX-License-Identifier = "OFL-1.1"
@@ -54,7 +74,10 @@ precedence = "override"
 # Third-party JS libraries. Keep them out of automatic header rewriting and
 # cover them via annotations so their upstream headers stay untouched.
 [[annotations]]
-path = "examples/**/assets/libs/socket.io.min.js"
+path = [
+  "examples/**/assets/libs/socket.io.min.js",
+  "examples-basics/**/**/assets/libs/socket.io.min.js"
+]
 SPDX-FileCopyrightText = "Copyright (c) 2014-2024 Guillermo Rauch"
 SPDX-License-Identifier = "MIT"
 precedence = "override"
