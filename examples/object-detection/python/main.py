@@ -10,7 +10,11 @@ import io
 import base64
 import time
 
+# import the custom brick for OCR detection
+from ocr import OcrDetection
+
 object_detection = ObjectDetection()
+ocr_detection = OcrDetection()
 
 def on_detect_objects(client_id, data):
     """Callback function to handle object detection requests."""
@@ -20,6 +24,9 @@ def on_detect_objects(client_id, data):
         if not image_data:
             ui.send_message('detection_error', {'error': 'No image data'})
             return
+
+        ocr_text = ocr_detection.detect(image_data)
+        print("OCR:", ocr_text)
 
         image_bytes = base64.b64decode(image_data)
         pil_image = Image.open(io.BytesIO(image_bytes))
@@ -50,7 +57,8 @@ def on_detect_objects(client_id, data):
             'success': True,
             'result_image': b64_result,
             'detection_count': len(results.get("detection", [])) if results else 0,
-            'processing_time': f"{diff:.2f} ms"
+            'processing_time': f"{diff:.2f} ms",
+            'text': ocr_text
         }
         ui.send_message('detection_result', response)
 
