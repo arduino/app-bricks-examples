@@ -1,0 +1,5 @@
+name: Blinking an LED from MPU
+icon: ✨
+description: Simple example to blink an LED mounted on the board surface and controlled by the microprocessor.
+
+bricks:
