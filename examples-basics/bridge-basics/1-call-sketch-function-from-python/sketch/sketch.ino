@@ -13,9 +13,8 @@ void say_hello(String name) {
 void setup() {
     Monitor.begin(115200);
 
-    // Start the Bridge and expose the function to Python
-    Bridge.begin();
-    Bridge.provide("say_hello", say_hello);
+    Bridge.begin(); // Start the Bridge
+    Bridge.provide("say_hello", say_hello); // Expose the function to Python
 }
 
 void loop() {

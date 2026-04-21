@@ -7,7 +7,7 @@ import time
 
 def loop():
     time.sleep(1)
-    # Invoke the sketch function "say_hello" registered via Bridge.provide
-    Bridge.call("say_hello", "Python")
+    
+    Bridge.call("say_hello", "Python") # Invoke the sketch function "say_hello" registered via Bridge.provide
 
 App.run(user_loop=loop)

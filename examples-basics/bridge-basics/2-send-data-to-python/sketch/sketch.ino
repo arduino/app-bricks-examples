@@ -10,8 +10,7 @@ unsigned long previousMillis = 0;
 const long interval = 1000;
 
 void setup() {
-    // Start the Bridge; no providers needed on this side
-    Bridge.begin();
+    Bridge.begin(); // Start the Bridge
 }
 
 void loop() {
@@ -22,7 +21,6 @@ void loop() {
         previousMillis = currentMillis;
         counter++;
 
-        // Fire-and-forget: push the value to the Python callback "on_tick"
-        Bridge.notify("on_tick", counter);
+        Bridge.notify("on_tick", counter); // Push the value to the Python callback "on_tick"
     }
 }

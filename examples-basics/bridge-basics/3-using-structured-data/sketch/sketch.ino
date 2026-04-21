@@ -15,8 +15,8 @@ void log_values(std::vector<int> values) {
 void setup() {
     Monitor.begin(115200);
 
-    Bridge.begin();
-    Bridge.provide("log_values", log_values);
+    Bridge.begin(); // Start the Bridge
+    Bridge.provide("log_values", log_values); // Expose the function to Python
 }
 
 void loop() {

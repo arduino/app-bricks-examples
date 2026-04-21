@@ -7,7 +7,6 @@ import time
 
 def loop():
     time.sleep(1)
-    # Send a list of three values to the sketch as a single structured payload
-    Bridge.call("log_values", [10, 20, 30])
+    Bridge.call("log_values", [10, 20, 30]) # Send a list of three values to the sketch as a single structured payload
 
 App.run(user_loop=loop)
