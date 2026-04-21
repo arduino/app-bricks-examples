@@ -12,8 +12,10 @@ void setup() {
     matrix.loadSequence(animation);   // Load the animation frames into the library's internal sequence player
 }
 
+/*
+    The library handles frame timing internally using each frame's duration_ms value,
+    so we don't need to add any delay in the loop function.
+*/
 void loop() {
     matrix.playSequence(true);        // playSequence(true) plays the animation in a loop.
-                                      // The library handles frame timing internally using each frame's duration_ms value,
-                                      // so we don't need to add any delay here.
 }
