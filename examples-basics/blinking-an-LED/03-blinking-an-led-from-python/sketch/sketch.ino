@@ -2,15 +2,16 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-// Example sketch which allows controlling the built-in LED from Python using the RouterBridge library.
-// The "set_led_state" function can be called from Python to turn the LED on or
-// off based on the boolean value passed from Python.
+/* Example sketch which allows controlling the built-in LED from Python using the RouterBridge library.
+   The "set_led_state" function can be called from Python to turn the LED on or
+   off based on the boolean value passed from Python.
+*/
 
 // Include the RouterBridge library to enable communication between the Arduino and Python
 #include "Arduino_RouterBridge.h"
 
 void setup() {
-    // initialize digital pin LED_BUILTIN as an output.
+    // Initialize digital pin LED_BUILTIN as an output.
     pinMode(LED_BUILTIN, OUTPUT);
 
     // Initialize the Bridge and provide the "set_led_state" function to be called from Python

@@ -6,7 +6,7 @@
 from arduino.app_utils import *
 import time
 
-# Initialize the state of the LED as off (False)
+# Define the global state of the LED and set it to off (False)
 led_state = False
 
 # Define the loop function to toggle the LED state every second by calling the "set_led_state" function defined in the sketch
