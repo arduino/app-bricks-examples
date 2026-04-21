@@ -26,7 +26,7 @@ The logic implementation is inside the Python script and the interaction with th
    Launch the App by clicking the **Run** button in the top right corner. Wait for the App to start.
    ![Launch the App](assets/docs_assets/launch-app.png)
 
-2. **See the led**
+2. **Watch the led**
    The `LED1` will start blinking red
 
 ## How it Works

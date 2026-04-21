@@ -28,7 +28,7 @@ The logic is implemented in the Arduino sketch and the interaction with the LED 
    Launch the App by clicking the **Run** button in the top right corner. Wait for the App to start.
    ![Launch the App](assets/docs_assets/launch-app.png)
 
-5. **See the led**
+2. **Watch the led**
    The `LED_BUILTIN` will start blinking red
 
 ## How it Works
