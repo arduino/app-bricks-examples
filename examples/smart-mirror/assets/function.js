@@ -7,12 +7,14 @@ const scanBoxTitle = document.querySelector('#scanBoxTitle');
 const scanBoxDescription = document.querySelector('#scanBoxDescription');
 const scanButton = document.querySelector('#scanButton');
 const videoFeed = document.querySelector('#videoFeed');
+const scanningAnimation = document.querySelector('#scanning-animation');
 
 // Minimum duration (in ms) to show scanning animation before displaying results
 const MINIMUM_SCAN_DURATION = 3000;
 
 let startScanCountdown = null;
 let analysisPhrasesInterval = null;
+let dotsAnimationInterval = null;
 let scanStartTime = null;
 
 /**
@@ -78,8 +80,16 @@ function prepareScan() {
  */
 function startScan() {
   scanBox.setAttribute('data-state', 'analysing');
-  scanBoxTitle.textContent = 'Analysing...';
+  scanBoxTitle.textContent = 'Analysing';
   scanStartTime = Date.now();
+  scanningAnimation.classList.add('scanning-active');
+
+  // Animate dots
+  let dotsCount = 0;
+  dotsAnimationInterval = setInterval(() => {
+    dotsCount = (dotsCount + 1) % 4;
+    scanBoxTitle.textContent = `Analysing${'.'.repeat(dotsCount)}`;
+  }, 600);
 
   const phrases = [
     'I am capturing your look',
@@ -108,6 +118,10 @@ function startScan() {
 function resetToInitialState() {
   scanBox.setAttribute('data-state', 'initial');
   scanBoxTitle.textContent = 'Get a real-time style tip based on your outfit';
+  scanningAnimation.classList.remove('scanning-active');
+  if (dotsAnimationInterval) {
+    clearInterval(dotsAnimationInterval);
+  }
   updateButton({
     text: 'Scan your look',
     imageSrc: './img/play.svg',
@@ -127,6 +141,9 @@ function cancelScan() {
   if (analysisPhrasesInterval) {
     clearInterval(analysisPhrasesInterval);
   }
+  if (dotsAnimationInterval) {
+    clearInterval(dotsAnimationInterval);
+  }
 
   resetToInitialState();
 }
@@ -145,6 +162,10 @@ function showScanResult(result) {
     if (analysisPhrasesInterval) {
       clearInterval(analysisPhrasesInterval);
     }
+    if (dotsAnimationInterval) {
+      clearInterval(dotsAnimationInterval);
+    }
+    scanningAnimation.classList.remove('scanning-active');
 
     scanBox.setAttribute('data-state', 'result');
     scanBoxTitle.textContent = 'The mirror says:';
