@@ -161,7 +161,7 @@ button img {
 
 .gestures-list {
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
   flex-wrap: wrap;
   gap: 24px 16px;
   align-content: center;

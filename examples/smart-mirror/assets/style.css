@@ -48,6 +48,31 @@ body {
   display: none;
 }
 
+#scanning-animation {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  width: 80%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+#scanning-animation.scanning-active {
+  opacity: 1;
+  animation: scan-down-up 3s ease-in-out infinite;
+}
+
+@keyframes scan-down-up {
+  0%,
+  100% {
+    top: 82px;
+  }
+  50% {
+    top: calc(100% - 82px);
+  }
+}
+
 #scanBox {
   display: flex;
   flex-direction: column;

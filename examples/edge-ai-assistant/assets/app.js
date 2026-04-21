@@ -9,10 +9,6 @@ let lastUserPrompt = '';
 let isFirstPrompt = true;
 let thinkingMessageInterval = null;
 
-const firstPromptMessages = [
-  'Loading Model'
-];
-
 const errorBanner = document.getElementById('error-banner');
 const errorMessage = document.getElementById('error-message');
 const chatMessagesContainer = document.getElementById(
@@ -27,7 +23,6 @@ const sendButtonImg = sendButton ? sendButton.querySelector('img') : null;
 const quickActionButtonsContainer = document.getElementById(
   'quick-action-buttons',
 );
-const customPlaceholder = document.querySelector('.custom-placeholder');
 const clearChatButton = document.getElementById('clear-chat-button-header');
 const card1 = document.getElementById('card-1');
 const card2 = document.getElementById('card-2');
@@ -68,13 +63,13 @@ function removeThinkingMessage() {
 
 /**
  * Handles a streamed response chunk from the backend.
- * On the first chunk, clears the thinking message and starts rendering.
+ * On the first chunk, clears the thinking message and starts rendering the response.
+ * Updates the AI response element with parsed markdown content.
  * @param {string} data - The text chunk received from the stream.
  */
 function handleResponse(data) {
   const ai_msg = document.getElementById('active-ai-response');
   if (thinkingMessageElement) {
-    // First chunk of stream
     if (thinkingMessageInterval) {
       clearInterval(thinkingMessageInterval);
       thinkingMessageInterval = null;
@@ -97,17 +92,20 @@ function handleResponse(data) {
   }
 }
 
-/** Handles the end of a streamed response, restoring the UI to idle state. */
+/**
+ * Handles the end of a streamed response.
+ * Removes the thinking message, restores UI to idle state, and updates button states.
+ */
 function handleStreamEnd() {
-  removeThinkingMessage(); // Ensure it's removed if stream ends
+  removeThinkingMessage();
   ai_msg = document.getElementById('active-ai-response');
   if (ai_msg) {
     ai_msg.id = '';
   }
   sendButton.classList.remove('sending-state');
   sendButtonImg.src = 'img/send.svg';
-  updateSendButtonState(); // Update button state after stream ends
-  updateClearChatButtonState(); // Update clear chat button state after stream ends
+  updateSendButtonState();
+  updateClearChatButtonState();
 }
 
 /** Handles the stop_stream command: ends the stream and restores the last user prompt. */
@@ -121,7 +119,6 @@ function handleStopStream() {
   userInput.value = lastUserPrompt;
   autoExpandInput(userInput);
   updateSendButtonState();
-  updatePlaceholderVisibility();
   userInput.focus();
 }
 
@@ -131,12 +128,12 @@ function handleClearChat() {
   emptyChatContainer.style.display = 'flex';
   mainContent.classList.remove('chat-active');
   userInput.value = '';
-  userInput.style.height = '32px';
+  userInput.style.height = '56px';
   quickActionButtonsContainer.style.display = 'none';
   lastUserPrompt = '';
   updateSendButtonState();
   updateClearChatButtonState();
-  updatePlaceholderVisibility();
+
   userInput.focus();
 }
 
@@ -170,12 +167,13 @@ function sendClearChatCommand() {
 
 /**
  * Handles an LLM error event from the backend.
- * @param {{error: string}} data - The error payload.
+ * Displays the error message, removes thinking state, and restores UI.
+ * @param {{error: string}} data - The error payload containing the error message.
  */
 function handleLLMError(data) {
   const message = `LLM error: ${data.error}`;
   showError(message);
-  removeThinkingMessage(); // Ensure it's removed if an error occurs
+  removeThinkingMessage();
   quickActionButtonsContainer.style.display = 'none';
   handleStreamEnd();
 }
@@ -200,16 +198,31 @@ function initSocketIO() {
 }
 
 /**
- * Expands a textarea to fit its content.
+ * Expands or collapses a textarea based on its content.
+ * Maintains minimum height of 56px and maximum height of 200px.
+ * Scrolls to the bottom when content expands beyond the minimum height.
  * @param {HTMLTextAreaElement} field - The textarea element to resize.
  */
 function autoExpandInput(field) {
-  field.style.height = field.scrollHeight ? `${field.scrollHeight}px` : 'auto';
+  field.style.height = '56px';
+
+  if (field.value.trim() === '') {
+    return;
+  }
+
+  const scrollHeight = field.scrollHeight;
+
+  if (scrollHeight > 56) {
+    const newHeight = Math.min(scrollHeight, 200);
+    field.style.height = `${newHeight}px`;
+    field.scrollTop = field.scrollHeight;
+  }
 }
 
 /**
- * Updates the send button's disabled/enabled state based on input content
- * and whether a response is currently being streamed.
+ * Updates the send button's disabled/enabled state.
+ * Button is disabled when input is empty and enabled when the user is typing.
+ * When a response is being streamed, the button acts as a stop button.
  */
 function updateSendButtonState() {
   if (sendButton.classList.contains('sending-state')) {
@@ -240,7 +253,9 @@ function updateClearChatButtonState() {
 
 /**
  * Sends a user message to the backend and updates the chat UI.
- * @param {string} [text] - The message text. If omitted, reads from the input field.
+ * Creates a user message element, displays a loading indicator,
+ * and emits the message via WebSocket for backend processing.
+ * @param {string} [text] - The message text. If omitted, reads from the textarea input.
  */
 function sendMessage(text) {
   hideError();
@@ -256,9 +271,8 @@ function sendMessage(text) {
   sendButtonImg.src = 'img/stop.svg';
 
   userInput.value = '';
-  userInput.style.height = '32px';
+  userInput.style.height = '56px';
   updateSendButtonState();
-  updatePlaceholderVisibility();
 
   quickActionButtonsContainer.style.display = 'flex';
 
@@ -280,29 +294,13 @@ function sendMessage(text) {
   const textContent = document.createElement('div');
   textContent.className = 'text-content';
 
-  const thinkingDots =
-    '<span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span>';
-
-  if (isFirstPrompt) {
-    let messageIndex = 0;
-    textContent.innerHTML =
-      '<span class="circular-loader"></span>' +
-      firstPromptMessages[messageIndex] +
-      thinkingDots;
-    messageIndex++;
-    thinkingMessageInterval = setInterval(() => {
-      if (messageIndex < firstPromptMessages.length) {
-        textContent.innerHTML =
-          '<span class="circular-loader"></span>' +
-          firstPromptMessages[messageIndex] +
-          thinkingDots;
-        messageIndex++;
-      }
-    }, 3000);
-  } else {
-    textContent.innerHTML =
-      '<span class="circular-loader"></span>Thinking' + thinkingDots;
-  }
+  const message = isFirstPrompt ? 'Loading Model' : 'Thinking';
+  let dotsCount = 0;
+  textContent.innerHTML = `<span class="circular-loader"></span>${message}`;
+  thinkingMessageInterval = setInterval(() => {
+    dotsCount = (dotsCount + 1) % 4;
+    textContent.innerHTML = `<span class="circular-loader"></span>${message}${'.'.repeat(dotsCount)}`;
+  }, 600);
 
   thinkingMessageElement.appendChild(textContent);
 
@@ -314,28 +312,17 @@ function sendMessage(text) {
   userInput.focus();
 }
 
-/** Shows or hides the custom textarea placeholder based on input content. */
-function updatePlaceholderVisibility() {
-  if (userInput.value.trim() === '') {
-    customPlaceholder.style.display = 'flex';
-  } else {
-    customPlaceholder.style.display = 'none';
-  }
-}
-
 initSocketIO();
 
 // Initial state
 updateSendButtonState();
 updateClearChatButtonState();
-updatePlaceholderVisibility();
 userInput.focus(); // Set initial focus
 
 // Listen for input changes
 userInput.addEventListener('input', () => {
   autoExpandInput(userInput);
   updateSendButtonState();
-  updatePlaceholderVisibility();
 });
 
 // Listen for Enter key press in the input field
@@ -381,7 +368,6 @@ quickButtons.forEach((button) => {
     userInput.value += button.textContent;
     autoExpandInput(userInput);
     updateSendButtonState();
-    updatePlaceholderVisibility();
     userInput.focus();
   });
 });
