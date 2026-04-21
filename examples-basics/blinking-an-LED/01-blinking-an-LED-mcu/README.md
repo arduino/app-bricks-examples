@@ -35,12 +35,12 @@ Once the App is running, the `LED_BUILTIN` is turn on and off with a duty cycle 
 
 ## Understanding the Code
 
-### 🔧 Sketch (`sketch.ino`)
+### 🔧 Hardware (`sketch.ino`)
 
 The Arduino Sketch script handles the logic of turning on and off the `LED_BUILTIN`.
 
 - **Initialization**: The `setup()` function initialize the pin `LED_BUILTIN` as a Digital Output
-```c++
+```cpp
 void setup() {
   // initialize digital pin LED_BUILTIN as an output.
   pinMode(LED_BUILTIN, OUTPUT);
@@ -49,7 +49,7 @@ void setup() {
 
 - **Execution**: The `loop()` function contains the logic to turn on and off the sketch. Is is continuously and rapidatelly executed.
 
-```c++
+```cpp
 void loop() {
   // put your main code here, to run repeatedly:
   digitalWrite(LED_BUILTIN, HIGH);   // turn the LED_BUILTIN on (HIGH is the voltage level)
@@ -58,3 +58,4 @@ void loop() {
   delay(1000);                       // wait for a second
 }
 ```
+Note that the logic is inverted (LOW for on, HIGH for off), which is typical for built-in LEDs that are wired with the cathode connected to the pin.

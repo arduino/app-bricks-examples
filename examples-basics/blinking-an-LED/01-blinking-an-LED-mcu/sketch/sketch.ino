@@ -13,8 +13,12 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  digitalWrite(LED_BUILTIN, HIGH);   // turn the LED_BUILTIN on (HIGH is the voltage level)
+  digitalWrite(LED_BUILTIN, LOW);    // turn the LED_BUILTIN on (LOW is the voltage level)
   delay(1000);                       // wait for a second
-  digitalWrite(LED_BUILTIN, LOW);    // turn the LED_BUILTIN off by making the voltage LOW
+  digitalWrite(LED_BUILTIN, HIGH);   // turn the LED_BUILTIN off by making the voltage HIGH
   delay(1000);                       // wait for a second
+
+  /* Note that the logic is inverted (LOW for on, HIGH for off), which is typical for 
+     built-in LEDs that are wired with the cathode connected to the pin.
+  */
 }
