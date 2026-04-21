@@ -91,12 +91,12 @@ tasks:
         # Annotate first-party textual sources without touching vendored
         # libraries, third-party fonts, or binary/media assets that would
         # otherwise generate .license sidecars.
-        find examples examples-basics \
-          \( -path '*/python/*' -o -path '*/assets/*' -o -path '*/sketch/*' \) \
+        find examples \
+          \( -path '*/python/*' -o -path '*/assets/*' \) \
           -type f \
           ! -path '*/assets/libs/*' \
           ! -path '*/assets/fonts/*' \
-          \( -name '*.py' -o -name '*.js' -o -name '*.css' -o -name '*.html' -o -name '*.ino' \) \
+          \( -name '*.py' -o -name '*.js' -o -name '*.css' -o -name '*.html' \) \
           -exec "{{.REUSE_VENV_DIR}}"/bin/reuse annotate \
             --skip-unrecognized \
             --merge-copyrights \
