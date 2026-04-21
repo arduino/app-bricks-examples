@@ -5,10 +5,9 @@
 # Example app to blink the built-in LED on the board by calling a function defined in the sketch from Python, 
 # and providing a simple Web UI to control it.
 from arduino.app_utils import *
-from arduino.app_bricks.web_ui import WebUI
+from arduino.app_bricks.web_ui import WebUI # Import the WebUI class to manage the Web UI server
 
-# Define the global state of the LED and set it to off (False)
-led_is_on = False
+led_is_on = False # Define a global variable to keep track of the LED state and set it to off (False)
 
 def get_led_status():
     """Get current LED status for API."""
@@ -27,20 +26,16 @@ def toggle_led_state(client, data):
     # This performs a RPC call and allows the Python code and the Sketch code to communicate.
     Bridge.call("set_led_state", led_is_on)
 
-    # Send updated status to all connected clients
-    ui.send_message('led_status_update', get_led_status())
+    ui.send_message('led_status_update', get_led_status()) # Send updated status to all connected clients
 
 # Callback function to handle the socket message 'get_initial_state' from the Web UI.
 def on_get_initial_state(client, data):
     """Handle client request for initial LED state."""
     ui.send_message('led_status_update', get_led_status(), client)
 
-# Initialize WebUI
-ui = WebUI()
+ui = WebUI()                                               # Initialize WebUI
 
-# Handle socket messages (like in Code Scanner example)
-ui.on_message('toggle_led', toggle_led_state)
-ui.on_message('get_initial_state', on_get_initial_state)
+ui.on_message('toggle_led', toggle_led_state)              # Register callback for 'toggle_led' message to toggle the LED state
+ui.on_message('get_initial_state', on_get_initial_state)   # Register callback for 'get_initial_state' message to send initial LED state
 
-# Start the application
-App.run()
+App.run()                                                  # Start the application
