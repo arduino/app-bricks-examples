@@ -1,6 +1,6 @@
-# Blink LED
+# Blinking an LED from Python
 
-The **Blink** example toggles the onboard LED state every second. It shows basic LED control using Router Bridge communication between Python® and Arduino.
+The **Blinking an LED from Python** example toggles the onboard LED state every second. It shows basic LED control using Router Bridge communication between Python® and Arduino.
 
 ![Blink App](assets/docs_assets/blink-banner.png)
 
