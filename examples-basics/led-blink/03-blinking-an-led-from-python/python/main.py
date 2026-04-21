@@ -6,15 +6,14 @@
 from arduino.app_utils import *
 import time
 
-# Define the global state of the LED and set it to off (False)
-led_state = False
+led_state = False # Define a global variable to keep track of the LED state and set it to off (False)
 
-# Define the loop function to toggle the LED state every second by calling the "set_led_state" function defined in the sketch
+# Define the loop function to toggle the LED state every second by calling the "set_led_state" function defined in the sketch.
 # The "set_led_state" function is provided by the sketch and can be called from Python using the Bridge.call method.
-# The loop function will be called repeatedly by the App.run() method, allowing us to continuously toggle the LED state every second.
+# The loop function will be called repeatedly by the App.run() method.
 def loop():
-    global led_state                        # Use the global variable, defined at line 10, to keep track of the LED state
-    time.sleep(1)
+    global led_state                        # Use the global variable, defined at line 9, to keep track of the LED state
+    time.sleep(1)                           # Wait for 1 second   
     led_state = not led_state               # Toggle the LED state (True to False, or False to True)
     Bridge.call("set_led_state", led_state) # Call the "set_led_state" function defined in the sketch, passing the current LED state (True or False) to control the LED
 
