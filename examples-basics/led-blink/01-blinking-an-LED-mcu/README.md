@@ -1,8 +1,10 @@
 # Blinking an LED
 
-The **Blinking an LED** example demonstrates how to interact with a surface-mounted LEDs of the Arduino UNO Q from sketch.
+
 
 ## Description
+
+The **Blinking an LED** example demonstrates how to interact with a surface-mounted LEDs of the Arduino UNO Q from sketch.
 
 This App turns on and off `LED_BUILTIN` which is controllable by the MCU.
 The logic is implemented in the Arduino sketch and the interaction with the LED is performed by the microcontroller unit.
