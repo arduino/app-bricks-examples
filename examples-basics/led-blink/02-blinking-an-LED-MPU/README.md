@@ -52,3 +52,6 @@ def loop():
     Leds.set_led1_color(0,0,0)
     time.sleep(1)
 ```
+
+## Related Inspirational Examples
+- Color your LEDs 
