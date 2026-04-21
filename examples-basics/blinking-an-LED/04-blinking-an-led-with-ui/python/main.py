@@ -2,10 +2,12 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+# Example app to blink the built-in LED on the board by calling a function defined in the sketch from Python, 
+# and providing a simple Web UI to control it.
 from arduino.app_utils import *
 from arduino.app_bricks.web_ui import WebUI
 
-# Global state
+# Define the global state of the LED and set it to off (False)
 led_is_on = False
 
 def get_led_status():
@@ -15,6 +17,7 @@ def get_led_status():
         "status_text": "LED IS ON" if led_is_on else "LED IS OFF"
     }
 
+# Callback function to toggle the LED state when receiving the socket message 'toggle_led' from the Web UI
 def toggle_led_state(client, data):
     """Toggle the LED state when receiving socket message."""
     global led_is_on
@@ -27,6 +30,7 @@ def toggle_led_state(client, data):
     # Send updated status to all connected clients
     ui.send_message('led_status_update', get_led_status())
 
+# Callback function to handle the socket message 'get_initial_state' from the Web UI.
 def on_get_initial_state(client, data):
     """Handle client request for initial LED state."""
     ui.send_message('led_status_update', get_led_status(), client)
