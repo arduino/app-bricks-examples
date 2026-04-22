@@ -103,5 +103,5 @@ The Arduino code registers the function and prints the incoming argument.
 - **Empty `loop()`:** The main loop remains empty since the function runs whenever Python® triggers a Bridge call.
 
 ## Related Inspirational Examples
-- `Blink`
 - `Cloud blink`
+- `Led Matrix Painter`
