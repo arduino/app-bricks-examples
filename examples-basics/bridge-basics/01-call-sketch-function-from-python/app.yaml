@@ -1,0 +1,3 @@
+name: Call a sketch function from Python
+icon: 📞
+description: Python calls a function exposed by the sketch which logs over Serial.
