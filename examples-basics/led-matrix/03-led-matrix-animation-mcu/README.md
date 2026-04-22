@@ -61,4 +61,9 @@ void loop() {
 
 - Led Matrix Painter
 
-  **NOTE:** Try to create and export animations with `Led Matrix Painter` inpirational example. You can play exported animations using a copy of this app. Just make sure to import the right header file.
+  **NOTE:** Try to create and export animations with `Led Matrix Painter` inpirational example. You can play exported animations using a copy of this app. 
+  Just make sure to:
+  - copy and paste the exported header file to the `sketch/` folder of this app
+  - remove `sketch/frame.h` file
+  - include new file in the sketch (e.g. `#include <Animation.h>`) and remove the old one (`#include <frame.h>`)
+  - make sure the name of the animation declared in the new header file is correctly called in the sketch.

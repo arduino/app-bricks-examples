@@ -32,7 +32,7 @@ Once the application is running, the Python script creates an X-shaped frame usi
 
 ## Understanding the Code
 
-### 🐍 Software (`main.py`)
+### 🐍 Backend (`main.py`)
 
 The Python script creates a frame and sends it to the Arduino sketch through the Bridge.
 
