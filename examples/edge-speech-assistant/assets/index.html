@@ -27,19 +27,48 @@ SPDX-License-Identifier: MPL-2.0
             </div>
         </div>
         <main class="main-content">
+            <p class="editor-label">Write or paste your text here</p>
             <div class="editor-area">
                 <textarea id="text-input" placeholder="Type or paste the text you want to hear..."></textarea>
             </div>
             <div class="controls">
-                <span id="timer" class="timer">0:00</span>
-                <button id="play-stop-button" disabled>
-                    <img id="play-stop-icon" src="img/play.svg" alt="Play">
-                    <span id="play-stop-label">Play</span>
-                </button>
+                <!-- <div class="controls-left">
+                    <div class="selector-wrapper" id="language-wrapper">
+                        <button class="selector-badge" id="language-button" type="button">
+                            <img src="img/english_flag.svg" alt="English flag" id="language-flag">
+                            <span id="language-label">English</span>
+                        </button>
+                        <ul class="selector-dropdown" id="language-dropdown">
+                            <li class="selector-option selected" data-value="en" data-flag="img/english_flag.svg">English</li>
+                            <li class="selector-option" data-value="es" data-flag="">Spanish</li>
+                            <li class="selector-option" data-value="zh" data-flag="">Chinese (ZH)</li>
+                        </ul>
+                    </div>
+                    <div class="selector-wrapper" id="speed-wrapper">
+                        <button class="selector-badge" id="speed-button" type="button">
+                            <span>Speed: <span id="speed-label">1.2x</span></span>
+                        </button>
+                        <ul class="selector-dropdown" id="speed-dropdown">
+                            <li class="selector-option" data-value="0.5">0.5x</li>
+                            <li class="selector-option" data-value="0.75">0.75x</li>
+                            <li class="selector-option" data-value="1">1x</li>
+                            <li class="selector-option selected" data-value="1.2">1.2x</li>
+                            <li class="selector-option" data-value="1.5">1.5x</li>
+                            <li class="selector-option" data-value="2">2x</li>
+                        </ul>
+                    </div>
+                </div> -->
+                <div class="controls-right">
+                    <span id="timer" class="timer">0:00</span>
+                    <button id="play-stop-button" disabled>
+                        <img id="play-stop-icon" src="img/play.svg" alt="Play">
+                    </button>
+                </div>
             </div>
         </main>
     </div>
     <script src="libs/socket.io.min.js"></script>
+    <script src="libs/arduino.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
