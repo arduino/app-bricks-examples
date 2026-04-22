@@ -102,5 +102,5 @@ The Arduino code unpacks and logs the received list.
 - **`Monitor.println(v)`:** Prints every value of the incoming list.
 
 ## Related Inspirational Examples
-- `examples/led-matrix-painter`
-- `examples/color-your-leds`
+- `Led matrix painter`
+- `Color your leds`

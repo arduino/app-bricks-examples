@@ -92,5 +92,5 @@ The Arduino code drives the periodic notification.
 - **`Bridge.notify("on_tick", counter)`:** Fire-and-forget call that delivers the value to the Python® callback without waiting for a return value.
 
 ## Related Inspirational Examples
-- `examples/real-time-accelerometer`
-- `examples/home-climate-monitoring-and-storage`
+- `Real time accelerometer`
+- `Home climate monitoring and storage`
