@@ -121,3 +121,6 @@ The Arduino code handles LED hardware control and sets up Bridge communication.
 - **`set_led_state(bool state)`:** Controls the LED hardware by setting the pin HIGH or LOW based on the received state parameter.
 
 - **Empty `loop()`:** The main loop remains empty since all LED control is event-driven through Bridge function calls.
+
+## Related Inspirational Examples
+- Color your LEDs
