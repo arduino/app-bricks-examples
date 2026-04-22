@@ -122,3 +122,5 @@ The Arduino code handles LED hardware control and sets up Bridge communication.
 
 - **Empty `loop()`:** The main loop remains empty since all LED control is event-driven through Bridge function calls.
 
+## Related Inspirational Examples
+- Color your LEDs 
