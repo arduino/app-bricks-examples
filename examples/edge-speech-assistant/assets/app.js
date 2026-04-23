@@ -5,72 +5,45 @@
 const ui = new WebUI();
 
 const textInput = document.getElementById('text-input');
+const textOverlay = document.getElementById('text-overlay');
 const playStopButton = document.getElementById('play-stop-button');
 const playStopIcon = document.getElementById('play-stop-icon');
 const resetButton = document.getElementById('reset-button');
 const timer = document.getElementById('timer');
 
-// Language selector
-const languageButton = document.getElementById('language-button');
-const languageDropdown = document.getElementById('language-dropdown');
-const languageLabel = document.getElementById('language-label');
-const languageFlag = document.getElementById('language-flag');
-
-// Speed selector
-const speedButton = document.getElementById('speed-button');
-const speedDropdown = document.getElementById('speed-dropdown');
-const speedLabel = document.getElementById('speed-label');
-
-let selectedLanguage = 'en';
-let selectedSpeed = 1.2;
-
-function closeAllDropdowns() {
-    languageDropdown.classList.remove('open');
-    speedDropdown.classList.remove('open');
-}
-
-languageButton.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const isOpen = languageDropdown.classList.contains('open');
-    closeAllDropdowns();
-    if (!isOpen) languageDropdown.classList.add('open');
-});
-
-speedButton.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const isOpen = speedDropdown.classList.contains('open');
-    closeAllDropdowns();
-    if (!isOpen) speedDropdown.classList.add('open');
-});
-
-languageDropdown.addEventListener('click', (e) => {
-    const option = e.target.closest('.selector-option');
-    if (!option) return;
-    languageDropdown.querySelectorAll('.selector-option').forEach(o => o.classList.remove('selected'));
-    option.classList.add('selected');
-    selectedLanguage = option.dataset.value;
-    languageLabel.textContent = option.textContent;
-    const flag = option.dataset.flag;
-    languageFlag.src = flag || '';
-    languageFlag.style.display = flag ? '' : 'none';
-    closeAllDropdowns();
-});
-
-speedDropdown.addEventListener('click', (e) => {
-    const option = e.target.closest('.selector-option');
-    if (!option) return;
-    speedDropdown.querySelectorAll('.selector-option').forEach(o => o.classList.remove('selected'));
-    option.classList.add('selected');
-    selectedSpeed = parseFloat(option.dataset.value);
-    speedLabel.textContent = option.textContent;
-    closeAllDropdowns();
-});
-
-document.addEventListener('click', closeAllDropdowns);
-
 let isSpeaking = false;
 let timerInterval = null;
 let elapsedSeconds = 0;
+let currentText = '';
+
+function escapeHtml(str) {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function showOverlay(text) {
+    currentText = text;
+    textOverlay.innerHTML = escapeHtml(text);
+    textOverlay.hidden = false;
+    textInput.style.visibility = 'hidden';
+}
+
+function highlightRange(start, end) {
+    const before = escapeHtml(currentText.slice(0, start));
+    const chunk = escapeHtml(currentText.slice(start, end));
+    const after = escapeHtml(currentText.slice(end));
+    textOverlay.innerHTML = `${before}<span class="highlight">${chunk}</span>${after}`;
+    const highlighted = textOverlay.querySelector('.highlight');
+    if (highlighted) {
+        highlighted.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+}
+
+function hideOverlay() {
+    textOverlay.hidden = true;
+    textOverlay.innerHTML = '';
+    textInput.style.visibility = '';
+    currentText = '';
+}
 
 function formatTime(seconds) {
     const m = Math.floor(seconds / 60);
@@ -136,10 +109,14 @@ textInput.addEventListener('input', updateControls);
 ui.on_message('speaking', (data) => {
     if (data.status === 'started') {
         isSpeaking = true;
+        showOverlay(textInput.value.trim());
         startTimer();
         updateControls();
+    } else if (data.status === 'progress') {
+        highlightRange(data.start, data.end);
     } else if (data.status === 'finished') {
         isSpeaking = false;
+        hideOverlay();
         stopTimer();
         updateControls();
     }

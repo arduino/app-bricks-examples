@@ -23,7 +23,8 @@ def speak(session_id, data):
         return
 
     stop_event.clear()
-    text = text.strip()
+    original_text = text.strip()
+    text = original_text
     chunks = []
     while len(text.encode("utf-8")) > TTS_MAX_BYTES:
         window = text.encode("utf-8")[:TTS_MAX_BYTES].decode("utf-8", errors="ignore")
@@ -35,10 +36,18 @@ def speak(session_id, data):
         chunks.append(text)
 
     ui.send_message("speaking", {"status": "started"})
+    search_from = 0
     for chunk in chunks:
         if stop_event.is_set():
             break
         if chunk.strip():
+            idx = original_text.find(chunk, search_from)
+            if idx != -1:
+                ui.send_message(
+                    "speaking",
+                    {"status": "progress", "start": idx, "end": idx + len(chunk)},
+                )
+                search_from = idx + len(chunk)
             tts.speak(chunk)
     ui.send_message("speaking", {"status": "finished"})
 

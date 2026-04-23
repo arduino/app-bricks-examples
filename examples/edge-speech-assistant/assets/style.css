@@ -127,6 +127,7 @@ button img {
     flex: 1;
     display: flex;
     min-height: 0;
+    position: relative;
 }
 
 #text-input {
@@ -152,109 +153,40 @@ button img {
     color: #95A0A0;
 }
 
+/* Text overlay for highlighting */
+.text-overlay {
+    position: absolute;
+    inset: 0;
+    padding: 0;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: #5D6A6B;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-y: auto;
+}
+
+.text-overlay .highlight {
+    background: rgba(0, 129, 132, 0.20);
+    border-radius: 3px;
+}
+
 /* Controls bar */
 .controls {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     gap: 16px;
     padding-top: 24px;
     border-top: 1px solid #C9D2D2;
-}
-
-.controls-left {
-    display: flex;
-    align-items: center;
-    gap: 16px;
 }
 
 .controls-right {
     display: flex;
     align-items: center;
     gap: 16px;
-}
-
-/* Selector badge + dropdown */
-.selector-wrapper {
-    position: relative;
-}
-
-.selector-badge {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: 1px solid var(--border-default, #C9D2D2);
-    background: var(--surface-bg-baseline, #FFF);
-    font-size: 12px;
-    font-weight: 600;
-    color: #2C353A;
-    cursor: pointer;
-    white-space: nowrap;
-}
-
-.selector-badge:hover {
-    background: #f0f4f4;
-}
-
-.selector-badge img {
-    width: 16px;
-    height: 16px;
-    filter: none;
-}
-
-.selector-dropdown {
-    display: none;
-    position: absolute;
-    bottom: calc(100% + 6px);
-    left: 0;
-    min-width: 160px;
-    background: #FFF;
-    border: 1px solid var(--border-default, #C9D2D2);
-    border-radius: 8px;
-    list-style: none;
-    padding: 4px 0;
-    z-index: 100;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    white-space: nowrap;
-}
-
-.selector-dropdown.open {
-    display: block;
-}
-
-.selector-option {
-    padding: 8px 16px;
-    font-size: 12px;
-    font-weight: 400;
-    color: #2C353A;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-}
-
-.selector-option:hover {
-    background: #ECF1F1;
-}
-
-.selector-option.selected {
-    font-weight: 700;
-    color: #008184;
-}
-
-.selector-option.selected::after {
-    content: '';
-    display: inline-block;
-    width: 14px;
-    height: 14px;
-    background-image: url('img/check.svg');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    flex-shrink: 0;
 }
 
 #play-stop-button {
