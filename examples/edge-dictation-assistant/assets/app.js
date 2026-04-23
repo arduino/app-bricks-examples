@@ -2,116 +2,140 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-const socket = io(`http://${window.location.host}`);
+const ui = new WebUI();
+ui.on_message('transcription', onTranscription);
 
-const transcriptionText = document.getElementById('transcription-text');
-const partialText = document.getElementById('partial-text');
-const placeholderText = document.getElementById('placeholder-text');
-const micButton = document.getElementById('mic-button');
-const newRecordingButton = document.getElementById('new-recording-button');
-const copyButton = document.getElementById('copy-button');
-const statusLabel = document.getElementById('status-label');
+const content = document.querySelector('.content');
+const animatedBars = document.querySelector('#animated-bars');
+const micButton = document.querySelector('#mic-button');
+const title = document.querySelector('#title');
+const partialText = document.querySelector('#partial-text');
+const fullText = document.querySelector('#full-text');
+const dictationEnded = document.querySelector('#dictation-ended');
+const copyButton = document.querySelector('#copy-button');
+const transcriptionArea = document.querySelector('#transcription-area');
+
+transcriptionArea.addEventListener('scroll', updateGradientOpacity);
 
 const SILENCE_TIMEOUT_MS = 20000;
+let isRecording = false,
+  resultText = '',
+  silenceTimer = null;
 
-let isRecording = false;
-let fullText = '';
-let silenceTimer = null;
-
+/**
+ * Resets the silence timer and sets a new timeout.
+ * If silence is detected for SILENCE_TIMEOUT_MS, automatically stops recording.
+ */
 function resetSilenceTimer() {
-    clearTimeout(silenceTimer);
-    silenceTimer = setTimeout(() => {
-        if (isRecording) {
-            pauseRecording();
-        }
-    }, SILENCE_TIMEOUT_MS);
+  clearTimeout(silenceTimer);
+  silenceTimer = setTimeout(() => {
+    if (isRecording) {
+      toggleRecording();
+      content.setAttribute('data-state', 'ended');
+    }
+  }, SILENCE_TIMEOUT_MS);
 }
 
-function startRecording() {
+/**
+ * Toggles recording state: starts dictation or stops and processes result.
+ * @returns {void}
+ */
+function toggleRecording() {
+  const hasText = resultText.length > 0;
+
+  // Start recording
+  if (!isRecording) {
     isRecording = true;
-    socket.emit('start_dictation', {});
-    resetSilenceTimer();
-    updateUI();
-}
+    ui.send_message('start_dictation');
 
-function pauseRecording() {
+    title.textContent = 'Listening...';
+    micButton.querySelector('img').src = './img/microphone-pause.svg';
+    animatedBars.classList.remove('paused');
+
+    resetSilenceTimer();
+  } else {
     isRecording = false;
     clearTimeout(silenceTimer);
-    socket.emit('stop_dictation', {});
+    ui.send_message('stop_dictation');
+
+    title.textContent = 'Start your Dictation';
+    micButton.querySelector('img').src = './img/microphone.svg';
+    animatedBars.classList.add('paused');
+
     partialText.textContent = '';
-    updateUI();
+  }
 }
 
-function updateUI() {
-    const hasText = fullText.length > 0;
-    placeholderText.style.display = (hasText || isRecording) ? 'none' : 'block';
-
-    if (isRecording) {
-        micButton.classList.add('recording');
-        statusLabel.textContent = 'Listening...';
-        statusLabel.classList.add('recording');
-        newRecordingButton.disabled = true;
-        newRecordingButton.classList.add('disabled');
-        copyButton.disabled = true;
-        copyButton.classList.add('disabled');
-    } else {
-        micButton.classList.remove('recording');
-        statusLabel.textContent = hasText ? 'Paused' : 'Ready';
-        statusLabel.classList.remove('recording');
-        newRecordingButton.disabled = !hasText;
-        newRecordingButton.classList.toggle('disabled', !hasText);
-        copyButton.disabled = !hasText;
-        copyButton.classList.toggle('disabled', !hasText);
-    }
+/**
+ * Updates the opacity of the gradient overlay based on scroll position.
+ * Shows gradient when scrolled down, hides when at the top.
+ */
+function updateGradientOpacity() {
+  transcriptionArea.style.setProperty(
+    '--gradient-opacity',
+    transcriptionArea.scrollTop > 0 ? '1' : '0',
+  );
 }
 
-micButton.addEventListener('click', () => {
-    if (isRecording) {
-        pauseRecording();
-    } else {
-        startRecording();
+/**
+ * Starts a new recording session.
+ * Resets the UI state and clears all previous transcription data.
+ */
+function startNewRecording() {
+  isRecording = false;
+  ui.send_message('new_recording');
+  resultText = '';
+  content.setAttribute('data-has-text', false);
+  content.removeAttribute('data-state');
+
+  partialText.textContent = '';
+  fullText.textContent = '';
+
+  toggleRecording();
+}
+
+/**
+ * Copies the transcription result to clipboard.
+ * Shows a confirmation icon briefly before reverting to the copy icon.
+ */
+function copyResult() {
+  if (!resultText) {
+    return;
+  }
+
+  navigator.clipboard.writeText(resultText).then(() => {
+    const img = copyButton.querySelector('img');
+    img.src = './img/copied.svg';
+
+    setTimeout(() => {
+      img.src = './img/copy.svg';
+    }, 1500);
+  });
+}
+
+/**
+ * Handles incoming transcription data from the backend.
+ * Updates partial and full text in the UI and auto-scrolls to the bottom.
+ * @param {{type: string, text: string}} data - Transcription data with type ('partial_text' or 'full_text') and text content.
+ */
+function onTranscription(data) {
+  content.setAttribute('data-has-text', data.text.length > 0);
+
+  if (data.type === 'partial_text') {
+    partialText.textContent = resultText ? ` ${data.text}` : data.text;
+  } else if (data.type === 'full_text') {
+    const trimmedText = data.text.trim();
+    if (trimmedText) {
+      resultText = resultText ? `${resultText} ${trimmedText}` : trimmedText;
+      fullText.textContent = resultText;
     }
-});
-
-newRecordingButton.addEventListener('click', () => {
-    if (isRecording) return;
-    fullText = '';
-    transcriptionText.textContent = '';
     partialText.textContent = '';
-    socket.emit('new_recording', {});
-    updateUI();
-});
+  }
 
-copyButton.addEventListener('click', () => {
-    if (!fullText) return;
-    navigator.clipboard.writeText(fullText).then(() => {
-        const originalLabel = copyButton.querySelector('img').nextSibling;
-        const span = copyButton.lastChild;
-        span.textContent = ' Copied!';
-        setTimeout(() => { span.textContent = ' Copy text'; }, 1500);
-    });
-});
+  // Auto-scroll to bottom
+  if (transcriptionArea) {
+    transcriptionArea.scrollTop = transcriptionArea.scrollHeight;
+  }
 
-socket.on('transcription', (data) => {
-    if (data.type === 'partial_text') {
-        partialText.textContent = data.text;
-        resetSilenceTimer();
-    } else if (data.type === 'full_text') {
-        if (data.text.trim()) {
-            fullText += (fullText ? ' ' : '') + data.text.trim();
-            transcriptionText.textContent = fullText;
-        }
-        partialText.textContent = '';
-        resetSilenceTimer();
-    }
-    placeholderText.style.display = 'none';
-});
-
-socket.on('recording_reset', () => {
-    fullText = '';
-    transcriptionText.textContent = '';
-    partialText.textContent = '';
-    updateUI();
-});
-
-updateUI();
+  resetSilenceTimer();
+}
