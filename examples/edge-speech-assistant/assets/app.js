@@ -2,14 +2,71 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-const socket = io(`http://${window.location.host}`);
+const ui = new WebUI();
 
 const textInput = document.getElementById('text-input');
 const playStopButton = document.getElementById('play-stop-button');
 const playStopIcon = document.getElementById('play-stop-icon');
-const playStopLabel = document.getElementById('play-stop-label');
 const resetButton = document.getElementById('reset-button');
 const timer = document.getElementById('timer');
+
+// Language selector
+const languageButton = document.getElementById('language-button');
+const languageDropdown = document.getElementById('language-dropdown');
+const languageLabel = document.getElementById('language-label');
+const languageFlag = document.getElementById('language-flag');
+
+// Speed selector
+const speedButton = document.getElementById('speed-button');
+const speedDropdown = document.getElementById('speed-dropdown');
+const speedLabel = document.getElementById('speed-label');
+
+let selectedLanguage = 'en';
+let selectedSpeed = 1.2;
+
+function closeAllDropdowns() {
+    languageDropdown.classList.remove('open');
+    speedDropdown.classList.remove('open');
+}
+
+languageButton.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = languageDropdown.classList.contains('open');
+    closeAllDropdowns();
+    if (!isOpen) languageDropdown.classList.add('open');
+});
+
+speedButton.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = speedDropdown.classList.contains('open');
+    closeAllDropdowns();
+    if (!isOpen) speedDropdown.classList.add('open');
+});
+
+languageDropdown.addEventListener('click', (e) => {
+    const option = e.target.closest('.selector-option');
+    if (!option) return;
+    languageDropdown.querySelectorAll('.selector-option').forEach(o => o.classList.remove('selected'));
+    option.classList.add('selected');
+    selectedLanguage = option.dataset.value;
+    languageLabel.textContent = option.textContent;
+    const flag = option.dataset.flag;
+    languageFlag.src = flag || '';
+    languageFlag.style.display = flag ? '' : 'none';
+    closeAllDropdowns();
+});
+
+speedDropdown.addEventListener('click', (e) => {
+    const option = e.target.closest('.selector-option');
+    if (!option) return;
+    speedDropdown.querySelectorAll('.selector-option').forEach(o => o.classList.remove('selected'));
+    option.classList.add('selected');
+    selectedSpeed = parseFloat(option.dataset.value);
+    speedLabel.textContent = option.textContent;
+    closeAllDropdowns();
+});
+
+document.addEventListener('click', closeAllDropdowns);
 
 let isSpeaking = false;
 let timerInterval = null;
@@ -40,7 +97,6 @@ function updateControls() {
 
     if (isSpeaking) {
         playStopIcon.src = 'img/stop.svg';
-        playStopLabel.textContent = 'Stop';
         playStopButton.classList.add('active');
         playStopButton.disabled = false;
         textInput.disabled = true;
@@ -48,7 +104,6 @@ function updateControls() {
         resetButton.classList.add('disabled');
     } else {
         playStopIcon.src = 'img/play.svg';
-        playStopLabel.textContent = 'Play';
         playStopButton.classList.remove('active');
         playStopButton.disabled = !hasText;
         textInput.disabled = false;
@@ -59,11 +114,11 @@ function updateControls() {
 
 playStopButton.addEventListener('click', () => {
     if (isSpeaking) {
-        socket.emit('stop', {});
+        ui.send_message('stop');
     } else {
         const text = textInput.value.trim();
         if (text) {
-            socket.emit('speak', { text });
+            ui.send_message('speak', { text });
         }
     }
 });
@@ -78,7 +133,7 @@ resetButton.addEventListener('click', () => {
 
 textInput.addEventListener('input', updateControls);
 
-socket.on('speaking', (data) => {
+ui.on_message('speaking', (data) => {
     if (data.status === 'started') {
         isSpeaking = true;
         startTimer();
