@@ -26,8 +26,6 @@ def stop_dictation(session_id, data):
 
 def new_recording(session_id, data):
     stop_dictation(session_id, data)
-    ui.send_message("recording_reset", {})
-
 
 ui.on_message("start_dictation", start_dictation)
 ui.on_message("stop_dictation", stop_dictation)
