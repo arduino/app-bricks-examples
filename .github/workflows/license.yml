@@ -129,30 +129,30 @@ jobs:
 
           if [ -s "$actual_errors_file" ]; then
             echo "::error::Dependency license cache is out of date. Run 'task license:deps' locally, then review the changes, commit, and push the updated files."
-            echo "The following dependency license issues require review:" >> $GITHUB_STEP_SUMMARY
+            echo "❌ The following dependency license issues require review:" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             awk '
               BEGIN { RS=""; ORS="\n\n" }
               NF { print "```text\n" $0 "\n```" }
             ' "$actual_errors_file" >> $GITHUB_STEP_SUMMARY
           else
-            echo "No blocking dependency license issues found." >> $GITHUB_STEP_SUMMARY
+            echo "✅ No blocking dependency license issues found." >> $GITHUB_STEP_SUMMARY
           fi
 
           if [ -s "$install_warnings_file" ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "#### Errors installing dependencies" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "Warning: these warnings are non-blocking, but they can make the license scan less complete for the affected environment." >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ These warnings are non-blocking, but they can make the license scan less complete for the affected environment." >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             cat "$install_warnings_file" >> $GITHUB_STEP_SUMMARY
           fi
 
           if [ -s "$updated_records_file" ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "#### Outdated dependency versions" >> $GITHUB_STEP_SUMMARY
+            echo "#### Updated dependency records" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "Warning: these records changed during \`licensed cache\`. They are non-blocking here, but usually mean the branch did not yet contain the latest cached dependency metadata." >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ These records changed during \`licensed cache\`. This can reflect dependency version updates, license text changes, or other cached metadata changes. They are non-blocking here, but usually mean the branch did not yet contain the latest cached dependency metadata. Please consider to run \`task license:deps\` locally, then review the changes, commit, and push the updated files." >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             cat "$updated_records_file" >> $GITHUB_STEP_SUMMARY
           fi
