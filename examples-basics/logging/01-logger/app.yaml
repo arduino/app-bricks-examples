@@ -1,0 +1,3 @@
+name: Logger
+icon: 📃
+description: Simple example to log messages with different levels (ERROR, WARNING, INFO, DEBUG).
