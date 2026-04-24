@@ -126,9 +126,14 @@ tasks:
       Update license headers and validate REUSE compliance.
       Uses a dedicated virtualenv for REUSE and cleans it up afterwards.
     cmds:
+      - task: license:init-reuse-venv
       - |
+        cleanup() {
+          rm -rf "{{.REUSE_VENV_DIR}}"
+        }
+        trap cleanup EXIT
+
         status=0
-        task license:init-reuse-venv || status=$?
 
         if [ "$status" -eq 0 ]; then
           # Annotate first-party textual sources without touching vendored
@@ -159,7 +164,6 @@ tasks:
           "{{.REUSE_VENV_DIR}}"/bin/reuse lint || status=$?
         fi
 
-        rm -rf "{{.REUSE_VENV_DIR}}"
         exit "$status"
 
   license:deps:
@@ -171,9 +175,14 @@ tasks:
       In CI, the task installs licensed v{{.LICENSED_VERSION}} with gem after Ruby has been set up by the workflow.
     cmds:
       - task: install:licensed
+      - task: license:init-licensed-venv
       - |
+        cleanup() {
+          rm -rf "{{.LICENSE_VENV_DIR}}"
+        }
+        trap cleanup EXIT
+
         status=0
-        task license:init-licensed-venv || status=$?
 
         if [ "$status" -eq 0 ]; then
           licensed cache || status=$?
@@ -183,7 +192,6 @@ tasks:
           licensed status || status=$?
         fi
 
-        rm -rf "{{.LICENSE_VENV_DIR}}"
         exit "$status"
 
   license:
