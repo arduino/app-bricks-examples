@@ -142,4 +142,5 @@ The Python® component handles camera initialization, image capture, compression
 - **`camera.stop()`:** Stops the camera and releases hardware resources. 
 
 ## Related Inspirational Examples
-- Image Classification
+- Detect Objects on Camera
+- Person classifier on camera
