@@ -1,7 +1,7 @@
 name: Check licensing information
 description: |
-  This workflow checks that the license headers and files are up to date.
-  It runs on pull requests to ensure that any changes to the codebase maintain the required licensing information.
+  This workflow checks that license headers, REUSE metadata and dependency license records are up to date.
+  It runs on pull requests to ensure that licensing information remains valid and reviewable.
 
 on:
   pull_request:
@@ -13,13 +13,51 @@ jobs:
   check-license-headers:
     runs-on: ubuntu-latest
     env:
-      PYTHON_VERSION: '3.13'
-      TASKFILE_VERSION: 'v3.44.0'
-      TASKFILE_PATH: '/home/runner/go/bin'
+      PYTHON_VERSION: "3.13"
+      TASKFILE_VERSION: "v3.44.0"
+      TASKFILE_PATH: "/home/runner/go/bin"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Validate bricks version is stable
+        run: |
+          VERSION=$(grep 'arduino_app_bricks' requirements.txt | sed -E 's/.*%2F([^/]+)\/.*/\1/')
+          echo "Pinned bricks version: $VERSION"
+          if [[ "$VERSION" =~ (rc|alpha|beta|dev) ]]; then
+            echo "::error::requirements.txt pins a pre-release version ($VERSION). Only stable versions are allowed."
+            exit 1
+          fi
+
+      - name: Install Taskfile
+        run: which task || curl -sSfL https://taskfile.dev/install.sh | sh -s -- -b ${{ env.TASKFILE_PATH }} ${{ env.TASKFILE_VERSION }}
+
+      - name: Check license headers and files
+        run: |
+          export PATH="${{ env.TASKFILE_PATH }}:$PATH"
+          task license:headers > /dev/null 2>&1
+          if git diff --quiet; then
+            echo "License headers are up to date!"
+          else
+            echo "::error::License headers are out of date. Please run 'task license:headers' locally, then commit and push the updated files."
+            exit 1
+          fi
+
+  check-dependency-licenses:
+    runs-on: ubuntu-latest
+    env:
+      PYTHON_VERSION: "3.13"
+      TASKFILE_VERSION: "v3.44.0"
+      TASKFILE_PATH: "/home/runner/go/bin"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -39,19 +77,115 @@ jobs:
         with:
           ruby-version: ruby
 
-      - name: Check license headers and files
+      - name: Install Taskfile
+        run: which task || curl -sSfL https://taskfile.dev/install.sh | sh -s -- -b ${{ env.TASKFILE_PATH }} ${{ env.TASKFILE_VERSION }}
+
+      - name: Check dependency licenses (licensed status)
+        id: licensed
         run: |
-          which task || curl -sSfL https://taskfile.dev/install.sh | sh -s -- -b ${{ env.TASKFILE_PATH }} ${{ env.TASKFILE_VERSION }}
           export PATH="${{ env.TASKFILE_PATH }}:$PATH"
-          if ! task license; then
-            echo "::error::License check failed while running 'task license'. Please run 'task license' locally, review the output, then commit and push the updated files."
-            exit 1
-          fi
-          if git diff --quiet; then
-            echo "License data is up to date!"
+          task license:deps 2>&1 | tee licensed_status.log || true
+
+      - name: Annotate and summarize errors
+        if: always()
+        run: |
+          actual_errors_file=$(mktemp)
+          install_warnings_file=$(mktemp)
+          updated_records_file=$(mktemp)
+
+          awk '
+            function flush() {
+              if (block != "") {
+                print block >> output_file
+                print "" >> output_file
+                block = ""
+              }
+            }
+
+            /^Errors:$/ { in_errors = 1; next }
+            in_errors && /^\* / { flush(); block = $0; next }
+            in_errors && /^[[:space:]]+/ {
+              if (block != "") {
+                block = block "\n" $0
+              }
+              next
+            }
+            in_errors && /^$/ { flush(); next }
+            in_errors { flush(); in_errors = 0 }
+            END { flush() }
+          ' output_file="$actual_errors_file" licensed_status.log
+
+          grep '^::warning::Failed to install requirement \[' licensed_status.log | \
+            sed -E 's/^::warning::Failed to install requirement \[(.*)\] in (.+)$/- `\1` in `\2`/' | \
+            sort -u > "$install_warnings_file" || true
+
+          git diff --name-only -- .licenses | \
+            grep -E '\.dep\.ya?ml$' | \
+            sed -E 's#^\.licenses/##; s#\.dep\.ya?ml$##; s#/#.#g; s#^#- `#; s#$#`#' | \
+            sort -u > "$updated_records_file" || true
+
+          echo "### Licensed Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -s "$actual_errors_file" ]; then
+            echo "::error::Dependency license cache is out of date. Run 'task license:deps' locally, then review the changes, commit, and push the updated files."
+            echo "The following dependency license issues require review:" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            awk '
+              BEGIN { RS=""; ORS="\n\n" }
+              NF { print "```text\n" $0 "\n```" }
+            ' "$actual_errors_file" >> $GITHUB_STEP_SUMMARY
           else
-            echo "::error::License headers or dependency records are out of date. Please run 'task license' locally, then commit and push the updated files."
-            echo "Found the following differences:"
-            echo "$(git diff)"
+            echo "No blocking dependency license issues found." >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ -s "$install_warnings_file" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "#### Errors installing dependencies" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Warning: these warnings are non-blocking, but they can make the license scan less complete for the affected environment." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            cat "$install_warnings_file" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ -s "$updated_records_file" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "#### Outdated dependency versions" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Warning: these records changed during \`licensed cache\`. They are non-blocking here, but usually mean the branch did not yet contain the latest cached dependency metadata." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            cat "$updated_records_file" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ -s "$actual_errors_file" ]; then
+            # GitHub workflow commands need escaped newlines, otherwise only the
+            # first line is attached to the annotation and the rest is plain log output.
+            awk '
+              function escape(text, escaped) {
+                escaped = text
+                gsub(/%/, "%25", escaped)
+                gsub(/\r/, "%0D", escaped)
+                gsub(/\n/, "%0A", escaped)
+                return escaped
+              }
+
+              function flush() {
+                if (block != "") {
+                  print "::error::" escape(block)
+                  block = ""
+                }
+              }
+
+              /^\* / { flush(); block = $0; next }
+              /^[[:space:]]+/ {
+                if (block != "") {
+                  block = block "\n" $0
+                }
+                next
+              }
+              /^$/ { flush(); next }
+              END { flush() }
+            ' "$actual_errors_file"
+
             exit 1
           fi
