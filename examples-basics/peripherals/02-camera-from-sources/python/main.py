@@ -14,7 +14,7 @@ camera = Camera("csi:0", resolution=(640, 480), fps=30) # CSI camera with positi
 #camera = Camera("usb:0", resolution=(640, 480), fps=30)   # USB camera with positional source identifier ('0' for the first USB camera, '1' for the second, and so on)
 #camera = Camera("/dev/video1", resolution=(640, 480), fps=30) # USB camera with full source identifier
 
-#camera = Camera("rtsp://<RTSP_URL>/stream", username="<USERNAME>", password="<PASSWORD>") # RTSP camera, replace with the actual RTSP URL, USERNAME, and PASSWORD of the camera to get the stream
+#camera = Camera("rtsp://<RTSP_URL>", username="<USERNAME>", password="<PASSWORD>") # RTSP camera, replace with the actual RTSP URL (e.g. rtsp://192.168.1.100:554/stream), USERNAME, and PASSWORD of the camera to get the stream
 #camera = Camera("http://<IP_ADDRESS>/video.mp4") # HTTP camera, replace with the actual HTTP URL of the camera to get thestream
 
 camera.start()                                  # Start the camera to begin capturing images

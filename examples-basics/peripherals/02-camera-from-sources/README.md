@@ -1,6 +1,6 @@
-# Simple Camera
+# Camera from different sources 
 
-The **Simple Camera** example captures a single image from an available camera and saves it to local storage in JPEG format.
+The **Camera from different sources** example captures a single image from a selected camera source and saves it to local storage in JPEG format.
 
 **Note:** This example needs a camera. You can use a USB camera or a CSI camera with the Arduino Media Carrier. Please note that it may be run in **Network Mode** in the Arduino App Lab if used with a USB-C hub and a USB camera.
 
@@ -152,4 +152,5 @@ The Python® component handles camera initialization, image capture, compression
 - **`camera.stop()`:** Stops the camera and releases hardware resources. 
 
 ## Related Inspirational Examples
-- Image Classification
+- Detect Objects on Camera
+- Person classifier on camera
