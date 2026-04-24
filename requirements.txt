@@ -1,1 +1,1 @@
-arduino_app_bricks @ https://github.com/arduino/app-bricks-py/releases/download/release%2F0.9.0/arduino_app_bricks-0.9.0-py3-none-any.whl
+arduino_app_bricks @ https://github.com/arduino/app-bricks-py/releases/download/release%2F0.9.1/arduino_app_bricks-0.9.1-py3-none-any.whl
