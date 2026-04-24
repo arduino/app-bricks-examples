@@ -144,7 +144,7 @@ jobs:
 
           if [ -s "$install_warnings_file" ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "#### Errors installing dependencies" >> $GITHUB_STEP_SUMMARY
+            echo "### Errors installing dependencies" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "⚠️ These warnings are non-blocking, but they can make the license scan less complete for the affected environment." >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
@@ -153,7 +153,7 @@ jobs:
 
           if [ -s "$updated_records_file" ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "#### Outdated dependency records" >> $GITHUB_STEP_SUMMARY
+            echo "### Outdated dependency records" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "⚠️ These records changed during \`licensed cache\`. This can reflect dependency version updates, license text changes, or other cached metadata changes. They are non-blocking here, but usually mean the branch did not yet contain the latest cached dependency metadata. Please consider to run \`task license:deps\` locally, then review the changes, commit, and push the updated files." >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
