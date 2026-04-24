@@ -8,7 +8,6 @@ from arduino.app_utils import App
 
 # This function is a helper to print the main properties of a microphone instance in the Python console.
 def print_microphone_properties(microphone: Microphone):
-    print(f"- requested_device: {microphone.device}")
     print(f"- resolved_device: {microphone.device_stable_ref}")
     print(f"- name: {microphone.name}")
     print(f"- sample_rate: {microphone.sample_rate} Hz")
