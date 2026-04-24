@@ -150,11 +150,14 @@ jobs:
 
           if [ -s "$updated_records_file" ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "#### Updated dependency records" >> $GITHUB_STEP_SUMMARY
+            echo "#### Outdated dependency records" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "⚠️ These records changed during \`licensed cache\`. This can reflect dependency version updates, license text changes, or other cached metadata changes. They are non-blocking here, but usually mean the branch did not yet contain the latest cached dependency metadata. Please consider to run \`task license:deps\` locally, then review the changes, commit, and push the updated files." >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             cat "$updated_records_file" >> $GITHUB_STEP_SUMMARY
+            for record in $(cat "$updated_records_file"); do
+              echo "::warning::Dependency record out-of-date: $record"
+            done
           fi
 
           if [ -s "$actual_errors_file" ]; then
