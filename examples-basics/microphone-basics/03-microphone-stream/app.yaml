@@ -1,0 +1,3 @@
+name: Microphone Stream
+icon: 🎙️
+description: Read audio chunks continuously from the microphone stream in Python.
