@@ -1,6 +1,6 @@
 ---
 name: arduino_app_bricks
-version: 0.9.1
+version: 0.9.2
 type: pip
 summary: Arduino App Bricks for Apps Lab
 homepage: https://github.com/arduino/app-bricks-py
