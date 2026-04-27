@@ -11,6 +11,10 @@ let errorContainer;
 const recentAnomaliesElement = document.getElementById('recentClassifications');
 let anomalies = [];
 const MAX_RECENT_ANOMALIES = 5;
+const DEFAULT_ANOMALY_THRESHOLD = 1.0;
+const MIN_ANOMALY_THRESHOLD = 0.0;
+const MAX_SLIDER_ANOMALY_THRESHOLD = 20.0;
+const ANOMALY_THRESHOLD_STEP = 0.1;
 
 let hasDataFromBackend = false; // New global flag
 
@@ -127,7 +131,15 @@ function initializeConfidenceSlider() {
     const confidenceInput = document.getElementById('confidenceInput');
     const confidenceResetButton = document.getElementById('confidenceResetButton');
 
-    confidenceSlider.addEventListener('input', updateConfidenceDisplay);
+    confidenceSlider.min = MIN_ANOMALY_THRESHOLD.toString();
+    confidenceSlider.max = MAX_SLIDER_ANOMALY_THRESHOLD.toString();
+    confidenceSlider.step = ANOMALY_THRESHOLD_STEP.toString();
+    confidenceSlider.value = DEFAULT_ANOMALY_THRESHOLD.toString();
+    confidenceInput.min = MIN_ANOMALY_THRESHOLD.toString();
+    confidenceInput.step = ANOMALY_THRESHOLD_STEP.toString();
+    confidenceInput.value = formatThreshold(DEFAULT_ANOMALY_THRESHOLD);
+
+    confidenceSlider.addEventListener('input', () => updateConfidenceDisplay());
     confidenceInput.addEventListener('input', handleConfidenceInputChange);
     confidenceInput.addEventListener('blur', validateConfidenceInput);
     updateConfidenceDisplay();
@@ -139,50 +151,60 @@ function initializeConfidenceSlider() {
     });
 }
 
+function normalizeThreshold(value) {
+    const numericValue = parseFloat(value);
+
+    if (isNaN(numericValue)) {
+        return DEFAULT_ANOMALY_THRESHOLD;
+    }
+
+    return Math.max(MIN_ANOMALY_THRESHOLD, numericValue);
+}
+
+function getSliderValueForThreshold(value) {
+    return Math.min(MAX_SLIDER_ANOMALY_THRESHOLD, normalizeThreshold(value));
+}
+
+function formatThreshold(value) {
+    return normalizeThreshold(value).toFixed(1);
+}
+
 function handleConfidenceInputChange() {
     const confidenceInput = document.getElementById('confidenceInput');
-    const confidenceSlider = document.getElementById('confidenceSlider');
 
-    let value = parseInt(confidenceInput.value, 10);
-
-    if (isNaN(value)) value = 5;
-    if (value < 1) value = 1;
-    if (value > 10) value = 10;
-
-    confidenceSlider.value = value;
-    updateConfidenceDisplay();
+    updateConfidenceDisplay(normalizeThreshold(confidenceInput.value));
 }
 
 function validateConfidenceInput() {
     const confidenceInput = document.getElementById('confidenceInput');
-    let value = parseInt(confidenceInput.value, 10);
+    const value = normalizeThreshold(confidenceInput.value);
 
-    if (isNaN(value)) value = 5;
-    if (value < 1) value = 1;
-    if (value > 10) value = 10;
+    confidenceInput.value = formatThreshold(value);
 
-    confidenceInput.value = value.toFixed(0);
-
-    handleConfidenceInputChange();
+    updateConfidenceDisplay(value);
 }
 
-function updateConfidenceDisplay() {
+function updateConfidenceDisplay(threshold = null) {
     const confidenceSlider = document.getElementById('confidenceSlider');
     const confidenceInput = document.getElementById('confidenceInput');
     const confidenceValueDisplay = document.getElementById('confidenceValueDisplay');
     const sliderProgress = document.getElementById('sliderProgress');
 
-    const value = parseFloat(confidenceSlider.value);
-    socket.emit('override_th', value / 10); // Send scaled confidence to backend (0.1 to 1.0)
-    const percentage = (value - confidenceSlider.min) / (confidenceSlider.max - confidenceSlider.min) * 100;
+    const value = threshold === null ? normalizeThreshold(confidenceSlider.value) : normalizeThreshold(threshold);
+    const sliderValue = getSliderValueForThreshold(value);
 
-    const displayValue = value.toFixed(0);
+    confidenceSlider.value = sliderValue;
+    socket.emit('override_th', value);
+    const percentage = (sliderValue - parseFloat(confidenceSlider.min)) / (parseFloat(confidenceSlider.max) - parseFloat(confidenceSlider.min)) * 100;
+
+    const displayValue = formatThreshold(value);
     confidenceValueDisplay.textContent = displayValue;
 
     if (document.activeElement !== confidenceInput) {
         confidenceInput.value = displayValue;
     }
 
+    confidenceSlider.style.setProperty('--slider-progress', percentage + '%');
     sliderProgress.style.width = percentage + '%';
     confidenceValueDisplay.style.left = percentage + '%';
 }
@@ -191,8 +213,8 @@ function resetConfidence() {
     const confidenceSlider = document.getElementById('confidenceSlider');
     const confidenceInput = document.getElementById('confidenceInput');
 
-    confidenceSlider.value = '5';
-    confidenceInput.value = '5';
+    confidenceSlider.value = DEFAULT_ANOMALY_THRESHOLD.toString();
+    confidenceInput.value = formatThreshold(DEFAULT_ANOMALY_THRESHOLD);
     updateConfidenceDisplay();
 }
 
