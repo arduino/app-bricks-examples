@@ -1,0 +1,3 @@
+name: Record Camera Stream
+icon: 📷
+description: Simple example to capture an AVI video from the camera and store it to the local storage.
