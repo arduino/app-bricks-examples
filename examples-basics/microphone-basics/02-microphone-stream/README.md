@@ -92,5 +92,4 @@ Here is a brief explanation of the application components:
 - **`App.run()`:** Keeps the app manageable from Arduino App Lab after the example code has been executed.
 
 ## Related Inspirational Examples
-- `Recording from microphone and file save`
-- `Microphone record PCM`
+- - `Hey Arduino!`

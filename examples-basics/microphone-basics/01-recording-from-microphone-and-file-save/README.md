@@ -6,7 +6,7 @@ The **Recording from Microphone and File Save** example shows how to record audi
 
 This example demonstrates a simple record-and-save workflow with the `Microphone` peripheral. The app starts the microphone, records a fixed-duration WAV buffer, converts it to bytes, and writes it to a file using standard Python file handling.
 
-This makes the example a good second step in a microphone learning path: after learning how to create and configure a microphone, you can move to a complete recording flow that produces a real audio file.
+This example shows a complete recording flow that produces a real audio file, while keeping the code short and easy to follow.
 
 ## Bricks Used
 
@@ -112,5 +112,4 @@ Here is a brief explanation of the application components:
 - **`App.run()`:** Keeps the app manageable from Arduino App Lab after the example code has been executed.
 
 ## Related Inspirational Examples
-- `Microphone stream`
-- `Microphone record PCM`
+- `Hey Arduino!`

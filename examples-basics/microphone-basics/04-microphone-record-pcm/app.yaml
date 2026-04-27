@@ -1,3 +1,0 @@
-name: Microphone Record PCM
-icon: 🎙️
-description: Record raw PCM samples from the microphone and inspect the returned NumPy array.
