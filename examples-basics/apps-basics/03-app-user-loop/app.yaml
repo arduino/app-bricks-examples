@@ -1,0 +1,3 @@
+name: App user loop
+icon: 🔁
+description: App.run(user_loop=...) runs a user function repeatedly on the main thread.

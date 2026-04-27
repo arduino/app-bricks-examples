@@ -1,0 +1,3 @@
+name: App Run
+icon: ▶️
+description: App.run() keeps the Python app alive so background handlers can run.
