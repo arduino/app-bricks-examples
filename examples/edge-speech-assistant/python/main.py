@@ -14,6 +14,8 @@ ui = WebUI()
 
 stop_event = threading.Event()
 
+TTS_MAX_BYTES = 1024
+
 
 def speak(session_id, data):
     text = data.get("text", "")
@@ -21,7 +23,16 @@ def speak(session_id, data):
         return
 
     stop_event.clear()
-    chunks = re.split(r"(?<=[.!?])\s+|\n+", text.strip())
+    text = text.strip()
+    chunks = []
+    while len(text.encode("utf-8")) > TTS_MAX_BYTES:
+        window = text.encode("utf-8")[:TTS_MAX_BYTES].decode("utf-8", errors="ignore")
+        match = re.search(r"[.!?][^.!?]*$", window)
+        cut = match.start() + 1 if match else len(window)
+        chunks.append(text[:cut].strip())
+        text = text[cut:].strip()
+    if text:
+        chunks.append(text)
 
     ui.send_message("speaking", {"status": "started"})
     for chunk in chunks:
