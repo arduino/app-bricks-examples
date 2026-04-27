@@ -72,3 +72,7 @@ Here is a brief explanation of the application script (main.py):
 - **`label = detection.get("class_name", "unknown")`** Get the label of the detected object if present, otherwise assign `unknown`.
 - **`logger.info(f"Object {idx}: Label={label}, Confidence={confidence}")`** Logs `class_name` and `confidence` of detected object.
 - **`img_with_boxes = object_detection.draw_bounding_boxes(pil_image, results)`** Overlay bounding boxes on the original image and saves the result as `output_image.png`.
+
+## Related Inspirational Examples
+- Detect objects on images
+- Telegram Bot
