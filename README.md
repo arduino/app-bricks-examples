@@ -16,4 +16,4 @@ Example applications based on Arduino Bricks for the Arduino UNO Q.
 - Run `task license:deps` to refresh cached dependency license records with `licensed`.
 - Run `task license` to execute both checks.
 
-The temporary virtualenvs used by the license tasks are recreated and cleaned up automatically.
+The REUSE virtualenv is recreated and cleaned up automatically. The `.venv` used by `licensed` is kept after the task completes and recreated on the next dependency-license run.

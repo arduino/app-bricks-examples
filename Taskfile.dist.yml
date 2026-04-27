@@ -175,7 +175,7 @@ tasks:
   license:deps:
     desc: |
       Check and cache dependency licenses with licensed.
-      Uses a dedicated virtualenv for pip dependency scanning and cleans it up afterwards.
+      Uses a dedicated virtualenv for pip dependency scanning and keeps it after the task completes.
       Requires licensed v{{.LICENSED_VERSION}} for dependency license checking.
       In local environments, install licensed v{{.LICENSED_VERSION}} manually before running this task.
       In CI, the task installs licensed v{{.LICENSED_VERSION}} with gem after Ruby has been set up by the workflow.
@@ -183,11 +183,6 @@ tasks:
       - task: install:licensed
       - task: license:init-licensed-venv
       - |
-        cleanup() {
-          rm -rf "{{.LICENSE_VENV_DIR}}"
-        }
-        trap cleanup EXIT
-
         status=0
 
         if [ "$status" -eq 0 ]; then
