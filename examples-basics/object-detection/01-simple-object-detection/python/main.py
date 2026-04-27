@@ -8,6 +8,8 @@ from arduino.app_bricks.object_detection import ObjectDetection
 from PIL import Image
 import time
 
+# Example app to detect objects in an image, log the results, and display them in a new output image with bounding boxes.
+
 PATH_IMAGE = "assets"                                                                                       # Path to the directory containing the input image for object detection
 IMAGE_FILE = "input_image.jpg"                                                                              # Name of the image file to be used for object detection
 CONFIDENCE_THRESHOLD = 0.5                                                                                  # Confidence threshold for object detection
