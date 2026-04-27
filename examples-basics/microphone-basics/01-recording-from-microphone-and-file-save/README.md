@@ -109,6 +109,8 @@ Here is a brief explanation of the application components:
 
 - **`with open(..., "wb") as file`:** Opens the destination file in binary write mode, saves the recorded bytes, and closes the file automatically.
 
+- **`microphone.stop()`:** Stops the the microphone itself.
+
 - **`App.run()`:** Keeps the app manageable from Arduino App Lab after the example code has been executed.
 
 ## Related Inspirational Examples
