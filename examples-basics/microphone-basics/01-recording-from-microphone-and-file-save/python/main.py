@@ -4,7 +4,7 @@
 
 from pathlib import Path  # Used for handling file paths
 
-from arduino.app_peripherals.microphone import Microphone
+from arduino.app_peripherals.microphone import Microphone  # Import the Microphone peripeheral class
 from arduino.app_utils import App
 
 # Save the generated files in a local folder relative to the app runtime directory.
@@ -13,7 +13,7 @@ OUTPUT_DIR.mkdir(parents=True, exist_ok=True)  # Create the folder if it is miss
 WAV_OUTPUT_FILE = OUTPUT_DIR / "microphone-recording.wav"  # Path for the output WAV file
 
 # Create and start the microphone before recording.
-microphone = Microphone(shared=False)
+microphone = Microphone()
 microphone.start()
 
 # Record a fixed-duration WAV buffer with record_wav() that returns the recorded audio data as a NumPy array.
@@ -25,6 +25,9 @@ with open(WAV_OUTPUT_FILE, "wb") as file:
     file.write(wav_audio_bytes)
 
 print(f"WAV file saved in path: {WAV_OUTPUT_FILE}")
+
+# Stop the microphone after recording is done.
+microphone.stop()
 
 # The App.run() method starts the application and keeps it running, allowing the Arduino App Lab
 # to start and stop the app.

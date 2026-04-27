@@ -1,12 +1,12 @@
-# Microphone Stream
+# Microphone Capture and Stream
 
-The **Microphone Stream** example shows how to consume audio data continuously from a `Microphone` using the `stream()` generator. The script starts the microphone, reads a few streamed chunks, prints a summary for each one, and then stops the stream.
+The **Microphone Capture and Stream** example shows two ways to read audio from a `Microphone`: with a single `capture()` call and with the continuous `stream()` generator. The script starts the microphone, reads one chunk explicitly, then reads a few streamed chunks, prints a summary for each one, and finally stops the stream.
 
 ## Description
 
-This example demonstrates the streaming workflow of the `Microphone` peripheral. Instead of calling `capture()` manually for each chunk, the code uses `stream()` to receive audio chunks continuously in a `for` loop. This is useful when you want to process live microphone data incrementally.
+This example demonstrates two closely related workflows of the `Microphone` peripheral. It starts with `capture()`, which reads a single audio chunk, and then moves to `stream()`, which keeps producing chunks continuously in a `for` loop. This makes the example a good introduction to the relationship between one-shot chunk capture and continuous streaming.
 
-The example keeps the loop short by stopping after a small number of chunks, so the console output remains easy to inspect. For each received chunk, the script prints a compact summary with the number of samples, the data type, and the minimum and maximum values.
+The example keeps the streamed part short by stopping after a small number of chunks, so the console output remains easy to inspect. For each received chunk, the script prints a compact summary with the number of samples, the data type, and the minimum and maximum values.
 
 ## Bricks Used
 
@@ -31,7 +31,7 @@ The example keeps the loop short by stopping after a small number of chunks, so 
 
 1. Connect a USB microphone to the board through a USB-C® hub
 2. Run the App
-3. Watch the Python® console print a summary for each streamed audio chunk
+3. Watch the Python® console print a summary for the chunk returned by `capture()` and for each streamed audio chunk
 4. Stop the App from App Lab when you are done
 
 ## How it Works
@@ -47,13 +47,30 @@ microphone = Microphone(shared=False)
 microphone.start()
 ```
 
-- **Reading audio chunks from `stream()`.**
+- **Reading a single audio chunk with `capture()`.**
+
+The example first shows the most direct way to read one chunk from the microphone:
+
+```python
+captured_chunk = microphone.capture()
+```
+
+If a chunk is available, it is printed with the same helper used later for the stream:
+
+```python
+if captured_chunk is not None:
+    print_chunk_summary("Single chunk captured with capture()", captured_chunk)
+```
+
+`capture()` can also return `None` if no audio is available at that moment.
+
+- **Reading audio chunks continuously from `stream()`.**
 
 The `stream()` method yields one audio chunk at a time:
 
 ```python
 for audio_chunk in microphone.stream():
-    print_chunk_summary(received_chunks, audio_chunk)
+    print_chunk_summary(f"Stream chunk {received_chunks}", audio_chunk)
 ```
 
 Each `audio_chunk` is a NumPy array containing the samples captured for that step of the stream.
@@ -70,6 +87,7 @@ if received_chunks >= STREAM_CHUNK_LIMIT:
 The high-level data flow looks like this:
 
 ```
+Microphone.capture() → Single Audio Chunk → Python® Console
 Microphone.stream() → Audio Chunks → Python® Console
 ```
 
@@ -85,6 +103,8 @@ Here is a brief explanation of the application components:
 
 - **`microphone.start()`:** Opens the microphone before streaming begins.
 
+- **`microphone.capture()`:** Reads a single chunk from the microphone and returns it as a NumPy array, or `None` if no audio is available yet.
+
 - **`microphone.stream()`:** Returns a generator that yields audio chunks continuously while the microphone is running.
 
 - **`microphone.stop()`:** Stops the stream by stopping the microphone itself.
@@ -92,4 +112,5 @@ Here is a brief explanation of the application components:
 - **`App.run()`:** Keeps the app manageable from Arduino App Lab after the example code has been executed.
 
 ## Related Inspirational Examples
-- - `Hey Arduino!`
+- `Recording from microphone and file save`
+- `Microphone and Properties`
