@@ -7,16 +7,22 @@ vars:
   REUSE_VENV_DIR: '.reuse-venv'
 
 tasks:
-  init:license:
+  license:init-venvs:
     desc: Recreate the environments used by the license tasks
+    internal: true
     cmds:
       - task: license:init-licensed-venv
       - task: license:init-reuse-venv
 
+  init:license:
+    desc: Backward-compatible alias for recreating the environments used by the license tasks
+    cmds:
+      - task: license:init-venvs
+
   init:ci:
     desc: Backward-compatible alias for initializing license environments
     cmds:
-      - task: init:license
+      - task: license:init-venvs
 
   install-bricks:
     desc: Install a specific bricks version (e.g. task install-bricks -- 0.8.0rc2)
