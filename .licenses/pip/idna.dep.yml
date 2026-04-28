@@ -1,4 +1,4 @@
-git push -f ---
+---
 name: idna
 version: '3.13'
 type: pip

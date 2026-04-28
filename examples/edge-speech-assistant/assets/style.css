@@ -166,6 +166,7 @@ button img {
     white-space: pre-wrap;
     word-wrap: break-word;
     overflow-y: auto;
+    pointer-events: none;
 }
 
 .text-overlay .highlight {

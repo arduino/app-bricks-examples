@@ -34,7 +34,13 @@ function highlightRange(start, end) {
     textOverlay.innerHTML = `${before}<span class="highlight">${chunk}</span>${after}`;
     const highlighted = textOverlay.querySelector('.highlight');
     if (highlighted) {
-        highlighted.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        const overlayRect = textOverlay.getBoundingClientRect();
+        const highlightRect = highlighted.getBoundingClientRect();
+        if (highlightRect.bottom > overlayRect.bottom) {
+            textOverlay.scrollTop += highlightRect.bottom - overlayRect.bottom;
+        } else if (highlightRect.top < overlayRect.top) {
+            textOverlay.scrollTop -= overlayRect.top - highlightRect.top;
+        }
     }
 }
 
