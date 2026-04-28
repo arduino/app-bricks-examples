@@ -1,6 +1,6 @@
 # Edge Speech Assistant
 
-The **Edge Speech Assistant** example turns the Arduino® UNO™ Q into a fully offline text-to-speech device that converts any text you type into spoken audio played through a connected speaker.
+The **Edge Speech Assistant** example turns the Arduino® VENTUNO Q into a fully offline text-to-speech device that converts any text you type into spoken audio played through a connected speaker.
 
 ![Edge Speech Assistant Example](assets/docs_assets/thumbnail.png)
 
@@ -12,7 +12,7 @@ The backend uses the `tts` Brick to synthesize speech with an on-device MeloTTS 
 
 Key features include:
 
-- **Fully offline synthesis:** Speech is generated locally by an AI model running in a Docker container on the UNO Q.
+- **Fully offline synthesis:** Speech is generated locally by an AI model running in a Docker container on the VENTUNO Q.
 - **Long text support:** The backend automatically splits long inputs into sentence-aware chunks so you can paste paragraphs without hitting the per-request size limit.
 - **Stop on demand:** A single button toggles between Play and Stop so you can interrupt playback at any time.
 
@@ -27,7 +27,7 @@ The Edge Speech Assistant example uses the following Bricks:
 
 ### Hardware
 
-- Arduino UNO Q (x1)
+- Arduino VENTUNO Q (x1)
 - USB-C® cable (for power and programming) (x1)
 - USB speaker (x1)
 
@@ -35,15 +35,13 @@ The Edge Speech Assistant example uses the following Bricks:
 
 - Arduino App Lab
 
-**Note:** This example needs a USB audio output device connected to the UNO Q. The `tts` Brick targets the first USB speaker it finds (`usb:1`) by default and will fail to start if no USB speaker is plugged in.
-
-**Note:** You can also run this example using your Arduino UNO Q as a Single Board Computer (SBC) using a [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and display attached.
+**Note:** This example needs a USB audio output device connected to the VENTUNO Q. The `tts` Brick targets the first USB speaker it finds (`usb:1`) by default and will fail to start if no USB speaker is plugged in.
 
 ## How to Use the Example
 
 1. **Connect a USB Speaker**
 
-   Plug a USB speaker into the UNO Q before launching the App so the `tts` Brick can find it during start-up.
+   Plug a USB speaker into the VENTUNO Q before launching the App so the `tts` Brick can find it during start-up.
 
 2. **Launch the App**
 
@@ -53,7 +51,7 @@ The Edge Speech Assistant example uses the following Bricks:
 
 3. **Open the Web Interface**
 
-   Once the App is running, open `http://<UNO-Q-IP-ADDRESS>:7000` in your browser, or use the App Lab preview pane.
+   Once the App is running, open `http://<VENTUNO-Q-IP-ADDRESS>:7000` in your browser, or use the App Lab preview pane.
 
    ![Web interface](assets/docs_assets/web-interface.png)
 
