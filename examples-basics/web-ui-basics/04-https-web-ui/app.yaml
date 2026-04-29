@@ -1,0 +1,6 @@
+name: HTTPS Web UI
+icon: 💡
+description: A simple example that demonstrates how to serve the Web UI over HTTPS.
+
+bricks:
+  - arduino:web_ui
