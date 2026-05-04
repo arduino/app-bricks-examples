@@ -10,8 +10,7 @@
 # sensor sonification.
 
 import numpy as np
-
-from arduino.app_utils import App
+import time
 from arduino.app_peripherals.speaker import Speaker
 
 # Audio parameters used both to generate the samples and to configure the speaker.
@@ -34,7 +33,7 @@ def make_tone(freq_hz: float, duration_s: float) -> np.ndarray:
     return (wave * 32767).astype(FORMAT)
 
 
-def main():
+def play_scale():
     # Create the speaker: first USB speaker, mono, 16 kHz, 16-bit signed PCM.
     speaker = Speaker(sample_rate=SAMPLE_RATE, channels=CHANNELS, format=FORMAT)
 
@@ -48,8 +47,8 @@ def main():
             # one by one to the speaker, blocking until ALSA accepts the data.
             speaker.play_pcm(samples)
 
-    print("Playback finished")
 
+while True:
+    play_scale()
+    time.sleep(0.1)
 
-main()
-App.run()

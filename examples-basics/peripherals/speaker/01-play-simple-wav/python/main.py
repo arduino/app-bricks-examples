@@ -9,8 +9,8 @@
 
 import os
 import numpy as np
+import time
 
-from arduino.app_utils import App
 from arduino.app_peripherals.speaker import Speaker
 
 # Path to the WAV file shipped with the example
@@ -26,9 +26,7 @@ def play_wav():
     # The static helper takes care of opening, writing and closing the ALSA device.
     Speaker.play_wav(wav_audio)
 
-    print("Playback finished")
 
-
-# Run the playback once and then keep the App alive so App Lab can manage the lifecycle.
-play_wav()
-App.run()
+while True:
+    play_wav()
+    time.sleep(0.1)
