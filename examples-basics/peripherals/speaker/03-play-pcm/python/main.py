@@ -11,6 +11,8 @@
 
 import numpy as np
 import time
+
+from arduino.app_utils import App
 from arduino.app_peripherals.speaker import Speaker
 
 # Audio parameters used both to generate the samples and to configure the speaker.
@@ -47,8 +49,6 @@ def play_scale():
             # one by one to the speaker, blocking until ALSA accepts the data.
             speaker.play_pcm(samples)
 
+    time.sleep(1) 
 
-while True:
-    play_scale()
-    time.sleep(0.1)
-
+App.run(user_loop=play_scale)
