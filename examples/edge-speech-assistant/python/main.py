@@ -23,43 +23,25 @@ def speak(session_id, data):
         return
 
     stop_event.clear()
-    original_text = text.strip()
-
-    # Split at sentence and clause boundaries for fine-grained highlighting
-    chunks = re.split(r"(?<=[.!?,;:])\s+", original_text)
-
+    text = text.strip()
+    chunks = []
+    while len(text.encode("utf-8")) > TTS_MAX_BYTES:
+        window = text.encode("utf-8")[:TTS_MAX_BYTES].decode("utf-8", errors="ignore")
+        match = re.search(r"[.!?][^.!?]*$", window)
+        cut = match.start() + 1 if match else len(window)
+        chunks.append(text[:cut].strip())
+        text = text[cut:].strip()
+    if text:
+        chunks.append(text)
     ui.send_message("speaking", {"status": "started"})
-    search_from = 0
+
     for chunk in chunks:
         if stop_event.is_set():
             break
-        if not chunk.strip():
-            continue
-        idx = original_text.find(chunk, search_from)
-        if idx != -1:
-            ui.send_message(
-                "speaking",
-                {"status": "progress", "start": idx, "end": idx + len(chunk)},
-            )
-            search_from = idx + len(chunk)
-        # Handle chunks that exceed TTS byte limit
-        remaining = chunk
-        while remaining:
-            if stop_event.is_set():
-                break
-            if len(remaining.encode("utf-8")) <= TTS_MAX_BYTES:
-                tts.speak(remaining)
-                break
-            window = remaining.encode("utf-8")[:TTS_MAX_BYTES].decode(
-                "utf-8", errors="ignore"
-            )
-            space_idx = window.rfind(" ")
-            cut = space_idx if space_idx > 0 else len(window)
-            tts.speak(remaining[:cut].strip())
-            remaining = remaining[cut:].strip()
-    if not stop_event.is_set():
-        ui.send_message("speaking", {"status": "finished"})
 
+        if chunk.strip():
+            tts.speak(chunk)
+    ui.send_message("speaking", {"status": "finished"})
 
 def stop(session_id, data):
     stop_event.set()

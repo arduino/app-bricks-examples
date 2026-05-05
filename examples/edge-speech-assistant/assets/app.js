@@ -5,7 +5,6 @@
 const ui = new WebUI();
 
 const textInput = document.getElementById('text-input');
-const textOverlay = document.getElementById('text-overlay');
 const playStopButton = document.getElementById('play-stop-button');
 const playStopIcon = document.getElementById('play-stop-icon');
 const resetButton = document.getElementById('reset-button');
@@ -14,42 +13,6 @@ const timer = document.getElementById('timer');
 let isSpeaking = false;
 let timerInterval = null;
 let elapsedSeconds = 0;
-let currentText = '';
-
-function escapeHtml(str) {
-    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
-
-function showOverlay(text) {
-    currentText = text;
-    textOverlay.innerHTML = escapeHtml(text);
-    textOverlay.hidden = false;
-    textInput.style.visibility = 'hidden';
-}
-
-function highlightRange(start, end) {
-    const before = escapeHtml(currentText.slice(0, start));
-    const chunk = escapeHtml(currentText.slice(start, end));
-    const after = escapeHtml(currentText.slice(end));
-    textOverlay.innerHTML = `${before}<span class="highlight">${chunk}</span>${after}`;
-    const highlighted = textOverlay.querySelector('.highlight');
-    if (highlighted) {
-        const overlayRect = textOverlay.getBoundingClientRect();
-        const highlightRect = highlighted.getBoundingClientRect();
-        if (highlightRect.bottom > overlayRect.bottom) {
-            textOverlay.scrollTop += highlightRect.bottom - overlayRect.bottom;
-        } else if (highlightRect.top < overlayRect.top) {
-            textOverlay.scrollTop -= overlayRect.top - highlightRect.top;
-        }
-    }
-}
-
-function hideOverlay() {
-    textOverlay.hidden = true;
-    textOverlay.innerHTML = '';
-    textInput.style.visibility = '';
-    currentText = '';
-}
 
 function formatTime(seconds) {
     const m = Math.floor(seconds / 60);
@@ -115,14 +78,10 @@ textInput.addEventListener('input', updateControls);
 ui.on_message('speaking', (data) => {
     if (data.status === 'started') {
         isSpeaking = true;
-        showOverlay(textInput.value.trim());
         startTimer();
         updateControls();
-    } else if (data.status === 'progress') {
-        highlightRange(data.start, data.end);
     } else if (data.status === 'finished') {
         isSpeaking = false;
-        hideOverlay();
         stopTimer();
         updateControls();
     }
