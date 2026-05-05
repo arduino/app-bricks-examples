@@ -22,7 +22,7 @@ Key features include:
 The Edge Speech Assistant example uses the following Bricks:
 
 - `tts`: Offline text-to-speech Brick that synthesizes speech locally and plays it through a connected speaker.
-- `web_ui`: Brick that hosts the HTML interface and the messaging channel used to send text and receive playback status. On the browser side a small `WebUI` helper class (`assets/libs/arduino.js`) wraps the underlying Socket.IO client so the page code only deals with `ui.on_message` / `ui.send_message`, mirroring the Python API.
+- `web_ui`: Brick that hosts the HTML interface and the messaging channel used to send text and receive playback status.
 
 ## Hardware and Software Requirements
 
