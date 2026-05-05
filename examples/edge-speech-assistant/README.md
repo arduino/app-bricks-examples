@@ -214,6 +214,3 @@ The page is a single-screen editor with a Play/Stop toggle button, a timer, and 
 
 **Fix:** Another audio service is already holding the device exclusively (PipeWire or PulseAudio from a desktop session is the most common cause). Stop the conflicting service or run the board in headless mode so the `tts` Brick can open the speaker.
 
-### Synthesis returns an error or never finishes
-
-**Fix:** Check that the `audio-analytics-runner` container is healthy. The first run downloads the model and may take several minutes; subsequent runs start in seconds.
