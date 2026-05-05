@@ -13,8 +13,13 @@ logger = Logger("vibration-detector")
 vibration_detection = VibrationAnomalyDetection(anomaly_detection_threshold=1.0)
 
 def on_override_th(value: float):
-    logger.info(f"Setting new anomaly threshold: {value}")
-    vibration_detection.anomaly_detection_threshold = value
+    try:
+        vibration_detection.anomaly_detection_threshold = value
+    except ValueError as exc:
+        logger.warning(f"Ignoring invalid anomaly threshold {value!r}: {exc}")
+        return
+
+    logger.info(f"Setting new anomaly threshold: {vibration_detection.anomaly_detection_threshold}")
 
 ui = WebUI()
 ui.on_message("override_th", lambda sid, threshold: on_override_th(threshold))

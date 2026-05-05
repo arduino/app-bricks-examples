@@ -50,9 +50,11 @@ The example uses the following Bricks:
    Observe the **Accelerometer Data** chart to see the live vibration waveforms.
 
 5. **Adjust Sensitivity**
-   Use the **Set anomaly score** slider to adjust how sensitive the detector is.
-   - **Lower values (1):** High sensitivity (small vibrations trigger alerts).
-   - **Higher values (10):** Low sensitivity (requires strong, irregular vibrations to trigger).
+   Use the **Set anomaly threshold** slider to adjust how sensitive the detector is.
+   - **Lower values:** High sensitivity (small deviations trigger alerts).
+   - **Higher values:** Low sensitivity (requires stronger, more unusual vibration patterns to trigger).
+   - The threshold is a raw anomaly score, not a 0-1 confidence value; anomaly scores can be greater than 1.0.
+   - The slider covers the common range; use the numeric input if your model produces larger anomaly scores.
 
 6. **Trigger an Anomaly**
    Shake the sensor or attach it to a fan to simulate an anomaly. The "Feedback" section will show a warning, and the event will be logged in "Recent Anomalies".
