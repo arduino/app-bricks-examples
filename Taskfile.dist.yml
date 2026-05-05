@@ -162,6 +162,24 @@ tasks:
               ';' || status=$?
         fi
 
+        if [ "$status" -eq 0 ] && [ -d examples-basics ]; then
+          find examples-basics \
+            \( -path '*/python/*' -o -path '*/assets/*' -o -path '*/sketch/*' \) \
+            -type f \
+            ! -path '*/assets/libs/*' \
+            ! -path '*/assets/fonts/*' \
+            \( -name '*.py' -o -name '*.js' -o -name '*.css' -o -name '*.html' -o -name '*.ino' -o -name '*.h' \) \
+            -exec "{{.REUSE_VENV_DIR}}"/bin/reuse annotate \
+              --skip-unrecognized \
+              --merge-copyrights \
+              --copyright-prefix 'spdx-string-c' \
+              --copyright 'Arduino s.r.l. and/or its affiliated companies' \
+              --exclude-year \
+              --license 'MPL-2.0' \
+              '{}' \
+              ';' || status=$?
+        fi
+
         if [ "$status" -eq 0 ]; then
           "{{.REUSE_VENV_DIR}}"/bin/reuse download --all || status=$?
         fi
