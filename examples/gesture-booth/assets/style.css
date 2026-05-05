@@ -1,0 +1,397 @@
+/*
+ * SPDX-FileCopyrightText: Copyright (C) Arduino s.r.l. and/or its affiliated companies
+ *
+ * SPDX-License-Identifier: MPL-2.0
+ */
+
+@import url('fonts/fonts.css');
+
+* {
+  margin: 0;
+  padding: 0;
+  font-family: 'Open Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  background-color: #dae3e3;
+  color: #008184;
+  padding: 0 24px 24px 24px;
+  max-width: 1700px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 0 16px 0;
+}
+
+.header h1 {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.7;
+  letter-spacing: 2.4px;
+}
+
+.header img {
+  height: 48px;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  flex: 1;
+  min-height: 0;
+}
+
+.box {
+  position: relative;
+  border-radius: 8px;
+  background-color: #ecf1f1;
+}
+
+button {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  width: fit-content;
+  cursor: pointer;
+  letter-spacing: 0.14px;
+  line-height: 1.6;
+  font-size: 14px;
+  padding: 7px 12px;
+  color: white;
+  background: #008184;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+button img {
+  width: 16px;
+}
+
+.video-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+  aspect-ratio: 4/3;
+}
+
+.video {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+#videoFeed {
+  width: 100%;
+  height: 100%;
+  display: none;
+}
+
+#videoOverlay {
+  display: none;
+  position: absolute;
+  inset: 0;
+}
+
+#videoPlaceholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+#countdown {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  justify-content: center;
+  align-items: center;
+  font-size: clamp(4rem, 18vw, 16rem);
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+#countdown.shoot {
+  background: radial-gradient(
+    ellipse,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(255, 255, 255, 1) 70%
+  );
+}
+
+.gestures {
+  padding: 24px 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 32px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.gestures-list {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 24px 16px;
+  align-content: center;
+}
+
+.gestures-list img {
+  width: 48px;
+  height: 48px;
+}
+
+#icon {
+  display: none;
+}
+
+#title {
+  text-align: center;
+  font-weight: 700;
+}
+
+.title-primary {
+  color: #008184;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.28px;
+}
+
+.title-secondary {
+  font-family: 'Roboto Mono', monospace;
+  color: black;
+  font-size: 20px;
+  line-height: 1.7;
+  letter-spacing: 2.4px;
+}
+
+#subtitle {
+  display: none;
+  font-family: 'Roboto Mono', monospace;
+  color: black;
+  font-size: 14px;
+  line-height: 1.7;
+  font-weight: 700;
+  letter-spacing: 1.7px;
+  text-align: center;
+  margin-top: 16px;
+}
+
+#animatedGesture {
+  display: none;
+  width: 64px;
+  height: 64px;
+  margin-top: -16px;
+}
+
+#bottomCta {
+  display: none;
+  position: absolute;
+  bottom: 24px;
+  background: transparent;
+}
+
+#bottomCta img {
+  width: 14px;
+}
+
+#resultImage {
+  display: none;
+  width: 92%;
+  aspect-ratio: 4 / 3;
+  height: auto;
+  border-radius: 8px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-3deg);
+  transform-origin: center;
+}
+
+@media (min-width: 768px) {
+  .video-container {
+    flex: 0 0 55%;
+    aspect-ratio: auto;
+  }
+
+  .video {
+    aspect-ratio: 4/3;
+    width: auto;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    justify-content: flex-start;
+  }
+
+  .content {
+    margin: auto 0;
+    flex-direction: row;
+    gap: 24px;
+    flex: unset;
+    min-height: unset;
+  }
+
+  .video-container {
+    flex: 0 0 auto;
+    width: 60%;
+    aspect-ratio: 4/3;
+  }
+}
+
+/* State: gesture-recognized */
+[data-state='gesture-recognized'] #animatedGesture,
+[data-state='gesture-recognized'] #videoOverlay {
+  display: block;
+}
+
+[data-state='gesture-recognized'] #videoPlaceholder {
+  display: none;
+}
+
+[data-state='gesture-recognized'] .gestures-list {
+  position: absolute;
+  bottom: 24px;
+}
+
+[data-state='gesture-recognized'] .gestures-list img {
+  width: 32px;
+  height: 32px;
+}
+
+[data-state='gesture-recognized'] button {
+  display: flex;
+}
+
+/* State: take-picture */
+[data-state='take-picture'] #videoOverlay {
+  display: block;
+}
+
+[data-state='take-picture'] #icon {
+  display: block;
+}
+
+[data-state='take-picture'] .gestures {
+  gap: 8px;
+}
+
+[data-state='take-picture'] .gestures-list {
+  display: none;
+}
+
+[data-state='take-picture'] #bottomCta {
+  display: flex;
+  color: #aa4335;
+}
+
+[data-state='take-picture'] #countdown {
+  display: flex;
+}
+
+/* State: no-gesture-recognized */
+[data-state='no-gesture-recognized'] #title {
+  font-family: 'Roboto Mono', monospace;
+  color: black;
+  font-size: 20px;
+  line-height: 1.7;
+  letter-spacing: 2.4px;
+}
+
+[data-state='no-gesture-recognized'] #subtitle {
+  display: block;
+}
+
+[data-state='no-gesture-recognized'] .gestures {
+  gap: 8px;
+}
+
+[data-state='no-gesture-recognized'] #icon {
+  display: block;
+}
+
+[data-state='no-gesture-recognized'] .gestures-list {
+  display: none;
+}
+
+[data-state='no-gesture-recognized'] #bottomCta {
+  display: flex;
+  color: #008184;
+}
+
+/* State: picture-ready */
+[data-state='picture-ready'] #resultImage,
+[data-state='picture-ready'] #icon,
+[data-state='picture-ready'] #subtitle {
+  display: block;
+}
+
+[data-state='picture-ready'] #videoFeed,
+[data-state='picture-ready'] .gestures-list {
+  display: none !important;
+}
+
+[data-state='picture-ready'] .gestures {
+  gap: 8px;
+}
+
+[data-state='picture-ready'] #mainCta {
+  display: flex;
+  margin-top: 8px;
+}
+
+[data-state='picture-ready'] #bottomCta {
+  display: flex;
+  color: #008184;
+}
+
+/* State: error */
+[data-state='error'] #title {
+  font-family: 'Roboto Mono', monospace;
+  color: black;
+  font-size: 20px;
+  line-height: 1.7;
+  letter-spacing: 2.4px;
+}
+
+[data-state='error'] .gestures-list,
+[data-state='error'] #videoFeed {
+  display: none !important;
+}
+
+[data-state='error'] #videoPlaceholder {
+  display: flex !important;
+}
