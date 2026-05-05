@@ -30,13 +30,13 @@ The Edge Speech Assistant example uses the following Bricks:
 
 - Arduino VENTUNO Q (x1)
 - USB-C® cable (for power and programming) (x1)
-- USB speaker (x1)
+- USB-A speaker or headset (x1)
 
 ### Software
 
 - Arduino App Lab
 
-**Note:** This example needs a USB audio output device connected to the VENTUNO Q. The `tts` Brick targets the first USB speaker it finds (`usb:1`) by default and will fail to start if no USB speaker is plugged in.
+**Note:** This example needs a USB speaker connected to the VENTUNO Q. The `tts` Brick targets the first USB speaker it finds (`usb:1`) by default and will fail to start if no USB speaker is plugged in.
 
 ## How to Use the Example
 
@@ -52,7 +52,9 @@ The Edge Speech Assistant example uses the following Bricks:
 
 3. **Open the Web Interface**
 
-   Once the App is running, open `http://<VENTUNO-Q-IP-ADDRESS>:7000` in your browser.
+   Once the App is running, open `http://<VENTUNO-Q-IP-ADDRESS>:7000` in your browser, or `http://localhost:7000` if you are accessing it from the board itself.
+
+   > Your IP address is shown at the bottom panel of the Arduino App Lab Editor. Note that your board needs to be connected to the same network as your host device.
 
 4. **Type Text and Press Play**
 
@@ -208,7 +210,7 @@ The page is a single-screen editor with a Play/Stop toggle button, a timer, and 
 
 ### No audio comes out of the speaker
 
-**Fix:** Confirm that a USB speaker is connected and visible on the host with `aplay -l`. The `tts` Brick targets `usb:1` by default and will fail with `No USB speakers found` if no USB audio class device is present.
+**Fix:** Open a terminal on the board and run `aplay -l` to confirm that the USB speaker is connected and visible. The `tts` Brick targets `usb:1` by default and will fail with `No USB speakers found` if no USB speaker is present.
 
 ### App start fails with "Speaker is busy"
 
