@@ -7,24 +7,22 @@ vars:
   REUSE_VENV_DIR: '.reuse-venv'
 
 tasks:
-  init:license:
-    desc: Recreate the environments used by the license task
+  license:init-venvs:
+    desc: Recreate the environments used by the license tasks
+    internal: true
     cmds:
-      - |
-        rm -rf "{{.LICENSE_VENV_DIR}}"
-        python3 -m venv "{{.LICENSE_VENV_DIR}}"
-        "{{.LICENSE_VENV_DIR}}"/bin/pip install --upgrade pip
-        "{{.LICENSE_VENV_DIR}}"/bin/pip install -r requirements.txt
-      - |
-        rm -rf "{{.REUSE_VENV_DIR}}"
-        python3 -m venv "{{.REUSE_VENV_DIR}}"
-        "{{.REUSE_VENV_DIR}}"/bin/pip install --upgrade pip
-        "{{.REUSE_VENV_DIR}}"/bin/pip install reuse=={{.REUSE_VERSION}}
+      - task: license:init-licensed-venv
+      - task: license:init-reuse-venv
+
+  init:license:
+    desc: Backward-compatible alias for recreating the environments used by the license tasks
+    cmds:
+      - task: license:init-venvs
 
   init:ci:
     desc: Backward-compatible alias for initializing license environments
     cmds:
-      - task: init:license
+      - task: license:init-venvs
 
   install-bricks:
     desc: Install a specific bricks version (e.g. task install-bricks -- 0.8.0rc2)
@@ -68,7 +66,7 @@ tasks:
 
         echo ""
         echo "============================================================"
-        echo "  ERROR: licensed v{{.LICENSED_VERSION}} is required to run 'task license'."
+        echo "  ERROR: licensed v{{.LICENSED_VERSION}} is required to run 'task license:deps'."
         echo ""
         echo "  Install licensed v{{.LICENSED_VERSION}} manually, make sure it is available in PATH,"
         echo "  and then retry."
@@ -78,38 +76,127 @@ tasks:
         echo "============================================================"
         exit 1
 
-  license:
+  license:init-reuse-venv:
+    desc: Recreate the dedicated virtualenv used by REUSE
+    internal: true
+    cmds:
+      - |
+        rm -rf "{{.REUSE_VENV_DIR}}"
+        python3 -m venv "{{.REUSE_VENV_DIR}}"
+        "{{.REUSE_VENV_DIR}}"/bin/pip install --upgrade pip
+        "{{.REUSE_VENV_DIR}}"/bin/pip install reuse=={{.REUSE_VERSION}}
+
+  license:init-licensed-venv:
+    desc: Recreate the dedicated virtualenv used for licensed dependency scanning
+    internal: true
+    cmds:
+      - |
+        rm -rf "{{.LICENSE_VENV_DIR}}"
+        python3 -m venv "{{.LICENSE_VENV_DIR}}"
+        "{{.LICENSE_VENV_DIR}}"/bin/pip install --upgrade pip -q
+
+        failed_pkgs=()
+        while IFS= read -r line || [ -n "$line" ]; do
+          pkg=$(echo "$line" | sed 's/#.*//;s/^[[:space:]]*//;s/[[:space:]]*$//')
+          [ -z "$pkg" ] && continue
+          "{{.LICENSE_VENV_DIR}}"/bin/pip install -q "$pkg" || failed_pkgs+=("$pkg")
+        done < requirements.txt
+
+        if [ ${#failed_pkgs[@]} -gt 0 ]; then
+          for pkg in "${failed_pkgs[@]}"; do
+            echo "::warning::Failed to install requirement [$pkg] in {{.LICENSE_VENV_DIR}}" >&2
+          done
+        fi
+
+  license:cleanup-reuse-venv:
+    desc: Remove the dedicated REUSE virtualenv
+    internal: true
+    cmds:
+      - rm -rf "{{.REUSE_VENV_DIR}}"
+
+  license:cleanup-licensed-venv:
+    desc: Remove the dedicated licensed virtualenv
+    internal: true
+    cmds:
+      - rm -rf "{{.LICENSE_VENV_DIR}}"
+
+  license:cleanup-venvs:
+    desc: Remove the dedicated license-checking virtualenvs
+    internal: true
+    cmds:
+      - task: license:cleanup-reuse-venv
+      - task: license:cleanup-licensed-venv
+
+  license:headers:
     desc: |
-      Update license headers, validate REUSE compliance and check dependency licenses.
-      Uses a dedicated virtualenv for REUSE and a separate one for pip dependency scanning.
+      Update license headers and validate REUSE compliance.
+      Uses a dedicated virtualenv for REUSE and cleans it up afterwards.
+    cmds:
+      - task: license:init-reuse-venv
+      - |
+        cleanup() {
+          rm -rf "{{.REUSE_VENV_DIR}}"
+        }
+        trap cleanup EXIT
+
+        status=0
+
+        if [ "$status" -eq 0 ]; then
+          # Annotate first-party textual sources without touching vendored
+          # libraries, third-party fonts, or binary/media assets that would
+          # otherwise generate .license sidecars.
+          find examples \
+            \( -path '*/python/*' -o -path '*/assets/*' \) \
+            -type f \
+            ! -path '*/assets/libs/*' \
+            ! -path '*/assets/fonts/*' \
+            \( -name '*.py' -o -name '*.js' -o -name '*.css' -o -name '*.html' \) \
+            -exec "{{.REUSE_VENV_DIR}}"/bin/reuse annotate \
+              --skip-unrecognized \
+              --merge-copyrights \
+              --copyright-prefix 'spdx-string-c' \
+              --copyright 'Arduino s.r.l. and/or its affiliated companies' \
+              --exclude-year \
+              --license 'MPL-2.0' \
+              '{}' \
+              ';' || status=$?
+        fi
+
+        if [ "$status" -eq 0 ]; then
+          "{{.REUSE_VENV_DIR}}"/bin/reuse download --all || status=$?
+        fi
+
+        if [ "$status" -eq 0 ]; then
+          "{{.REUSE_VENV_DIR}}"/bin/reuse lint || status=$?
+        fi
+
+        exit "$status"
+
+  license:deps:
+    desc: |
+      Check and cache dependency licenses with licensed.
+      Uses a dedicated virtualenv for pip dependency scanning and keeps it after the task completes.
       Requires licensed v{{.LICENSED_VERSION}} for dependency license checking.
       In local environments, install licensed v{{.LICENSED_VERSION}} manually before running this task.
       In CI, the task installs licensed v{{.LICENSED_VERSION}} with gem after Ruby has been set up by the workflow.
     cmds:
-      - task: init:license
-      - |
-        # Annotate first-party textual sources without touching vendored
-        # libraries, third-party fonts, or binary/media assets that would
-        # otherwise generate .license sidecars.
-        find examples \
-          \( -path '*/python/*' -o -path '*/assets/*' \) \
-          -type f \
-          ! -path '*/assets/libs/*' \
-          ! -path '*/assets/fonts/*' \
-          \( -name '*.py' -o -name '*.js' -o -name '*.css' -o -name '*.html' \) \
-          -exec "{{.REUSE_VENV_DIR}}"/bin/reuse annotate \
-            --skip-unrecognized \
-            --merge-copyrights \
-            --copyright-prefix 'spdx-string-c' \
-            --copyright 'Arduino s.r.l. and/or its affiliated companies' \
-            --exclude-year \
-            --license 'MPL-2.0' \
-            '{}' \
-            ';'
-      - '"{{.REUSE_VENV_DIR}}"/bin/reuse download --all'
-      - '"{{.REUSE_VENV_DIR}}"/bin/reuse lint'
-      - rm -rf "{{.REUSE_VENV_DIR}}"
       - task: install:licensed
+      - task: license:init-licensed-venv
       - |
-        licensed cache
-        licensed status
+        status=0
+
+        if [ "$status" -eq 0 ]; then
+          licensed cache || status=$?
+        fi
+
+        if [ "$status" -eq 0 ]; then
+          licensed status || status=$?
+        fi
+
+        exit "$status"
+
+  license:
+    desc: Update license headers, validate REUSE compliance and check dependency licenses
+    cmds:
+      - task: license:headers
+      - task: license:deps
