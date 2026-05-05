@@ -12,6 +12,7 @@
 
 import os
 import numpy as np
+import time
 
 from arduino.app_utils import App
 from arduino.app_peripherals.speaker import Speaker, ALSASpeaker
@@ -22,7 +23,7 @@ WAV_PATH = os.path.join(os.path.dirname(__file__), "..", "assets", "audio", "sam
 TARGET_VOLUME = 60
 
 
-def main():
+def play_wav():
     # 1) Discover available USB speakers. Useful when more than one is connected.
     #    `list_usb_devices` is exposed on the concrete ALSASpeaker class
     #    (`Speaker` itself is only a factory that returns an ALSASpeaker instance).
@@ -57,8 +58,7 @@ def main():
     with speaker:
         speaker.play_wav(wav_audio)
 
-    print("Playback finished")
+    time.sleep(1)
 
 
-main()
-App.run()
+App.run(user_loop=play_wav)
