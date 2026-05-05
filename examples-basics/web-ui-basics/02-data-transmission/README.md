@@ -99,4 +99,4 @@ The frontend code manages WebSocket communication and displays incoming messages
 - **`document.createElement('li')`:** Creates a list item element for each new message.
 
 ## Related Inspirational Examples
-- Color your LEDs 
+- Color your LEDs

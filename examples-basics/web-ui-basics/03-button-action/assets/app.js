@@ -35,7 +35,7 @@ async function sendViaHttp() {
       },
       body: JSON.stringify({})
     });
-    
+
     if (response.ok) {
       console.log('HTTP POST request sent successfully');
     } else {

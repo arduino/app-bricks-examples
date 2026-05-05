@@ -3,11 +3,11 @@
 # SPDX-License-Identifier: MPL-2.0
 
 # Example app to demonstrate how to receive requests from the Web UI using the WebUI brick.
-# The WebUI brick exposes both a WebSocket endpoint and a RESTful HTTP API that can be called 
+# The WebUI brick exposes both a WebSocket endpoint and a RESTful HTTP API that can be called
 # from the Web UI to send data to the Python code.
-# In this example, is defined a WebSocket message handler and an HTTP API endpoint that 
-# will be called when the user clicks a button in the Web UI, and the Python code will 
-# log a message in the console indicating that the button was clicked along with the source. 
+# In this example, is defined a WebSocket message handler and an HTTP API endpoint that
+# will be called when the user clicks a button in the Web UI, and the Python code will
+# log a message in the console indicating that the button was clicked along with the source.
 from arduino.app_utils import *
 from arduino.app_utils import Logger
 from arduino.app_bricks.web_ui import WebUI # Import the WebUI class to manage the Web UI server
@@ -30,10 +30,10 @@ def http_print_message():
     return {} # Return a JSON response indicating that the message was received successfully
 
 
-# Register the wss_print_message function to be called when the "print_message" event is received from the Web UI 
+# Register the wss_print_message function to be called when the "print_message" event is received from the Web UI
 # via websocket.
 ui.on_message("print_message", wss_print_message)
-# Expose the http_print_message function as an HTTP RESTful API endpoint that can be called from the Web UI using a 
+# Expose the http_print_message function as an HTTP RESTful API endpoint that can be called from the Web UI using a
 # POST request
 ui.expose_api(method="POST", path="/print_message", function=http_print_message)
 App.run() # Start the application

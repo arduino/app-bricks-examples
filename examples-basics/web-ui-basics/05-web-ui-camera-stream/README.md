@@ -6,7 +6,7 @@ The **Camera Stream** example demonstrates how to stream a live camera video fee
 
 ## Description
 
-This example shows how to use the WebUI brick together with the Camera peripheral to expose a live video stream from the Python backend to the Web UI frontend. The application initializes a web server that serves the frontend files from the `assets` folder and exposes the camera feed on a dedicated endpoint that can be embedded directly in the browser interface. 
+This example shows how to use the WebUI brick together with the Camera peripheral to expose a live video stream from the Python backend to the Web UI frontend. The application initializes a web server that serves the frontend files from the `assets` folder and exposes the camera feed on a dedicated endpoint that can be embedded directly in the browser interface.
 
 The framework automatically selects the first available camera based on priority order (CSI > USB). If no camera is found, an exception is raised.
 
@@ -58,7 +58,7 @@ In order to run this example you can choose between using an USB Camera or a CSI
 2. Run the App
     ![Arduino App Lab - Run App](assets/docs_assets/launch-app.png)
 3. Open the App in your browser at `<UNO-Q-IP-ADDRESS>:7000`
-4. The web page will display the live camera stream    
+4. The web page will display the live camera stream
 
 ## How it Works
 
@@ -98,4 +98,4 @@ The frontend is a simple HTML page that displays the camera stream:
 - **`<img src="/camera">`:** Embeds an image element that displays the live camera stream from the `/camera` endpoint exposed by the backend. The browser automatically handles the MJPEG stream and renders the live video feed.
 
 ## Related Inspirational Examples
-- Color your LEDs 
+- Color your LEDs

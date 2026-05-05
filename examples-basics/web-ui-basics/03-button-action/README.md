@@ -100,4 +100,4 @@ The frontend code provides two buttons that send events to the backend using dif
 - **`fetch('/print_message', { method: 'POST', ... })`:** Makes an HTTP POST request to the `/print_message` endpoint with JSON headers and an empty body.
 
 ## Related Inspirational Examples
-- Color your LEDs 
+- Color your LEDs
