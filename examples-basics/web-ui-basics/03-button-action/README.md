@@ -75,5 +75,29 @@ The Python code demonstrates receiving and handling button clicks from the Web U
 
 ### 🔧 Frontend (`index.html` + `app.js`)
 
+The frontend code provides two buttons that send events to the backend using different communication methods:
+
+- **`const ui = new WebUI()`:** Initializes the WebUI client for WebSocket communication with the backend.
+
+- **`ui.on_connect(onUIConnected)`:** Registers a callback that executes when the frontend connects to the backend server.
+
+- **`ui.on_disconnect(onUIDisconnected)`:** Registers a callback that executes when the frontend disconnects from the backend server.
+
+- **`const websocketButton = document.querySelector('#websocket-button')`:** Selects the WebSocket button element from the DOM.
+
+- **`const httpButton = document.querySelector('#http-button')`:** Selects the HTTP button element from the DOM.
+
+- **`function onUIConnected()`:** Callback function executed when the frontend connects to the backend. Attaches click event listeners to both buttons using `addEventListener`.
+
+- **`websocketButton.addEventListener('click', sendViaWebSocket)`:** Attaches the `sendViaWebSocket` function to the WebSocket button's click event.
+
+- **`httpButton.addEventListener('click', sendViaHttp)`:** Attaches the `sendViaHttp` function to the HTTP button's click event.
+
+- **`function sendViaWebSocket()`:** Sends a message to the backend using WebSocket via the `ui.send_message('print_message')` method, triggering the `print_message` event on the backend.
+
+- **`async function sendViaHttp()`:** Async function that makes an HTTP POST request to the `/print_message` endpoint exposed by the backend using `fetch()`.
+
+- **`fetch('/print_message', { method: 'POST', ... })`:** Makes an HTTP POST request to the `/print_message` endpoint with JSON headers and an empty body.
+
 ## Related Inspirational Examples
 - Color your LEDs 

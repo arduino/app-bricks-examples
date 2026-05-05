@@ -58,7 +58,11 @@ The Python code is minimal and straightforward:
 
 - **`App.run()`:** Starts the application and begins serving web requests.
 
-### 🔧 Frontend (`index.html` + `app.js`)
+### 🔧 Frontend (`index.html`)
+
+The frontend is a simple static HTML page:
+
+- **`<h1>Arduino!</h1>`:** Displays a heading on the web page served by the backend.
 
 ## Related Inspirational Examples
 - Color your LEDs 

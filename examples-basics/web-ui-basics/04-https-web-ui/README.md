@@ -64,6 +64,10 @@ The Python code demonstrates how to configure and run a secure HTTPS web server:
 
 - **`App.run()`:** Starts the application and begins serving the Web UI securely over HTTPS.
 
-### 🔧 Frontend (`index.html` + `app.js`)
+### 🔧 Frontend (`index.html`)
+
+The frontend is a simple static HTML page served securely:
+
+- **`<h1>Arduino!</h1>`:** Displays a heading on the web page, served over HTTPS using the secured connection established by the backend.
 
 ## Related Inspirational Examples

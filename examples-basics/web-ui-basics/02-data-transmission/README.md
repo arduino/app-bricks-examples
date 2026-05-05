@@ -82,5 +82,21 @@ The Python code demonstrates message transmission from backend to frontend with 
 
 ### 🔧 Frontend (`index.html` + `app.js`)
 
+The frontend code manages WebSocket communication and displays incoming messages:
+
+- **`const ui = new WebUI()`:** Initializes the WebUI client for WebSocket communication with the backend.
+
+- **`ui.on_connect(onUIConnected)`:** Registers a callback that executes when the frontend connects to the backend server.
+
+- **`ui.on_disconnect(onUIDisconnected)`:** Registers a callback that executes when the frontend disconnects from the backend server.
+
+- **`ui.on_message('message', printMessage)`:** Registers a listener for the `'message'` event from the backend.
+
+- **`printMessage(message)`:** Function that receives messages from the backend and appends them to the message list in the DOM.
+
+- **`document.querySelector('#message-list')`:** Targets the HTML element where messages will be displayed.
+
+- **`document.createElement('li')`:** Creates a list item element for each new message.
+
 ## Related Inspirational Examples
 - Color your LEDs 

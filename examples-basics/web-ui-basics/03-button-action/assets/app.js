@@ -2,57 +2,46 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-/*
- * Socket initialization. We need it to communicate with the server
- */
-const socket = io(`http://${window.location.host}`); // Initialize socket.io connection
+const websocketButton = document.querySelector('#websocket-button');
+const httpButton = document.querySelector('#http-button');
 
-// Start the application
-document.addEventListener('DOMContentLoaded', () => {
-    initSocketIO();
-    setupButtonListeners();
-});
-
-function initSocketIO() {
-    socket.on('connect', () => {
-        console.log('Connected to the server via websocket');
-    });
+// Initialize UI
+const ui = new WebUI();
+ui.on_connect(onUIConnected);
+ui.on_disconnect(onUIDisconnected);
 
 
-    socket.on('disconnect', () => {
-        console.log('Disconnected from the server');
-    });
+function onUIConnected() {
+  websocketButton.addEventListener('click', sendViaWebSocket);
+  httpButton.addEventListener('click', sendViaHttp);
+  console.log('Connected to the server');
 }
 
-function setupButtonListeners() {
-    const websocketButton = document.getElementById('websocket-button');
-    const httpButton = document.getElementById('http-button');
+function onUIDisconnected() {
+  console.log('Disconnected from the server');
+}
 
-    if (websocketButton) {
-        websocketButton.addEventListener('click', () => {
-            socket.emit('print_message', {});
-            console.log('WebSocket message sent with event id: print_message');
-        });
-    }
+function sendViaWebSocket() {
+  ui.send_message('print_message');
+  console.log('WebSocket message sent with event id: print_message');
+}
 
-    if (httpButton) {
-        httpButton.addEventListener('click', async () => {
-            try {
-                const response = await fetch('/print_message', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({})
-                });
-                if (response.ok) {
-                    console.log('HTTP POST request sent successfully');
-                } else {
-                    console.error('HTTP POST request failed:', response.status);
-                }
-            } catch (error) {
-                console.error('Error sending HTTP POST request:', error);
-            }
-        });
+async function sendViaHttp() {
+  try {
+    const response = await fetch('/print_message', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({})
+    });
+    
+    if (response.ok) {
+      console.log('HTTP POST request sent successfully');
+    } else {
+      console.error('HTTP POST request failed:', response.status);
     }
+  } catch (error) {
+    console.error('Error sending HTTP POST request:', error);
+  }
 }

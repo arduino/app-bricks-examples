@@ -91,7 +91,11 @@ The Python code demonstrates how to capture and stream camera frames to the Web 
 
 - **`App.run()`:** Starts the application.
 
-### 🔧 Frontend (`index.html` + `app.js`)
+### 🔧 Frontend (`index.html`)
+
+The frontend is a simple HTML page that displays the camera stream:
+
+- **`<img src="/camera">`:** Embeds an image element that displays the live camera stream from the `/camera` endpoint exposed by the backend. The browser automatically handles the MJPEG stream and renders the live video feed.
 
 ## Related Inspirational Examples
 - Color your LEDs 

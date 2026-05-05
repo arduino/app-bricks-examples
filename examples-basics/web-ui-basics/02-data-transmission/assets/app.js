@@ -2,37 +2,24 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-const ledButton = document.getElementById('led-button');
-const ledText = document.getElementById('led-text');
-let errorContainer;
+// Initialize UI
+const ui = new WebUI();
+ui.on_connect(onUIConnected);
+ui.on_disconnect(onUIDisconnected);
 
-/*
- * Socket initialization. We need it to communicate with the server
- */
-const socket = io(`http://${window.location.host}`); // Initialize socket.io connection
+ui.on_message('message', printMessage);
 
-// Start the application
-document.addEventListener('DOMContentLoaded', () => {
-    initSocketIO();
-});
+function onUIConnected() {
+  console.log('Connected to the server');
+}
 
-function initSocketIO() {
-    socket.on('connect', () => {
-        console.log('Connected to the server');
-    });
-
-    socket.on('message', (message) => {
-        printMessage(message);
-    });
-
-    socket.on('disconnect', () => {
-        console.log('Disconnected from the server');
-    });
+function onUIDisconnected() {
+  console.log('Disconnected from the server');
 }
 
 function printMessage(message) {
-    const messageList = document.getElementById('message-list');
-    const listItem = document.createElement('li');
-    listItem.textContent = message.content;
-    messageList.appendChild(listItem);
+  const messageList = document.querySelector('#message-list');
+  const listItem = document.createElement('li');
+  listItem.textContent = message.content;
+  messageList.appendChild(listItem);
 }

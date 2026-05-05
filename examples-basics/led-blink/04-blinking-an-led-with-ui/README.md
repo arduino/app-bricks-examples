@@ -98,15 +98,23 @@ The Python code manages the web interface, handles user interactions, and commun
 
 ### 🔧 Frontend (`index.html` + `app.js`)
 
-The web interface provides a simple toggle button for LED control.
+The web interface provides a simple toggle button for LED control:
 
-- **Socket.IO connection:** Establishes WebSocket communication with the Python backend through the `web_ui` Brick.
+- **`const ledButton = document.querySelector('#led-button')`:** Selects the LED toggle button element from the DOM.
 
-- **`socket.emit('toggle_led', {})`:** Sends a toggle message to the backend when the user clicks the button.
+- **`const ui = new WebUI()`:** Initializes the WebUI client for WebSocket communication with the backend.
 
-- **`socket.on('led_status_update', updateLedStatus)`:** Receives LED status updates and updates the button appearance accordingly.
+- **`ui.on_connect(onUIConnected)`:** Registers a callback that executes when the frontend connects to the backend server.
 
-- **`updateLedStatus(status)`:** Changes the button's visual state (LED IS ON/OFF) based on the received status.
+- **`ui.on_disconnect(onUIDisconnected)`:** Registers a callback that executes when the frontend disconnects from the backend server.
+
+- **`ui.on_message('led_status_update', updateLedStatus)`:** Listens for LED status updates from the backend.
+
+- **`onUIConnected()`:** Callback function that attaches the click event listener to the LED button using `ledButton.addEventListener('click', handleLedClick)` and requests the initial LED state with `ui.send_message('get_initial_state')`.
+
+- **`handleLedClick()`:** Function that sends the `'toggle_led'` message to the backend when the button is clicked.
+
+- **`updateLedStatus(status)`:** Updates the button's visual appearance (CSS class and text) based on the received LED status from the backend.
 
 ### 🔧 Hardware (`sketch.ino`)
 
