@@ -12,7 +12,7 @@ The backend uses the `tts` Brick to synthesize speech with an on-device MeloTTS 
 
 Key features include:
 
-- **Fully offline synthesis:** Speech is generated locally by an AI model running in a Docker container on the VENTUNO Q.
+- **Fully offline synthesis:** Speech is generated locally by an AI model running on the VENTUNO Q.
 - **Long text support:** The backend automatically splits long inputs into sentence-aware chunks so you can paste paragraphs without hitting the per-request size limit.
 - **Live highlighting:** As each chunk is spoken the frontend highlights the matching range of the source text so you can follow along with the synthesizer.
 - **Stop on demand:** A single button toggles between Play and Stop so you can interrupt playback at any time.
@@ -85,7 +85,7 @@ Once the application is running, the device performs the following operations:
 4. The Brick writes the PCM stream to ALSA, which routes it to the USB speaker.
 5. Before each chunk is spoken, the backend pushes a `speaking` status message — `started`, `progress` (with `start`/`end` offsets into the original text), or `finished` — and the frontend listens with `ui.on_message('speaking', ...)` to drive the Play/Stop toggle, the elapsed-time counter, and the live highlight overlay.
 
-The MeloTTS model and the audio analytics service run inside a Docker container managed by the `tts` Brick, so the App container does not need any model files of its own.
+The MeloTTS model and the audio analytics service are managed by the `tts` Brick, so the App does not need any model files of its own.
 
 ## Understanding the Code
 
