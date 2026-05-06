@@ -1,3 +1,0 @@
-name: Play PCM
-icon: 〰️
-description: Generate a sine wave with numpy and stream it to the speaker as raw PCM.
