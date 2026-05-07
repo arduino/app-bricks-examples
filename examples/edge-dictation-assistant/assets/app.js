@@ -51,6 +51,7 @@ function toggleRecording() {
     title.textContent = 'Listening...';
     micButton.querySelector('img').src = './img/microphone-pause.svg';
     animatedBars.classList.remove('paused');
+    content.removeAttribute('data-state');
 
     resetSilenceTimer();
   } else {
