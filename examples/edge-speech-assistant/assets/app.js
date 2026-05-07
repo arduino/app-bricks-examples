@@ -5,8 +5,8 @@
 const ui = new WebUI();
 
 const textInput = document.getElementById('text-input');
-const playStopButton = document.getElementById('play-stop-button');
-const playStopIcon = document.getElementById('play-stop-icon');
+const playButton = document.getElementById('play-stop-button');
+const playIcon = document.getElementById('play-stop-icon');
 const resetButton = document.getElementById('reset-button');
 const timer = document.getElementById('timer');
 
@@ -38,30 +38,22 @@ function updateControls() {
     const hasText = textInput.value.trim().length > 0;
 
     if (isSpeaking) {
-        playStopIcon.src = 'img/stop.svg';
-        playStopButton.classList.add('active');
-        playStopButton.disabled = false;
+        playButton.disabled = true;
         textInput.disabled = true;
         resetButton.disabled = true;
         resetButton.classList.add('disabled');
     } else {
-        playStopIcon.src = 'img/play.svg';
-        playStopButton.classList.remove('active');
-        playStopButton.disabled = !hasText;
+        playButton.disabled = !hasText;
         textInput.disabled = false;
         resetButton.disabled = !hasText;
         resetButton.classList.toggle('disabled', !hasText);
     }
 }
 
-playStopButton.addEventListener('click', () => {
-    if (isSpeaking) {
-        ui.send_message('stop');
-    } else {
-        const text = textInput.value.trim();
-        if (text) {
-            ui.send_message('speak', { text });
-        }
+playButton.addEventListener('click', () => {
+    const text = textInput.value.trim();
+    if (text && !isSpeaking) {
+        ui.send_message('speak', { text });
     }
 });
 

@@ -33,20 +33,18 @@ def speak(session_id, data):
         text = text[cut:].strip()
     if text:
         chunks.append(text)
-    ui.send_message("speaking", {"status": "started"})
 
+    ui.send_message("speaking", {"status": "started"})
     for chunk in chunks:
         if stop_event.is_set():
             break
-
         if chunk.strip():
             tts.speak(chunk)
     ui.send_message("speaking", {"status": "finished"})
 
+
 def stop(session_id, data):
     stop_event.set()
-    tts.stop()
-    ui.send_message("speaking", {"status": "finished"})
 
 
 ui.on_message("speak", speak)
