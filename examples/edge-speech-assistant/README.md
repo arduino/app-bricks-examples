@@ -13,8 +13,7 @@ The backend uses the `tts` Brick to synthesize speech with an on-device MeloTTS 
 Key features include:
 
 - **Fully offline synthesis:** Speech is generated locally by an AI model running on the VENTUNO Q.
-- **Long text support:** The backend automatically splits long inputs into sentence-aware chunks so you can paste paragraphs without hitting the per-request size limit.
-- **Live highlighting:** As each chunk is spoken the frontend highlights the matching range of the source text so you can follow along with the synthesizer.
+- **Long text support:** Short inputs are sent in a single request; longer text is split at sentence boundaries before being handed off to the synthesizer.
 - **Stop on demand:** A single button toggles between Play and Stop so you can interrupt playback at any time.
 
 ## Bricks Used
@@ -82,10 +81,10 @@ Once the application is running, the device performs the following operations:
 ```
 
 1. The browser instantiates the `WebUI` helper, which opens a Socket.IO connection to the `web_ui` Brick under the hood, and calls `ui.send_message('speak', { text })` with the text typed by the user.
-2. `main.py` receives the event, splits the text at sentence and clause boundaries for fine-grained highlighting, and forwards each chunk to the `tts` Brick (further sub-splitting any chunk that exceeds the 1024-byte synthesis limit).
+2. `main.py` receives the event and forwards the text to the `tts` Brick. Short inputs are passed straight through; longer text is split at sentence boundaries first so each request stays within the synthesizer's per-call size limit.
 3. The `tts` Brick calls the local audio-analytics REST API (`http://audio-analytics-runner:8085`) which runs the MeloTTS model on the Qualcomm® DSP and returns raw PCM audio.
 4. The Brick writes the PCM stream to ALSA, which routes it to the USB speaker.
-5. Before each chunk is spoken, the backend pushes a `speaking` status message — `started`, `progress` (with `start`/`end` offsets into the original text), or `finished` — and the frontend listens with `ui.on_message('speaking', ...)` to drive the Play/Stop toggle, the elapsed-time counter, and the live highlight overlay.
+5. The backend emits a `speaking` status message (`started` when synthesis begins, `finished` when it ends or is stopped). The frontend listens with `ui.on_message('speaking', ...)` to drive the Play/Stop toggle and the elapsed-time counter.
 
 The MeloTTS model and the audio analytics service are managed by the `tts` Brick, so the App does not need any model files of its own.
 
@@ -108,48 +107,32 @@ The Python® backend is small: it wires the `web_ui` events to the `tts` Brick a
   ui = WebUI()
   ```
 
-- **Sentence-aware chunking**: The handler first splits the text at sentence and clause boundaries (`.!?,;:`) so each spoken segment maps to a meaningful range of the original string. This is what powers the live highlight on the frontend.
+- **Chunking long text**: Short inputs are sent to the `tts` Brick as a single request. When the text exceeds the per-call size limit, the handler splits it at the last sentence boundary (`.!?`) that fits in the window and repeats until the remainder is short enough.
 
   ```python
   TTS_MAX_BYTES = 1024
 
-  # Split at sentence and clause boundaries for fine-grained highlighting
-  chunks = re.split(r"(?<=[.!?,;:])\s+", original_text)
+  chunks = []
+  while len(text.encode("utf-8")) > TTS_MAX_BYTES:
+      window = text.encode("utf-8")[:TTS_MAX_BYTES].decode("utf-8", errors="ignore")
+      match = re.search(r"[.!?][^.!?]*$", window)
+      cut = match.start() + 1 if match else len(window)
+      chunks.append(text[:cut].strip())
+      text = text[cut:].strip()
+  if text:
+      chunks.append(text)
   ```
 
-- **Playback loop with progress and stop support**: A `threading.Event` lets the `stop` handler interrupt the loop between chunks. Before every chunk the backend sends a `progress` message with the chunk's offsets in the original text so the frontend can highlight it; chunks that still exceed the 1024-byte synthesis limit are sub-split on word boundaries.
+- **Playback loop with stop support**: A `threading.Event` lets the `stop` handler interrupt the loop between chunks. The backend sends a `started` status before the first chunk and a `finished` status when the loop ends.
 
   ```python
   ui.send_message("speaking", {"status": "started"})
-  search_from = 0
   for chunk in chunks:
       if stop_event.is_set():
           break
-      if not chunk.strip():
-          continue
-      idx = original_text.find(chunk, search_from)
-      if idx != -1:
-          ui.send_message(
-              "speaking",
-              {"status": "progress", "start": idx, "end": idx + len(chunk)},
-          )
-          search_from = idx + len(chunk)
-      remaining = chunk
-      while remaining:
-          if stop_event.is_set():
-              break
-          if len(remaining.encode("utf-8")) <= TTS_MAX_BYTES:
-              tts.speak(remaining)
-              break
-          window = remaining.encode("utf-8")[:TTS_MAX_BYTES].decode(
-              "utf-8", errors="ignore"
-          )
-          space_idx = window.rfind(" ")
-          cut = space_idx if space_idx > 0 else len(window)
-          tts.speak(remaining[:cut].strip())
-          remaining = remaining[cut:].strip()
-  if not stop_event.is_set():
-      ui.send_message("speaking", {"status": "finished"})
+      if chunk.strip():
+          tts.speak(chunk)
+  ui.send_message("speaking", {"status": "finished"})
   ```
 
 - **Event registration**: Incoming `web_ui` messages are bound to the handlers and the App is started.
@@ -163,7 +146,7 @@ The Python® backend is small: it wires the `web_ui` events to the `tts` Brick a
 
 ### 💻 Frontend (`index.html` + `app.js`)
 
-The page is a single-screen editor with a Play/Stop toggle button, a timer, and a highlight overlay layered on top of the textarea. The frontend talks to the backend through a `WebUI` helper class (`assets/libs/arduino.js`) that wraps the underlying Socket.IO client and exposes the same `send_message` / `on_message` shape as the Python side — so you never write `socket.emit` or `socket.on` directly in `app.js`.
+The page is a single-screen editor with a Play/Stop toggle button and an elapsed-time counter. The frontend talks to the backend through a `WebUI` helper class (`assets/libs/arduino.js`) that wraps the underlying Socket.IO client and exposes the same `send_message` / `on_message` shape as the Python side — so you never write `socket.emit` or `socket.on` directly in `app.js`.
 
 - **Connecting to the brick**: A single line creates the connection and the helper takes care of the Socket.IO handshake.
 
@@ -186,20 +169,16 @@ The page is a single-screen editor with a Play/Stop toggle button, a timer, and 
   });
   ```
 
-- **Status synchronization**: The backend's `speaking` messages drive the icon, label, timer, disabled-state of the controls, and the highlight overlay so the UI always reflects what the synthesizer is actually doing. The `progress` events carry `start`/`end` offsets into the original text, which `highlightRange` uses to wrap the matching slice in a `<span class="highlight">`.
+- **Status synchronization**: The backend's `speaking` messages drive the icon, the timer, and the disabled state of the controls so the UI always reflects what the synthesizer is actually doing.
 
   ```javascript
   ui.on_message('speaking', (data) => {
       if (data.status === 'started') {
           isSpeaking = true;
-          showOverlay(textInput.value.trim());
           startTimer();
           updateControls();
-      } else if (data.status === 'progress') {
-          highlightRange(data.start, data.end);
       } else if (data.status === 'finished') {
           isSpeaking = false;
-          hideOverlay();
           stopTimer();
           updateControls();
       }
