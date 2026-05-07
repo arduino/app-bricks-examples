@@ -17,14 +17,16 @@ const transcriptionArea = document.querySelector('#transcription-area');
 
 transcriptionArea.addEventListener('scroll', updateGradientOpacity);
 
-const SILENCE_TIMEOUT_MS = 20000;
+const DICTATION_ENDED_TIMEOUT_MS = 20000;
+const TRANSCRIPTION_TIMEOUT_MS = 2000;
 let isRecording = false,
   resultText = '',
-  silenceTimer = null;
+  silenceTimer = null,
+  transcriptionTimer = null;
 
 /**
  * Resets the silence timer and sets a new timeout.
- * If silence is detected for SILENCE_TIMEOUT_MS, automatically stops recording.
+ * If silence is detected for DICTATION_ENDED_TIMEOUT_MS, automatically stops recording.
  */
 function resetSilenceTimer() {
   clearTimeout(silenceTimer);
@@ -33,7 +35,20 @@ function resetSilenceTimer() {
       toggleRecording();
       content.setAttribute('data-state', 'ended');
     }
-  }, SILENCE_TIMEOUT_MS);
+  }, DICTATION_ENDED_TIMEOUT_MS);
+}
+
+/**
+ * Resets the transcription timer and sets a new timeout.
+ * If no transcription data is received for TRANSCRIPTION_TIMEOUT_MS, pauses the animated bars.
+ */
+function resetTranscriptionTimer() {
+  clearTimeout(transcriptionTimer);
+  transcriptionTimer = setTimeout(() => {
+    if (isRecording) {
+      animatedBars.classList.add('paused');
+    }
+  }, TRANSCRIPTION_TIMEOUT_MS);
 }
 
 /**
@@ -50,13 +65,14 @@ function toggleRecording() {
 
     title.textContent = 'Listening...';
     micButton.querySelector('img').src = './img/microphone-pause.svg';
-    animatedBars.classList.remove('paused');
     content.removeAttribute('data-state');
 
     resetSilenceTimer();
+    resetTranscriptionTimer();
   } else {
     isRecording = false;
     clearTimeout(silenceTimer);
+    clearTimeout(transcriptionTimer);
     ui.send_message('stop_dictation');
 
     title.textContent = 'Start your Dictation';
@@ -146,6 +162,13 @@ function copyFallback(img) {
  * @param {{type: string, text: string}} data - Transcription data with type ('partial_text' or 'full_text') and text content.
  */
 function onTranscription(data) {
+  if (!isRecording) {
+    return;
+  }
+
+  animatedBars.classList.remove('paused');
+  resetTranscriptionTimer();
+
   content.setAttribute('data-has-text', data.text.length > 0);
 
   if (data.type === 'partial_text') {
