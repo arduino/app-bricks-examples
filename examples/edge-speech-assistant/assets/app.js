@@ -38,11 +38,15 @@ function updateControls() {
     const hasText = textInput.value.trim().length > 0;
 
     if (isSpeaking) {
-        playButton.disabled = true;
+        playIcon.src = 'img/stop.svg';
+        playButton.classList.add('active');
+        playButton.disabled = false;
         textInput.disabled = true;
         resetButton.disabled = true;
         resetButton.classList.add('disabled');
     } else {
+        playIcon.src = 'img/play.svg';
+        playButton.classList.remove('active');
         playButton.disabled = !hasText;
         textInput.disabled = false;
         resetButton.disabled = !hasText;
@@ -51,9 +55,13 @@ function updateControls() {
 }
 
 playButton.addEventListener('click', () => {
-    const text = textInput.value.trim();
-    if (text && !isSpeaking) {
-        ui.send_message('speak', { text });
+    if (isSpeaking) {
+        ui.send_message('stop');
+    } else {
+        const text = textInput.value.trim();
+        if (text) {
+            ui.send_message('speak', { text });
+        }
     }
 });
 

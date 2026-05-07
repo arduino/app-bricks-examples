@@ -44,7 +44,9 @@ def speak(session_id, data):
 
 
 def stop(session_id, data):
+    tts.cancel()
     stop_event.set()
+    ui.send_message("speaking", {"status": "finished"})
 
 
 ui.on_message("speak", speak)
