@@ -26,14 +26,8 @@ A model might be trained to identify a specific object by analyzing hundreds or 
 Another example is an audio AI model, trained specifically to identify certain keywords, such as "Hey" and "Arduino." Continuously monitoring and classifying the audio, if a match occurs, we can act upon it.
 - Try this out in the [Hey Arduino](/examples) example.
 
-## How Models Run on the UNO Q
+## How Models Run on the Board
 
 Once the App is started, AI models will run locally on the board. The Brick uses the AI model to perform specific AI tasks, like object detection, image or audio classification, etc.
 
 The Brick provides an interface that can be used in the Python script to perform various operations, such as real-time object detection. This interaction allows us to integrate AI capabilities into our Apps seamlessly, leveraging the power of pre-trained models.
-
-## Next Steps
-
-In this guide, we have explored how AI models work and how they are integrated with Bricks. Models play a key role when building advanced Apps, as they make them smarter and more precise in decision-making.
-
-In the next guide, we will examine some **built-in example Apps** that utilize these Bricks and models, providing practical insights into their implementation and use cases.
