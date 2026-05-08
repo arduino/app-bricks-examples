@@ -13,7 +13,7 @@ The backend uses the `tts` Brick to synthesize speech with an on-device MeloTTS 
 Key features include:
 
 - **Fully offline synthesis:** Speech is generated locally by an AI model running on the VENTUNO Q.
-- **Long text support:** The backend automatically splits long inputs into sentence-aware chunks so you can paste paragraphs without hitting the per-request size limit.
+- **Long text support:** The `tts` Brick automatically splits long inputs into sentence-aware chunks so you can paste paragraphs without hitting the per-request size limit.
 - **Live highlighting:** As each chunk is spoken the frontend highlights the matching range of the source text so you can follow along with the synthesizer.
 - **Stop on demand:** A single button toggles between Play and Stop so you can interrupt playback at any time.
 
