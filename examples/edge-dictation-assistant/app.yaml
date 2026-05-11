@@ -1,0 +1,7 @@
+name: Edge Dictation Assistant
+icon: 🗣️
+description: A simple dictation assistant that converts your speech to text and displays it on a UI.
+
+bricks:
+  - arduino:web_ui
+  - arduino:asr

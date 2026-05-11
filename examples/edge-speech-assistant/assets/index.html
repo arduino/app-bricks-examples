@@ -1,0 +1,48 @@
+<!--
+SPDX-FileCopyrightText: Copyright (C) Arduino s.r.l. and/or its affiliated companies
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edge Speech Assistant</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <img src="img/RGB-Arduino-Logo-Color-Inline-Loop.svg" alt="Arduino Logo" class="arduino-logo">
+                <p class="arduino-text">Edge Speech Assistant</p>
+            </div>
+            <div class="header-right">
+                <button id="reset-button" class="disabled" disabled>
+                    <img src="img/reset.svg" alt="Reset">
+                    New text
+                </button>
+            </div>
+        </div>
+        <main class="main-content">
+            <p class="editor-label">Write or paste your text here</p>
+            <div class="editor-area">
+                <textarea id="text-input" placeholder="Type or paste the text you want to hear..."></textarea>
+            </div>
+            <div class="controls">
+                <div class="controls-right">
+                    <span id="timer" class="timer">0:00</span>
+                    <button id="play-stop-button" disabled>
+                        <img id="play-stop-icon" src="img/play.svg" alt="Play">
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="libs/socket.io.min.js"></script>
+    <script src="libs/arduino.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

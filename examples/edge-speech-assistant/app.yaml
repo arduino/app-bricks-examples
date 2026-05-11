@@ -1,0 +1,7 @@
+name: Edge Speech Assistant
+icon: 🗣️
+description: A text-to-speech assistant that converts text input into spoken audio.
+
+bricks:
+  - arduino:web_ui
+  - arduino:tts

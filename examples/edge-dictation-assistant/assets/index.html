@@ -1,0 +1,65 @@
+<!--
+SPDX-FileCopyrightText: Copyright (C) Arduino s.r.l. and/or its affiliated companies
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edge Dictation Assistant</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div>
+          <img
+            src="img/RGB-Arduino-Logo-Color-Inline-Loop.svg"
+            alt="Arduino Logo"
+            class="arduino-logo"
+          />
+          <p class="arduino-text">Edge Dictation Assistant</p>
+        </div>
+
+        <button
+          id="new-recording-button"
+          class="primary"
+          onclick="startNewRecording()"
+        >
+          <img src="img/reset.svg" alt="Reset" />
+          <span>New recording</span>
+        </button>
+      </div>
+      <div class="content">
+        <div id="animated-bars">
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+        </div>
+
+        <div id="dictation-ended">
+          <span>Dictation ended</span>
+          <button id="copy-button" onclick="copyResult()">
+            <img src="img/copy.svg" />
+          </button>
+        </div>
+
+        <p id="title" class="title">Start your Dictation</p>
+
+        <div id="transcription-area" class="transcription-area">
+          <span id="full-text"></span><span id="partial-text"></span>
+        </div>
+        <button id="mic-button" onclick="toggleRecording()">
+          <img src="img/microphone.svg" alt="Record" />
+        </button>
+      </div>
+    </div>
+    <script src="libs/socket.io.min.js"></script>
+    <script src="libs/arduino.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
