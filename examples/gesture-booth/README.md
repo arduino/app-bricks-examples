@@ -95,7 +95,7 @@ pd.on_gesture("Victory", lambda meta: ui.send_message('gesture_detected', {'gest
 
 - **Providing feedback in the Web UI.**
 
-The web interface receives the `gesture_detected` message via Socket.IO and updates the display to show the recognized gesture icon and animations.
+The web interface receives the `gesture_detected` message via WebUI and updates the display to show the recognized gesture icon and animations.
 
 ## Understanding the Code
 
@@ -116,5 +116,5 @@ The Python code coordinates the AI model, the camera hardware, and the web inter
 
 - **`index.html`**: Defines the layout, including the video container, gesture list, and action buttons.
 - **`style.css`**: Provides the visual styling, including the Arduino-themed interface and responsive layout.
-- **`app.js`**: Manages the Socket.IO connection, receives gesture messages from the backend, and updates the UI state (e.g., showing the current gesture icon).
+- **`app.js`**: Manages the WebUI connection, receives gesture messages from the backend, and updates the UI state (e.g., showing the current gesture icon).
 - **`function.js`**: Contains helper functions for UI interactions like taking pictures and managing state transitions.

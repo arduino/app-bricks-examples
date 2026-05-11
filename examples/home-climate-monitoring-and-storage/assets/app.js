@@ -2,7 +2,31 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-const socket = io(`http://${window.location.host}`);
+const ui = new WebUI();
+ui.on_connect(onUIConnected);
+ui.on_disconnect(onUIDisconnected);
+
+// Temperature and Humidity live updates
+ui.on_message('temperature', (message) => {
+  renderChartData(temperatureLive, [message]);
+});
+
+ui.on_message('humidity', (message) => {
+  renderChartData(humidityLive, [message]);
+});
+
+ui.on_message('dew_point', (message) => {
+  renderChartData(dewPointLive, [message]);
+});
+
+ui.on_message('heat_index', (message) => {
+  renderChartData(heatIndexLive, [message]);
+});
+
+ui.on_message('absolute_humidity', (message) => {
+  renderChartData(absHumidityLive, [message]);
+});
+
 
 // Temperature and Humidity chart objects
 const temperatureLive = { canvas: null, chart: null, data: newChartData('orange', 'rgba(255,165,0,0.1)'), unit: '°C' };
@@ -32,163 +56,150 @@ const noDataTimeout = 10000; // 10 seconds
 
 let errorContainer;
 
+// Initialize canvases
+temperatureLive.canvas = document.getElementById('temperature-live-chart');
+humidityLive.canvas = document.getElementById('humidity-live-chart');
+temperature1h.canvas = document.getElementById('temperature-1h-chart');
+humidity1h.canvas = document.getElementById('humidity-1h-chart');
+temperature1d.canvas = document.getElementById('temperature-1d-chart');
+humidity1d.canvas = document.getElementById('humidity-1d-chart');
+// Derived metrics canvases
+dewPointLive.canvas = document.getElementById('dew_point-live-chart');
+heatIndexLive.canvas = document.getElementById('heat_index-live-chart');
+absHumidityLive.canvas = document.getElementById(
+  'absolute_humidity-live-chart',
+);
+dewPoint1h.canvas = document.getElementById('dew_point-1h-chart');
+heatIndex1h.canvas = document.getElementById('heat_index-1h-chart');
+absHumidity1h.canvas = document.getElementById('absolute_humidity-1h-chart');
+dewPoint1d.canvas = document.getElementById('dew_point-1d-chart');
+heatIndex1d.canvas = document.getElementById('heat_index-1d-chart');
+absHumidity1d.canvas = document.getElementById('absolute_humidity-1d-chart');
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize canvases
-    temperatureLive.canvas = document.getElementById('temperature-live-chart');
-    humidityLive.canvas = document.getElementById('humidity-live-chart');
-    temperature1h.canvas = document.getElementById('temperature-1h-chart');
-    humidity1h.canvas = document.getElementById('humidity-1h-chart');
-    temperature1d.canvas = document.getElementById('temperature-1d-chart');
-    humidity1d.canvas = document.getElementById('humidity-1d-chart');
-    // Derived metrics canvases
-    dewPointLive.canvas = document.getElementById('dew_point-live-chart');
-    heatIndexLive.canvas = document.getElementById('heat_index-live-chart');
-    absHumidityLive.canvas = document.getElementById('absolute_humidity-live-chart');
-    dewPoint1h.canvas = document.getElementById('dew_point-1h-chart');
-    heatIndex1h.canvas = document.getElementById('heat_index-1h-chart');
-    absHumidity1h.canvas = document.getElementById('absolute_humidity-1h-chart');
-    dewPoint1d.canvas = document.getElementById('dew_point-1d-chart');
-    heatIndex1d.canvas = document.getElementById('heat_index-1d-chart');
-    absHumidity1d.canvas = document.getElementById('absolute_humidity-1d-chart');
+// The live circle is hidden initially until data come
+const liveCircle = document.getElementById('live-circle');
+if (liveCircle) liveCircle.style.display = 'none';
 
-    // The live circle is hidden initially until data come
-    const liveCircle = document.getElementById('live-circle');
-    if (liveCircle) liveCircle.style.display = 'none';
+errorContainer = document.getElementById('error-container');
 
-    errorContainer = document.getElementById('error-container');
-
-    // Tab switching logic
-    document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', function() {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-            this.classList.add('active');
-            document.getElementById(this.dataset.tab).classList.add('active');
-        });
-    });
-
-    document.querySelector('.tab[data-tab="historical-1h"]').addEventListener('click', async () => {
-        const temperature_samples = await listSamples("temperature", "-1h", "5m");
-        renderChartData(temperature1h, temperature_samples, 12, true, false);
-        const humidity_samples = await listSamples("humidity", "-1h", "5m");
-        renderChartData(humidity1h, humidity_samples, 12, true, false);
-        const dew_samples = await listSamples("dew_point", "-1h", "5m");
-        renderChartData(dewPoint1h, dew_samples, 12, true, false);
-        const heat_samples = await listSamples("heat_index", "-1h", "5m");
-        renderChartData(heatIndex1h, heat_samples, 12, true, false);
-        const abs_samples = await listSamples("absolute_humidity", "-1h", "5m");
-        renderChartData(absHumidity1h, abs_samples, 12, true, false);
-    });
-    document.querySelector('.tab[data-tab="historical-1d"]').addEventListener('click', async () => {
-        const temperature_samples = await listSamples("temperature", "-1d", "1h");
-        renderChartData(temperature1d, temperature_samples, 24, false, false);
-        const humidity_samples = await listSamples("humidity", "-1d", "1h");
-        renderChartData(humidity1d, humidity_samples, 24, false, false);
-        const dew_samples = await listSamples("dew_point", "-1d", "1h");
-        renderChartData(dewPoint1d, dew_samples, 24, false, false);
-        const heat_samples = await listSamples("heat_index", "-1d", "1h");
-        renderChartData(heatIndex1d, heat_samples, 24, false, false);
-        const abs_samples = await listSamples("absolute_humidity", "-1d", "1h");
-        renderChartData(absHumidity1d, abs_samples, 24, false, false);
-    });
-
-    // Popover logic for Temperature and Humidity info buttons
-    const tempPopoverText = "Shows temperature readings in °C. Data is average per 1h (1D view) or per 1 minute (1h view)";
-    const humidityPopoverText = "Shows relative humidity percentage. Data is average per 1h (1D view) or per 1 minute (1h view)";
-    const dewPointPopoverText = "Dew Point is the temperature at which air becomes saturated with moisture. It indicates the absolute humidity level.";
-    const heatIndexPopoverText = "Heat Index combines air temperature and relative humidity to determine the perceived temperature.";
-    const absHumidityPopoverText = "Absolute Humidity is the total amount of water vapor present in the air, expressed in grams per cubic meter (g/m³).";
-    document.querySelectorAll('.info-btn.temp').forEach(img => {
-        img.style.position = 'relative';
-        const popover = img.nextElementSibling;
-        img.addEventListener('mouseenter', () => {
-            popover.textContent = tempPopoverText;
-            popover.style.display = 'block';
-        });
-        img.addEventListener('mouseleave', () => {
-            popover.style.display = 'none';
-        });
-    });
-    document.querySelectorAll('.info-btn.humidity').forEach(img => {
-        img.style.position = 'relative';
-        const popover = img.nextElementSibling;
-        img.addEventListener('mouseenter', () => {
-            popover.textContent = humidityPopoverText;
-            popover.style.display = 'block';
-        });
-        img.addEventListener('mouseleave', () => {
-            popover.style.display = 'none';
-        });
-    });
-    document.querySelectorAll('.info-btn.dew').forEach(img => {
-        img.style.position = 'relative';
-        const popover = img.nextElementSibling;
-        img.addEventListener('mouseenter', () => {
-            popover.textContent = dewPointPopoverText;
-            popover.style.display = 'block';
-        });
-        img.addEventListener('mouseleave', () => {
-            popover.style.display = 'none';
-        });
-    });
-    document.querySelectorAll('.info-btn.heat').forEach(img => {
-        img.style.position = 'relative';
-        const popover = img.nextElementSibling;
-        img.addEventListener('mouseenter', () => {
-            popover.textContent = heatIndexPopoverText;
-            popover.style.display = 'block';
-        });
-        img.addEventListener('mouseleave', () => {
-            popover.style.display = 'none';
-        });
-    });
-    document.querySelectorAll('.info-btn.abs').forEach(img => {
-        img.style.position = 'relative';
-        const popover = img.nextElementSibling;
-        img.addEventListener('mouseenter', () => {
-            popover.textContent = absHumidityPopoverText;
-            popover.style.display = 'block';
-        });
-        img.addEventListener('mouseleave', () => {
-            popover.style.display = 'none';
-        });
-    });
-    initSocketIO();
+// Tab switching logic
+document.querySelectorAll('.tab').forEach((tab) => {
+  tab.addEventListener('click', function () {
+    document
+      .querySelectorAll('.tab')
+      .forEach((t) => t.classList.remove('active'));
+    document
+      .querySelectorAll('.tab-content')
+      .forEach((tc) => tc.classList.remove('active'));
+    this.classList.add('active');
+    document.getElementById(this.dataset.tab).classList.add('active');
+  });
 });
 
-function initSocketIO() {
-    socket.on('connect', () => {
-        if (errorContainer) {
-            errorContainer.style.display = 'none';
-            errorContainer.textContent = '';
-        }
-    });
+document.querySelector('.tab[data-tab="historical-1h"]').addEventListener('click', async () => {
+    const temperature_samples = await listSamples('temperature', '-1h', '5m');
+    renderChartData(temperature1h, temperature_samples, 12, true, false);
+    const humidity_samples = await listSamples('humidity', '-1h', '5m');
+    renderChartData(humidity1h, humidity_samples, 12, true, false);
+    const dew_samples = await listSamples('dew_point', '-1h', '5m');
+    renderChartData(dewPoint1h, dew_samples, 12, true, false);
+    const heat_samples = await listSamples('heat_index', '-1h', '5m');
+    renderChartData(heatIndex1h, heat_samples, 12, true, false);
+    const abs_samples = await listSamples('absolute_humidity', '-1h', '5m');
+    renderChartData(absHumidity1h, abs_samples, 12, true, false);
+  });
+document
+  .querySelector('.tab[data-tab="historical-1d"]')
+  .addEventListener('click', async () => {
+    const temperature_samples = await listSamples('temperature', '-1d', '1h');
+    renderChartData(temperature1d, temperature_samples, 24, false, false);
+    const humidity_samples = await listSamples('humidity', '-1d', '1h');
+    renderChartData(humidity1d, humidity_samples, 24, false, false);
+    const dew_samples = await listSamples('dew_point', '-1d', '1h');
+    renderChartData(dewPoint1d, dew_samples, 24, false, false);
+    const heat_samples = await listSamples('heat_index', '-1d', '1h');
+    renderChartData(heatIndex1d, heat_samples, 24, false, false);
+    const abs_samples = await listSamples('absolute_humidity', '-1d', '1h');
+    renderChartData(absHumidity1d, abs_samples, 24, false, false);
+  });
 
-    socket.on('disconnect', (reason) => {
-        if (errorContainer) {
-            errorContainer.textContent = 'Connection to the board lost. Please check the connection.';
-            errorContainer.style.display = 'block';
-        }
-    });
+// Popover logic for Temperature and Humidity info buttons
+const tempPopoverText = "Shows temperature readings in °C. Data is average per 1h (1D view) or per 1 minute (1h view)";
+const humidityPopoverText = "Shows relative humidity percentage. Data is average per 1h (1D view) or per 1 minute (1h view)";
+const dewPointPopoverText = "Dew Point is the temperature at which air becomes saturated with moisture. It indicates the absolute humidity level.";
+const heatIndexPopoverText = "Heat Index combines air temperature and relative humidity to determine the perceived temperature.";
+const absHumidityPopoverText = "Absolute Humidity is the total amount of water vapor present in the air, expressed in grams per cubic meter (g/m³).";
+document.querySelectorAll('.info-btn.temp').forEach((img) => {
+  img.style.position = 'relative';
+  const popover = img.nextElementSibling;
+  img.addEventListener('mouseenter', () => {
+    popover.textContent = tempPopoverText;
+    popover.style.display = 'block';
+  });
+  img.addEventListener('mouseleave', () => {
+    popover.style.display = 'none';
+  });
+});
+document.querySelectorAll('.info-btn.humidity').forEach((img) => {
+  img.style.position = 'relative';
+  const popover = img.nextElementSibling;
+  img.addEventListener('mouseenter', () => {
+    popover.textContent = humidityPopoverText;
+    popover.style.display = 'block';
+  });
+  img.addEventListener('mouseleave', () => {
+    popover.style.display = 'none';
+  });
+});
+document.querySelectorAll('.info-btn.dew').forEach((img) => {
+  img.style.position = 'relative';
+  const popover = img.nextElementSibling;
+  img.addEventListener('mouseenter', () => {
+    popover.textContent = dewPointPopoverText;
+    popover.style.display = 'block';
+  });
+  img.addEventListener('mouseleave', () => {
+    popover.style.display = 'none';
+  });
+});
+document.querySelectorAll('.info-btn.heat').forEach((img) => {
+  img.style.position = 'relative';
+  const popover = img.nextElementSibling;
+  img.addEventListener('mouseenter', () => {
+    popover.textContent = heatIndexPopoverText;
+    popover.style.display = 'block';
+  });
+  img.addEventListener('mouseleave', () => {
+    popover.style.display = 'none';
+  });
+});
+document.querySelectorAll('.info-btn.abs').forEach((img) => {
+  img.style.position = 'relative';
+  const popover = img.nextElementSibling;
+  img.addEventListener('mouseenter', () => {
+    popover.textContent = absHumidityPopoverText;
+    popover.style.display = 'block';
+  });
+  img.addEventListener('mouseleave', () => {
+    popover.style.display = 'none';
+  });
+});
 
-    // Temperature and Humidity live updates
-    socket.on('temperature', (message) => {
-        renderChartData(temperatureLive, [message]);
-    });
 
-    socket.on('humidity', (message) => {
-        renderChartData(humidityLive, [message]);
-    });
-    socket.on('dew_point', (message) => {
-        renderChartData(dewPointLive, [message]);
-    });
-    socket.on('heat_index', (message) => {
-        renderChartData(heatIndexLive, [message]);
-    });
-    socket.on('absolute_humidity', (message) => {
-        renderChartData(absHumidityLive, [message]);
-    });
+function onUIConnected() {
+    if (errorContainer) {
+      errorContainer.style.display = 'none';
+      errorContainer.textContent = '';
+    }
+}
+
+
+function onUIDisconnected() {
+    if (errorContainer) {
+      errorContainer.textContent =
+        'Connection to the board lost. Please check the connection.';
+      errorContainer.style.display = 'block';
+    }
 }
 
 async function listSamples(resource, start, aggr_window) {

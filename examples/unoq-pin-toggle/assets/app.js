@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-const socket = io(`http://${window.location.host}`);
+const ui = new WebUI();
 
 // Column anchors
 const RIGHT_LEFT = 88.92;             // right CONTROL column (D21..D0)
@@ -97,36 +97,34 @@ function setChecked(name, value) {
 }
 
 // --------------- Wire everything -------------------------------------
-document.addEventListener("DOMContentLoaded", () => {
-  // create switches
-  const frag = document.createDocumentFragment();
-  PIN_LAYOUT.forEach(cfg => frag.appendChild(makeSwitch(cfg)));
-  document.querySelector(".board").appendChild(frag);
+// create switches
+const frag = document.createDocumentFragment();
+PIN_LAYOUT.forEach(cfg => frag.appendChild(makeSwitch(cfg)));
+document.querySelector(".board").appendChild(frag);
 
-  // local change -> emit to backend
-  PIN_LAYOUT.forEach(({ name }) => {
-    const el = document.getElementById(`pin-${name}`);
-    el?.addEventListener("change", () => {
-      const stateBool = !!el.checked;
-      socket.emit("pin_toggle", { name, state: stateBool ? "on" : "off" });
-      console.log(`${name} -> ${stateBool ? "ON" : "OFF"}`);
-    });
+// local change -> emit to backend
+PIN_LAYOUT.forEach(({ name }) => {
+  const el = document.getElementById(`pin-${name}`);
+  el?.addEventListener('change', () => {
+    const stateBool = !!el.checked;
+    ui.send_message("pin_toggle", { name, state: stateBool ? 'on' : 'off' });
+    console.log(`${name} -> ${stateBool ? 'ON' : 'OFF'}`);
   });
-
-  // bootstrap from backend
-  fetch(`http://${window.location.host}/states`, { cache: "no-store" })
-    .then(r => (r.ok ? r.json() : Promise.reject(r.status)))
-    .then(data => {
-      const states = data?.states || {};
-      Object.entries(states).forEach(([name, v]) => setChecked(name, v === true || v === 1 || v === "on" || v === "1"));
-    })
-    .catch(() => {});
-
-  // keep in sync
-  socket.on("pin_state_update", (msg) => {
-    if (!msg?.name) return;
-    setChecked(msg.name, msg.state === true || msg.state === 1 || msg.state === "on" || msg.state === "1");
-  });
-
-  socket.on("error", (m) => console.error("Server error:", m));
 });
+
+// bootstrap from backend
+fetch(`http://${window.location.host}/states`, { cache: "no-store" })
+  .then(r => (r.ok ? r.json() : Promise.reject(r.status)))
+  .then(data => {
+    const states = data?.states || {};
+    Object.entries(states).forEach(([name, v]) => setChecked(name, v === true || v === 1 || v === "on" || v === "1"));
+  })
+  .catch(() => {});
+
+// keep in sync
+ui.on_message('pin_state_update', (msg) => {
+  if (!msg?.name) return;
+  setChecked(msg.name, msg.state === true || msg.state === 1 || msg.state === "on" || msg.state === "1");
+});
+
+ui.on_message('error', (m) => console.error('Server error:', m));
