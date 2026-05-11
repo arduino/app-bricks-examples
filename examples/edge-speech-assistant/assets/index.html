@@ -27,19 +27,22 @@ SPDX-License-Identifier: MPL-2.0
             </div>
         </div>
         <main class="main-content">
+            <p class="editor-label">Write or paste your text here</p>
             <div class="editor-area">
                 <textarea id="text-input" placeholder="Type or paste the text you want to hear..."></textarea>
             </div>
             <div class="controls">
-                <span id="timer" class="timer">0:00</span>
-                <button id="play-stop-button" disabled>
-                    <img id="play-stop-icon" src="img/play.svg" alt="Play">
-                    <span id="play-stop-label">Play</span>
-                </button>
+                <div class="controls-right">
+                    <span id="timer" class="timer">0:00</span>
+                    <button id="play-stop-button" disabled>
+                        <img id="play-stop-icon" src="img/play.svg" alt="Play">
+                    </button>
+                </div>
             </div>
         </main>
     </div>
     <script src="libs/socket.io.min.js"></script>
+    <script src="libs/arduino.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

@@ -2,12 +2,11 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-const socket = io(`http://${window.location.host}`);
+const ui = new WebUI();
 
 const textInput = document.getElementById('text-input');
-const playStopButton = document.getElementById('play-stop-button');
-const playStopIcon = document.getElementById('play-stop-icon');
-const playStopLabel = document.getElementById('play-stop-label');
+const playButton = document.getElementById('play-stop-button');
+const playIcon = document.getElementById('play-stop-icon');
 const resetButton = document.getElementById('reset-button');
 const timer = document.getElementById('timer');
 
@@ -39,31 +38,29 @@ function updateControls() {
     const hasText = textInput.value.trim().length > 0;
 
     if (isSpeaking) {
-        playStopIcon.src = 'img/stop.svg';
-        playStopLabel.textContent = 'Stop';
-        playStopButton.classList.add('active');
-        playStopButton.disabled = false;
+        playIcon.src = 'img/stop.svg';
+        playButton.classList.add('active');
+        playButton.disabled = false;
         textInput.disabled = true;
         resetButton.disabled = true;
         resetButton.classList.add('disabled');
     } else {
-        playStopIcon.src = 'img/play.svg';
-        playStopLabel.textContent = 'Play';
-        playStopButton.classList.remove('active');
-        playStopButton.disabled = !hasText;
+        playIcon.src = 'img/play.svg';
+        playButton.classList.remove('active');
+        playButton.disabled = !hasText;
         textInput.disabled = false;
         resetButton.disabled = !hasText;
         resetButton.classList.toggle('disabled', !hasText);
     }
 }
 
-playStopButton.addEventListener('click', () => {
+playButton.addEventListener('click', () => {
     if (isSpeaking) {
-        socket.emit('stop', {});
+        ui.send_message('stop');
     } else {
         const text = textInput.value.trim();
         if (text) {
-            socket.emit('speak', { text });
+            ui.send_message('speak', { text });
         }
     }
 });
@@ -78,7 +75,7 @@ resetButton.addEventListener('click', () => {
 
 textInput.addEventListener('input', updateControls);
 
-socket.on('speaking', (data) => {
+ui.on_message('speaking', (data) => {
     if (data.status === 'started') {
         isSpeaking = true;
         startTimer();
