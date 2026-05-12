@@ -1,100 +1,65 @@
 ---
-title: Single Board Computer (SBC)
-description: Set up the UNO Q as a Single-Board Computer with a display, mouse & keyboard.
-author: Karl Söderby
-tags: [SBC, Debian, Linux, Terminal]
-icon: Computer
+title: Setup Arduino App Lab in SBC Mode
+description: Learn how to set up your board as a standalone Single-Board Computer.
+tags: [Standalone, SBC, Setup]
+icon: 
 category: basic
 ---
 
-![UNO Q as a Single Board Computer (SBC)](assets/sbc-hero.png)
+Compatible Arduino boards can operate as a **Single-Board Computer (SBC)** running a full Linux environment. In this mode, the board functions like a desktop computer, and you develop directly on the board without needing a separate host PC.
 
-The UNO Q board can be used as a **Single Board Computer (SBC)**. Through the USB-C connector (using a dongle), we can connect a screen, keyboard & mouse and interact with it.
+Because these boards run a standard Linux OS, they support a wide range of I/O configurations. You can connect peripherals via USB hubs, use monitors with built-in docking capabilities, or pair wireless accessories once the system is configured.
 
-The operating system (Linux) provides a user interface, with a desktop and basic applications such as a browser and terminal. The **Arduino App Lab** editor is also pre-installed on the board, which means we can launch Apps directly from the board itself!
+> **Important:** To ensure smooth performance in Standalone Mode, use a board with at least 4 GB of RAM.
 
-In this guide, we will go through the necessary steps to set up our board as an SBC.
+## Setup in Single-Board Computer Mode
 
-> The board can be directly set up as an SBC without the need for a host computer.
+1. [Connect power, display, and input devices](#connect-power-display-and-input-devices)
+1. [Boot into Linux](#boot-into-linux)
+2. [Get Started with Arduino App Lab](https://docs.arduino.cc/software/app-lab/getting-started/quickstart/)
 
-> While the board is in SBC mode, we can still access it from our computer using [Network Mode](/learn/network-mode)
+## Connect power, display, and input devices
 
-## Requirements
+For the most reliable experience during initial setup and configuration, we recommend using a USB-C hub to connect a display and a wired USB mouse and keyboard. Once the system is configured, you can connect Bluetooth peripherals as needed.
 
-To use the board as an SBC, we will need the following:
-- USB-C dongle (with an HDMI connector)
-- Power supply powering our USB-C dongle (either directly from a computer's USB port or a phone charger rated at 5V)
-- Screen and an HDMI cable
-- Keyboard & mouse
+### What You'll Need
 
-> Apple's USB-C dongle has been tested and does not work properly with the UNO Q. A large variety of other USB-C dongles from various manufacturers have been tested and confirmed to be working.
+- **Display:** Any monitor or TV with HDMI, DisplayPort, or USB-C input.
+- **Input devices (USB):** A keyboard and mouse that can be connected to a USB port.
+- **USB-C multiport hub:** A hub that connects to the board's USB-C port and includes ports for both your display and input devices.
+- **Power supply:** The hub must be powered externally (USB-C or a standalone power supply).
 
-![Single Board Computer.](assets/sbc.png)
+### Setup Instructions
 
-## Hardware Setup
+1. **Connect display and inputs to the hub:** Plug your monitor, keyboard, and mouse into the USB-C hub.
+2. **Connect your board to the hub:** Your board should be connected to the hub as the host PC. Many "dongle"-style hubs have a built-in cable for this. If yours does not have a cable, look for a port with a computer icon, or check the documentation for your hub.
+3. **Connect power:** Connect your power supply to the **PD (Power Delivery) port** on the hub, or use a dedicated power supply (if included with your hub).
 
-The UNO Q board only has **one USB-C® connector**. This means that if we want to use it as an SBC, the USB-C® port needs to have a **USB dongle** connected, so we can connect a mouse, keyboard, and screen.
+![Illustration showing an UNO Q board in Single-Board Computer mode connected to a HDMI display, USB keyboard and mouse, and a 5 V power supply via a USB-C multiport adapter.](./assets/sbc-configuration.png)
 
-1. Connect a USB dongle to the UNO Q's USB-C connector.
-2. Connect a mouse, keyboard, and screen to the USB dongle.
-3. Finally, power the USB dongle via USB-C®, using either our computer's USB port or a phone charger rated at 5V.
+> **Compatibility Note:** Most standard USB-C hubs work correctly, but **Apple USB-C Digital AV Multiport Adapters** are often incompatible with these boards and should be avoided for Standalone Mode.
 
-Note that since we are using the USB-C® connector, we need to use the **"Network"** option if we want to access the board from the Arduino App Lab on a computer.
+## Boot Into Linux
 
-## First Boot
+1. When booting into Linux for the first time, you'll be prompted to set a new password for the default **arduino** user account.
+1. _Board Configuration._ Select a keyboard layout and set a name for your board.
+1. _Network Setup._ Select an available wireless network (recommended) or choose **Skip** to configure later.
+1. _Linux credentials._ Set a password for the **arduino** user account. You can use the same password you entered at boot, or change it by entering a different one.
 
-After powering the board, we should see the **Linux Desktop** launching on the screen, where we need to enter our credentials. The default credentials are `arduino` / `arduino`, but this can also be specified during the setup of the board.
+If you connect to the Internet, Arduino App Lab may prompt you to install any available software updates. These updates are recommended, but can be skipped using the **Skip** button.
 
-![Linux OS.](assets/debian.png)
+## Alternative Configurations
 
-After entering the credentials, the computer starts the **Arduino App Lab**, which is identical to the one used on a regular computer. The Arduino App Lab will directly start looking for updates.
+Once you are comfortable with the basic setup, you can explore other ways to connect your hardware.
 
-After the update is complete, we can now start using the Arduino App Lab, as we would do it from our host computer!
+### Direct USB-C Video
 
-![Arduino App Lab.](assets/app-lab.png)
+If you have a monitor that supports **USB-C Video (DisplayPort Alt Mode)** and features a built-in USB hub, you can connect the board directly to the monitor with a single USB-C cable. The monitor will provide video, data for peripherals, and often power to the board.
 
-### Troubleshooting
+### Using Bluetooth Peripherals
 
-Some common troubleshooting topics are listed below:
+While the board supports Bluetooth keyboards and mice, they require an initial setup using a wired connection.
 
-- **Board is not starting** - if the green power LED on the board is not ON, check that the power supply is correct. Note that we need to power the USB-C dongle from a 5V power source.
-- **Username / Password incorrect** - if we are unable to use `arduino` / `arduino`, we may have already configured a password.
-- **Screen not responding** - if the board is ON, but the screen is not showing anything, try resetting the board. Alternatively, we can also try another USB dongle.
-- **Keyboard / mouse not responding** - if the keyboard or mouse is not responding, it may be incompatible with the device.
-
-## Network Mode
-
-While the board is set up as an SBC, we can also access the board using [Network Mode](/learn/network-mode). Network Mode allows us to connect to the board over the local Wi-Fi® network, using the Arduino App Lab.
-
-When starting the Arduino App Lab desktop application and the UNO Q is connected to the local network, the board should appear. 
-
-This is a great way of using the board as a standalone computer, but also being able to access it via our computer.
-
-## Other Usage
-
-The UNO Q board is designed to run Apps using the Arduino App Lab, but since it is running a Linux OS, it is possible to do a wide range of things on the board as well.
-
-As Linux is not an operating system developed by Arduino, the documentation is not included here, but we can visit the official OS documentation to learn more. The Linux OS running on the board supports a large variety of packages.
-
-See the sections below to get some inspiration for what we can do with the board in an SBC mode.
-
-### Terminal
-
-The board has a terminal that can be launched (`CTRL+ALT+T` or through the menu). This allows us to run commands such as:
-- Installing packages & applications
-- Navigating directories
-- Running code (e.g. Python scripts)
-
-We can, for example, install a text editor (e.g. `gedit`), write code through it, and run it via the terminal.
-
-![Using the terminal.](assets/terminal.png)
-
-### Browser
-
-Through the OS default browser, we can also browse the Internet.
-
-![Using the browser.](assets/browser.png)
-
-## Summary
-
-In this guide, we learned about setting the board up as an **SBC**, short for **Single Board Computer**. We have learned that the UNO Q can be used as a standalone computer, provided that we use a power supply, USB dongle, keyboard & mouse, and an external monitor.
+1. Boot the board using a wired USB mouse.
+2. Open the Linux Bluetooth settings and pair your wireless devices.
+3. Once paired, they will reconnect automatically on future boots.
