@@ -13,8 +13,7 @@ The backend uses the `tts` Brick to synthesize speech with an on-device MeloTTS 
 Key features include:
 
 - **Fully offline synthesis:** Speech is generated locally by an AI model running on the VENTUNO Q.
-- **Long text support:** The `tts` Brick automatically splits long inputs into sentence-aware chunks so you can paste paragraphs without hitting the per-request size limit.
-- **Live highlighting:** As each chunk is spoken the frontend highlights the matching range of the source text so you can follow along with the synthesizer.
+- **Long text support:** The `tts` Brick automatically handles long inputs by splitting them into sentence-aware chunks internally, so you can paste paragraphs without worrying about per-request size limits.
 - **Stop on demand:** A single button toggles between Play and Stop so you can interrupt playback at any time.
 
 ## Bricks Used
@@ -82,10 +81,10 @@ Once the application is running, the device performs the following operations:
 ```
 
 1. The browser instantiates the `WebUI` helper, which opens a Socket.IO connection to the `web_ui` Brick under the hood, and calls `ui.send_message('speak', { text })` with the text typed by the user.
-2. `main.py` receives the event, splits the text at sentence and clause boundaries for fine-grained highlighting, and forwards each chunk to the `tts` Brick (further sub-splitting any chunk that exceeds the 1024-byte synthesis limit).
+2. `main.py` receives the event and forwards the text to the `tts` Brick in a single `tts.speak(text)` call. The Brick takes care of splitting long inputs into sentence-aware chunks internally so the App code stays trivial.
 3. The `tts` Brick calls the local audio-analytics REST API (`http://audio-analytics-runner:8085`) which runs the MeloTTS model on the Qualcomm® DSP and returns raw PCM audio.
 4. The Brick writes the PCM stream to ALSA, which routes it to the USB speaker.
-5. Before each chunk is spoken, the backend pushes a `speaking` status message — `started`, `progress` (with `start`/`end` offsets into the original text), or `finished` — and the frontend listens with `ui.on_message('speaking', ...)` to drive the Play/Stop toggle, the elapsed-time counter, and the live highlight overlay.
+5. The backend emits a `speaking` status message (`started` when synthesis begins, `finished` when it ends or is stopped or cancelled). The frontend listens with `ui.on_message('speaking', ...)` to drive the Play/Stop toggle and the elapsed-time counter.
 
 The MeloTTS model and the audio analytics service are managed by the `tts` Brick, so the App does not need any model files of its own.
 
@@ -95,7 +94,7 @@ Here is a brief explanation of the App components:
 
 ### 🔧 Backend (`main.py`)
 
-The Python® backend is small: it wires the `web_ui` events to the `tts` Brick and adds a chunking helper for long inputs.
+The Python® backend is small: it wires the `web_ui` events to the `tts` Brick. All chunking and audio streaming is delegated to the Brick, so the App-level code stays under 30 lines.
 
 - **Initialization**: Both Bricks are created with no arguments. The `tts` Brick auto-detects the first USB speaker and connects to the audio-analytics service.
 
@@ -108,47 +107,26 @@ The Python® backend is small: it wires the `web_ui` events to the `tts` Brick a
   ui = WebUI()
   ```
 
-- **Sentence-aware chunking**: The handler first splits the text at sentence and clause boundaries (`.!?,;:`) so each spoken segment maps to a meaningful range of the original string. This is what powers the live highlight on the frontend.
+- **Long inputs are handled by the `tts` Brick**: The App does not implement its own chunker. The `tts` Brick accepts arbitrary-length strings and internally splits them at sentence boundaries before forwarding each piece to the synthesizer, so the speak handler can pass the user input straight through.
+
+- **Speak handler**: When a `speak` message arrives, the handler emits a `started` status, hands the full text to `tts.speak()` (which blocks until synthesis and playback are done), then emits `finished`.
 
   ```python
-  TTS_MAX_BYTES = 1024
+  def speak(session_id, data):
+      text = data.get("text", "").strip()
+      if not text:
+          return
 
-  # Split at sentence and clause boundaries for fine-grained highlighting
-  chunks = re.split(r"(?<=[.!?,;:])\s+", original_text)
+      ui.send_message("speaking", {"status": "started"})
+      tts.speak(text)
+      ui.send_message("speaking", {"status": "finished"})
   ```
 
-- **Playback loop with progress and stop support**: A `threading.Event` lets the `stop` handler interrupt the loop between chunks. Before every chunk the backend sends a `progress` message with the chunk's offsets in the original text so the frontend can highlight it; chunks that still exceed the 1024-byte synthesis limit are sub-split on word boundaries.
+- **Stop handler**: Pressing Stop in the UI sends a `stop` message. The handler calls `tts.cancel()` to interrupt the current synthesis and emits `finished` so the frontend can return to the idle state.
 
   ```python
-  ui.send_message("speaking", {"status": "started"})
-  search_from = 0
-  for chunk in chunks:
-      if stop_event.is_set():
-          break
-      if not chunk.strip():
-          continue
-      idx = original_text.find(chunk, search_from)
-      if idx != -1:
-          ui.send_message(
-              "speaking",
-              {"status": "progress", "start": idx, "end": idx + len(chunk)},
-          )
-          search_from = idx + len(chunk)
-      remaining = chunk
-      while remaining:
-          if stop_event.is_set():
-              break
-          if len(remaining.encode("utf-8")) <= TTS_MAX_BYTES:
-              tts.speak(remaining)
-              break
-          window = remaining.encode("utf-8")[:TTS_MAX_BYTES].decode(
-              "utf-8", errors="ignore"
-          )
-          space_idx = window.rfind(" ")
-          cut = space_idx if space_idx > 0 else len(window)
-          tts.speak(remaining[:cut].strip())
-          remaining = remaining[cut:].strip()
-  if not stop_event.is_set():
+  def stop(session_id, data):
+      tts.cancel()
       ui.send_message("speaking", {"status": "finished"})
   ```
 
@@ -163,7 +141,7 @@ The Python® backend is small: it wires the `web_ui` events to the `tts` Brick a
 
 ### 💻 Frontend (`index.html` + `app.js`)
 
-The page is a single-screen editor with a Play/Stop toggle button, a timer, and a highlight overlay layered on top of the textarea. The frontend talks to the backend through a `WebUI` helper class (`assets/libs/arduino.js`) that wraps the underlying Socket.IO client and exposes the same `send_message` / `on_message` shape as the Python side — so you never write `socket.emit` or `socket.on` directly in `app.js`.
+The page is a single-screen editor with a Play/Stop toggle button and an elapsed-time counter. The frontend talks to the backend through a `WebUI` helper class (`assets/libs/arduino.js`) that wraps the underlying Socket.IO client and exposes the same `send_message` / `on_message` shape as the Python side — so you never write `socket.emit` or `socket.on` directly in `app.js`.
 
 - **Connecting to the brick**: A single line creates the connection and the helper takes care of the Socket.IO handshake.
 
@@ -174,7 +152,7 @@ The page is a single-screen editor with a Play/Stop toggle button, a timer, and 
 - **Sending text**: When the user presses Play, the frontend sends a `speak` message with the current textarea value. Pressing the same button while speaking sends `stop` instead.
 
   ```javascript
-  playStopButton.addEventListener('click', () => {
+  playButton.addEventListener('click', () => {
       if (isSpeaking) {
           ui.send_message('stop');
       } else {
@@ -186,20 +164,16 @@ The page is a single-screen editor with a Play/Stop toggle button, a timer, and 
   });
   ```
 
-- **Status synchronization**: The backend's `speaking` messages drive the icon, label, timer, disabled-state of the controls, and the highlight overlay so the UI always reflects what the synthesizer is actually doing. The `progress` events carry `start`/`end` offsets into the original text, which `highlightRange` uses to wrap the matching slice in a `<span class="highlight">`.
+- **Status synchronization**: The backend's `speaking` messages drive the icon, the timer, and the disabled state of the controls so the UI always reflects what the synthesizer is actually doing.
 
   ```javascript
   ui.on_message('speaking', (data) => {
       if (data.status === 'started') {
           isSpeaking = true;
-          showOverlay(textInput.value.trim());
           startTimer();
           updateControls();
-      } else if (data.status === 'progress') {
-          highlightRange(data.start, data.end);
       } else if (data.status === 'finished') {
           isSpeaking = false;
-          hideOverlay();
           stopTimer();
           updateControls();
       }
@@ -215,4 +189,3 @@ The page is a single-screen editor with a Play/Stop toggle button, a timer, and 
 ### App start fails with "Speaker is busy"
 
 **Fix:** Another audio service is already holding the device exclusively (PipeWire or PulseAudio from a desktop session is the most common cause). Stop the conflicting service or run the board in headless mode so the `tts` Brick can open the speaker.
-
