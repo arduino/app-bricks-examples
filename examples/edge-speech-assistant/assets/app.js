@@ -5,8 +5,8 @@
 const ui = new WebUI();
 
 const textInput = document.getElementById('text-input');
-const playStopButton = document.getElementById('play-stop-button');
-const playStopIcon = document.getElementById('play-stop-icon');
+const playButton = document.getElementById('play-stop-button');
+const playIcon = document.getElementById('play-stop-icon');
 const resetButton = document.getElementById('reset-button');
 const timer = document.getElementById('timer');
 
@@ -38,23 +38,23 @@ function updateControls() {
     const hasText = textInput.value.trim().length > 0;
 
     if (isSpeaking) {
-        playStopIcon.src = 'img/stop.svg';
-        playStopButton.classList.add('active');
-        playStopButton.disabled = false;
+        playIcon.src = 'img/stop.svg';
+        playButton.classList.add('active');
+        playButton.disabled = false;
         textInput.disabled = true;
         resetButton.disabled = true;
         resetButton.classList.add('disabled');
     } else {
-        playStopIcon.src = 'img/play.svg';
-        playStopButton.classList.remove('active');
-        playStopButton.disabled = !hasText;
+        playIcon.src = 'img/play.svg';
+        playButton.classList.remove('active');
+        playButton.disabled = !hasText;
         textInput.disabled = false;
         resetButton.disabled = !hasText;
         resetButton.classList.toggle('disabled', !hasText);
     }
 }
 
-playStopButton.addEventListener('click', () => {
+playButton.addEventListener('click', () => {
     if (isSpeaking) {
         ui.send_message('stop');
     } else {
