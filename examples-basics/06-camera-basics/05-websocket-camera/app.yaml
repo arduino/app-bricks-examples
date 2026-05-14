@@ -1,0 +1,6 @@
+name: WebSocket Camera
+icon: 📷
+description: Capture an image from a camera that streams frames over WebSocket.
+
+ports:
+  - 8080
