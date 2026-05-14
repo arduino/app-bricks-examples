@@ -4,13 +4,22 @@
 
 from arduino.app_utils import App, Logger, Bridge
 from arduino.app_bricks.video_imageclassification import VideoImageClassification
-import time
+from arduino.app_peripherals.camera import Camera
 
 # Example app to detect people in a video stream, log the results to the console and trigger an action on the MCU
 logger = Logger("VideoPersonClassificationApp")                                                 # Initialize a logger for the application
 CONFIDENCE_THRESHOLD = 0.5                                                                      # Confidence threshold for object detection
 
-detection_stream = VideoImageClassification(confidence=CONFIDENCE_THRESHOLD, debounce_sec=1.0)  # Initialize the VideoImageClassification brick with the specified confidence threshold and debounce time
+# List of camera configurations available, choose the one uncomment it and comment the others.
+camera = Camera(resolution=(640, 480), fps=30)
+#camera = Camera("csi:0", resolution=(640, 480), fps=30) # CSI camera with positional source identifier
+#camera = Camera("usb:0", resolution=(640, 480), fps=30) # USB camera with positional source identifier
+#camera = Camera("rtsp://<RTSP_URL>", username="<USERNAME>", password="<PASSWORD>") # RTSP camera stream
+
+# List of video image classification configurations available, choose the one uncomment it and comment the others.
+detection_stream = VideoImageClassification(camera=camera, confidence=CONFIDENCE_THRESHOLD, debounce_sec=1.0)  # Initialize the VideoImageClassification brick with the specified confidence threshold and debounce time
+#detection_stream = VideoImageClassification(camera=camera, confidence=0.7, debounce_sec=1.0) # Use a stricter confidence threshold
+#detection_stream = VideoImageClassification(camera=camera, confidence=CONFIDENCE_THRESHOLD, debounce_sec=0.0) # Trigger every classification event
 
 # Variable to keep track of the previous state of person detection, used to avoid triggering the animation repeatedly when the state hasn't changed
 previous_state : bool = False 
