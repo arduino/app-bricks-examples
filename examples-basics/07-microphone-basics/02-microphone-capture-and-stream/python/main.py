@@ -18,8 +18,14 @@ def print_chunk_summary(chunk_name: str, audio_chunk):
     print(f"- min: {audio_chunk.min()}")
     print(f"- max: {audio_chunk.max()}")
 
-# Create and start the microphone before capturing or streaming.
+# List of microphone configurations available, choose the one uncomment it and comment the others.
 microphone = Microphone()
+#microphone = Microphone(Microphone.USB_MIC_1) # Use the first USB microphone
+#microphone = Microphone(sample_rate=Microphone.RATE_48K, channels=Microphone.CHANNELS_MONO, buffer_size=Microphone.BUFFER_SIZE_REALTIME, shared=False) # Low-latency high quality mono stream
+#microphone = Microphone(sample_rate=Microphone.RATE_16K, channels=Microphone.CHANNELS_MONO, buffer_size=Microphone.BUFFER_SIZE_SAFE, shared=False) # Safer stream with a larger buffer
+#microphone = Microphone("hw:0,0", sample_rate=Microphone.RATE_16K, channels=Microphone.CHANNELS_MONO, shared=False) # Use an explicit ALSA device name
+
+# Start the microphone before capturing or streaming.
 microphone.start()
 
 # capture() reads a single chunk from the microphone and returns it as a NumPy array.
