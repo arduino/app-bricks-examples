@@ -14,7 +14,6 @@ const ledState = {
   4: { color: '#FFFFFF', isOn: true },
 };
 
-
 setupPaletteLED(1);
 setupPaletteLED(2);
 setupColorPickerLED(3);
@@ -44,8 +43,7 @@ function onUIConnected() {
 function onUIDisconnected() {
   const errorContainer = document.getElementById('error-container');
   if (errorContainer) {
-    errorContainer.textContent =
-      'Connection to the board lost. Please check the connection.';
+    errorContainer.textContent = 'Connection to the board lost. Please check the connection.';
     errorContainer.style.display = 'block';
   }
 }
@@ -55,12 +53,11 @@ function setupPaletteLED(ledNumber) {
   const palette = document.getElementById(`led${ledNumber}-palette`);
   const circle = document.getElementById(`led${ledNumber}-circle`);
 
-  switchEl.addEventListener('change', (e) => {
+  switchEl.addEventListener('change', e => {
     ledState[ledNumber].isOn = e.target.checked;
     if (ledState[ledNumber].isOn) {
       updateColor(ledNumber, ledState[ledNumber].color);
     } else {
-      const rgb = hexToRgb(OFF_COLOR);
       ui.send_message('set_color', {
         led: ledNumber,
         color: { r: 0, g: 0, b: 0 },
@@ -69,7 +66,7 @@ function setupPaletteLED(ledNumber) {
     }
   });
 
-  palette.addEventListener('click', (e) => {
+  palette.addEventListener('click', e => {
     if (e.target.classList.contains('color-square')) {
       if (ledState[ledNumber].isOn) {
         const newColor = e.target.dataset.color;
@@ -89,7 +86,7 @@ function setupColorPickerLED(ledNumber) {
   const hexInput = document.getElementById(`led${ledNumber}-hex`);
   const circle = document.getElementById(`led${ledNumber}-circle`);
 
-  switchEl.addEventListener('change', (e) => {
+  switchEl.addEventListener('change', e => {
     ledState[ledNumber].isOn = e.target.checked;
     if (ledState[ledNumber].isOn) {
       updateColor(ledNumber, ledState[ledNumber].color);
@@ -108,13 +105,13 @@ function setupColorPickerLED(ledNumber) {
     }
   });
 
-  picker.addEventListener('input', (e) => {
+  picker.addEventListener('input', e => {
     if (ledState[ledNumber].isOn) {
       updateColor(ledNumber, e.target.value);
     }
   });
 
-  hexInput.addEventListener('change', (e) => {
+  hexInput.addEventListener('change', e => {
     const newColor = e.target.value;
     if (ledState[ledNumber].isOn) {
       if (/^#[0-9A-F]{6}$/i.test(newColor)) {

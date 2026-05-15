@@ -160,7 +160,7 @@ Once the application is running, you can open it in your browser by navigating t
   ```javascript
   const ui = new WebUI();
 
-  ui.on_message('detection', (message) => {
+  ui.on_message('detection', message => {
     printDetection(message); // update detection history
     renderDetections(); // redraw the list
     // updateFeedback is built into app.js

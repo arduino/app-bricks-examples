@@ -59,8 +59,8 @@ Press **SPACE** or **UP ARROW** to jump over obstacles. The keypress triggers a 
 ![Gameplay Example](assets/docs_assets/game_play_state.gif)
 
 5. **Avoid Obstacles**
-   
-Jump over three types of electronic components: *resistors* (small), *transistors* (medium), and *microchips* (large). The backend's `spawn_obstacle()` creates new obstacles at random intervals, while the game loop moves them across the screen. Your score increases continuously based on survival time.
+
+Jump over three types of electronic components: _resistors_ (small), _transistors_ (medium), and _microchips_ (large). The backend's `spawn_obstacle()` creates new obstacles at random intervals, while the game loop moves them across the screen. Your score increases continuously based on survival time.
 
 6. **Game Over**
 
@@ -70,7 +70,7 @@ When you hit an obstacle, `check_collisions()` detects the hit and triggers game
 
 7. **LED Matrix Synchronization**
 
-The LED matrix on your UNO Q mirrors the game state. The Arduino sketch calls `Bridge.call("get_led_state").result(gameState)` every 50 ms to get the current state (*running*, *jumping*, *game_over*, or *idle*), then displays the matching LED frame from `game_frames.h`. For more information about the LED matrix, see the [LED Matrix setion from the UNO Q user manual](https://docs.arduino.cc/tutorials/uno-q/user-manual/#led-matrix).
+The LED matrix on your UNO Q mirrors the game state. The Arduino sketch calls `Bridge.call("get_led_state").result(gameState)` every 50 ms to get the current state (_running_, _jumping_, _game_over_, or _idle_), then displays the matching LED frame from `game_frames.h`. For more information about the LED matrix, see the [LED Matrix setion from the UNO Q user manual](https://docs.arduino.cc/tutorials/uno-q/user-manual/#led-matrix).
 
 ![LED Matrix Frames](assets/docs_assets/led_matrix_frames.png)
 
@@ -348,12 +348,16 @@ The high-level data flow looks like this:
 2. **WebSocket**: Input is sent to backend
 3. **Backend Processing**: Validates action and updates game state
 4. **Game Loop (60 FPS)**:
+
 - Physics update (such as gravity, velocity, and position)
 - Collision detection
 - State broadcast to clients
+
 5. **Parallel Rendering**:
+
 - Frontend: Canvas draws mascot and obstacles
 - LED matrix update: UNO Q displays synchronized LED animations based on game state
+
 6. **Visual Feedback**: Updated display on browser and LED matrix
 
 ## Understanding the Code
@@ -377,7 +381,7 @@ The web interface renders the game using HTML5 Canvas and PNG images.
 
 - **Canvas rendering**: Displays the LED character using 6 PNG sprites, cycles through 4 running patterns with each jump, and renders electronic component obstacles at 60 FPS
 - **Input handling**: Captures keyboard controls (**SPACE/UP** to jump, **R** to restart) and sends actions to the backend via WebSocket
-- **Obstacle rendering**: Draws resistors with color bands (red, yellow, green), transistors with *TO-92* package and three pins, and microchips labeled IC555
+- **Obstacle rendering**: Draws resistors with color bands (red, yellow, green), transistors with _TO-92_ package and three pins, and microchips labeled IC555
 - **WebSocket communication**: Connects to the backend on page load, sends player actions, and receives real-time game state updates
 - **Score display**: Shows current score and session high score with zero-padded formatting, updating in real-time
 

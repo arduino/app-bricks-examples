@@ -204,11 +204,7 @@ button.primary img {
   left: 0;
   right: 0;
   height: 30px;
-  background: linear-gradient(
-    180deg,
-    rgba(236, 241, 241, 1) 0%,
-    rgba(236, 241, 241, 0) 100%
-  );
+  background: linear-gradient(180deg, rgba(236, 241, 241, 1) 0%, rgba(236, 241, 241, 0) 100%);
   pointer-events: none;
   opacity: var(--gradient-opacity, 0);
   transition: opacity 0.2s ease;

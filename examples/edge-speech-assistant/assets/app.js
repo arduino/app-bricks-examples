@@ -15,76 +15,76 @@ let timerInterval = null;
 let elapsedSeconds = 0;
 
 function formatTime(seconds) {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m}:${s.toString().padStart(2, '0')}`;
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}:${s.toString().padStart(2, '0')}`;
 }
 
 function startTimer() {
-    elapsedSeconds = 0;
-    timer.textContent = formatTime(0);
-    timerInterval = setInterval(() => {
-        elapsedSeconds++;
-        timer.textContent = formatTime(elapsedSeconds);
-    }, 1000);
+  elapsedSeconds = 0;
+  timer.textContent = formatTime(0);
+  timerInterval = setInterval(() => {
+    elapsedSeconds++;
+    timer.textContent = formatTime(elapsedSeconds);
+  }, 1000);
 }
 
 function stopTimer() {
-    clearInterval(timerInterval);
-    timerInterval = null;
+  clearInterval(timerInterval);
+  timerInterval = null;
 }
 
 function updateControls() {
-    const hasText = textInput.value.trim().length > 0;
+  const hasText = textInput.value.trim().length > 0;
 
-    if (isSpeaking) {
-        playIcon.src = 'img/stop.svg';
-        playButton.classList.add('active');
-        playButton.disabled = false;
-        textInput.disabled = true;
-        resetButton.disabled = true;
-        resetButton.classList.add('disabled');
-    } else {
-        playIcon.src = 'img/play.svg';
-        playButton.classList.remove('active');
-        playButton.disabled = !hasText;
-        textInput.disabled = false;
-        resetButton.disabled = !hasText;
-        resetButton.classList.toggle('disabled', !hasText);
-    }
+  if (isSpeaking) {
+    playIcon.src = 'img/stop.svg';
+    playButton.classList.add('active');
+    playButton.disabled = false;
+    textInput.disabled = true;
+    resetButton.disabled = true;
+    resetButton.classList.add('disabled');
+  } else {
+    playIcon.src = 'img/play.svg';
+    playButton.classList.remove('active');
+    playButton.disabled = !hasText;
+    textInput.disabled = false;
+    resetButton.disabled = !hasText;
+    resetButton.classList.toggle('disabled', !hasText);
+  }
 }
 
 playButton.addEventListener('click', () => {
-    if (isSpeaking) {
-        ui.send_message('stop');
-    } else {
-        const text = textInput.value.trim();
-        if (text) {
-            ui.send_message('speak', { text });
-        }
+  if (isSpeaking) {
+    ui.send_message('stop');
+  } else {
+    const text = textInput.value.trim();
+    if (text) {
+      ui.send_message('speak', { text });
     }
+  }
 });
 
 resetButton.addEventListener('click', () => {
-    if (isSpeaking) return;
-    textInput.value = '';
-    elapsedSeconds = 0;
-    timer.textContent = formatTime(0);
-    updateControls();
+  if (isSpeaking) return;
+  textInput.value = '';
+  elapsedSeconds = 0;
+  timer.textContent = formatTime(0);
+  updateControls();
 });
 
 textInput.addEventListener('input', updateControls);
 
-ui.on_message('speaking', (data) => {
-    if (data.status === 'started') {
-        isSpeaking = true;
-        startTimer();
-        updateControls();
-    } else if (data.status === 'finished') {
-        isSpeaking = false;
-        stopTimer();
-        updateControls();
-    }
+ui.on_message('speaking', data => {
+  if (data.status === 'started') {
+    isSpeaking = true;
+    startTimer();
+    updateControls();
+  } else if (data.status === 'finished') {
+    isSpeaking = false;
+    stopTimer();
+    updateControls();
+  }
 });
 
 updateControls();

@@ -1,12 +1,12 @@
 # Weather forecast on LED matrix
 
-The **Weather Forecasting System** displays real-time weather information from the *open-meteo.com* service on the Arduino UNO Q LED matrix. It shows weather conditions like *sunny*, *cloudy*, *rainy*, *snowy* or *foggy* using animated visual patterns that update automatically every 10 seconds.
+The **Weather Forecasting System** displays real-time weather information from the _open-meteo.com_ service on the Arduino UNO Q LED matrix. It shows weather conditions like _sunny_, _cloudy_, _rainy_, _snowy_ or _foggy_ using animated visual patterns that update automatically every 10 seconds.
 
 ![Weather Forecasting App](assets/docs_assets/weather-forecast-banner.png)
 
 ## Description
 
-The App fetches weather data from the *open-meteo.com* API for a specified city and converts weather codes into animated patterns on the 8 x 13 LED matrix. Each weather condition triggers its own distinctive animation sequence with carefully timed frame changes that simulate natural weather behavior.
+The App fetches weather data from the _open-meteo.com_ API for a specified city and converts weather codes into animated patterns on the 8 x 13 LED matrix. Each weather condition triggers its own distinctive animation sequence with carefully timed frame changes that simulate natural weather behavior.
 
 The Python® script handles API communication and weather processing, while the Arduino sketch manages LED matrix animations and polling. The Router Bridge enables parameter passing between the Python environment and the microcontroller.
 
@@ -32,12 +32,13 @@ The weather forecasting example uses the following Bricks:
 ## How to Use the Example
 
 1. Open the `sketch.ino` file and set your city by modifying the `city` variable:
-   
+
    ```cpp
    String city = "Turin";
    ```
+
 2. Run the App
-![Arduino App Lab - Run App](assets/docs_assets/app-lab-run-app.png)
+   ![Arduino App Lab - Run App](assets/docs_assets/app-lab-run-app.png)
 3. Watch animated weather patterns appear on the LED matrix, updating every 10 seconds with current conditions.
 
 ## How it Works
@@ -58,7 +59,7 @@ forecaster = WeatherForecast()
 forecast = forecaster.get_forecast_by_city(city)
 ```
 
-The Brick provides a clean interface for weather data retrieval, handling API communication and converting technical weather codes into simple categories like *sunny*, *cloudy*, *rainy*, *snowy* or *foggy*.
+The Brick provides a clean interface for weather data retrieval, handling API communication and converting technical weather codes into simple categories like _sunny_, _cloudy_, _rainy_, _snowy_ or _foggy_.
 
 - **Processing weather parameters and city requests.**
 
@@ -143,4 +144,3 @@ The Arduino code manages animation control and hardware display.
 - **Animation timing variations:** Uses different frame delays to match natural weather rhythm: fast rain (200ms), slow snow (650ms), gentle sun (500ms).
 
 - **`Bridge.call()` with parameters:** Shows advanced Router Bridge usage by passing the city name to the Python® function and receiving the weather category response.
-

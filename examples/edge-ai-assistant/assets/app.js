@@ -18,18 +18,14 @@ let thinkingMessageInterval = null;
 
 const errorBanner = document.getElementById('error-banner');
 const errorMessage = document.getElementById('error-message');
-const chatMessagesContainer = document.getElementById(
-  'chat-messages-container',
-);
+const chatMessagesContainer = document.getElementById('chat-messages-container');
 const userInput = document.getElementById('user-input');
 const messagesContainer = document.getElementById('messages');
 const emptyChatContainer = document.getElementById('empty-chat-container');
 const mainContent = document.querySelector('.main-content');
 const sendButton = document.getElementById('send-button');
 const sendButtonImg = sendButton ? sendButton.querySelector('img') : null;
-const quickActionButtonsContainer = document.getElementById(
-  'quick-action-buttons',
-);
+const quickActionButtonsContainer = document.getElementById('quick-action-buttons');
 const clearChatButton = document.getElementById('clear-chat-button-header');
 const card1 = document.getElementById('card-1');
 const card2 = document.getElementById('card-2');
@@ -37,13 +33,11 @@ const card3 = document.getElementById('card-3');
 const card4 = document.getElementById('card-4');
 
 function onUIConnected() {
-    console.log('Connected to backend');
+  console.log('Connected to backend');
 }
 
 function onUIDisconnected() {
-  showError(
-    'Connection to backend lost. Please refresh the page or check the backend server.',
-  );
+  showError('Connection to backend lost. Please refresh the page or check the backend server.');
 }
 
 /**
@@ -102,9 +96,7 @@ function handleResponse(data) {
 
   if (ai_msg) {
     ai_msg.dataset.rawText += data;
-    ai_msg.querySelector('.text-content').innerHTML = marked.parse(
-      ai_msg.dataset.rawText,
-    );
+    ai_msg.querySelector('.text-content').innerHTML = marked.parse(ai_msg.dataset.rawText);
     scrollToBottom();
   }
 }
@@ -193,8 +185,6 @@ function handleLLMError(data) {
   quickActionButtonsContainer.style.display = 'none';
   handleStreamEnd();
 }
-
-
 
 /**
  * Expands or collapses a textarea based on its content.
@@ -311,7 +301,6 @@ function sendMessage(text) {
   userInput.focus();
 }
 
-
 // Initial state
 updateSendButtonState();
 updateClearChatButtonState();
@@ -324,7 +313,7 @@ userInput.addEventListener('input', () => {
 });
 
 // Listen for Enter key press in the input field
-userInput.addEventListener('keydown', (event) => {
+userInput.addEventListener('keydown', event => {
   if (event.key === 'Enter' && !event.shiftKey) {
     event.preventDefault();
     // Ensure the send button is not disabled before sending
@@ -335,7 +324,7 @@ userInput.addEventListener('keydown', (event) => {
 });
 
 // Use a single click handler for the send button, acting as send or stop
-sendButton.addEventListener('click', (event) => {
+sendButton.addEventListener('click', event => {
   event.preventDefault(); // Prevent default form submission if any
   if (sendButton.classList.contains('disabled')) {
     return;
@@ -346,7 +335,7 @@ sendButton.addEventListener('click', (event) => {
   }
 });
 
-clearChatButton.addEventListener('click', (event) => {
+clearChatButton.addEventListener('click', event => {
   if (clearChatButton.classList.contains('disabled')) {
     event.preventDefault(); // Prevent action if disabled
   } else {
@@ -355,10 +344,8 @@ clearChatButton.addEventListener('click', (event) => {
 });
 
 // Add event listeners for quick action buttons
-const quickButtons = quickActionButtonsContainer.querySelectorAll(
-  '.quick-action-button',
-);
-quickButtons.forEach((button) => {
+const quickButtons = quickActionButtonsContainer.querySelectorAll('.quick-action-button');
+quickButtons.forEach(button => {
   button.addEventListener('click', () => {
     if (userInput.value.length > 0 && userInput.value.slice(-1) !== ' ') {
       userInput.value += ' ';
@@ -370,15 +357,7 @@ quickButtons.forEach((button) => {
   });
 });
 
-card1.addEventListener('click', () =>
-  sendMessage(card1.querySelector('p').textContent),
-);
-card2.addEventListener('click', () =>
-  sendMessage(card2.querySelector('p').textContent),
-);
-card3.addEventListener('click', () =>
-  sendMessage(card3.querySelector('p').textContent),
-);
-card4.addEventListener('click', () =>
-  sendMessage(card4.querySelector('p').textContent),
-);
+card1.addEventListener('click', () => sendMessage(card1.querySelector('p').textContent));
+card2.addEventListener('click', () => sendMessage(card2.querySelector('p').textContent));
+card3.addEventListener('click', () => sendMessage(card3.querySelector('p').textContent));
+card4.addEventListener('click', () => sendMessage(card4.querySelector('p').textContent));

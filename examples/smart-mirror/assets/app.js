@@ -23,7 +23,6 @@ ui.on_disconnect(onUIDisconnected);
 // Listen for analysis results from the backend and display them when received
 ui.on_message('analysis_result', showScanResult);
 
-
 function onUIConnected() {
   resetToInitialState();
   loadWebcam();
@@ -32,8 +31,7 @@ function onUIConnected() {
 function onUIDisconnected() {
   videoFeed.style.display = 'none';
   scanBox.setAttribute('data-state', 'error');
-  scanBoxTitle.textContent =
-    'Connection to the board lost. Please check the connection.';
+  scanBoxTitle.textContent = 'Connection to the board lost. Please check the connection.';
 }
 
 /**
@@ -190,9 +188,7 @@ function showScanResult(result) {
     scanBoxTitle.textContent = 'The mirror says:';
     scanBoxDescription.textContent = result;
 
-    const threshold = window.matchMedia('(max-width: 768px)').matches
-      ? 250
-      : 500;
+    const threshold = window.matchMedia('(max-width: 768px)').matches ? 250 : 500;
 
     if (result.length > threshold) {
       scanBoxDescription.className = 'long-result';

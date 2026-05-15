@@ -151,7 +151,7 @@ At that point, the device begins performing the following:
   ```javascript
   const ui = new WebUI();
 
-  ui.on_message('detection', (message) => {
+  ui.on_message('detection', message => {
     printDetection(message); // update history
     renderDetections(); // redraw the list
     updateFeedback(message); // update feedback panel

@@ -36,8 +36,8 @@ The object hunting game example uses the following Bricks:
 ### Software
 
 - Arduino App Lab
-**Important:** A **USB-C® hub is mandatory** for this example to connect the USB Webcam.
-**Note:** You must connect the USB camera **before** running the App. If the camera is not connected or not detected, the App will fail to start.
+  **Important:** A **USB-C® hub is mandatory** for this example to connect the USB Webcam.
+  **Note:** You must connect the USB camera **before** running the App. If the camera is not connected or not detected, the App will fail to start.
 
 ## How to Use the Example
 
@@ -47,7 +47,7 @@ The object hunting game example uses the following Bricks:
 
 2. **Run the App**
    Launch the App from Arduino App Lab.
-   *Note: If the App stops immediately after clicking Run, check your USB camera connection.*
+   _Note: If the App stops immediately after clicking Run, check your USB camera connection._
    ![Arduino App Lab - Run App](assets/docs_assets/launch-app.png)
 
 3. **Access the Web Interface**
@@ -128,14 +128,14 @@ const targetObjects = ['book', 'bottle', 'chair', 'cup', 'cell phone'];
 let foundObjects = [];
 
 function handleDetection(detection) {
-    const detectedObject = detection.content.toLowerCase();
-    
-    // Check if the detected item is a target and not yet found
-    if (targetObjects.includes(detectedObject) && !foundObjects.includes(detectedObject)) {
-        foundObjects.push(detectedObject);
-        updateFoundCounter();
-        checkWinCondition();
-    }
+  const detectedObject = detection.content.toLowerCase();
+
+  // Check if the detected item is a target and not yet found
+  if (targetObjects.includes(detectedObject) && !foundObjects.includes(detectedObject)) {
+    foundObjects.push(detectedObject);
+    updateFoundCounter();
+    checkWinCondition();
+  }
 }
 ```
 
@@ -159,20 +159,26 @@ The default model used by the `video_objectdetection` Brick is **YoloX Nano**, t
 ## Troubleshooting
 
 ### App fails to start or stops immediately
+
 If the application crashes right after launching, it is likely because the **USB Camera** is not detected.
 **Fix:**
+
 1. Ensure the camera is connected to a **powered USB-C hub**.
 2. Verify the hub has its external power supply connected (5 V, 3 A).
 3. Reconnect the camera and try running the App again.
 
 ### Video stream is black or not loading
+
 If the game interface loads but the video area remains black or shows "Searching Webcam...":
+
 - **Browser Security:** Some browsers block mixed content or insecure frames. Ensure you are not blocking the iframe loading from port `4912`.
 - **Network:** Ensure your computer and the UNO Q are on the same network.
 - **Camera Status:** If the camera was disconnected while the App was running, you must restart the App.
 
 ### Objects are not being detected
+
 If you are pointing the camera at an object but it doesn't register:
+
 - **Check the list:** Ensure the object is one of the targets defined in `app.js`.
 - **Adjust Confidence:** Lower the **Confidence Level** slider. If set too high (e.g., > 0.80), the model requires a perfect angle to trigger a detection.
 - **Lighting:** Ensure the object is well-lit. Shadows or darkness can prevent detection.

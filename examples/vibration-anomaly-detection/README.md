@@ -6,12 +6,13 @@ The **Vibration Anomaly Detection** example creates a smart vibration detector t
 
 ## Description
 
-Monitor the physical status of a fan in real-time. This example uses a Modulino Movement to capture acceleration data and a dedicated Brick to detect vibration anomalies. 
+Monitor the physical status of a fan in real-time. This example uses a Modulino Movement to capture acceleration data and a dedicated Brick to detect vibration anomalies.
 
 Unlike simple threshold detectors, this App provides:
-* **Live Data Visualization:** A real-time scrolling plot of X, Y, and Z acceleration.
-* **Dynamic Sensitivity:** A slider to adjust the anomaly scoring threshold on the fly.
-* **History:** A log of the most recent detected anomalies with timestamps.
+
+- **Live Data Visualization:** A real-time scrolling plot of X, Y, and Z acceleration.
+- **Dynamic Sensitivity:** A slider to adjust the anomaly scoring threshold on the fly.
+- **History:** A log of the most recent detected anomalies with timestamps.
 
 ## Bricks Used
 
@@ -124,17 +125,17 @@ The frontend receives the `sample` event and pushes it into an array. The `drawP
 
 ```javascript
 function drawPlot() {
-  if (!hasDataFromBackend) return; 
+  if (!hasDataFromBackend) return;
 
   // Clear the canvas before drawing the new frame
   ctx.clearRect(0, 0, currentWidth, currentHeight);
-  
+
   // ... grid drawing code ...
 
   // Draw series (X, Y, Z)
-  drawSeries('x','#0068C9');
-  drawSeries('y','#FF9900');
-  drawSeries('z','#FF2B2B');
+  drawSeries('x', '#0068C9');
+  drawSeries('y', '#FF9900');
+  drawSeries('z', '#FF2B2B');
 }
 ```
 
@@ -145,7 +146,7 @@ The firmware reads the Modulino Movement sensor every 16ms. It sends the X, Y, a
 ```cpp
 void loop() {
   // ... timing logic (16ms interval) ...
-  
+
   // Read new movement data from the sensor
   has_movement = movement.update();
 
@@ -154,9 +155,9 @@ void loop() {
       x_accel = movement.getX();
       y_accel = movement.getY();
       z_accel = movement.getZ();
-    
+
       // Send data to Python
-      Bridge.notify("record_sensor_movement", x_accel, y_accel, z_accel);      
+      Bridge.notify("record_sensor_movement", x_accel, y_accel, z_accel);
   }
 }
 ```

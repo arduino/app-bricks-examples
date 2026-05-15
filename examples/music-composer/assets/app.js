@@ -15,7 +15,7 @@
     info: (msg, ...args) => console.log(`[MusicComposer] ${msg}`, ...args),
     debug: (msg, ...args) => console.debug(`[MusicComposer] ${msg}`, ...args),
     warn: (msg, ...args) => console.warn(`[MusicComposer] ${msg}`, ...args),
-    error: (msg, ...args) => console.error(`[MusicComposer] ${msg}`, ...args)
+    error: (msg, ...args) => console.error(`[MusicComposer] ${msg}`, ...args),
   };
 
   // Configuration
@@ -26,7 +26,6 @@
   // State
   let grid = {};
   let notes = [];
-  let isPlaying = false;
   let isPaused = false;
   let isAppInitialized = false;
   let currentStep = 0;
@@ -39,7 +38,7 @@
     chorus: 0,
     tremolo: 0,
     vibrato: 0,
-    overdrive: 0
+    overdrive: 0,
   };
 
   // History for Undo/Redo
@@ -61,7 +60,6 @@
   const sequencerGrid = document.getElementById('sequencer-grid');
   const volumeSlider = document.getElementById('volume-slider');
   const waveButtons = document.querySelectorAll('.wave-btn');
-  const knobs = document.querySelectorAll('.knob');
 
   // UI callback functions
   function onUIConnected() {
@@ -74,10 +72,9 @@
 
     const nextNotes = Array.isArray(data.notes) ? data.notes : [];
     const hadRenderedGrid = sequencerViewport.dataset.ready === 'true';
-    const notesChanged = nextNotes.length > 0 && (
-      nextNotes.length !== notes.length ||
-      nextNotes.some((note, index) => note !== notes[index])
-    );
+    const notesChanged =
+      nextNotes.length > 0 &&
+      (nextNotes.length !== notes.length || nextNotes.some((note, index) => note !== notes[index]));
 
     if (notesChanged) {
       notes = nextNotes.slice();
@@ -192,7 +189,6 @@
   undoBtn.addEventListener('click', undo);
   redoBtn.addEventListener('click', redo);
 
-
   function getEffectiveSequenceLength() {
     return Math.max(sequenceLength || 0, findLastNoteStep() + 1, 16);
   }
@@ -204,7 +200,7 @@
     }
 
     const referenceCell = sequencerGrid.querySelector(
-      `.grid-cell[data-note="${defaultNoteIndex}"][data-step="0"]`,
+      `.grid-cell[data-note="${defaultNoteIndex}"][data-step="0"]`
     );
     if (!referenceCell) {
       return;
@@ -214,14 +210,16 @@
   }
 
   function scrollStepIntoView(step) {
-    const referenceCell = sequencerGrid.querySelector(`.grid-cell[data-note="0"][data-step="${step}"]`)
-      || sequencerGrid.querySelector(`.grid-cell[data-step="${step}"]`);
+    const referenceCell =
+      sequencerGrid.querySelector(`.grid-cell[data-note="0"][data-step="${step}"]`) ||
+      sequencerGrid.querySelector(`.grid-cell[data-step="${step}"]`);
 
     if (!referenceCell) {
       return;
     }
 
-    const targetScroll = referenceCell.offsetLeft - ((sequencerViewport.clientWidth - referenceCell.offsetWidth) / 2);
+    const targetScroll =
+      referenceCell.offsetLeft - (sequencerViewport.clientWidth - referenceCell.offsetWidth) / 2;
     sequencerViewport.scrollLeft = Math.max(0, targetScroll);
   }
 
@@ -380,7 +378,7 @@
     const effectiveLength = getEffectiveSequenceLength();
 
     // Calculate step duration in milliseconds for 16th notes (4 per beat)
-    const stepDurationMs = (60000 / bpm) / 4;
+    const stepDurationMs = 60000 / bpm / 4;
 
     currentStep = 0;
     highlightStep(currentStep);
@@ -400,7 +398,6 @@
       clearInterval(playInterval);
       playInterval = null;
     }
-    isPlaying = false;
     isPaused = false;
     playBtn.style.display = 'flex';
     pauseBtn.style.display = 'none';
@@ -410,7 +407,6 @@
 
   // Play button - starts from beginning or resumes from pause
   playBtn.addEventListener('click', () => {
-    isPlaying = true;
     playBtn.style.display = 'none';
     pauseBtn.style.display = 'flex';
     stopBtn.style.display = 'flex';
@@ -552,5 +548,4 @@
   playBtn.style.display = 'flex';
   stopBtn.style.display = 'none';
   log.info('Sequencer UI ready, waiting for server state...');
-
 })();

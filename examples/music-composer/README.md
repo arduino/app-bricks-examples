@@ -34,8 +34,8 @@ The Music Composer example uses the following Bricks:
 - Arduino UNO Q (x1)
 - USB-C® cable (for power and programming) (x1)
 - USB speaker, cabled (x1)
-- USB-C hub with external power (x1) *(required when using a USB audio device)*
-- Power supply (5 V, 3 A) for the USB-C hub (x1) *(required when using a USB audio device)*
+- USB-C hub with external power (x1) _(required when using a USB audio device)_
+- Power supply (5 V, 3 A) for the USB-C hub (x1) _(required when using a USB audio device)_
 
 ### Software
 
@@ -164,14 +164,14 @@ The JavaScript® frontend handles the UI logic, grid rendering, and playback vis
 
 ```javascript
 function toggleCell(noteIndex, step) {
-    const noteKey = String(noteIndex);
-    const stepKey = String(step);
-    if (!grid[noteKey]) grid[noteKey] = {};
-    const newValue = !(grid[noteKey][stepKey] === true);
-    grid[noteKey][stepKey] = newValue;
-    saveStateToHistory();
-    renderGrid();
-    socket.emit('composer:update_grid', { grid });
+  const noteKey = String(noteIndex);
+  const stepKey = String(step);
+  if (!grid[noteKey]) grid[noteKey] = {};
+  const newValue = !(grid[noteKey][stepKey] === true);
+  grid[noteKey][stepKey] = newValue;
+  saveStateToHistory();
+  renderGrid();
+  socket.emit('composer:update_grid', { grid });
 }
 ```
 
@@ -179,15 +179,15 @@ function toggleCell(noteIndex, step) {
 
 ```javascript
 function startLocalPlayback() {
-    const stepDurationMs = (60000 / bpm) / 4; // Sixteenth notes: 4 per beat
-    playInterval = setInterval(() => {
-        currentStep++;
-        if (currentStep >= effectiveLength) {
-            stopLocalPlayback();
-            return;
-        }
-        highlightStep(currentStep);
-    }, stepDurationMs);
+  const stepDurationMs = 60000 / bpm / 4; // Sixteenth notes: 4 per beat
+  playInterval = setInterval(() => {
+    currentStep++;
+    if (currentStep >= effectiveLength) {
+      stopLocalPlayback();
+      return;
+    }
+    highlightStep(currentStep);
+  }, stepDurationMs);
 }
 ```
 

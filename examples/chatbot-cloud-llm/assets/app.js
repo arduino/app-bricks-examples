@@ -23,238 +23,235 @@ function onUIConnected() {
 }
 
 function onUIDisconnected() {
-  showError(
-    'Connection to backend lost. Please refresh the page or check the backend server.',
-  );
+  showError('Connection to backend lost. Please refresh the page or check the backend server.');
 }
 
 function showError(message) {
-    console.log(message);
-    const errorBanner = document.getElementById('error-banner');
-    const errorMessage = document.getElementById('error-message');
-    if (errorBanner && errorMessage) {
-        errorMessage.textContent = message;
-        errorBanner.style.display = 'block';
-    }
+  console.log(message);
+  const errorBanner = document.getElementById('error-banner');
+  const errorMessage = document.getElementById('error-message');
+  if (errorBanner && errorMessage) {
+    errorMessage.textContent = message;
+    errorBanner.style.display = 'block';
+  }
 }
 
 function hideError() {
-    const errorBanner = document.getElementById('error-banner');
-    if (errorBanner) {
-        errorBanner.style.display = 'none';
-    }
+  const errorBanner = document.getElementById('error-banner');
+  if (errorBanner) {
+    errorBanner.style.display = 'none';
+  }
 }
 
 function removeThinkingMessage() {
-    if (thinkingMessageElement && thinkingMessageElement.parentNode) {
-        thinkingMessageElement.parentNode.removeChild(thinkingMessageElement);
-        thinkingMessageElement = null;
-    }
+  if (thinkingMessageElement && thinkingMessageElement.parentNode) {
+    thinkingMessageElement.parentNode.removeChild(thinkingMessageElement);
+    thinkingMessageElement = null;
+  }
 }
 
 function handleResponse(data) {
-    const ai_msg = document.getElementById('active-ai-response');
-    if (thinkingMessageElement) {
-        // First chunk of stream
-        const textContent = thinkingMessageElement.querySelector('.text-content');
-        if (textContent) {
-            textContent.innerHTML = '';
-        }
-        thinkingMessageElement.classList.remove('thinking-message');
-        thinkingMessageElement.dataset.rawText = '';
-        thinkingMessageElement = null;
+  const ai_msg = document.getElementById('active-ai-response');
+  if (thinkingMessageElement) {
+    // First chunk of stream
+    const textContent = thinkingMessageElement.querySelector('.text-content');
+    if (textContent) {
+      textContent.innerHTML = '';
     }
+    thinkingMessageElement.classList.remove('thinking-message');
+    thinkingMessageElement.dataset.rawText = '';
+    thinkingMessageElement = null;
+  }
 
-    if (ai_msg) {
-        ai_msg.dataset.rawText += data;
-        const textContent = ai_msg.querySelector('.text-content');
-        if (textContent) {
-            textContent.innerHTML = marked.parse(ai_msg.dataset.rawText);
-        }
+  if (ai_msg) {
+    ai_msg.dataset.rawText += data;
+    const textContent = ai_msg.querySelector('.text-content');
+    if (textContent) {
+      textContent.innerHTML = marked.parse(ai_msg.dataset.rawText);
     }
+  }
 }
 
 function handleStreamEnd() {
-    removeThinkingMessage(); // Ensure it's removed if stream ends
-    ai_msg = document.getElementById('active-ai-response');
-    if (ai_msg) {
-        ai_msg.id = '';
+  removeThinkingMessage(); // Ensure it's removed if stream ends
+  ai_msg = document.getElementById('active-ai-response');
+  if (ai_msg) {
+    ai_msg.id = '';
+  }
+  if (sendButton) {
+    sendButton.classList.remove('sending-state');
+    if (sendButtonImg) {
+      sendButtonImg.src = 'img/send.svg';
     }
-    if (sendButton) {
-        sendButton.classList.remove('sending-state');
-        if (sendButtonImg) {
-            sendButtonImg.src = 'img/send.svg';
-        }
-    }
-    updateSendButtonState(); // Update button state after stream ends
-    updateClearChatButtonState(); // Update clear chat button state after stream ends
+  }
+  updateSendButtonState(); // Update button state after stream ends
+  updateClearChatButtonState(); // Update clear chat button state after stream ends
 }
 
 function handleCompletedCommand(data) {
-    console.log(`Command completed: ${data.command}`);
-    const userInput = document.getElementById('user-input'); // Get it once
+  console.log(`Command completed: ${data.command}`);
+  const userInput = document.getElementById('user-input'); // Get it once
 
-    if (data.command === 'stop_stream'){
-        handleStreamEnd();
-        const disclaimer = document.createElement('div');
-        disclaimer.className = 'stop-disclaimer';
-        disclaimer.textContent = 'You stopped this response';
-        document.getElementById('messages').appendChild(disclaimer);
+  if (data.command === 'stop_stream') {
+    handleStreamEnd();
+    const disclaimer = document.createElement('div');
+    disclaimer.className = 'stop-disclaimer';
+    disclaimer.textContent = 'You stopped this response';
+    document.getElementById('messages').appendChild(disclaimer);
 
-        if (userInput) {
-            userInput.value = lastUserPrompt;
-            autoExpandInput(userInput);
-            updateSendButtonState();
-            updatePlaceholderVisibility();
-            userInput.focus();
-        }
-    } else if (data.command === 'clear_chat') {
-        document.getElementById('messages').innerHTML = '';
-        document.getElementById('empty-chat-container').style.display = 'flex';
-        const mainContent = document.querySelector('.main-content');
-        if (mainContent) {
-            mainContent.classList.remove('chat-active');
-        }
-        if (userInput) {
-            userInput.value = '';
-            userInput.style.height = '32px';
-        }
-        if (quickActionButtonsContainer) {
-            quickActionButtonsContainer.style.display = 'none'; // Hide quick action buttons
-        }
-        lastUserPrompt = '';
-        updateSendButtonState();
-        updateClearChatButtonState();
-        updatePlaceholderVisibility();
-        if (userInput) {
-            userInput.focus();
-        }
+    if (userInput) {
+      userInput.value = lastUserPrompt;
+      autoExpandInput(userInput);
+      updateSendButtonState();
+      updatePlaceholderVisibility();
+      userInput.focus();
     }
+  } else if (data.command === 'clear_chat') {
+    document.getElementById('messages').innerHTML = '';
+    document.getElementById('empty-chat-container').style.display = 'flex';
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) {
+      mainContent.classList.remove('chat-active');
+    }
+    if (userInput) {
+      userInput.value = '';
+      userInput.style.height = '32px';
+    }
+    if (quickActionButtonsContainer) {
+      quickActionButtonsContainer.style.display = 'none'; // Hide quick action buttons
+    }
+    lastUserPrompt = '';
+    updateSendButtonState();
+    updateClearChatButtonState();
+    updatePlaceholderVisibility();
+    if (userInput) {
+      userInput.focus();
+    }
+  }
 }
 
 function handleCommandError(data) {
-    const message = `Command error: ${data.command} - ${data.error}`;
-    showError(message);
+  const message = `Command error: ${data.command} - ${data.error}`;
+  showError(message);
 }
 
 function sendClearChatCommand() {
   ui.send_message('commands', { command: 'clear_chat' });
 }
 
-
-
 function handleLLMError(data) {
-    const message = `LLM error: ${data.error}`;
-    showError(message);
-    removeThinkingMessage(); // Ensure it's removed if an error occurs
-    if (quickActionButtonsContainer) {
-        quickActionButtonsContainer.style.display = 'none'; // Hide quick action buttons
-    }
-    handleStreamEnd();
+  const message = `LLM error: ${data.error}`;
+  showError(message);
+  removeThinkingMessage(); // Ensure it's removed if an error occurs
+  if (quickActionButtonsContainer) {
+    quickActionButtonsContainer.style.display = 'none'; // Hide quick action buttons
+  }
+  handleStreamEnd();
 }
 
 function autoExpandInput(field) {
-    field.style.height = 'auto';
-    field.style.height = field.scrollHeight + 'px';
+  field.style.height = 'auto';
+  field.style.height = field.scrollHeight + 'px';
 }
 
 function updateSendButtonState() {
-    const userInput = document.getElementById('user-input');
-    if (userInput && sendButton) {
-        if (sendButton.classList.contains('sending-state')) {
-            sendButton.classList.remove('disabled');
-            sendButton.removeAttribute('disabled');
-            return;
-        }
-
-        if (userInput.value.trim() === '') {
-            sendButton.classList.add('disabled');
-            sendButton.setAttribute('disabled', 'disabled');
-        } else {
-            sendButton.classList.remove('disabled');
-            sendButton.removeAttribute('disabled');
-        }
+  const userInput = document.getElementById('user-input');
+  if (userInput && sendButton) {
+    if (sendButton.classList.contains('sending-state')) {
+      sendButton.classList.remove('disabled');
+      sendButton.removeAttribute('disabled');
+      return;
     }
+
+    if (userInput.value.trim() === '') {
+      sendButton.classList.add('disabled');
+      sendButton.setAttribute('disabled', 'disabled');
+    } else {
+      sendButton.classList.remove('disabled');
+      sendButton.removeAttribute('disabled');
+    }
+  }
 }
 
 function updateClearChatButtonState() {
-    const messagesContainer = document.getElementById('messages');
-    const clearChatButton = document.getElementById('clear-chat-button-header');
-    if (messagesContainer && clearChatButton) {
-        if (messagesContainer.children.length === 0) {
-            clearChatButton.classList.add('disabled');
-            clearChatButton.setAttribute('disabled', 'disabled');
-        } else {
-            clearChatButton.classList.remove('disabled');
-            clearChatButton.removeAttribute('disabled');
-        }
+  const messagesContainer = document.getElementById('messages');
+  const clearChatButton = document.getElementById('clear-chat-button-header');
+  if (messagesContainer && clearChatButton) {
+    if (messagesContainer.children.length === 0) {
+      clearChatButton.classList.add('disabled');
+      clearChatButton.setAttribute('disabled', 'disabled');
+    } else {
+      clearChatButton.classList.remove('disabled');
+      clearChatButton.removeAttribute('disabled');
     }
+  }
 }
 
 function sendMessage(text) {
-    hideError();
-    document.getElementById('empty-chat-container').style.display = 'none';
-    const mainContent = document.querySelector('.main-content');
-    if (mainContent) {
-        mainContent.classList.add('chat-active');
+  hideError();
+  document.getElementById('empty-chat-container').style.display = 'none';
+  const mainContent = document.querySelector('.main-content');
+  if (mainContent) {
+    mainContent.classList.add('chat-active');
+  }
+  const userInput = document.getElementById('user-input');
+  if (!text) {
+    text = userInput.value;
+  }
+  lastUserPrompt = text; // Store the prompt
+
+  if (sendButton) {
+    sendButton.classList.add('sending-state');
+    if (sendButtonImg) {
+      sendButtonImg.src = 'img/stop.svg';
     }
-    const userInput = document.getElementById('user-input');
-    if (!text) {
-        text = userInput.value;
-    }
-    lastUserPrompt = text; // Store the prompt
+  }
 
-    if (sendButton) {
-        sendButton.classList.add('sending-state');
-        if (sendButtonImg) {
-            sendButtonImg.src = 'img/stop.svg';
-        }
-    }
+  userInput.value = '';
+  userInput.style.height = '32px';
+  updateSendButtonState();
+  updatePlaceholderVisibility();
 
-    userInput.value = '';
-    userInput.style.height = '32px';
-    updateSendButtonState();
-    updatePlaceholderVisibility();
+  if (quickActionButtonsContainer) {
+    quickActionButtonsContainer.style.display = 'flex';
+  }
 
-    if (quickActionButtonsContainer) {
-        quickActionButtonsContainer.style.display = 'flex';
-    }
+  const userMessageDiv = document.createElement('div');
+  userMessageDiv.className = 'user-message';
+  userMessageDiv.textContent = text;
+  document.getElementById('messages').appendChild(userMessageDiv);
 
-    const userMessageDiv = document.createElement('div');
-    userMessageDiv.className = 'user-message';
-    userMessageDiv.textContent = text;
-    document.getElementById('messages').appendChild(userMessageDiv);
+  thinkingMessageElement = document.createElement('div');
+  thinkingMessageElement.className = 'ai-response thinking-message';
+  thinkingMessageElement.id = 'active-ai-response';
 
-    thinkingMessageElement = document.createElement('div');
-    thinkingMessageElement.className = 'ai-response thinking-message';
-    thinkingMessageElement.id = 'active-ai-response';
+  const icon = document.createElement('img');
+  icon.src = 'img/sparkle.svg';
+  icon.className = 'ai-icon';
+  thinkingMessageElement.appendChild(icon);
 
-    const icon = document.createElement('img');
-    icon.src = 'img/sparkle.svg';
-    icon.className = 'ai-icon';
-    thinkingMessageElement.appendChild(icon);
+  const textContent = document.createElement('div');
+  textContent.className = 'text-content';
+  textContent.innerHTML =
+    '<span class="circular-loader"></span>Thinking<span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span>';
+  thinkingMessageElement.appendChild(textContent);
 
-    const textContent = document.createElement('div');
-    textContent.className = 'text-content';
-    textContent.innerHTML = '<span class="circular-loader"></span>Thinking<span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span>';
-    thinkingMessageElement.appendChild(textContent);
+  document.getElementById('messages').appendChild(thinkingMessageElement);
 
-    document.getElementById('messages').appendChild(thinkingMessageElement);
-
-    ui.send_message('prompt', { prompt: text });
-    updateClearChatButtonState();
-    document.getElementById('user-input').focus();
+  ui.send_message('prompt', { prompt: text });
+  updateClearChatButtonState();
+  document.getElementById('user-input').focus();
 }
 
 function updatePlaceholderVisibility() {
-    const userInput = document.getElementById('user-input');
-    if (customPlaceholder) {
-        if (userInput.value.trim() === '') {
-            customPlaceholder.style.display = 'flex';
-        } else {
-            customPlaceholder.style.display = 'none';
-        }
+  const userInput = document.getElementById('user-input');
+  if (customPlaceholder) {
+    if (userInput.value.trim() === '') {
+      customPlaceholder.style.display = 'flex';
+    } else {
+      customPlaceholder.style.display = 'none';
     }
+  }
 }
 
 const userInput = document.getElementById('user-input');
@@ -278,7 +275,7 @@ userInput.addEventListener('input', () => {
 });
 
 // Listen for Enter key press in the input field
-userInput.addEventListener('keydown', (event) => {
+userInput.addEventListener('keydown', event => {
   if (event.key === 'Enter' && !event.shiftKey) {
     event.preventDefault();
     // Ensure the send button is not disabled before sending
@@ -290,7 +287,7 @@ userInput.addEventListener('keydown', (event) => {
 
 // Use a single click handler for the send button, acting as send or stop
 if (sendButton) {
-  sendButton.addEventListener('click', (event) => {
+  sendButton.addEventListener('click', event => {
     event.preventDefault(); // Prevent default form submission if any
     if (sendButton.classList.contains('disabled')) {
       return;
@@ -302,7 +299,7 @@ if (sendButton) {
   });
 }
 
-clearChatButton.addEventListener('click', (event) => {
+clearChatButton.addEventListener('click', event => {
   if (clearChatButton.classList.contains('disabled')) {
     event.preventDefault(); // Prevent action if disabled
   } else {
@@ -312,10 +309,8 @@ clearChatButton.addEventListener('click', (event) => {
 
 // Add event listeners for quick action buttons
 if (quickActionButtonsContainer) {
-  const quickButtons = quickActionButtonsContainer.querySelectorAll(
-    '.quick-action-button',
-  );
-  quickButtons.forEach((button) => {
+  const quickButtons = quickActionButtonsContainer.querySelectorAll('.quick-action-button');
+  quickButtons.forEach(button => {
     button.addEventListener('click', () => {
       if (userInput.value.length > 0 && userInput.value.slice(-1) !== ' ') {
         userInput.value += ' ';
@@ -329,7 +324,23 @@ if (quickActionButtonsContainer) {
   });
 }
 
-document.getElementById('card-1').addEventListener('click', () => sendMessage(document.getElementById('card-1').querySelector('p').textContent));
-document.getElementById('card-2').addEventListener('click', () => sendMessage(document.getElementById('card-2').querySelector('p').textContent));
-document.getElementById('card-3').addEventListener('click', () => sendMessage(document.getElementById('card-3').querySelector('p').textContent));
-document.getElementById('card-4').addEventListener('click', () => sendMessage(document.getElementById('card-4').querySelector('p').textContent));
+document
+  .getElementById('card-1')
+  .addEventListener('click', () =>
+    sendMessage(document.getElementById('card-1').querySelector('p').textContent)
+  );
+document
+  .getElementById('card-2')
+  .addEventListener('click', () =>
+    sendMessage(document.getElementById('card-2').querySelector('p').textContent)
+  );
+document
+  .getElementById('card-3')
+  .addEventListener('click', () =>
+    sendMessage(document.getElementById('card-3').querySelector('p').textContent)
+  );
+document
+  .getElementById('card-4')
+  .addEventListener('click', () =>
+    sendMessage(document.getElementById('card-4').querySelector('p').textContent)
+  );

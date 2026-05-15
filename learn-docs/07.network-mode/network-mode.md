@@ -19,11 +19,12 @@ This mode is preferred when the board is set up as a [Single Board Computer (SBC
 ## Recap on Different Modes
 
 In other tutorials (such as [First Setup](/learn/first-setup)), we cover the **three different modes** that we can use to program the UNO Q:
+
 - **Desktop Mode (over USB)** - we program the board, using the Arduino App Lab desktop application on our host computer (Mac/Windows/Linux)
 - **Network Mode (over SSH / local network)** - we connect to the board over the local network, using SSH. This requires no physical connection (USB) with the board.
 - **Standalone Mode (board as SBC)** - board is setup with a monitor, keyboard and mouse, and can be programmed by using the Arduino App Lab on the board itself.
 
-## How to Set Up 
+## How to Set Up
 
 Setting up Network Mode only takes a minute, and it works exactly the same as using a physical USB-C® cable.
 
@@ -55,11 +56,11 @@ After entering the password, we will have access to the board remotely, and we c
 
 Network Mode and SBC Mode can be used simultaneously, and it is a great way of testing out our Apps.
 
-Once the board is setup as an SBC  (monitor, keyboard & mouse), we can also access it from the Arduino App Lab desktop application. This allows us to program the board using our regular computer, but viewing the results on our board.
+Once the board is setup as an SBC (monitor, keyboard & mouse), we can also access it from the Arduino App Lab desktop application. This allows us to program the board using our regular computer, but viewing the results on our board.
 
 ## Connect via SSH / Terminal (Advanced)
 
-It is also possible to connect to the UNO Q board using SSH in the terminal. This requires SSH to be installed on our computer (in MacOS and several Linux OS, this tool is already installed). 
+It is also possible to connect to the UNO Q board using SSH in the terminal. This requires SSH to be installed on our computer (in MacOS and several Linux OS, this tool is already installed).
 
 Note that this requires the use of a **terminal**, and cannot be done inside the Arduino App Lab.
 
@@ -81,7 +82,8 @@ Once we are in, we should see this in our terminal:
 ### Troubleshooting Failed SSH Connection
 
 If the SSH connection fails, there are some common things to check out:
+
 - Has the first setup been completed? If not, go to [First Setup](/learn/first-setup) and see the instructions. The first setup will enable SSH on the board which is required to connect.
 - If the SSH connection gets stuck even though first setup has been completed, it may be a local network issue. Check that the board is connected to the same network as our computer.
 
-For more information and troubleshooting steps, visit the [SSH guide (UNO Q official documentation)](https://docs.arduino.cc/tutorials/uno-q/ssh/). 
+For more information and troubleshooting steps, visit the [SSH guide (UNO Q official documentation)](https://docs.arduino.cc/tutorials/uno-q/ssh/).

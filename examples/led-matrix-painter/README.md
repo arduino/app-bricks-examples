@@ -11,6 +11,7 @@ This App allows you to design visuals for the 8x13 LED matrix directly from your
 The application uses the `dbstorage_sqlstore` Brick to automatically save your work in a local database. You can create multiple frames, organize them into animations, and use the "Code panel" to see the generated C++ code in real-time.
 
 Key features include:
+
 - **Real-time Control:** Drawing on the web grid updates the UNO Q matrix instantly.
 - **Grayscale Control:** 8 brightness presets (0-7) for intuitive pixel control; this example configures the board for 3-bit grayscale (0–7).
 - **Persistent Storage:** Frames are automatically saved to a database, allowing you to build complex animations over time (max 300 frames).
@@ -88,9 +89,9 @@ Web Browser  ──►  HTTP API  ──►  Python Backend  ──►  Router B
 
 1.  **Web Interface**: The `app.js` script captures clicks on the grid. It debounces these events and sends the pixel data to the backend via the `/persist_frame` endpoint.
 2.  **Python Backend**:
-    *   **Data Model**: The `AppFrame` class normalizes the data, converting between frontend JSON, database records, and hardware byte arrays.
-    *   **Persistence**: The `store.py` module uses `SQLStore` to save the frame data to a `frames` table in a SQLite database.
-    *   **Bridge**: The `main.py` script sends the raw byte array to the board via `Bridge.call("draw", frame_bytes)`.
+    - **Data Model**: The `AppFrame` class normalizes the data, converting between frontend JSON, database records, and hardware byte arrays.
+    - **Persistence**: The `store.py` module uses `SQLStore` to save the frame data to a `frames` table in a SQLite database.
+    - **Bridge**: The `main.py` script sends the raw byte array to the board via `Bridge.call("draw", frame_bytes)`.
 3.  **Arduino Sketch**: The sketch receives the raw byte data and uses the `Arduino_LED_Matrix` library to render the grayscale image.
 
 ## Understanding the Code
@@ -203,12 +204,11 @@ The JavaScript frontend handles the UI logic and data synchronization.
 
 ```javascript
 // Unified persist: save to DB and update board together
-function schedulePersist(){
+function schedulePersist() {
   if (persistTimeout) clearTimeout(persistTimeout);
-  persistTimeout = setTimeout(()=> {
+  persistTimeout = setTimeout(() => {
     persistFrame();
     persistTimeout = null;
   }, AUTO_PERSIST_DELAY_MS);
 }
 ```
-

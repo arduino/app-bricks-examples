@@ -24,6 +24,7 @@ AI models are algorithms trained on specific datasets, enabling them to perform 
 A model might be trained to identify a specific object by analyzing hundreds or thousands of images of that object, thereby learning its unique characteristics. In a computer vision project, the model can process real-time footage from a camera to identify the object if it appears in the frame.
 
 Another example is an audio AI model, trained specifically to identify certain keywords, such as "Hey" and "Arduino." Continuously monitoring and classifying the audio, if a match occurs, we can act upon it.
+
 - Try this out in the [Hey Arduino](/examples) example.
 
 ## How Models Run on the UNO Q

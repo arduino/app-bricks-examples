@@ -47,9 +47,9 @@ This example requires a valid API Key from an LLM provider (Google Gemini, OpenA
 
 3. **Add API Key**
    In the configuration panel, enter your API Key into the corresponding field. This securely saves your credentials for the App to use. You can generate an API key from your preferred provider:
-   *   **Google Gemini:** [Get API Key](https://aistudio.google.com/app/apikey)
-   *   **OpenAI GPT:** [Get API Key](https://platform.openai.com/api-keys)
-   *   **Anthropic Claude:** [Get API Key](https://console.anthropic.com/settings/keys)
+   - **Google Gemini:** [Get API Key](https://aistudio.google.com/app/apikey)
+   - **OpenAI GPT:** [Get API Key](https://platform.openai.com/api-keys)
+   - **Anthropic Claude:** [Get API Key](https://console.anthropic.com/settings/keys)
 
    ![Enter your API KEY](assets/docs_assets/brick-credentials.png)
 
@@ -93,9 +93,9 @@ Once the App is running, it performs the following operations:
 The Python script handles the logic of connecting to the AI and managing the data flow. Note that the API Key is not hardcoded; it is retrieved automatically from the Brick configuration.
 
 - **Initialization**: The `CloudLLM` is set up with a system prompt that enforces HTML formatting for the output. The `CloudModel` constants map to specific efficient model versions:
-  *   `CloudModel.GOOGLE_GEMINI` → `gemini-2.5-flash`
-  *   `CloudModel.OPENAI_GPT` → `gpt-4o-mini`
-  *   `CloudModel.ANTHROPIC_CLAUDE` → `claude-3-7-sonnet-latest`
+  - `CloudModel.GOOGLE_GEMINI` → `gemini-2.5-flash`
+  - `CloudModel.OPENAI_GPT` → `gpt-4o-mini`
+  - `CloudModel.ANTHROPIC_CLAUDE` → `claude-3-7-sonnet-latest`
 
 ```python
 # The API Key is loaded automatically from the Brick Configuration

@@ -18,12 +18,8 @@ const ANOMALY_THRESHOLD_STEP = 0.1;
 
 let hasDataFromBackend = false; // New global flag
 
-const accelerometerDataDisplay = document.getElementById(
-  'accelerometer-data-display',
-);
-const noAccelerometerDataPlaceholder = document.getElementById(
-  'no-accelerometer-data',
-);
+const accelerometerDataDisplay = document.getElementById('accelerometer-data-display');
+const noAccelerometerDataPlaceholder = document.getElementById('no-accelerometer-data');
 
 /*
  * WebUI initialization. We need it to communicate with the server
@@ -32,7 +28,7 @@ const ui = new WebUI();
 ui.on_connect(onUIConnected);
 ui.on_disconnect(onUIDisconnected);
 ui.on_message('anomaly_detected', handleAnomalyDetected);
-ui.on_message('sample', (s) => {
+ui.on_message('sample', s => {
   pushSample(s);
 });
 
@@ -46,31 +42,26 @@ function onUIConnected() {
 function onUIDisconnected() {
   errorContainer = document.getElementById('error-container');
   if (errorContainer) {
-    errorContainer.textContent =
-        'Connection to the board lost. Please check the connection.';
+    errorContainer.textContent = 'Connection to the board lost. Please check the connection.';
     errorContainer.style.display = 'block';
   }
 }
 
 function handleAnomalyDetected(message) {
-    if (!hasDataFromBackend) {
-      // Check if this is the first data received
-      hasDataFromBackend = true;
-      renderAccelerometerData();
-    }
-    printAnomalies(message);
-    renderAnomalies();
-    try {
-      const parsedAnomaly = JSON.parse(message);
-      updateFeedback(parsedAnomaly.score); // Pass the anomaly score
-    } catch (e) {
-      console.error(
-        'Failed to parse anomaly message for feedback:',
-        message,
-        e,
-      );
-      updateFeedback(null); // Fallback to no anomaly feedback
-    }
+  if (!hasDataFromBackend) {
+    // Check if this is the first data received
+    hasDataFromBackend = true;
+    renderAccelerometerData();
+  }
+  printAnomalies(message);
+  renderAnomalies();
+  try {
+    const parsedAnomaly = JSON.parse(message);
+    updateFeedback(parsedAnomaly.score); // Pass the anomaly score
+  } catch (e) {
+    console.error('Failed to parse anomaly message for feedback:', message, e);
+    updateFeedback(null); // Fallback to no anomaly feedback
+  }
 }
 
 function drawPlot() {
@@ -140,9 +131,7 @@ function pushSample(s) {
   drawPlot();
 }
 
-const feedbackContentWrapper = document.getElementById(
-  'feedback-content-wrapper',
-);
+const feedbackContentWrapper = document.getElementById('feedback-content-wrapper');
 let feedbackTimeout;
 
 // ... (existing code between)
@@ -154,7 +143,7 @@ updateFeedback(null); // Initial feedback state
 initializeConfidenceSlider(); // Initialize the confidence slider
 
 // Popover logic
-document.querySelectorAll('.info-btn.confidence').forEach((img) => {
+document.querySelectorAll('.info-btn.confidence').forEach(img => {
   const popover = img.nextElementSibling;
   img.addEventListener('mouseenter', () => {
     popover.style.display = 'block';
@@ -164,7 +153,7 @@ document.querySelectorAll('.info-btn.confidence').forEach((img) => {
   });
 });
 
-document.querySelectorAll('.info-btn.accelerometer-data').forEach((img) => {
+document.querySelectorAll('.info-btn.accelerometer-data').forEach(img => {
   const popover = img.nextElementSibling;
   img.addEventListener('mouseenter', () => {
     popover.style.display = 'block';
@@ -177,98 +166,97 @@ document.querySelectorAll('.info-btn.accelerometer-data').forEach((img) => {
 function initializeConfidenceSlider() {
   const confidenceSlider = document.getElementById('confidenceSlider');
   const confidenceInput = document.getElementById('confidenceInput');
-  const confidenceResetButton = document.getElementById(
-    'confidenceResetButton',
-  );
+  const confidenceResetButton = document.getElementById('confidenceResetButton');
 
-    confidenceSlider.min = MIN_ANOMALY_THRESHOLD.toString();
-    confidenceSlider.max = MAX_SLIDER_ANOMALY_THRESHOLD.toString();
-    confidenceSlider.step = ANOMALY_THRESHOLD_STEP.toString();
-    confidenceSlider.value = DEFAULT_ANOMALY_THRESHOLD.toString();
-    confidenceInput.min = MIN_ANOMALY_THRESHOLD.toString();
-    confidenceInput.step = ANOMALY_THRESHOLD_STEP.toString();
-    confidenceInput.value = formatThreshold(DEFAULT_ANOMALY_THRESHOLD);
+  confidenceSlider.min = MIN_ANOMALY_THRESHOLD.toString();
+  confidenceSlider.max = MAX_SLIDER_ANOMALY_THRESHOLD.toString();
+  confidenceSlider.step = ANOMALY_THRESHOLD_STEP.toString();
+  confidenceSlider.value = DEFAULT_ANOMALY_THRESHOLD.toString();
+  confidenceInput.min = MIN_ANOMALY_THRESHOLD.toString();
+  confidenceInput.step = ANOMALY_THRESHOLD_STEP.toString();
+  confidenceInput.value = formatThreshold(DEFAULT_ANOMALY_THRESHOLD);
 
-    confidenceSlider.addEventListener('input', () => updateConfidenceDisplay());
-    confidenceInput.addEventListener('input', handleConfidenceInputChange);
-    confidenceInput.addEventListener('blur', validateConfidenceInput);
-    updateConfidenceDisplay();
+  confidenceSlider.addEventListener('input', () => updateConfidenceDisplay());
+  confidenceInput.addEventListener('input', handleConfidenceInputChange);
+  confidenceInput.addEventListener('blur', validateConfidenceInput);
+  updateConfidenceDisplay();
 
-  confidenceResetButton.addEventListener('click', (e) => {
-    if (
-      e.target.classList.contains('reset-icon') ||
-      e.target.closest('.reset-icon')
-    ) {
+  confidenceResetButton.addEventListener('click', e => {
+    if (e.target.classList.contains('reset-icon') || e.target.closest('.reset-icon')) {
       resetConfidence();
     }
   });
 }
 
 function normalizeThreshold(value) {
-    const numericValue = parseFloat(value);
+  const numericValue = parseFloat(value);
 
-    if (isNaN(numericValue)) {
-        return DEFAULT_ANOMALY_THRESHOLD;
-    }
+  if (isNaN(numericValue)) {
+    return DEFAULT_ANOMALY_THRESHOLD;
+  }
 
-    return Math.max(MIN_ANOMALY_THRESHOLD, numericValue);
+  return Math.max(MIN_ANOMALY_THRESHOLD, numericValue);
 }
 
 function getSliderValueForThreshold(value) {
-    return Math.min(MAX_SLIDER_ANOMALY_THRESHOLD, normalizeThreshold(value));
+  return Math.min(MAX_SLIDER_ANOMALY_THRESHOLD, normalizeThreshold(value));
 }
 
 function formatThreshold(value) {
-    return normalizeThreshold(value).toFixed(1);
+  return normalizeThreshold(value).toFixed(1);
 }
 
 function handleConfidenceInputChange() {
-    const confidenceInput = document.getElementById('confidenceInput');
+  const confidenceInput = document.getElementById('confidenceInput');
 
-    updateConfidenceDisplay(normalizeThreshold(confidenceInput.value));
+  updateConfidenceDisplay(normalizeThreshold(confidenceInput.value));
 }
 
 function validateConfidenceInput() {
-    const confidenceInput = document.getElementById('confidenceInput');
-    const value = normalizeThreshold(confidenceInput.value);
+  const confidenceInput = document.getElementById('confidenceInput');
+  const value = normalizeThreshold(confidenceInput.value);
 
-    confidenceInput.value = formatThreshold(value);
+  confidenceInput.value = formatThreshold(value);
 
-    updateConfidenceDisplay(value);
+  updateConfidenceDisplay(value);
 }
 
 function updateConfidenceDisplay(threshold = null) {
-    const confidenceSlider = document.getElementById('confidenceSlider');
-    const confidenceInput = document.getElementById('confidenceInput');
-    const confidenceValueDisplay = document.getElementById('confidenceValueDisplay');
-    const sliderProgress = document.getElementById('sliderProgress');
+  const confidenceSlider = document.getElementById('confidenceSlider');
+  const confidenceInput = document.getElementById('confidenceInput');
+  const confidenceValueDisplay = document.getElementById('confidenceValueDisplay');
+  const sliderProgress = document.getElementById('sliderProgress');
 
-    const value = threshold === null ? normalizeThreshold(confidenceSlider.value) : normalizeThreshold(threshold);
-    const sliderValue = getSliderValueForThreshold(value);
+  const value =
+    threshold === null ? normalizeThreshold(confidenceSlider.value) : normalizeThreshold(threshold);
+  const sliderValue = getSliderValueForThreshold(value);
 
-    confidenceSlider.value = sliderValue;
-    ui.send_message('override_th', value);
-    const percentage = (sliderValue - parseFloat(confidenceSlider.min)) / (parseFloat(confidenceSlider.max) - parseFloat(confidenceSlider.min)) * 100;
+  confidenceSlider.value = sliderValue;
+  ui.send_message('override_th', value);
+  const percentage =
+    ((sliderValue - parseFloat(confidenceSlider.min)) /
+      (parseFloat(confidenceSlider.max) - parseFloat(confidenceSlider.min))) *
+    100;
 
-    const displayValue = formatThreshold(value);
-    confidenceValueDisplay.textContent = displayValue;
+  const displayValue = formatThreshold(value);
+  confidenceValueDisplay.textContent = displayValue;
 
   if (document.activeElement !== confidenceInput) {
     confidenceInput.value = displayValue;
   }
 
-    confidenceSlider.style.setProperty('--slider-progress', percentage + '%');
-    sliderProgress.style.width = percentage + '%';
-    confidenceValueDisplay.style.left = percentage + '%';
+  confidenceSlider.style.setProperty('--slider-progress', percentage + '%');
+  sliderProgress.style.width = percentage + '%';
+  confidenceValueDisplay.style.left = percentage + '%';
 }
 
 function resetConfidence() {
   const confidenceSlider = document.getElementById('confidenceSlider');
   const confidenceInput = document.getElementById('confidenceInput');
 
-    confidenceSlider.value = DEFAULT_ANOMALY_THRESHOLD.toString();
-    confidenceInput.value = formatThreshold(DEFAULT_ANOMALY_THRESHOLD);
-    updateConfidenceDisplay();
+  confidenceSlider.value = DEFAULT_ANOMALY_THRESHOLD.toString();
+  confidenceInput.value = formatThreshold(DEFAULT_ANOMALY_THRESHOLD);
+  updateConfidenceDisplay();
 }
 
 // ... (existing printAnomalies and renderAnomalies functions)
@@ -328,7 +316,7 @@ function renderAnomalies() {
     return;
   }
 
-  anomalies.forEach((anomaly) => {
+  anomalies.forEach(anomaly => {
     try {
       const parsedAnomaly = JSON.parse(anomaly);
 
@@ -364,10 +352,7 @@ function renderAnomalies() {
       recentAnomaliesElement.appendChild(listItem);
     } catch (e) {
       console.error('Failed to parse anomaly data:', anomaly, e);
-      if (
-        recentAnomaliesElement.getElementsByClassName('anomaly-error')
-          .length === 0
-      ) {
+      if (recentAnomaliesElement.getElementsByClassName('anomaly-error').length === 0) {
         const errorRow = document.createElement('div');
         errorRow.className = 'anomaly-error';
         errorRow.textContent = `Error processing anomaly data. Check console for details.`;

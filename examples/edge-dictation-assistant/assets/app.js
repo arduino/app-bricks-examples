@@ -11,11 +11,16 @@ const micButton = document.querySelector('#mic-button');
 const title = document.querySelector('#title');
 const partialText = document.querySelector('#partial-text');
 const fullText = document.querySelector('#full-text');
-const dictationEnded = document.querySelector('#dictation-ended');
 const copyButton = document.querySelector('#copy-button');
 const transcriptionArea = document.querySelector('#transcription-area');
+const newRecordingButton = document.querySelector('#new-recording-button');
 
 transcriptionArea.addEventListener('scroll', updateGradientOpacity);
+
+// Attach event listeners to buttons
+newRecordingButton.addEventListener('click', startNewRecording);
+micButton.addEventListener('click', toggleRecording);
+copyButton.addEventListener('click', copyResult);
 
 const DICTATION_ENDED_TIMEOUT_MS = 20000;
 const TRANSCRIPTION_TIMEOUT_MS = 2000;
@@ -56,8 +61,6 @@ function resetTranscriptionTimer() {
  * @returns {void}
  */
 function toggleRecording() {
-  const hasText = resultText.length > 0;
-
   // Start recording
   if (!isRecording) {
     isRecording = true;
@@ -90,7 +93,7 @@ function toggleRecording() {
 function updateGradientOpacity() {
   transcriptionArea.style.setProperty(
     '--gradient-opacity',
-    transcriptionArea.scrollTop > 0 ? '1' : '0',
+    transcriptionArea.scrollTop > 0 ? '1' : '0'
   );
 }
 
@@ -123,12 +126,17 @@ function copyResult() {
   const img = copyButton.querySelector('img');
 
   if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(resultText).then(() => {
-      img.src = './img/copied.svg';
-      setTimeout(() => { img.src = './img/copy.svg'; }, 1500);
-    }).catch(() => { 
-      copyFallback(img); 
-    });
+    navigator.clipboard
+      .writeText(resultText)
+      .then(() => {
+        img.src = './img/copied.svg';
+        setTimeout(() => {
+          img.src = './img/copy.svg';
+        }, 1500);
+      })
+      .catch(() => {
+        copyFallback(img);
+      });
   } else {
     copyFallback(img);
   }
@@ -150,8 +158,12 @@ function copyFallback(img) {
   try {
     document.execCommand('copy');
     img.src = './img/copied.svg';
-    setTimeout(() => { img.src = './img/copy.svg'; }, 1500);
-  } catch (_) {}
+    setTimeout(() => {
+      img.src = './img/copy.svg';
+    }, 1500);
+  } catch {
+    // execCommand may fail, but we've already attempted the fallback
+  }
 
   document.body.removeChild(textarea);
 }

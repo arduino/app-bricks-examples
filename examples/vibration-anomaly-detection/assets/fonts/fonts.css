@@ -5,15 +5,15 @@
  */
 
 @font-face {
-    font-family: 'Roboto Mono';
-    font-style: normal;
-    font-display: swap;
-    src: url('RobotoMono-VariableFont_wght.ttf') format('truetype');
+  font-family: 'Roboto Mono';
+  font-style: normal;
+  font-display: swap;
+  src: url('RobotoMono-VariableFont_wght.ttf') format('truetype');
 }
 
 @font-face {
-    font-family: 'Open Sans';
-    font-style: normal;
-    font-display: swap;
-    src: url('Open Sans/OpenSans-VariableFont_wdth,wght.ttf') format('truetype');
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-display: swap;
+  src: url('Open Sans/OpenSans-VariableFont_wdth,wght.ttf') format('truetype');
 }

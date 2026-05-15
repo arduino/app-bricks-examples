@@ -26,10 +26,10 @@ The data is stored on the board, where we can view the data from the latest 24 h
 
 1. Connect the board to a computer using a USB-C® cable.
 2. Connect the Modulino® Thermo to the board using the Qwiic connector.
-    ![Connecting Modulino® Thermo](assets/docs_assets/hardware-setup.png)
+   ![Connecting Modulino® Thermo](assets/docs_assets/hardware-setup.png)
 
 3. Launch the App by clicking on the "Play" button in the top right corner. Wait until the App has launched.
-    ![Launching an App](assets/docs_assets/launch-app.png)
+   ![Launching an App](assets/docs_assets/launch-app.png)
 
 4. Open a browser and access `<UNO-Q-IP-ADDRESS>:7000` (this may also launch automatically).
 5. View the data from the Modulino® in real time!
@@ -47,6 +47,7 @@ As data is being stored, the web server can access the data, and render it in co
 ## Understanding the Code
 
 The Home Climate Monitoring example is a bit more advanced on the Python side, as it includes:
+
 - A database for storing environmental data
 - Calculations for the data received (e.g. calculating dew point, heat index & absolute humidity)
 - An endpoint that makes it possible for the web server to fetch the latest data over HTTP.
@@ -60,7 +61,7 @@ The `main.py` contains some advanced functions that makes the recording, storing
 - `def on_get_samples(resource: str, start: str, aggr_window: str):` - this function defines an API endpoint that lets us fetch the stored sensor data from the database.
 - `ui.expose_api("GET", "/get_samples/{resource}/{start}/{aggr_window}", on_get_samples)` - the endpoint is exposed, making it available to the `web_ui` Brick. This allows the web server to pull in the latest data, as well as historical data.
 
->For better understanding the Python application, view the `main.py` file, which includes detailed comments for each code segment.
+> For better understanding the Python application, view the `main.py` file, which includes detailed comments for each code segment.
 
 ### Microcontroller (Sketch) Side
 

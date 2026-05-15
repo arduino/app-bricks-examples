@@ -146,7 +146,7 @@ At that point, the device begins performing the following:
   ```javascript
   const ui = new WebUI();
 
-  ui.on_message('classifications', (message) => {
+  ui.on_message('classifications', message => {
     printClassifications(message); // update history
     renderClasses(); // redraw the list
     updateFeedback(true); // show greeting animation
