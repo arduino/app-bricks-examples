@@ -49,6 +49,18 @@ path = [
 SPDX-FileCopyrightText = "Copyright (C) Arduino s.r.l. and/or its affiliated companies"
 SPDX-License-Identifier = "MPL-2.0"
 
+# Configuration files
+[[annotations]]
+path = [
+  "package.json",
+  "eslint.config.js",
+  ".prettierrc.json",
+  ".prettierignore",
+  ".husky/pre-commit",
+]
+SPDX-FileCopyrightText = "Copyright (C) Arduino s.r.l. and/or its affiliated companies"
+SPDX-License-Identifier = "MPL-2.0"
+
 # Third-party fonts (Open Sans, Roboto) distributed under OFL-1.1
 [[annotations]]
 path = [

@@ -1,6 +1,6 @@
 ---
 name: requests
-version: 2.34.0
+version: 2.34.2
 type: pip
 summary: Python HTTP for Humans.
 homepage: ''
