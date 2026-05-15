@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-const socket = io(`http://${window.location.host}`);
 const errorContainer = document.getElementById('error-container');
 
 // Game state
@@ -19,36 +18,32 @@ const videoFeedContainer = document.getElementById('videoFeedContainer');
 const winScreen = document.getElementById('win-screen');
 const playAgainBtn = document.getElementById('play-again-btn');
 
-document.addEventListener('DOMContentLoaded', () => {
-    initSocketIO();
-    initializeConfidenceSlider();
-    renderObjectsToFind();
+const ui = new WebUI();
+ui.on_connect(onUIConnected);
+ui.on_disconnect(onUIDisconnected);
+ui.on_message('detection', handleDetection);
 
-    startGameBtn.addEventListener('click', startGame);
-    playAgainBtn.addEventListener('click', resetGame);
-});
+initializeConfidenceSlider();
+renderObjectsToFind();
 
-function initSocketIO() {
-    socket.on('connect', () => {
-        if (errorContainer) {
-            errorContainer.style.display = 'none';
-            errorContainer.textContent = '';
-        }
-    });
+startGameBtn.addEventListener('click', startGame);
+playAgainBtn.addEventListener('click', resetGame);
 
-    socket.on('disconnect', () => {
-        if (errorContainer) {
-            errorContainer.textContent = 'Connection to the board lost. Please check the connection.';
-            errorContainer.style.display = 'block';
-        }
-    });
-
-    socket.on('detection', async (message) => {
-        if (gameStarted) {
-            handleDetection(message);
-        }
-    });
+function onUIConnected() {
+    if (errorContainer) {
+      errorContainer.style.display = 'none';
+      errorContainer.textContent = '';
+    }
 }
+
+function onUIDisconnected() {
+    if (errorContainer) {
+      errorContainer.textContent =
+        'Connection to the board lost. Please check the connection.';
+      errorContainer.style.display = 'block';
+    }
+}
+
 
 function startGame() {
     gameStarted = true;
@@ -96,6 +91,10 @@ function renderObjectsToFind() {
 }
 
 function handleDetection(detection) {
+    if (!gameStarted) {
+        return;
+    }
+
     const detectedObject = detection.content.toLowerCase();
     if (targetObjects.includes(detectedObject) && !foundObjects.includes(detectedObject)) {
         foundObjects.push(detectedObject);
@@ -176,7 +175,7 @@ function updateConfidenceDisplay() {
     if (!confidenceSlider) return;
 
     const value = parseFloat(confidenceSlider.value);
-    socket.emit('override_th', value); // Send confidence to backend
+    ui.send_message('override_th', value); // Send confidence to backend
     const percentage = (value - confidenceSlider.min) / (confidenceSlider.max - confidenceSlider.min) * 100;
 
     const displayValue = value.toFixed(2);

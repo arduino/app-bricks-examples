@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-let socket;
 let currentImage = null;
 let resultImage = null;
 let errorContainer;
@@ -11,28 +10,42 @@ let currentImageSource = 'sample';
 let sampleImages = [];
 let selectedSampleImage = null;
 
-/*
- * Socket initialization: required for communication with the server.
- * Also initializes all elements used in the Anomaly Detection UI, which are manipulated throughout the application's lifecycle.
- */
+initializeElements();
 
-document.addEventListener('DOMContentLoaded', () => {
-    initializeElements();
-    initSocketIO();
+const ui = new WebUI();
+ui.on_connect(onUIConnected);
+ui.on_disconnect(onUIDisconnected);
+ui.on_message('detection_result', handleDetectionResult);
+ui.on_message('detection_error', handleDetectionError);
 
-    // Popover logic
-    const confidencePopoverText = "Minimum confidence score for detected cracks. Lower values show more results but may include false positives.";
+function onUIConnected() {
+  if (errorContainer) {
+    errorContainer.style.display = 'none';
+    errorContainer.textContent = '';
+  }
+}
 
-    document.querySelectorAll('.info-btn.confidence').forEach(img => {
-        const popover = img.nextElementSibling;
-        img.addEventListener('mouseenter', () => {
-            popover.textContent = confidencePopoverText;
-            popover.style.display = 'block';
-        });
-        img.addEventListener('mouseleave', () => {
-            popover.style.display = 'none';
-        });
-    });
+function onUIDisconnected() {
+  if (errorContainer) {
+    errorContainer.textContent =
+      'Connection to the board lost. Please check the connection.';
+    errorContainer.style.display = 'block';
+  }
+}
+
+// Popover logic
+const confidencePopoverText =
+  'Minimum confidence score for detected cracks. Lower values show more results but may include false positives.';
+
+document.querySelectorAll('.info-btn.confidence').forEach((img) => {
+  const popover = img.nextElementSibling;
+  img.addEventListener('mouseenter', () => {
+    popover.textContent = confidencePopoverText;
+    popover.style.display = 'block';
+  });
+  img.addEventListener('mouseleave', () => {
+    popover.style.display = 'none';
+  });
 });
 
 function initializeElements() {
@@ -365,33 +378,6 @@ function resetConfidence() {
     updateConfidenceDisplay();
 }
 
-function initSocketIO() {
-    socket = io(`http://${window.location.host}`);
-
-    socket.on('connect', () => {
-        if (errorContainer) {
-            errorContainer.style.display = 'none';
-            errorContainer.textContent = '';
-        }
-    });
-
-    socket.on('detection_result', (data) => {
-        handleDetectionResult(data);
-    });
-
-    socket.on('detection_error', (data) => {
-        showError(`Anomaly detection failed: ${data.error}`);
-        setButtonState('ready');
-    });
-
-    socket.on('disconnect', () => {
-        if (errorContainer) {
-            errorContainer.textContent = 'Connection to the board lost. Please check the connection.';
-            errorContainer.style.display = 'block';
-        }
-    });
-}
-
 function handleImageUpload(event) {
     const file = event.target.files[0];
     if (file) {
@@ -447,7 +433,7 @@ function sendDetectionRequest() {
 
     const confidence = parseFloat(document.getElementById('confidenceSlider').value);
 
-    socket.emit('detect_anomalies', {
+    ui.send_message('detect_anomalies', {
         image: currentImage,
         confidence: confidence
     });
@@ -530,6 +516,11 @@ function handleDetectionResult(data) {
     }
 
     setButtonState('completed');
+}
+
+function handleDetectionError(data) {
+    showError(`Anomaly detection failed: ${data.error}`);
+    setButtonState('ready');
 }
 
 function setButtonState(state) {

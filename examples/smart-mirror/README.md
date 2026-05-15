@@ -139,7 +139,7 @@ Here is a brief explanation of the App components:
 
 - **Live video feed**: The browser loads the MJPEG stream from `http://<hostname>:7000/stream` as an `<img>` element that fills the entire viewport, creating the mirror effect.
 
-- **WebSocket connection (`app.js`)**: Connects to the backend via Socket.IO. On `connect`, the UI resets to its initial state and loads the webcam stream. On `disconnect`, an error message is shown.
+- **WebUI connection (`app.js`)**: Connects to the backend. On `connect`, the UI resets to its initial state and loads the webcam stream. On `disconnect`, an error message is shown.
 
 - **Scan flow (`function.js`)**: The scan follows a state machine with four states:
   - **`initial`** — shows "Scan your look" button.

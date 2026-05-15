@@ -14,7 +14,7 @@ The example uses the following Bricks:
 
 - `web_ui`: Brick to create a web interface to display the classification results and model controls.
 - `video_objectdetection`: Brick to classify objects within a live video feed from a camera.
-  
+
 ## Hardware and Software Requirements
 
 ### Hardware
@@ -32,7 +32,7 @@ The example uses the following Bricks:
 ## How to Use the Example
 
 1. Connect the USB-C hub to the UNO Q and the USB camera.
-  ![Hardware setup](assets/docs_assets/hardware-setup.png)
+   ![Hardware setup](assets/docs_assets/hardware-setup.png)
 2. Attach the external power supply to the USB-C hub to power everything.
 3. Run the App.
    ![Arduino App Lab - Run App](assets/docs_assets/launch-app.png)
@@ -82,7 +82,7 @@ Here is a brief explanation of the full-stack application:
 
 - **Controls**
   - Slider, numeric input, and reset button adjust threshold live
-  - Updates sent to backend with: `socket.emit("override_th", value)`
+  - Updates sent to backend with: `ui.send_message("override_th", value)`
 
 - **Feedback**
   - Shows GIF + text for known objects (dog, cat, cup, cell phone, clock, potted plant)
@@ -102,74 +102,72 @@ At that point, the device begins performing the following:
 
 - Serving the **object detection UI** and exposing realtime transports.
 
-    The UI is hosted by the `WebUI` Brick and communicates with the backend via WebSocket (Socket.IO).  
-    The backend pushes detection messages whenever new objects are found.
+  The UI is hosted by the `WebUI` Brick and communicates with the backend via WebSocket.  
+   The backend pushes detection messages whenever new objects are found.
 
-    ```python
-    from arduino.app_bricks.web_ui import WebUI
-    from arduino.app_bricks.video_objectdetection import VideoObjectDetection
-    from datetime import datetime, UTC
+  ```python
+  from arduino.app_bricks.web_ui import WebUI
+  from arduino.app_bricks.video_objectdetection import VideoObjectDetection
+  from datetime import datetime, UTC
 
-    ui = WebUI()
-    detection_stream = VideoObjectDetection()
+  ui = WebUI()
+  detection_stream = VideoObjectDetection()
 
-    ui.on_message("override_th",
-                  lambda sid, threshold: detection_stream.override_threshold(threshold))
+  ui.on_message("override_th",
+                lambda sid, threshold: detection_stream.override_threshold(threshold))
 
-    detection_stream.on_detect_all(send_detections_to_ui)
-    ```
+  detection_stream.on_detect_all(send_detections_to_ui)
+  ```
 
-    - `detection` (WebSocket message): JSON entry with label, confidence, and timestamp sent to the UI.  
-    - `override_th` (WebSocket → backend): adjusts the confidence threshold live.
+  - `detection` (WebSocket message): JSON entry with label, confidence, and timestamp sent to the UI.
+  - `override_th` (WebSocket → backend): adjusts the confidence threshold live.
 
 - Processing detections and broadcasting updates.
 
-    When the model detects objects, the backend:
+  When the model detects objects, the backend:
+  1. Iterates over all detected objects with their confidence scores.
+  2. Attaches an ISO 8601 UTC timestamp.
+  3. Publishes each detection as a JSON entry to the frontend channel `detection`.
 
-    1. Iterates over all detected objects with their confidence scores.  
-    2. Attaches an ISO 8601 UTC timestamp.  
-    3. Publishes each detection as a JSON entry to the frontend channel `detection`.
-
-    ```python
-    def send_detections_to_ui(detections: dict):
-        for key, value in detections.items():
-            entry = {
-                "content": key,
-                "confidence": value,
-                "timestamp": datetime.now(UTC).isoformat()
-            }
-            ui.send_message("detection", message=entry)
-    ```
+  ```python
+  def send_detections_to_ui(detections: dict):
+      for key, value in detections.items():
+          entry = {
+              "content": key,
+              "confidence": value,
+              "timestamp": datetime.now(UTC).isoformat()
+          }
+          ui.send_message("detection", message=entry)
+  ```
 
 - Rendering and interacting on the frontend.
 
-    The **index.html + app.js** bundle defines the interface:
+  The **index.html + app.js** bundle defines the interface:
+  - A **video feed iframe** auto-retries `/embed` until the camera stream is live.
+  - A **confidence control** (slider + input + reset) lets the user adjust the detection threshold.
+  - A **feedback section** shows animations and messages for known classes (cat, dog, cup, clock, potted plant, etc.).
+  - A **recent detections list** displays the latest 5 detections with percentage and timestamp.
 
-    - A **video feed iframe** auto-retries `/embed` until the camera stream is live.  
-    - A **confidence control** (slider + input + reset) lets the user adjust the detection threshold.  
-    - A **feedback section** shows animations and messages for known classes (cat, dog, cup, clock, potted plant, etc.).  
-    - A **recent detections list** displays the latest 5 detections with percentage and timestamp.  
+  ```javascript
+  const ui = new WebUI();
 
-    ```javascript
-    const socket = io(`http://${window.location.host}`);
+  ui.on_message('detection', (message) => {
+    printDetection(message); // update history
+    renderDetections(); // redraw the list
+    updateFeedback(message); // update feedback panel
+  });
+  ```
 
-    socket.on('detection', (message) => {
-        printDetection(message);   // update history
-        renderDetections();        // redraw the list
-        updateFeedback(message);   // update feedback panel
-    });
-    ```
-
-    - `detection` (WebSocket): received whenever the backend publishes results.  
-    - The slider and input dynamically update the backend threshold (`override_th`).  
-    - If the connection drops, an error banner is shown (`error-container`).  
+  - `detection` (WebSocket): received whenever the backend publishes results.
+  - The slider and input dynamically update the backend threshold (`override_th`).
+  - If the connection drops, an error banner is shown (`error-container`).
 
 - Executing the event loop.
 
-    Finally, the backend keeps everything alive with:
+  Finally, the backend keeps everything alive with:
 
-    ```python
-    App.run()
-    ```
+  ```python
+  App.run()
+  ```
 
-    This maintains the object detection stream, callback hooks, threshold overrides, and WebSocket communication with the frontend.
+  This maintains the object detection stream, callback hooks, threshold overrides, and WebSocket communication with the frontend.

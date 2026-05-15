@@ -2,68 +2,67 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
+let errorContainer = document.getElementById('error-container');
 const recentDetectionsElement = document.getElementById('recentDetections');
 const feedbackContentElement = document.getElementById('feedback-content');
 const MAX_RECENT_SCANS = 5;
 let scans = [];
-const socket = io(`http://${window.location.host}`); // Initialize socket.io connection
-let errorContainer = document.getElementById('error-container');
 
-// Start the application
-document.addEventListener('DOMContentLoaded', () => {
-    initSocketIO();
-    initializeConfidenceSlider();
-    updateFeedback(null);
-    renderDetections();
-
-    // Popover logic
-    const confidencePopoverText = "Minimum confidence score for detected objects. Lower values show more results but may include false positives.";
-    const feedbackPopoverText = "When the camera detects an object like cat, cell phone, clock, cup, dog or potted plant, a picture and a message will be shown here.";
-
-    document.querySelectorAll('.info-btn.confidence').forEach(img => {
-        const popover = img.nextElementSibling;
-        img.addEventListener('mouseenter', () => {
-            popover.textContent = confidencePopoverText;
-            popover.style.display = 'block';
-        });
-        img.addEventListener('mouseleave', () => {
-            popover.style.display = 'none';
-        });
-    });
-
-    document.querySelectorAll('.info-btn.feedback').forEach(img => {
-        const popover = img.nextElementSibling;
-        img.addEventListener('mouseenter', () => {
-            popover.textContent = feedbackPopoverText;
-            popover.style.display = 'block';
-        });
-        img.addEventListener('mouseleave', () => {
-            popover.style.display = 'none';
-        });
-    });
+const ui = new WebUI();
+ui.on_connect(onUIConnected);
+ui.on_disconnect(onUIDisconnected);
+ui.on_message('detection', async (message) => {
+  printDetection(message);
+  renderDetections();
+  updateFeedback(message);
 });
 
-function initSocketIO() {
-    socket.on('connect', () => {
-        if (errorContainer) {
-            errorContainer.style.display = 'none';
-            errorContainer.textContent = '';
-        }
-    });
+// Start the application
+initializeConfidenceSlider();
+updateFeedback(null);
+renderDetections();
 
-    socket.on('disconnect', () => {
-        if (errorContainer) {
-            errorContainer.textContent = 'Connection to the board lost. Please check the connection.';
-            errorContainer.style.display = 'block';
-        }
-    });
+// Popover logic
+const confidencePopoverText =
+  'Minimum confidence score for detected objects. Lower values show more results but may include false positives.';
+const feedbackPopoverText =
+  'When the camera detects an object like cat, cell phone, clock, cup, dog or potted plant, a picture and a message will be shown here.';
 
-    socket.on('detection', async (message) => {
-        printDetection(message);
-        renderDetections();
-        updateFeedback(message);
-    });
+document.querySelectorAll('.info-btn.confidence').forEach((img) => {
+  const popover = img.nextElementSibling;
+  img.addEventListener('mouseenter', () => {
+    popover.textContent = confidencePopoverText;
+    popover.style.display = 'block';
+  });
+  img.addEventListener('mouseleave', () => {
+    popover.style.display = 'none';
+  });
+});
 
+document.querySelectorAll('.info-btn.feedback').forEach((img) => {
+  const popover = img.nextElementSibling;
+  img.addEventListener('mouseenter', () => {
+    popover.textContent = feedbackPopoverText;
+    popover.style.display = 'block';
+  });
+  img.addEventListener('mouseleave', () => {
+    popover.style.display = 'none';
+  });
+});
+
+function onUIConnected() {
+    if (errorContainer) {
+      errorContainer.style.display = 'none';
+      errorContainer.textContent = '';
+    }
+}
+
+function onUIDisconnected() {
+  if (errorContainer) {
+    errorContainer.textContent =
+      'Connection to the board lost. Please check the connection.';
+    errorContainer.style.display = 'block';
+  }
 }
 
 function updateFeedback(detection) {
@@ -195,7 +194,7 @@ function updateConfidenceDisplay() {
     const sliderProgress = document.getElementById('sliderProgress');
 
     const value = parseFloat(confidenceSlider.value);
-    socket.emit('override_th', value); // Send confidence to backend
+    ui.send_message('override_th', value); // Send confidence to backend
     const percentage = (value - confidenceSlider.min) / (confidenceSlider.max - confidenceSlider.min) * 100;
 
     const displayValue = value.toFixed(2);

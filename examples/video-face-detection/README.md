@@ -14,7 +14,7 @@ The example uses the following Bricks:
 
 - `web_ui`: Brick to create a web interface to display the classification results and model controls.
 - `video_objectdetection`: Brick to classify faces within a live video feed from a camera.
-  
+
 ## Hardware and Software Requirements
 
 ### Hardware
@@ -32,7 +32,7 @@ The example uses the following Bricks:
 ## How to Use the Example
 
 1. Connect the USB-C hub to the UNO Q and the USB camera.
-  ![Hardware setup](assets/docs_assets/hardware-setup.png)
+   ![Hardware setup](assets/docs_assets/hardware-setup.png)
 2. Attach the external power supply to the USB-C hub to power everything.
 3. Run the App.
    ![Arduino App Lab - Run App](assets/docs_assets/launch-app.png)
@@ -52,7 +52,7 @@ Here is a brief explanation of the full-stack application:
   - **VideoObjectDetection** (`detection_stream = VideoObjectDetection()`): runs face detection on the live video feed.
 
 - **Detection event wiring**:
-  - `on_detect("face", face_detected)`: prints `"Face detected!"` when a face is recognized.  
+  - `on_detect("face", face_detected)`: prints `"Face detected!"` when a face is recognized.
   - `on_detect_all(send_detections_to_ui)`: forwards all detections to the UI as JSON `{ content, confidence, timestamp }`.
 
 - **Controls**:
@@ -80,7 +80,7 @@ Here is a brief explanation of the full-stack application:
   - A slider + numeric input + reset button adjust the **confidence threshold** in real-time.
   - Values are sent to the backend via:
     ```javascript
-    socket.emit("override_th", value);
+    ui.send_message('override_th', value);
     ```
 
 - **Feedback panel**
@@ -105,76 +105,74 @@ Once the application is running, you can open it in your browser by navigating t
 
 - Serving the **face detection UI** and exposing real-time transports.
 
-    The UI is hosted by the `WebUI` Brick and communicates with the backend over WebSocket (Socket.IO).  
-    The backend pushes detection messages whenever a face is found.
+  The UI is hosted by the `WebUI` Brick and communicates with the backend over WebSocket.  
+   The backend pushes detection messages whenever a face is found.
 
-    ```python
-    from arduino.app_bricks.web_ui import WebUI
-    from arduino.app_bricks.video_objectdetection import VideoObjectDetection
-    from datetime import datetime, UTC
+  ```python
+  from arduino.app_bricks.web_ui import WebUI
+  from arduino.app_bricks.video_objectdetection import VideoObjectDetection
+  from datetime import datetime, UTC
 
-    ui = WebUI()
-    detection_stream = VideoObjectDetection()
+  ui = WebUI()
+  detection_stream = VideoObjectDetection()
 
-    ui.on_message("override_th",
-                  lambda sid, threshold: detection_stream.override_threshold(threshold))
+  ui.on_message("override_th",
+                lambda sid, threshold: detection_stream.override_threshold(threshold))
 
-    def face_detected():
-        print("Face detected!")
+  def face_detected():
+      print("Face detected!")
 
-    detection_stream.on_detect("face", face_detected)
-    detection_stream.on_detect_all(send_detections_to_ui)
-    ```
+  detection_stream.on_detect("face", face_detected)
+  detection_stream.on_detect_all(send_detections_to_ui)
+  ```
 
-    - `face` (event): triggers the callback printing `"Face detected!"`.  
-    - `detection` (WebSocket message): JSON entry with label, confidence, and timestamp sent to the UI.  
-    - `override_th` (WebSocket → backend): dynamically adjusts the minimum confidence threshold.
+  - `face` (event): triggers the callback printing `"Face detected!"`.
+  - `detection` (WebSocket message): JSON entry with label, confidence, and timestamp sent to the UI.
+  - `override_th` (WebSocket → backend): dynamically adjusts the minimum confidence threshold.
 
 - Processing detections and broadcasting updates.
 
-    When the model detects faces, the backend:
+  When the model detects faces, the backend:
+  1. Iterates over all detected objects and their confidence scores.
+  2. Attaches an ISO 8601 UTC timestamp.
+  3. Publishes each detection as a JSON entry to the frontend channel `detection`.
 
-    1. Iterates over all detected objects and their confidence scores.  
-    2. Attaches an ISO 8601 UTC timestamp.  
-    3. Publishes each detection as a JSON entry to the frontend channel `detection`.
-
-    ```python
-    def send_detections_to_ui(detections: dict):
-        for key, value in detections.items():
-            entry = {
-                "content": key,
-                "confidence": value,
-                "timestamp": datetime.now(UTC).isoformat()
-            }
-            ui.send_message("detection", message=entry)
-    ```
+  ```python
+  def send_detections_to_ui(detections: dict):
+      for key, value in detections.items():
+          entry = {
+              "content": key,
+              "confidence": value,
+              "timestamp": datetime.now(UTC).isoformat()
+          }
+          ui.send_message("detection", message=entry)
+  ```
 
 - Rendering and interacting on the frontend.
 
-    The **index.html + app.js** bundle defines the interface:
+  The **index.html + app.js** bundle defines the interface:
+  - A **video iframe** retries `/embed` until the live camera feed is available.
+  - A **confidence control** (slider + number + reset) lets the user change the threshold on the fly.
+  - A **feedback section** shows greetings with an animated hand when a face is detected.
+  - A **recent detections list** displays up to 5 detections with confidence and timestamp.
+  - A **connection banner** warns the user if the WebSocket drops.
 
-    - A **video iframe** retries `/embed` until the live camera feed is available.  
-    - A **confidence control** (slider + number + reset) lets the user change the threshold on the fly.  
-    - A **feedback section** shows greetings with an animated hand when a face is detected.  
-    - A **recent detections list** displays up to 5 detections with confidence and timestamp.  
-    - A **connection banner** warns the user if the WebSocket drops.
+  ```javascript
+  const ui = new WebUI();
 
-    ```javascript
-    const socket = io(`http://${window.location.host}`);
-
-    socket.on('detection', (message) => {
-        printDetection(message);   // update detection history
-        renderDetections();        // redraw the list
-        // updateFeedback is built into app.js
-    });
-    ```
+  ui.on_message('detection', (message) => {
+    printDetection(message); // update detection history
+    renderDetections(); // redraw the list
+    // updateFeedback is built into app.js
+  });
+  ```
 
 - Executing the event loop.
 
-    Finally, the backend keeps the whole system alive with:
+  Finally, the backend keeps the whole system alive with:
 
-    ```python
-    App.run()
-    ```
+  ```python
+  App.run()
+  ```
 
-    This maintains the detection stream, applies confidence threshold overrides, and sustains real-time WebSocket messaging with the frontend.
+  This maintains the detection stream, applies confidence threshold overrides, and sustains real-time WebSocket messaging with the frontend.

@@ -10,13 +10,13 @@ The app captures video input from a connected USB camera and continuously scans 
 
 The `assets` folder contains the **database** and **frontend** components of the application. Inside, you’ll find the JavaScript source files along with the HTML and CSS files that make up the web user interface. The `python` folder instead includes the application **backend**.
 
-This example only uses the Arduino UNO Q CPU for running the application since no C++ sketch is present in the example structure. 
+This example only uses the Arduino UNO Q CPU for running the application since no C++ sketch is present in the example structure.
 
 ## Bricks Used
 
 The code detector example uses the following Bricks:
 
-- `camera_code_detection`: Brick to detect barcodes and QR codes using a camera. 
+- `camera_code_detection`: Brick to detect barcodes and QR codes using a camera.
 - `dbstorage_sqlstore`: Brick to store the detected codes in a database.
 - `web_ui`: Brick to create a web interface to display the detected codes and the camera live feed.
 
@@ -39,7 +39,7 @@ The code detector example uses the following Bricks:
 ## How to Use the Example
 
 1. Connect the USB-C hub to the UNO Q and the USB camera.
-  ![Hardware setup](assets/docs_assets/hardware-setup.png)
+   ![Hardware setup](assets/docs_assets/hardware-setup.png)
 2. Attach the external power supply to the USB-C hub to power everything.
 3. Run the App.
    ![Arduino App Lab - Run App](assets/docs_assets/launch-app.png)
@@ -71,14 +71,14 @@ Here is a brief explanation of the full-stack application:
 
 ### 💻 Frontend (index.html + app.js)
 
-- Connects to the backend using `Socket.IO`.
+- Connects to the backend using `WebUI`.
 - Renders:
   - Live video feed from the USB camera (`frame_detected`)
   - Last detected code with timestamp and copy/link icon (`code_detected`)
   - List of last 5 scans (`/list_scans` API)
 
 - User can trigger a rescan with a button (`rescan()`).
-- Uses `<canvas>` to display images and decodes *Base64* image data.
+- Uses `<canvas>` to display images and decodes _Base64_ image data.
 
 ## Understanding the Code
 
@@ -118,19 +118,19 @@ Once the application is running, you can access it from your web browser by navi
    
 - **Deploying and rendering the web UI.**
 
-    The following Brick imports the web user interface.
-    ```python
-    from arduino.app_bricks.web_ui import WebUI
-    ```
+  The following Brick imports the web user interface.
 
-    The web UI is deployed and exposed to the local network through the `webUI` class.
+  ```python
+  from arduino.app_bricks.web_ui import WebUI
+  ```
 
-    ```python
-    ui = WebUI()
-    ui.expose_api('GET', '/list_scans', on_list_scans)
-    ui.on_message('reset_detection', reset_detection)
-    ```
+  The web UI is deployed and exposed to the local network through the `webUI` class.
 
-    - The `on_list_scans` function, returns the database stored codes to be shown in the UI.
-    - The `reset_detection` function handles the UI button to restart the code scanning process.
+  ```python
+  ui = WebUI()
+  ui.expose_api('GET', '/list_scans', on_list_scans)
+  ui.on_message('reset_detection', reset_detection)
+  ```
 
+  - The `on_list_scans` function, returns the database stored codes to be shown in the UI.
+  - The `reset_detection` function handles the UI button to restart the code scanning process.

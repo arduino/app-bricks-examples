@@ -18,8 +18,60 @@ const ANOMALY_THRESHOLD_STEP = 0.1;
 
 let hasDataFromBackend = false; // New global flag
 
-const accelerometerDataDisplay = document.getElementById('accelerometer-data-display');
-const noAccelerometerDataPlaceholder = document.getElementById('no-accelerometer-data');
+const accelerometerDataDisplay = document.getElementById(
+  'accelerometer-data-display',
+);
+const noAccelerometerDataPlaceholder = document.getElementById(
+  'no-accelerometer-data',
+);
+
+/*
+ * WebUI initialization. We need it to communicate with the server
+ */
+const ui = new WebUI();
+ui.on_connect(onUIConnected);
+ui.on_disconnect(onUIDisconnected);
+ui.on_message('anomaly_detected', handleAnomalyDetected);
+ui.on_message('sample', (s) => {
+  pushSample(s);
+});
+
+function onUIConnected() {
+  if (errorContainer) {
+    errorContainer.style.display = 'none';
+    errorContainer.textContent = '';
+  }
+}
+
+function onUIDisconnected() {
+  errorContainer = document.getElementById('error-container');
+  if (errorContainer) {
+    errorContainer.textContent =
+        'Connection to the board lost. Please check the connection.';
+    errorContainer.style.display = 'block';
+  }
+}
+
+function handleAnomalyDetected(message) {
+    if (!hasDataFromBackend) {
+      // Check if this is the first data received
+      hasDataFromBackend = true;
+      renderAccelerometerData();
+    }
+    printAnomalies(message);
+    renderAnomalies();
+    try {
+      const parsedAnomaly = JSON.parse(message);
+      updateFeedback(parsedAnomaly.score); // Pass the anomaly score
+    } catch (e) {
+      console.error(
+        'Failed to parse anomaly message for feedback:',
+        message,
+        e,
+      );
+      updateFeedback(null); // Fallback to no anomaly feedback
+    }
+}
 
 function drawPlot() {
   if (!hasDataFromBackend) return; // Only draw if we have data
@@ -37,10 +89,10 @@ function drawPlot() {
   ctx.strokeStyle = '#31333F99';
   ctx.lineWidth = 0.5;
   ctx.beginPath();
-  for (let i=0; i<=8; i++){
-    const y = 10 + i*((currentHeight-20)/8);
-    ctx.moveTo(40,y);
-    ctx.lineTo(currentWidth,y);
+  for (let i = 0; i <= 8; i++) {
+    const y = 10 + i * ((currentHeight - 20) / 8);
+    ctx.moveTo(40, y);
+    ctx.lineTo(currentWidth, y);
   }
   ctx.stroke();
 
@@ -50,8 +102,8 @@ function drawPlot() {
   ctx.textAlign = 'right';
   ctx.textBaseline = 'middle';
 
-  for (let i=0; i<=8; i++) {
-    const y = 10 + i*((currentHeight-20)/8);
+  for (let i = 0; i <= 8; i++) {
+    const y = 10 + i * ((currentHeight - 20) / 8);
     const value = (4.0 - i * 1.0).toFixed(1);
     ctx.fillText(value, 35, y);
   }
@@ -61,75 +113,73 @@ function drawPlot() {
     ctx.strokeStyle = color;
     ctx.lineWidth = 1;
     ctx.beginPath();
-    for (let i=0;i<samples.length;i++){
+    for (let i = 0; i < samples.length; i++) {
       const s = samples[i];
-      const x = 40 + (i/(maxSamples-1))*(currentWidth-40);
+      const x = 40 + (i / (maxSamples - 1)) * (currentWidth - 40);
       const v = s[key];
-      const y = (currentHeight/2) - (v * ((currentHeight-20)/8));
-      if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      const y = currentHeight / 2 - v * ((currentHeight - 20) / 8);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
     }
     ctx.stroke();
   }
 
-  drawSeries('x','#0068C9');
-  drawSeries('y','#FF9900');
-  drawSeries('z','#FF2B2B');
+  drawSeries('x', '#0068C9');
+  drawSeries('y', '#FF9900');
+  drawSeries('z', '#FF2B2B');
 }
 
-function pushSample(s){
+function pushSample(s) {
   samples.push(s);
-  if (samples.length>maxSamples) samples.shift();
-  if (!hasDataFromBackend) { // Check if this is the first data received
+  if (samples.length > maxSamples) samples.shift();
+  if (!hasDataFromBackend) {
+    // Check if this is the first data received
     hasDataFromBackend = true;
     renderAccelerometerData();
   }
   drawPlot();
 }
 
-/*
- * Socket initialization. We need it to communicate with the server
- */
-const socket = io(`http://${window.location.host}`); // Initialize socket.io connection
-
-const feedbackContentWrapper = document.getElementById('feedback-content-wrapper');
+const feedbackContentWrapper = document.getElementById(
+  'feedback-content-wrapper',
+);
 let feedbackTimeout;
 
 // ... (existing code between)
 
 // Start the application
-document.addEventListener('DOMContentLoaded', () => {
-    initSocketIO();
-    renderAccelerometerData(); // Initial render for accelerometer
-    renderAnomalies(); // Initial render for anomalies
-    updateFeedback(null); // Initial feedback state
-    initializeConfidenceSlider(); // Initialize the confidence slider
+renderAccelerometerData(); // Initial render for accelerometer
+renderAnomalies(); // Initial render for anomalies
+updateFeedback(null); // Initial feedback state
+initializeConfidenceSlider(); // Initialize the confidence slider
 
-    // Popover logic
-    document.querySelectorAll('.info-btn.confidence').forEach(img => {
-        const popover = img.nextElementSibling;
-        img.addEventListener('mouseenter', () => {
-            popover.style.display = 'block';
-        });
-        img.addEventListener('mouseleave', () => {
-            popover.style.display = 'none';
-        });
-    });
+// Popover logic
+document.querySelectorAll('.info-btn.confidence').forEach((img) => {
+  const popover = img.nextElementSibling;
+  img.addEventListener('mouseenter', () => {
+    popover.style.display = 'block';
+  });
+  img.addEventListener('mouseleave', () => {
+    popover.style.display = 'none';
+  });
+});
 
-    document.querySelectorAll('.info-btn.accelerometer-data').forEach(img => {
-        const popover = img.nextElementSibling;
-        img.addEventListener('mouseenter', () => {
-            popover.style.display = 'block';
-        });
-        img.addEventListener('mouseleave', () => {
-            popover.style.display = 'none';
-        });
-    });
+document.querySelectorAll('.info-btn.accelerometer-data').forEach((img) => {
+  const popover = img.nextElementSibling;
+  img.addEventListener('mouseenter', () => {
+    popover.style.display = 'block';
+  });
+  img.addEventListener('mouseleave', () => {
+    popover.style.display = 'none';
+  });
 });
 
 function initializeConfidenceSlider() {
-    const confidenceSlider = document.getElementById('confidenceSlider');
-    const confidenceInput = document.getElementById('confidenceInput');
-    const confidenceResetButton = document.getElementById('confidenceResetButton');
+  const confidenceSlider = document.getElementById('confidenceSlider');
+  const confidenceInput = document.getElementById('confidenceInput');
+  const confidenceResetButton = document.getElementById(
+    'confidenceResetButton',
+  );
 
     confidenceSlider.min = MIN_ANOMALY_THRESHOLD.toString();
     confidenceSlider.max = MAX_SLIDER_ANOMALY_THRESHOLD.toString();
@@ -144,11 +194,14 @@ function initializeConfidenceSlider() {
     confidenceInput.addEventListener('blur', validateConfidenceInput);
     updateConfidenceDisplay();
 
-    confidenceResetButton.addEventListener('click', (e) => {
-        if (e.target.classList.contains('reset-icon') || e.target.closest('.reset-icon')) {
-            resetConfidence();
-        }
-    });
+  confidenceResetButton.addEventListener('click', (e) => {
+    if (
+      e.target.classList.contains('reset-icon') ||
+      e.target.closest('.reset-icon')
+    ) {
+      resetConfidence();
+    }
+  });
 }
 
 function normalizeThreshold(value) {
@@ -194,15 +247,15 @@ function updateConfidenceDisplay(threshold = null) {
     const sliderValue = getSliderValueForThreshold(value);
 
     confidenceSlider.value = sliderValue;
-    socket.emit('override_th', value);
+    ui.send_message('override_th', value);
     const percentage = (sliderValue - parseFloat(confidenceSlider.min)) / (parseFloat(confidenceSlider.max) - parseFloat(confidenceSlider.min)) * 100;
 
     const displayValue = formatThreshold(value);
     confidenceValueDisplay.textContent = displayValue;
 
-    if (document.activeElement !== confidenceInput) {
-        confidenceInput.value = displayValue;
-    }
+  if (document.activeElement !== confidenceInput) {
+    confidenceInput.value = displayValue;
+  }
 
     confidenceSlider.style.setProperty('--slider-progress', percentage + '%');
     sliderProgress.style.width = percentage + '%';
@@ -210,148 +263,127 @@ function updateConfidenceDisplay(threshold = null) {
 }
 
 function resetConfidence() {
-    const confidenceSlider = document.getElementById('confidenceSlider');
-    const confidenceInput = document.getElementById('confidenceInput');
+  const confidenceSlider = document.getElementById('confidenceSlider');
+  const confidenceInput = document.getElementById('confidenceInput');
 
     confidenceSlider.value = DEFAULT_ANOMALY_THRESHOLD.toString();
     confidenceInput.value = formatThreshold(DEFAULT_ANOMALY_THRESHOLD);
     updateConfidenceDisplay();
 }
 
-function initSocketIO() {
-    socket.on('anomaly_detected', async (message) => {
-        if (!hasDataFromBackend) { // Check if this is the first data received
-            hasDataFromBackend = true;
-            renderAccelerometerData();
-        }
-        printAnomalies(message);
-        renderAnomalies();
-        try {
-            const parsedAnomaly = JSON.parse(message);
-            updateFeedback(parsedAnomaly.score); // Pass the anomaly score
-        } catch (e) {
-            console.error("Failed to parse anomaly message for feedback:", message, e);
-            updateFeedback(null); // Fallback to no anomaly feedback
-        }
-    });
-
-    socket.on('sample', (s) => {
-      pushSample(s);
-    });
-
-    socket.on('connect', () => {
-      if (errorContainer) {
-        errorContainer.style.display = 'none';
-        errorContainer.textContent = '';
-      }
-    });
-
-    socket.on('disconnect', () => {
-      errorContainer = document.getElementById('error-container');
-      if (errorContainer) {
-        errorContainer.textContent = 'Connection to the board lost. Please check the connection.';
-        errorContainer.style.display = 'block';
-      }
-    });
-}
-
 // ... (existing printAnomalies and renderAnomalies functions)
 
 function updateFeedback(anomalyScore = null) {
-    clearTimeout(feedbackTimeout); // Clear any existing timeout
+  clearTimeout(feedbackTimeout); // Clear any existing timeout
 
-    if (!hasDataFromBackend) {
-        feedbackContentWrapper.innerHTML = `
+  if (!hasDataFromBackend) {
+    feedbackContentWrapper.innerHTML = `
             <div class="feedback-content">
                 <img src="./img/no-data.png" alt="No Data">
                 <p class="feedback-text">No data</p>
             </div>
         `;
-        return;
-    }
+    return;
+  }
 
-    if (anomalyScore !== null) { // Anomaly detected
-        feedbackContentWrapper.innerHTML = `
+  if (anomalyScore !== null) {
+    // Anomaly detected
+    feedbackContentWrapper.innerHTML = `
             <div class="feedback-content">
                 <img src="./img/bad.svg" alt="Anomaly Detected">
                 <p class="feedback-text">Anomaly detected: ${anomalyScore.toFixed(2)}</p>
             </div>
         `;
-        feedbackTimeout = setTimeout(() => {
-            updateFeedback(null); // Reset after 3 seconds
-        }, 3000);
-    } else { // No anomaly or reset
-        feedbackContentWrapper.innerHTML = `
+    feedbackTimeout = setTimeout(() => {
+      updateFeedback(null); // Reset after 3 seconds
+    }, 3000);
+  } else {
+    // No anomaly or reset
+    feedbackContentWrapper.innerHTML = `
             <div class="feedback-content">
                 <img src="./img/good.svg" alt="No Anomalies">
                 <p class="feedback-text">No anomalies</p>
             </div>
         `;
-    }
+  }
 }
 
 function printAnomalies(newAnomaly) {
-    anomalies.unshift(newAnomaly);
-    if (anomalies.length > MAX_RECENT_ANOMALIES) { anomalies.pop(); }
+  anomalies.unshift(newAnomaly);
+  if (anomalies.length > MAX_RECENT_ANOMALIES) {
+    anomalies.pop();
+  }
 }
 
 function renderAnomalies() {
-    recentAnomaliesElement.innerHTML = ``; // Clear the list
+  recentAnomaliesElement.innerHTML = ``; // Clear the list
 
-    if (anomalies.length === 0) {
-        recentAnomaliesElement.innerHTML = `
+  if (anomalies.length === 0) {
+    recentAnomaliesElement.innerHTML = `
             <div class="no-recent-anomalies">
                 <img src="./img/no-data.png">
                 <p>No recent anomalies</p>
             </div>
         `;
-        return;
-    }
+    return;
+  }
 
-    anomalies.forEach((anomaly) => {
-        try {
-            const parsedAnomaly = JSON.parse(anomaly);
+  anomalies.forEach((anomaly) => {
+    try {
+      const parsedAnomaly = JSON.parse(anomaly);
 
-            if (Object.keys(parsedAnomaly).length === 0) {
-                return; // Skip empty anomaly objects
-            }
+      if (Object.keys(parsedAnomaly).length === 0) {
+        return; // Skip empty anomaly objects
+      }
 
-            const listItem = document.createElement('li');
-            listItem.className = 'anomaly-list-item';
+      const listItem = document.createElement('li');
+      listItem.className = 'anomaly-list-item';
 
-            const score = parsedAnomaly.score.toFixed(1);
-            const date = new Date(parsedAnomaly.timestamp);
+      const score = parsedAnomaly.score.toFixed(1);
+      const date = new Date(parsedAnomaly.timestamp);
 
-            const timeString = date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            const dateString = date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, ' ');
+      const timeString = date.toLocaleTimeString('it-IT', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      });
+      const dateString = date
+        .toLocaleDateString('en-GB', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+        })
+        .replace(/ /g, ' ');
 
-            listItem.innerHTML = `
+      listItem.innerHTML = `
                 <span class="anomaly-score">${score}</span>
                 <span class="anomaly-text">Anomaly</span>
                 <span class="anomaly-time">${timeString} - ${dateString}</span>
             `;
 
-            recentAnomaliesElement.appendChild(listItem);
-
-        } catch (e) {
-            console.error("Failed to parse anomaly data:", anomaly, e);
-            if(recentAnomaliesElement.getElementsByClassName('anomaly-error').length === 0) {
-                const errorRow = document.createElement('div');
-                errorRow.className = 'anomaly-error';
-                errorRow.textContent = `Error processing anomaly data. Check console for details.`;
-                recentAnomaliesElement.appendChild(errorRow);
-            }
-        }
-    });
+      recentAnomaliesElement.appendChild(listItem);
+    } catch (e) {
+      console.error('Failed to parse anomaly data:', anomaly, e);
+      if (
+        recentAnomaliesElement.getElementsByClassName('anomaly-error')
+          .length === 0
+      ) {
+        const errorRow = document.createElement('div');
+        errorRow.className = 'anomaly-error';
+        errorRow.textContent = `Error processing anomaly data. Check console for details.`;
+        recentAnomaliesElement.appendChild(errorRow);
+      }
+    }
+  });
 }
 
 function renderAccelerometerData() {
-    if (hasDataFromBackend) {
-        accelerometerDataDisplay.style.display = 'block';
-        noAccelerometerDataPlaceholder.style.display = 'none';
-        drawPlot();
-    } else {
-        accelerometerDataDisplay.style.display = 'none';
-        noAccelerometerDataPlaceholder.style.display = 'flex'; // Use flex for centering content
-    }
+  if (hasDataFromBackend) {
+    accelerometerDataDisplay.style.display = 'block';
+    noAccelerometerDataPlaceholder.style.display = 'none';
+    drawPlot();
+  } else {
+    accelerometerDataDisplay.style.display = 'none';
+    noAccelerometerDataPlaceholder.style.display = 'flex'; // Use flex for centering content
+  }
 }
