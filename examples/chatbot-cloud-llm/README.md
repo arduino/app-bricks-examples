@@ -66,7 +66,7 @@ This example requires a valid API Key from an LLM provider (Google Gemini, OpenA
    You can start a conversation with the AI using a pre-built prompt or by submitting your own question.
 
 2. **Chat page**
-   In the chat page you can have a conversation with the AI. 
+   In the chat page you can have a conversation with the AI.
    Your inquiries are on the right and the AI replies on the left in a chat-like style.
 
 3. **Enhance your prompt**
@@ -127,51 +127,50 @@ def generate_prompt(_, data):
 
 The JavaScript manages the complex UI interactions, buttons, and WebSocket communication.
 
-- **Socket Listeners**: The frontend listens for chunks of text and appends them to the display buffer, creating the streaming effect.
+- **UI event listeners**: The frontend listens for chunks of text and appends them to the display buffer, creating the streaming effect.
 
-```javascript
-
-function initSocketIO() {
-    socket.on('response', handleResponse);
-    socket.on('stream_end', handleStreamEnd);
-    ```omissis```
+````javascript
+function initUI() {
+  ui.on_message('response', handleResponse);
+  ui.on_message('stream_end', handleStreamEnd);
+  ```omissis```;
 }
 
 function handleResponse(data) {
-    const ai_msg = document.getElementById('active-ai-response');
-    if (thinkingMessageElement) {
-        // First chunk of stream
-        const textContent = thinkingMessageElement.querySelector('.text-content');
-        if (textContent) {
-            textContent.innerHTML = '';
-        }
-        thinkingMessageElement.classList.remove('thinking-message');
-        thinkingMessageElement.dataset.rawText = '';
-        thinkingMessageElement = null;
+  const ai_msg = document.getElementById('active-ai-response');
+  if (thinkingMessageElement) {
+    // First chunk of stream
+    const textContent = thinkingMessageElement.querySelector('.text-content');
+    if (textContent) {
+      textContent.innerHTML = '';
     }
+    thinkingMessageElement.classList.remove('thinking-message');
+    thinkingMessageElement.dataset.rawText = '';
+    thinkingMessageElement = null;
+  }
 
-    if (ai_msg) {
-        ai_msg.dataset.rawText += data;
-        const textContent = ai_msg.querySelector('.text-content');
-        if (textContent) {
-            textContent.innerHTML = marked.parse(ai_msg.dataset.rawText);
-        }
+  if (ai_msg) {
+    ai_msg.dataset.rawText += data;
+    const textContent = ai_msg.querySelector('.text-content');
+    if (textContent) {
+      textContent.innerHTML = marked.parse(ai_msg.dataset.rawText);
     }
+  }
 }
 
 function handleStreamEnd() {
-    removeThinkingMessage(); // Ensure it's removed if stream ends
-    ai_msg = document.getElementById('active-ai-response');
-    if (ai_msg) {
-        ai_msg.id = '';
+  removeThinkingMessage(); // Ensure it's removed if stream ends
+  ai_msg = document.getElementById('active-ai-response');
+  if (ai_msg) {
+    ai_msg.id = '';
+  }
+  if (sendButton) {
+    sendButton.classList.remove('sending-state');
+    if (sendButtonImg) {
+      sendButtonImg.src = 'img/send.svg';
     }
-    if (sendButton) {
-        sendButton.classList.remove('sending-state');
-        if (sendButtonImg) {
-            sendButtonImg.src = 'img/send.svg';
-        }
-    }
-    updateSendButtonState(); // Update button state after stream ends
-    updateClearChatButtonState(); // Update clear chat button state after stream ends
+  }
+  updateSendButtonState(); // Update button state after stream ends
+  updateClearChatButtonState(); // Update clear chat button state after stream ends
 }
-```
+````

@@ -75,7 +75,7 @@ This example requires a valid API Key from an LLM provider (Google Gemini, OpenA
 1. **Choose Your Path**
 
    You have two options to create a story:
-   
+
    *   **Option A: Manual Configuration** (Follow step 2)
    *   **Option B: Random Generation** (Skip to step 3)
 
@@ -140,10 +140,10 @@ def generate_story(_, data):
     # Extract parameters
     age = data.get('age', 'any')
     theme = data.get('theme', 'any')
-    
+
     # Build natural language prompt
     prompt_for_display = f"As a parent who loves to read bedtime stories to my <strong>{age}</strong> year old child..."
-    
+
     # ... logic to append characters and settings ...
 
     # Stream response back to UI
@@ -161,33 +161,37 @@ The JavaScript manages the complex UI interactions, random generation logic, and
 - **Random Generation**: If the user chooses "Generate Randomly", the frontend programmatically selects random chips from the available options and submits the request.
 
 ```javascript
-document.getElementById('generate-randomly-button').addEventListener('click', () => {
+document
+  .getElementById('generate-randomly-button')
+  .addEventListener('click', () => {
     // Select random elements from the UI lists
-    const ageChips = document.querySelectorAll('.parameter-container:nth-child(1) .chip');
+    const ageChips = document.querySelectorAll(
+      '.parameter-container:nth-child(1) .chip',
+    );
     const randomAgeChip = getRandomElement(ageChips);
     // ... repeat for theme, tone, etc ...
 
     const storyData = {
-        age: randomAgeChip ? randomAgeChip.textContent.trim() : 'any',
-        // ...
-        characters: [], // Random stories use generic characters
+      age: randomAgeChip ? randomAgeChip.textContent.trim() : 'any',
+      // ...
+      characters: [], // Random stories use generic characters
     };
 
     generateStory(storyData);
-});
+  });
 ```
 
-- **Socket Listeners**: The frontend listens for chunks of text and appends them to the display buffer, creating the streaming effect.
+- **UI event listeners**: The frontend listens for chunks of text and appends them to the display buffer, creating the streaming effect.
 
 ```javascript
-socket.on('response', (data) => {
-    document.getElementById('story-container').style.display = 'flex';
-    storyBuffer += data; // Accumulate text
+ui.on_message('response', (data) => {
+  document.getElementById('story-container').style.display = 'flex';
+  storyBuffer += data; // Accumulate text
 });
 
-socket.on('stream_end', () => {
-    const storyResponse = document.getElementById('story-response');
-    storyResponse.innerHTML = storyBuffer; // Final render
-    document.getElementById('loading-spinner').style.display = 'none';
+ui.on_message('stream_end', () => {
+  const storyResponse = document.getElementById('story-response');
+  storyResponse.innerHTML = storyBuffer; // Final render
+  document.getElementById('loading-spinner').style.display = 'none';
 });
 ```

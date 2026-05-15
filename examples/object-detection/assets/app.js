@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-let socket;
 let currentImage = null;
 let resultImage = null;
 let errorContainer;
@@ -11,11 +10,40 @@ let errorContainer;
  * Socket initialization: required for communication with the server.
  * Also initializes all elements used in the Anomaly Detection UI, which are manipulated throughout the application's lifecycle.
  */
+initializeElements();
 
-document.addEventListener('DOMContentLoaded', () => {
-    initializeElements();
-    initSocketIO();
-});
+const ui = new WebUI();
+ui.on_connect(onUiConnected);
+ui.on_message('detection_result', onDetectionResult);
+ui.on_message('detection_error', onDetectionError);
+ui.on_disconnect(onUIDisconnected);
+
+
+function onUiConnected() {
+    if (errorContainer) {
+      errorContainer.style.display = 'none';
+      errorContainer.textContent = '';
+    }
+}
+
+function onUIDisconnected() {
+    if (errorContainer) {
+        errorContainer.textContent =
+        'Connection to the board lost. Please check the connection.';
+        errorContainer.style.display = 'block';
+    }
+}
+
+function onDetectionResult(data) {
+    console.log('📥 Received detection_result:', data);
+    handleDetectionResult(data);
+}
+
+function onDetectionError(data) {
+    console.log('📥 Received detection_error:', data);
+    showError(`Object detection failed: ${data.error}`);
+    setButtonState('ready');
+}
 
 function initializeElements() {
     const imageInput = document.getElementById('imageInput');
@@ -231,35 +259,6 @@ function resetConfidence() {
     updateConfidenceDisplay();
 }
 
-function initSocketIO() {
-    socket = io(`http://${window.location.host}`);
-
-    socket.on('connect', () => {
-        if (errorContainer) {
-            errorContainer.style.display = 'none';
-            errorContainer.textContent = '';
-        }
-    });
-
-    socket.on('detection_result', (data) => {
-        console.log('📥 Received detection_result:', data);
-        handleDetectionResult(data);
-    });
-
-    socket.on('detection_error', (data) => {
-        console.log('📥 Received detection_error:', data);
-        showError(`Object detection failed: ${data.error}`);
-        setButtonState('ready');
-    });
-
-    socket.on('disconnect', () => {
-        if (errorContainer) {
-            errorContainer.textContent = 'Connection to the board lost. Please check the connection.';
-            errorContainer.style.display = 'block';
-        }
-    });
-}
-
 function handleImageUpload(event) {
     const file = event.target.files[0];
     if (file) {
@@ -303,7 +302,7 @@ function sendDetectionRequest() {
 
     const confidence = parseFloat(document.getElementById('confidenceSlider').value);
 
-    socket.emit('detect_objects', {
+    ui.send_message('detect_objects', {
         image: currentImage,
         confidence: confidence
     });

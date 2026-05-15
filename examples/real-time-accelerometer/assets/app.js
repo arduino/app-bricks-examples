@@ -12,6 +12,42 @@ const maxSamples = 200;
 const samples = [];
 let errorContainer;
 
+
+// Connect to board using WebUI with custom socket options
+const ui = new WebUI({
+  path: '/socket.io',
+  transports: ['polling', 'websocket'],
+  autoConnect: true,
+});
+
+ui.on_connect(onUIConnected);
+ui.on_disconnect(onUIDisconnected);
+
+ui.on_message('movement', (data) => {
+  console.debug('received movement', data);
+  setValues(data);
+});
+
+ui.on_message('sample', (s) => {
+  pushSample(s);
+});
+
+function onUIConnected() {
+  if (errorContainer) {
+    errorContainer.style.display = 'none';
+    errorContainer.textContent = '';
+  }
+}
+
+function onUIDisconnected() {
+  errorContainer = document.getElementById('error-container');
+  if (errorContainer) {
+    errorContainer.textContent =
+      'Connection to the board lost. Please check the connection.';
+    errorContainer.style.display = 'block';
+  }
+}
+
 function drawPlot() {
   // clear
   ctx.fillStyle = '#fff';
@@ -137,36 +173,3 @@ fetch('/samples').then(r=>r.json()).then(list=>{
     list.forEach(s => pushSample(s));
   }
 }).catch(e=>console.debug('Failed to load /samples',e));
-
-// Connect explicitly using the full origin and the /socket.io path
-const serverOrigin = window.location.origin;
-console.debug('Attempting socket.io connect to', serverOrigin);
-const socket = io(serverOrigin, {
-  path: '/socket.io',
-  transports: ['polling','websocket'],
-  autoConnect: true
-});
-
-socket.on('movement', (data) => {
-  console.debug('received movement', data);
-  setValues(data);
-});
-
-socket.on('sample', (s) => {
-  pushSample(s);
-});
-
-socket.on('connect', () => {
-  if (errorContainer) {
-    errorContainer.style.display = 'none';
-    errorContainer.textContent = '';
-  }
-});
-
-socket.on('disconnect', () => {
-  errorContainer = document.getElementById('error-container');
-  if (errorContainer) {
-    errorContainer.textContent = 'Connection to the board lost. Please check the connection.';
-    errorContainer.style.display = 'block';
-  }
-});
