@@ -14,10 +14,12 @@ In the previous tutorial, we learned a little bit about how Apps work, and that 
 ## How does an App Work?
 
 Apps are launched as a package on our board, and only one App can run at the same time. Apps consist of two major parts:
+
 - **Python** - an application written in Python that runs on the Linux OS.
 - **Sketch** - a sketch written in the Arduino language (C++) that runs on the microcontroller.
 
 In particular, the following files are considered the "core" files of an App.
+
 - A `python/main.py` - for writing code that will run on the Linux side.
 - A `sketch/sketch.ino` - for writing code that will run on the microcontroller side.
 - An `app.yaml` - configuration file for the App (managed by App Lab and tooling, and may be updated by API calls).
@@ -38,7 +40,7 @@ The two parts can communicate with each other through something called **Bridge*
 
 **Bridge** is a tool that enables communication between the Linux system and the microcontroller. It allows data to be exchanged between the two systems seamlessly.
 
-This communication works through a **provide and call** mechanism, where one system can *provide* data and the other can *request* (or call) that data when needed. 
+This communication works through a **provide and call** mechanism, where one system can _provide_ data and the other can _request_ (or call) that data when needed.
 
 ![The bridge tool](assets/how-bridge-work.gif)
 
@@ -53,6 +55,7 @@ Bridge is an essential tool that is used in any application that requires the tw
 The `App.run()` function must be used in **all Apps**, at the bottom of the `main.py` file, in order to properly launch the App.
 
 This function does the following:
+
 - Launches all Bricks included in the App.
 - Keeps the App running until it is stopped, which makes any method defined to be called via Bridge remain available.
 
@@ -69,9 +72,9 @@ App.run(user_loop=loop)
 ```
 
 - The `loop` function is created, with a specific set of instructions.
-- `App.run(user_loop=loop)` will keep looping the `loop` function over and over. 
+- `App.run(user_loop=loop)` will keep looping the `loop` function over and over.
 
->**Important Note:** always place the `App.run()` at the very bottom of the `main.py` script, as any code added after will be ignored.
+> **Important Note:** always place the `App.run()` at the very bottom of the `main.py` script, as any code added after will be ignored.
 
 This is used in the [example provided](/learn/apps#understand-the-code-the-blink-example) further down in this tutorial.
 
@@ -120,7 +123,7 @@ The Python logs are accessible under the **"main"**. Here we can see the status 
 
 ### Accessing Sketch Serial Data
 
-Serial communication from the sketch (MCU) can also be accessed in the **"Sketch"** tab. 
+Serial communication from the sketch (MCU) can also be accessed in the **"Sketch"** tab.
 
 To print the data, we use `Monitor.print()` in the sketch. For example:
 
@@ -134,10 +137,11 @@ Will appear in the console as `Data: <value>`.
 ## Accessing a Running App (Web UI)
 
 Many Apps are created with a web interface, which we can access by opening a browser on the same network. For example, if we run an App that records temperature and hosts a web server, we can access it by:
+
 - Opening a browser on the device itself (this requires us to have a screen, keyboard & mouse connected).
 - Connecting to the board's local IP, from a device on the same network.
 
->The deployed web server can by default be accessed at `http://localhost:7000` in the browser. If connecting via another device, the address is: `http://<board-hostname>.local:7000`.
+> The deployed web server can by default be accessed at `http://localhost:7000` in the browser. If connecting via another device, the address is: `http://<board-hostname>.local:7000`.
 
 ![Accessing our board over local network.](assets/view-app.png)
 
@@ -166,7 +170,7 @@ App.run(user_loop=loop)
 
 - The `loop` function is declared with the logic of switching the `led_state` variable.
 - A call to the microcontroller is made via the `Bridge.call("set_led_state", led_state)` function.
-- `App.run(user_loop=loop)` will start the App, and make the `loop` function *loop* forever.
+- `App.run(user_loop=loop)` will start the App, and make the `loop` function _loop_ forever.
 
 ### The Sketch Side
 
@@ -209,6 +213,7 @@ Every time it receives an update (which is every second), the LED will switch ON
 ## Next Steps
 
 In this tutorial, we have learned about Apps:
+
 - How they are structured
 - How to create a new App
 - How the code looks like for the Linux system and the microcontroller

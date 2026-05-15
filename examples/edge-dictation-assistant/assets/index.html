@@ -24,11 +24,7 @@ SPDX-License-Identifier: MPL-2.0
           <p class="arduino-text">Edge Dictation Assistant</p>
         </div>
 
-        <button
-          id="new-recording-button"
-          class="primary"
-          onclick="startNewRecording()"
-        >
+        <button id="new-recording-button" class="primary">
           <img src="img/reset.svg" alt="Reset" />
           <span>New recording</span>
         </button>
@@ -43,7 +39,7 @@ SPDX-License-Identifier: MPL-2.0
 
         <div id="dictation-ended">
           <span>Dictation ended</span>
-          <button id="copy-button" onclick="copyResult()">
+          <button id="copy-button">
             <img src="img/copy.svg" />
           </button>
         </div>
@@ -53,7 +49,7 @@ SPDX-License-Identifier: MPL-2.0
         <div id="transcription-area" class="transcription-area">
           <span id="full-text"></span><span id="partial-text"></span>
         </div>
-        <button id="mic-button" onclick="toggleRecording()">
+        <button id="mic-button">
           <img src="img/microphone.svg" alt="Record" />
         </button>
       </div>

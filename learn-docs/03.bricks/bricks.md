@@ -14,6 +14,7 @@ category: basic
 Bricks vary in functionality: some embed AI models (computer vision, audio recognition), others are used to provide networking & web interfaces. But they are used in the same way: by importing them into the `main.py` script of our App.
 
 In this tutorial, we will learn about:
+
 - How they are used in an App
 - How a Brick works
 - What Bricks are available
@@ -23,7 +24,8 @@ In this tutorial, we will learn about:
 Bricks are imported into the `main.py` (Python) file that runs on the Linux system. When importing a Brick, we can access its functions, such as making requests to a weather API service, launching a web server, or classifying the video input of a camera.
 
 For example, importing the `weather_forecast` Brick will make it possible to use:
- - `get_forecast_by_city("London")`
+
+- `get_forecast_by_city("London")`
 
 Where the API call to the weather forecast platform is already pre-made and ready to be used.
 

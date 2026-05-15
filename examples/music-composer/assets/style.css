@@ -10,29 +10,29 @@
   --bg-dark: #1a1a1a;
   --bg-darker: #0d0d0d;
   --cyan: #008184;
-  --purple: #734DFF;
+  --purple: #734dff;
   --text-light: #e0e0e0;
   --text-dim: #888;
   --grid-line: #333;
   --grid-line-thick: #555;
-  --bg-light: #DAE3E3;
+  --bg-light: #dae3e3;
   --text-dark: #343a40;
-  --separator-light: #C9D2D2;
-  --play-button-bg: #25C2C7;
-  --play-button-hover-bg: #1E9A9E;
-  --pause-button-bg: #25C2C733;
-  --stop-button-bg: #FFBDB433;
-  --white: #FFF;
-  --bpm-bg: #232B2E;
-  --bpm-border: #434F54;
+  --separator-light: #c9d2d2;
+  --play-button-bg: #25c2c7;
+  --play-button-hover-bg: #1e9a9e;
+  --pause-button-bg: #25c2c733;
+  --stop-button-bg: #ffbdb433;
+  --white: #fff;
+  --bpm-bg: #232b2e;
+  --bpm-border: #434f54;
   --export-hover-bg: #006567;
-  --sequencer-bg: #171E21;
+  --sequencer-bg: #171e21;
   --scrollbar-thumb: #374146;
-  --scrollbar-track: #090F11;
+  --scrollbar-track: #090f11;
   --scrollbar-thumb-hover: #4a5559;
   --grid-cell-hover-bg: #222;
-  --grid-cell-playing-border: #AEB8B8;
-  --white-full: #FFFFFF;
+  --grid-cell-playing-border: #aeb8b8;
+  --white-full: #ffffff;
   --app-gap: 8px;
   --grid-cell-size: 35px;
   --grid-track-size: 40px;
@@ -47,16 +47,17 @@
   box-sizing: border-box;
 }
 
-html, body {
-    height: 100%;
+html,
+body {
+  height: 100%;
 }
 
 body {
-    font-family: 'Open Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--bg-light);
-    line-height: 1.6;
-    color: var(--text-dark);
-    overflow: hidden;
+  font-family: 'Open Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--bg-light);
+  line-height: 1.6;
+  color: var(--text-dark);
+  overflow: hidden;
 }
 
 #app {
@@ -71,32 +72,32 @@ body {
 
 /* Header */
 .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 2px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 2px;
 }
 
 .header-left {
-    display: flex;
-    align-items: center;
-    gap: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .arduino-logo {
-    height: 24px;
-    width: auto;
+  height: 24px;
+  width: auto;
 }
 
 .arduino-text {
-    color: var(--cyan);
-    font-family: "Roboto Mono", monospace;
-    font-size: 20px;
-    font-weight: 700;
-    margin: 0;
-    font-style: normal;
-    line-height: 170%;
-    letter-spacing: 2.4px;
+  color: var(--cyan);
+  font-family: 'Roboto Mono', monospace;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+  font-style: normal;
+  line-height: 170%;
+  letter-spacing: 2.4px;
 }
 
 .header-center {
@@ -111,7 +112,6 @@ body {
   background-color: var(--separator-light);
   vertical-align: middle;
 }
-
 
 .play-button {
   height: 32px;
@@ -137,7 +137,8 @@ body {
   background: var(--purple);
 }
 
-.pause-button, .stop-button {
+.pause-button,
+.stop-button {
   height: 32px;
   width: 80px;
   padding: 0 20px;
@@ -159,7 +160,8 @@ body {
   background: var(--stop-button-bg);
 }
 
-.pause-button:hover, .stop-button:hover {
+.pause-button:hover,
+.stop-button:hover {
   transform: scale(1.05);
 }
 
@@ -177,7 +179,7 @@ body {
 .tempo-label {
   font-size: 14px;
   color: var(--white);
-  font-family: "Roboto Mono", monospace;
+  font-family: 'Roboto Mono', monospace;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -338,7 +340,9 @@ body {
   flex-wrap: wrap;
 }
 
-.controls-left, .controls-center, .controls-right {
+.controls-left,
+.controls-center,
+.controls-right {
   display: flex;
   align-items: center;
   gap: 15px;
@@ -548,7 +552,10 @@ body {
   justify-content: center;
 }
 
-.knob-base, .knob-shadow, .knob-circle, .knob-indicator {
+.knob-base,
+.knob-shadow,
+.knob-circle,
+.knob-indicator {
   position: absolute;
   top: 0;
   left: 0;
@@ -661,7 +668,7 @@ body {
   direction: rtl;
   width: 6px;
   height: clamp(88px, 14vh, 112px);
-  background: linear-gradient(to top, #25C2C7 80%, #090F11 80%);
+  background: linear-gradient(to top, #25c2c7 80%, #090f11 80%);
   border-radius: 4px;
   outline: none;
   cursor: pointer;
@@ -738,8 +745,8 @@ body {
   #control-panel {
     grid-template-columns: minmax(0, 1fr) 78px;
     grid-template-areas:
-      "effects effects"
-      "wave volume";
+      'effects effects'
+      'wave volume';
   }
 
   .effects-section {
@@ -792,7 +799,9 @@ body {
     gap: 10px;
   }
 
-  .controls-left, .controls-center, .controls-right {
+  .controls-left,
+  .controls-center,
+  .controls-right {
     gap: 10px;
   }
 

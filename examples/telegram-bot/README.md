@@ -2,7 +2,6 @@
 
 The **Telegram Bot** example demonstrates how to create an interactive bot that responds to commands, analyzes text sentiment, and detects objects in images sent via Telegram.
 
-
 ## Description
 
 This example transforms your Arduino UNO Q into a Telegram bot that can:
@@ -58,9 +57,9 @@ To use this example, you need to create a bot on Telegram:
 
 2. **Configure the Bot Token**
    On the App page, locate the **Bricks** section on the left. Click on the **Telegram Bot** Brick, then click the **Brick Configuration** button.
-   
+
    ![Configure Telegram Bot Token](assets/brickConfigTelegram.png)
-   
+
    In the configuration panel, enter your API token from BotFather into the token field.
 
 ### Run the App
@@ -95,7 +94,6 @@ The high-level data flow looks like this:
 ```
 Telegram User → Bot API → Python Handlers → AI Bricks → Response → User
 ```
-
 
 ## Understanding the Code
 
@@ -133,7 +131,7 @@ def detect_objects(sender: Sender, message: Message, photo: bytes, filename: str
     # Process image and detect objects
     image = Image.open(BytesIO(photo))
     results = obj_detection.detect(image, confidence=0.1)
-    
+
     # Draw bounding boxes and send result
     img_with_boxes = obj_detection.draw_bounding_boxes(image, results)
     # ... send processed image back

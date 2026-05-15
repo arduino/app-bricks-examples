@@ -1,4 +1,5 @@
 # Code Detector
+
 The **Code Detector** example lets you detect and scan both barcodes and QR codes using a USB camera. It features a web-based interface that streams the live camera feed and displays the scanned codes content. Also, it stores the detected codes in a local database for future reference.
 
 **Note:** This example requires to be run using **Network Mode** in the Arduino App Lab or in **Single-Board Computer (SBC)** mode. Because you will need a USB-C hub and a USB camera.
@@ -6,6 +7,7 @@ The **Code Detector** example lets you detect and scan both barcodes and QR code
 ![Code Detector Example](assets/docs_assets/thumbnail.png)
 
 ## Description
+
 The app captures video input from a connected USB camera and continuously scans for barcodes and QR codes. When a code is detected, its data is saved to a local SQL database. The web interface allows users to view a live list of all detected codes, including their type and timestamp, updating in real-time as new codes are scanned.
 
 The `assets` folder contains the **database** and **frontend** components of the application. Inside, you’ll find the JavaScript source files along with the HTML and CSS files that make up the web user interface. The `python` folder instead includes the application **backend**.
@@ -45,7 +47,7 @@ The code detector example uses the following Bricks:
    ![Arduino App Lab - Run App](assets/docs_assets/launch-app.png)
 4. The App should open automatically in the web browser. You can open it manually via `<board-name>.local:7000`.
 5. Detected codes will appear in real-time on the web interface, showing their type and timestamp.
-6. Click *Scan another* to repeat the process
+6. Click _Scan another_ to repeat the process
 7. Review the list of scanned codes directly from your browser as new codes are detected.
 
 ## How it Works
@@ -86,36 +88,40 @@ Once the application is running, you can access it from your web browser by navi
 
 - **Continuously capturing frames from the connected USB camera.**
 
-    The following module provides a convenient way to integrate the camera into the application using a custom OpenCV-based class:
-    
-    ```python
-    from arduino.app_peripherals.usb_camera import USBCamera
-    ```
+  The following module provides a convenient way to integrate the camera into the application using a custom OpenCV-based class:
 
-    To start capturing frames, initialize the camera with:
-    
-    ```python
-    camera = USBCamera(resolution=(640, 480), fps=60)
-    ```
+  ```python
+  from arduino.app_peripherals.usb_camera import USBCamera
+  ```
+
+  To start capturing frames, initialize the camera with:
+
+  ```python
+  camera = USBCamera(resolution=(640, 480), fps=60)
+  ```
+
 - **Searching for codes and processing the camera frames.**
-    
-    The following Brick provides barcodes and QR codes detection capabilities:
 
-    ```python
-    from arduino.app_bricks.camera_code_detector import CameraCodeDetector, Detection, draw_bounding_box
-    ```
-    The `CameraCodeDetector` class takes the previously captured camera frame to search for codes in it.
-    ```python
-    detector = CameraCodeDetector(camera)
-    ```
-    The following callback functions handle the different results of the code detector Brick.
+  The following Brick provides barcodes and QR codes detection capabilities:
 
-    `detector.on_detect(on_code_detected)`: When a barcode or QR code is detected in a frame, the handler draws a bounding box around it, encodes the frame as a Base64 image, stores the code content along with metadata in the database, and sends the result to the web UI in real time.
+  ```python
+  from arduino.app_bricks.camera_code_detector import CameraCodeDetector, Detection, draw_bounding_box
+  ```
 
-    `detector.on_frame(on_frame)`: Handles every frame captured by the camera, encodes it as a Base64 image, and streams it to the web UI for live video display.
+  The `CameraCodeDetector` class takes the previously captured camera frame to search for codes in it.
 
-    `detector.on_error(on_error)`: Handles exceptions from the detector.
-   
+  ```python
+  detector = CameraCodeDetector(camera)
+  ```
+
+  The following callback functions handle the different results of the code detector Brick.
+
+  `detector.on_detect(on_code_detected)`: When a barcode or QR code is detected in a frame, the handler draws a bounding box around it, encodes the frame as a Base64 image, stores the code content along with metadata in the database, and sends the result to the web UI in real time.
+
+  `detector.on_frame(on_frame)`: Handles every frame captured by the camera, encodes it as a Base64 image, and streams it to the web UI for live video display.
+
+  `detector.on_error(on_error)`: Handles exceptions from the detector.
+
 - **Deploying and rendering the web UI.**
 
   The following Brick imports the web user interface.

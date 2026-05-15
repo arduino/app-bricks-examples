@@ -152,7 +152,7 @@ Once the application is running, you can open it in your browser. At that point,
   In `app.js`, the frontend waits for the `welcome` message to generate the QR code that bridges the phone and the board.
 
   ```javascript
-  ui.on_message('welcome', async (message) => {
+  ui.on_message('welcome', async message => {
     webcamState.secret = message.secret;
     // ... update state ...
     updateDisplay();
@@ -162,12 +162,7 @@ Once the application is running, you can open it in your browser. At that point,
     if (webcamState.status != 'connected') {
       // Webcam is not connected yet - show QR code
       if (webcamState.secret) {
-        generateQRCode(
-          webcamState.secret,
-          webcamState.protocol,
-          webcamState.ip,
-          webcamState.port,
-        );
+        generateQRCode(webcamState.secret, webcamState.protocol, webcamState.ip, webcamState.port);
       }
     }
     // ... else show video iframe ...

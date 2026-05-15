@@ -30,7 +30,7 @@ The Python® script manages the timing and state logic, while the Arduino sketch
 ## How to Use the Example
 
 1. Run the App
-    ![Arduino App Lab - Run App](assets/docs_assets/app-lab-run-app.png)
+   ![Arduino App Lab - Run App](assets/docs_assets/app-lab-run-app.png)
 2. Watch the LED on the board toggle state every second
 
 ## How it Works
@@ -44,9 +44,9 @@ The Python® script uses a simple loop with timing control:
 ```python
     from arduino.app_utils import *
     import time
-    
+   
     led_state = False
-    
+   
     while True:
      time.sleep(1)
      led_state = not led_state
@@ -89,17 +89,16 @@ Here is a brief explanation of the application components:
 
 The Python® component manages timing and LED state logic.
 
-- **`import time`:** Provides timing functions for controlling the blink interval.  
+- **`import time`:** Provides timing functions for controlling the blink interval.
 
 - **`led_state = False`:** Tracks the current LED state as a boolean variable.
 
-- **`while True:` loop :** Creates an infinite loop that runs continuously to control the LED timing. 
+- **`while True:` loop :** Creates an infinite loop that runs continuously to control the LED timing.
 
 - **`time.sleep(1)`:** Pauses execution for 1 second between LED state changes.
 
 - **`led_state = not led_state`:** Toggles the LED state by inverting the boolean value.
-                      
-- **`Bridge.call("set_led_state")`:** Sends the new LED state to the Arduino through the Router Bridge communication system. 
+- **`Bridge.call("set_led_state")`:** Sends the new LED state to the Arduino through the Router Bridge communication system.
 
 ### 🔧 Hardware (`sketch.ino`)
 
@@ -113,4 +112,4 @@ The Arduino code handles LED hardware control and sets up Bridge communication.
 
 - **`set_led_state(bool state)`:** Controls the LED hardware with inverted logic (LOW = on, HIGH = off) typical for built-in LEDs.
 
-- **Empty `loop()`:** The main loop remains empty since all LED control is managed by the Python® script through Bridge function calls. 
+- **Empty `loop()`:** The main loop remains empty since all LED control is managed by the Python® script through Bridge function calls.

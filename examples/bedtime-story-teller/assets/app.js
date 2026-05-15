@@ -17,9 +17,7 @@ ui.on_message('stream_end', handleStreamEnd);
 ui.on_message('story_error', handleStoryError);
 
 function onUIDisconnected() {
-  showError(
-    'Connection to backend lost. Please refresh the page or check the backend server.',
-  );
+  showError('Connection to backend lost. Please refresh the page or check the backend server.');
 }
 
 function showError(message) {
@@ -106,11 +104,11 @@ function getRandomElement(elements) {
 function setupChipSelection(container) {
   const chips = container.querySelectorAll('.chip');
   const selectedValue = container.querySelector('.selected-value');
-  chips.forEach((chip) => {
-    chip.addEventListener('click', (event) => {
+  chips.forEach(chip => {
+    chip.addEventListener('click', event => {
       event.stopPropagation();
       const alreadySelected = chip.classList.contains('selected');
-      chips.forEach((c) => c.classList.remove('selected'));
+      chips.forEach(c => c.classList.remove('selected'));
       chip.classList.add('selected');
       if (selectedValue) {
         selectedValue.innerHTML = chip.innerHTML;
@@ -131,13 +129,13 @@ function setupChipSelection(container) {
 
 function setupStoryTypeSelection(container) {
   const paragraphs = container.querySelectorAll('.story-type-paragraph');
-  paragraphs.forEach((paragraph) => {
+  paragraphs.forEach(paragraph => {
     const chips = paragraph.querySelectorAll('.chip');
-    chips.forEach((chip) => {
-      chip.addEventListener('click', (event) => {
+    chips.forEach(chip => {
+      chip.addEventListener('click', event => {
         event.stopPropagation();
         const paragraphChips = paragraph.querySelectorAll('.chip');
-        paragraphChips.forEach((c) => c.classList.remove('selected'));
+        paragraphChips.forEach(c => c.classList.remove('selected'));
         chip.classList.add('selected');
         updateStoryTypeHeader(container);
         const selectedChips = container.querySelectorAll('.chip.selected');
@@ -160,7 +158,7 @@ function updateStoryTypeHeader(container) {
     return;
   }
   if (isOpen) {
-    Array.from(selectedChips).forEach((chip) => {
+    Array.from(selectedChips).forEach(chip => {
       const pill = document.createElement('span');
       pill.className = 'selection-pill';
       pill.innerHTML = chip.innerHTML;
@@ -168,7 +166,7 @@ function updateStoryTypeHeader(container) {
     });
   } else {
     const firstTwo = Array.from(selectedChips).slice(0, 2);
-    firstTwo.forEach((chip) => {
+    firstTwo.forEach(chip => {
       const pill = document.createElement('span');
       pill.className = 'selection-pill';
       pill.innerHTML = chip.innerHTML;
@@ -186,11 +184,9 @@ function updateStoryTypeHeader(container) {
 }
 
 function checkCharactersAndUnlockNext(charactersContainer) {
-  const characterGroups = charactersContainer.querySelectorAll(
-    '.character-input-group',
-  );
+  const characterGroups = charactersContainer.querySelectorAll('.character-input-group');
   let atLeastOneCharacterEntered = false;
-  characterGroups.forEach((group) => {
+  characterGroups.forEach(group => {
     const nameInput = group.querySelector('.character-name');
     const roleSelect = group.querySelector('.character-role');
     if (nameInput.value.trim() !== '' && roleSelect.value !== '') {
@@ -207,7 +203,7 @@ function checkCharactersAndUnlockNext(charactersContainer) {
 }
 
 function gatherDataAndGenerateStory() {
-  document.querySelectorAll('.parameter-container').forEach((container) => {
+  document.querySelectorAll('.parameter-container').forEach(container => {
     const content = container.querySelector('.parameter-content');
     if (content && content.style.display === 'block') {
       content.style.display = 'none';
@@ -226,9 +222,7 @@ function gatherDataAndGenerateStory() {
     document
       .querySelector('.parameter-container:nth-child(2) .chip.selected')
       ?.textContent.trim() || 'any';
-  const storyTypeContainer = document.querySelector(
-    '.parameter-container:nth-child(3)',
-  );
+  const storyTypeContainer = document.querySelector('.parameter-container:nth-child(3)');
   const tone =
     storyTypeContainer
       .querySelector('.story-type-paragraph:nth-child(1) .chip.selected')
@@ -248,12 +242,10 @@ function gatherDataAndGenerateStory() {
 
   const characters = [];
   const characterGroups = document.querySelectorAll('.character-input-group');
-  characterGroups.forEach((group) => {
+  characterGroups.forEach(group => {
     const name = group.querySelector('.character-name').value.trim();
     const role = group.querySelector('.character-role').value;
-    const description = group
-      .querySelector('.character-description')
-      .value.trim();
+    const description = group.querySelector('.character-description').value.trim();
     if (name && role) {
       characters.push({ name, role, description });
     }
@@ -291,8 +283,7 @@ function generateStory(data) {
   if (generateStoryButton) {
     generateStoryButton.disabled = true;
     // Append the spinner instead of replacing innerHTML
-    generateStoryButton.innerHTML +=
-      '<div class="button-spinner spinner"></div>';
+    generateStoryButton.innerHTML += '<div class="button-spinner spinner"></div>';
   }
 
   document.getElementById('clear-story-button').style.display = 'none';
@@ -310,11 +301,11 @@ function resetStoryView() {
   document.getElementById('story-response').textContent = '';
 
   // Reset parameter selections
-  document.querySelectorAll('.chip.selected').forEach((chip) => {
+  document.querySelectorAll('.chip.selected').forEach(chip => {
     chip.classList.remove('selected');
   });
 
-  document.querySelectorAll('.selected-value').forEach((selectedValue) => {
+  document.querySelectorAll('.selected-value').forEach(selectedValue => {
     selectedValue.innerHTML = '';
     selectedValue.style.display = 'none';
   });
@@ -322,14 +313,12 @@ function resetStoryView() {
   // Reset Story type optional text
   document
     .querySelectorAll('.parameter-container:nth-child(3) .optional-text')
-    .forEach((optionalText) => {
+    .forEach(optionalText => {
       optionalText.textContent = '(optional)';
     });
 
   // Clear character inputs and remove extra groups
-  const characterInputGroups = document.querySelectorAll(
-    '.character-input-group',
-  );
+  const characterInputGroups = document.querySelectorAll('.character-input-group');
   characterInputGroups.forEach((group, index) => {
     if (index === 0) {
       // Only clear the first group, others will be removed
@@ -402,7 +391,7 @@ parameterContainers.forEach((container, index) => {
   }
 });
 
-parameterContainers.forEach((container) => {
+parameterContainers.forEach(container => {
   const title = container.querySelector('.parameter-title').textContent;
   const header = container.querySelector('.parameter-header');
   header.addEventListener('click', () => {
@@ -435,11 +424,9 @@ parameterContainers.forEach((container) => {
     charactersList.addEventListener('input', () => {
       checkCharactersAndUnlockNext(container);
     });
-    container
-      .querySelector('.add-character-button')
-      .addEventListener('click', () => {
-        checkCharactersAndUnlockNext(container);
-      });
+    container.querySelector('.add-character-button').addEventListener('click', () => {
+      checkCharactersAndUnlockNext(container);
+    });
   } else if (title === 'Other') {
     container
       .querySelector('.other-textarea')
@@ -461,18 +448,14 @@ addCharacterButton.addEventListener('click', () => {
     newCharacterGroup.querySelector('.character-name').value = '';
     newCharacterGroup.querySelector('.character-role').selectedIndex = 0;
     newCharacterGroup.querySelector('.character-description').value = '';
-    const deleteButton = newCharacterGroup.querySelector(
-      '.delete-character-button',
-    );
+    const deleteButton = newCharacterGroup.querySelector('.delete-character-button');
     deleteButton.style.display = 'block';
     deleteButton.addEventListener('click', () => {
       newCharacterGroup.remove();
       if (document.querySelectorAll('.character-input-group').length < 5) {
         addCharacterButton.style.display = 'block';
       }
-      checkCharactersAndUnlockNext(
-        document.querySelector('.parameter-container:nth-child(4)'),
-      );
+      checkCharactersAndUnlockNext(document.querySelector('.parameter-container:nth-child(4)'));
     });
     charactersList.appendChild(newCharacterGroup);
     if (document.querySelectorAll('.character-input-group').length === 5) {
@@ -503,7 +486,7 @@ confirmButton.addEventListener('click', () => {
   modal.style.display = 'none';
 });
 
-window.addEventListener('click', (event) => {
+window.addEventListener('click', event => {
   if (event.target == modal) {
     modal.style.display = 'none';
   }
@@ -532,79 +515,63 @@ document.getElementById('copy-story-button').addEventListener('click', () => {
   }, 2000);
 });
 
-document
-  .getElementById('generate-randomly-button')
-  .addEventListener('click', () => {
-    hideError(); // Hide any errors when starting a new generation
-    // Age
-    const ageChips = document.querySelectorAll(
-      '.parameter-container:nth-child(1) .chip',
-    );
-    const randomAgeChip = getRandomElement(ageChips);
-    const age = randomAgeChip ? randomAgeChip.textContent.trim() : 'any';
+document.getElementById('generate-randomly-button').addEventListener('click', () => {
+  hideError(); // Hide any errors when starting a new generation
+  // Age
+  const ageChips = document.querySelectorAll('.parameter-container:nth-child(1) .chip');
+  const randomAgeChip = getRandomElement(ageChips);
+  const age = randomAgeChip ? randomAgeChip.textContent.trim() : 'any';
 
-    // Theme
-    const themeChips = document.querySelectorAll(
-      '.parameter-container:nth-child(2) .chip',
-    );
-    const randomThemeChip = getRandomElement(themeChips);
-    const theme = randomThemeChip ? randomThemeChip.textContent.trim() : 'any';
+  // Theme
+  const themeChips = document.querySelectorAll('.parameter-container:nth-child(2) .chip');
+  const randomThemeChip = getRandomElement(themeChips);
+  const theme = randomThemeChip ? randomThemeChip.textContent.trim() : 'any';
 
-    // Story Type
-    const storyTypeContainer = document.querySelector(
-      '.parameter-container:nth-child(3)',
-    );
+  // Story Type
+  const storyTypeContainer = document.querySelector('.parameter-container:nth-child(3)');
 
-    // Tone
-    const toneChips = storyTypeContainer.querySelectorAll(
-      '.story-type-paragraph:nth-child(1) .chip',
-    );
-    const randomToneChip = getRandomElement(toneChips);
-    const tone = randomToneChip ? randomToneChip.textContent.trim() : 'any';
+  // Tone
+  const toneChips = storyTypeContainer.querySelectorAll('.story-type-paragraph:nth-child(1) .chip');
+  const randomToneChip = getRandomElement(toneChips);
+  const tone = randomToneChip ? randomToneChip.textContent.trim() : 'any';
 
-    // Ending type
-    const endingTypeChips = storyTypeContainer.querySelectorAll(
-      '.story-type-paragraph:nth-child(2) .chip',
-    );
-    const randomEndingTypeChip = getRandomElement(endingTypeChips);
-    const endingType = randomEndingTypeChip
-      ? randomEndingTypeChip.textContent.trim()
-      : 'any';
+  // Ending type
+  const endingTypeChips = storyTypeContainer.querySelectorAll(
+    '.story-type-paragraph:nth-child(2) .chip'
+  );
+  const randomEndingTypeChip = getRandomElement(endingTypeChips);
+  const endingType = randomEndingTypeChip ? randomEndingTypeChip.textContent.trim() : 'any';
 
-    // Narrative structure
-    const narrativeStructureChips = storyTypeContainer.querySelectorAll(
-      '.story-type-paragraph:nth-child(3) .chip',
-    );
-    const randomNarrativeStructureChip = getRandomElement(
-      narrativeStructureChips,
-    );
-    const narrativeStructure = randomNarrativeStructureChip
-      ? randomNarrativeStructureChip.textContent.trim()
-      : 'any';
+  // Narrative structure
+  const narrativeStructureChips = storyTypeContainer.querySelectorAll(
+    '.story-type-paragraph:nth-child(3) .chip'
+  );
+  const randomNarrativeStructureChip = getRandomElement(narrativeStructureChips);
+  const narrativeStructure = randomNarrativeStructureChip
+    ? randomNarrativeStructureChip.textContent.trim()
+    : 'any';
 
-    // Duration
-    const durationChips = storyTypeContainer.querySelectorAll(
-      '.story-type-paragraph:nth-child(4) .chip',
-    );
-    const randomDurationChip = getRandomElement(durationChips);
-    const duration = randomDurationChip
-      ? randomDurationChip.textContent.trim()
-      : 'any';
+  // Duration
+  const durationChips = storyTypeContainer.querySelectorAll(
+    '.story-type-paragraph:nth-child(4) .chip'
+  );
+  const randomDurationChip = getRandomElement(durationChips);
+  const duration = randomDurationChip ? randomDurationChip.textContent.trim() : 'any';
 
-    // Characters and Other will be empty for random generation.
-    const characters = [];
-    const other = '';
+  // Characters and Other will be empty for random generation.
+  const characters = [];
+  const other = '';
 
-    const storyData = {
-      age,
-      theme,
-      tone,
-      endingType,
-      narrativeStructure,
-      duration,
-      characters,
-      other,
-    };
+  const storyData = {
+    age,
+    theme,
+    tone,
+    endingType,
+    narrativeStructure,
+    duration,
+    characters,
+    other,
+  };
 
-    generateStory(storyData);
-  });
+  generateStory(storyData);
+});

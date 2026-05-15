@@ -37,7 +37,7 @@ Network mode is selected when launching the Arduino App Lab. You can read more a
 
 1. Make sure we are connected to the board using the **Network mode** (selected when launching Arduino App Lab).
 2. Launch the App by clicking on the "Play" button in the top right corner. Wait until the App has launched.
-    ![Launching an App](assets/docs_assets/launch-app.png)
+   ![Launching an App](assets/docs_assets/launch-app.png)
 
 3. Say the words "Hey Arduino" into the microphone.
 4. An animation on the LED matrix should trigger (heart animation).

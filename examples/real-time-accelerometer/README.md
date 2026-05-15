@@ -11,17 +11,18 @@ The accelerometer data recorded from the Modulino® is then processed by a pre-t
 
 ## AI Model Used
 
-The model used for this example is trained by the Edge Impulse team: 
+The model used for this example is trained by the Edge Impulse team:
 
 The pre-built dataset features four types of movement:
+
 - **Up and down movement** - move the board up and down (lift it and put it down)
 - **Snake movement** - move the board across a desk like a snake
-- **Wave movement** - move the board left and right in a hand waving motion 
+- **Wave movement** - move the board left and right in a hand waving motion
 - **Idle** - no movement recorded
 
 To read more about the model, visit the following link:
-- [Motion Classification - Continuous Motion Recognition](https://studio.edgeimpulse.com/public/497631/latest)
 
+- [Motion Classification - Continuous Motion Recognition](https://studio.edgeimpulse.com/public/497631/latest)
 
 ## Hardware and Software Requirements
 
@@ -40,10 +41,10 @@ To read more about the model, visit the following link:
 
 1. Connect the board to a computer using a USB-C® cable.
 2. Connect the Modulino® Movement to the board using the Qwiic connector.
-    ![Connecting Modulino® Movement](assets/docs_assets/hardware-setup.png)
+   ![Connecting Modulino® Movement](assets/docs_assets/hardware-setup.png)
 
 3. Launch the App by clicking on the "Play" button in the top right corner. Wait until the App has launched.
-    ![Launching an App](assets/docs_assets/launch-app.png)
+   ![Launching an App](assets/docs_assets/launch-app.png)
 
 4. Open a browser and access `<UNO-Q-IP-ADDRESS>:7000` (this may also launch automatically).
 5. View the data from the Modulino® in real time!
@@ -54,7 +55,7 @@ This example uses the `motion_detection` Brick to classify incoming acceleromete
 
 The data is recorded from a Modulino® Movement, connected to the UNO Q's Qwiic port, and sent to the Linux side using the **Bridge** tool.
 
-The web page displays the raw `x`, `y` and `z` values from the accelerometer, and graphs the values on a chart. 
+The web page displays the raw `x`, `y` and `z` values from the accelerometer, and graphs the values on a chart.
 It also shows the results of processing the data using a pre-trained model (up and down, snake, wave, idle).
 
 ![How Motion Detection works](assets/docs_assets/motion-detection.png)
@@ -62,6 +63,7 @@ It also shows the results of processing the data using a pre-trained model (up a
 ## Understanding the Code
 
 The Real-Time Accelerometer example is a bit more advanced on the Python side, as it includes:
+
 - A pre-trained model that is used to classify different types of movement, using the `motion_detection` Brick.
 - A web API for fetching the latest classification and recent raw samples.
 - A web UI that renders the data and displays what type of motion was detected.
@@ -70,7 +72,7 @@ The Real-Time Accelerometer example is a bit more advanced on the Python side, a
 
 The `main.py` contains several functions and integrations that make live motion detection and visualization possible.
 
-- `motion_detection = MotionDetection(confidence=CONFIDENCE)` – initializes the Brick with a confidence threshold, which controls how certain the model must be before classifying movement types such as *idle*, *snake*, *updown*, and *wave*.
+- `motion_detection = MotionDetection(confidence=CONFIDENCE)` – initializes the Brick with a confidence threshold, which controls how certain the model must be before classifying movement types such as _idle_, _snake_, _updown_, and _wave_.
 - `def on_movement_detected(classification: dict):` – this callback function receives classification results, updates a pandas data frame (`detection_df`) with the latest probabilities, and broadcasts the data to the Web UI for real-time display.
 - `motion_detection.on_movement_detection('idle'|'snake'|'updown'|'wave', on_movement_detected)` – registers motion detection callbacks for all supported movement types, ensuring the app reacts whenever new motion is detected.
 - `Bridge.provide("record_sensor_movement", record_sensor_movement)` – data is received from the microcontroller.
@@ -84,7 +86,7 @@ The `main.py` contains several functions and integrations that make live motion 
 
 The microcontroller side is a bit easier to understand, where there are essentially three things happening:
 
-- `x_accel = movement.getX();` - the `x` axis value is recorded from the accelerometer (Modulino® Movement).  
+- `x_accel = movement.getX();` - the `x` axis value is recorded from the accelerometer (Modulino® Movement).
 - `y_accel = movement.getY();` - the `y` axis value is recorded from the accelerometer (Modulino® Movement).
 - `z_accel = movement.getZ();` - the `z` axis value is recorded from the accelerometer (Modulino® Movement).
 - `Bridge.notify("record_sensor_movement", x_accel, y_accel, z_accel);` - the data is sent to the Python application using the Bridge tool.

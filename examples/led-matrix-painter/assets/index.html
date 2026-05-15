@@ -6,148 +6,248 @@ SPDX-License-Identifier: MPL-2.0
 
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>LED Matrix Painter</title>
-  <link rel="icon" type="image/png" href="img/favicon.png"/>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <div class="container">
-  <main>
-    <div class="header">
-        <div class="header-left">
-            <img src="img/RGB-Arduino-Logo_Color Inline Loop.svg" alt="Arduino Logo" class="arduino-logo" />
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>LED Matrix Painter</title>
+    <link rel="icon" type="image/png" href="img/favicon.png" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <main>
+        <div class="header">
+          <div class="header-left">
+            <img
+              src="img/RGB-Arduino-Logo_Color Inline Loop.svg"
+              alt="Arduino Logo"
+              class="arduino-logo"
+            />
             <p class="arduino-text">LED Matrix Painter</p>
-        </div>
-        <div class="header-right">
+          </div>
+          <div class="header-right">
             <div class="switch-container">
-                <label class="switch">
-                    <input type="checkbox" id="code-panel-toggle" checked>
-                    <span class="slider round"></span>
-                </label>
-                <label for="code-panel-toggle" class="switch-label">Code panel</label>
+              <label class="switch">
+                <input type="checkbox" id="code-panel-toggle" checked />
+                <span class="slider round"></span>
+              </label>
+              <label for="code-panel-toggle" class="switch-label">Code panel</label>
             </div>
             <span class="vertical-separator"></span>
-            <button id="export"><img src="img/down-up.svg" alt="Export" style="width: 20px; height: 20px; padding-right: 8px; vertical-align: middle;">Export .h</button>
-        </div>
-    </div>
-    <div class="main-content">
-      <div class="left-sidebar">
-        <div class="tools-box">
-          <h3 class="box-title">Tools</h3>
-          <div class="tool-controls">
-            <div class="slider-container" style="flex-grow: 1;">
-              <div style="display: flex; justify-content: space-between;">
-                <label for="brightness-alpha-slider" class="alpha-label">Brightness (Alpha)</label>
-                <span id="brightness-alpha-value" class="alpha-label">7</span>
-              </div>
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <span class="slider-limit-label">0</span>
-                <input type="range" id="brightness-alpha-slider" min="0" max="8" value="8" style="flex-grow: 1;">
-                <span class="slider-limit-label">7</span>
-              </div>
-            </div>
+            <button id="export">
+              <img
+                src="img/down-up.svg"
+                alt="Export"
+                style="width: 20px; height: 20px; padding-right: 8px; vertical-align: middle"
+              />Export .h
+            </button>
           </div>
         </div>
-        <div class="transform-box">
-          <h3 class="box-title">Transform</h3>
-          <div class="transform-buttons">
-            <button id="flip-v" class="transform-btn"><img src="img/flip-v.svg" alt="Flip V" style="width: 12px; height: 12px; padding-right: 4px; vertical-align: middle;">Flip V</button>
-            <button id="flip-h" class="transform-btn"><img src="img/flip-h.svg" alt="Flip H" style="width: 12px; height: 12px; padding-right: 4px; vertical-align: middle;">Flip H</button>
-            <button id="rotate180" class="transform-btn"><img src="img/rotate.svg" alt="Rotate 180" style="width: 12px; height: 12px; padding-right: 4px; vertical-align: middle;">Rotate 180°</button>
-            <button id="invert" class="transform-btn"><img src="img/invert.svg" alt="Invert" style="width: 12px; height: 12px; padding-right: 4px; vertical-align: middle;">Invert Matrix</button>
-            <button id="invert-not-null" class="transform-btn"><img src="img/invert-draw.svg" alt="Invert Brightness" style="width: 12px; height: 12px; padding-right: 4px; vertical-align: middle;">Invert Draw</button>
-          </div>
-        </div>
-        <div class="shift-draw-box">
-          <div class="shift-title-container">
-            <h3 class="box-title">Shift draw</h3>
-            <div class="wrap-around-container">
-              <input type="checkbox" id="wrap-around-checkbox">
-              <label for="wrap-around-checkbox">Wrap-around</label>
-            </div>
-          </div>
-          <div class="shift-buttons">
-            <button id="shift-up" class="shift-btn"><img src="img/shift-draw-arrow-up.svg" alt="Up"></button>
-            <button id="shift-left" class="shift-btn"><img src="img/shift-draw-arrow-left.svg" alt="Left"></button>
-            <div></div>
-            <button id="shift-right" class="shift-btn"><img src="img/shift-draw-arrow-right.svg" alt="Right"></button>
-            <button id="shift-down" class="shift-btn"><img src="img/shift-draw-arrow-down.svg" alt="Down"></button>
-          </div>
-        </div>
-      </div>
-
-      <div class="center-content">
-        <div class="center-content-header">
-          <h3 class="box-title" id="frame-title">Frame 1</h3>
-          <div class="frame-controls">
-            <button id="clear" class="transform-btn"><img src="img/clear.svg" alt="Clear" style="width: 16px; height: 16px; padding-right: 4px; vertical-align: middle;">Clear Frame</button>
-            <span class="vertical-separator"></span>
-            <button id="undo-btn" class="transform-btn" title="Undo"><img src="img/arrow-left.svg" alt="Back" style="width: 16px; height: 16px; vertical-align: middle;"></button>
-            <button id="redo-btn" class="transform-btn" title="Redo"><img src="img/arrow-right.svg" alt="Forward" style="width: 16px; height: 16px; vertical-align: middle;"></button>
-          </div>
-        </div>
-        <section class="maincol">
-          <div id="grid" class="grid"></div>
-          <div id="export-tools">
-          </div>
-        </section>
-      </div>
-
-      <div class="controls-section-right">
-        <h3 class="box-title">Project code preview</h3>
-        <pre id="vector" class="out"></pre>
-      </div>
-    </div>
-  </main>
-  <div class="frames-section-bottom">
-    <div class="controls-section-left">
-                <div class="sidebar-header">
-                  <div style="display: flex; align-items: center; gap: 8px;">
-                    <div style="display: flex; align-items: center; gap: 8px; position: relative;">
-                    <h3 style="margin:0;font-size:0.9rem;color:#666">Animation</h3>
-                    <img src="img/info.svg" alt="Info" class="info-btn"/>
-                    <div class="popover">To select multiple frames at once, hold the shift key.</div>
+        <div class="main-content">
+          <div class="left-sidebar">
+            <div class="tools-box">
+              <h3 class="box-title">Tools</h3>
+              <div class="tool-controls">
+                <div class="slider-container" style="flex-grow: 1">
+                  <div style="display: flex; justify-content: space-between">
+                    <label for="brightness-alpha-slider" class="alpha-label"
+                      >Brightness (Alpha)</label
+                    >
+                    <span id="brightness-alpha-value" class="alpha-label">7</span>
                   </div>
-                  </div>
-                  <div class="anim-buttons">
-                      <button id="play-animation" title="Play Animation"><img src="img/icon-play.svg" alt="Play"></button>
-                      <button id="stop-animation" title="Stop Animation"><img src="img/icon-stop.svg" alt="Stop"></button>
+                  <div style="display: flex; align-items: center; gap: 8px">
+                    <span class="slider-limit-label">0</span>
+                    <input
+                      type="range"
+                      id="brightness-alpha-slider"
+                      min="0"
+                      max="8"
+                      value="8"
+                      style="flex-grow: 1"
+                    />
+                    <span class="slider-limit-label">7</span>
                   </div>
                 </div>
-                          <div class="animation-controls-body">
-                              <div class="animation-options">
-                                <button id="copy-anim" class="anim-option-btn"><img src="img/copy.svg" alt="Copy"></button>
-                                <button id="delete-anim" class="anim-option-btn"><img src="img/trash.svg" alt="Delete"></button>
-                                <div class="separator"></div>
-                                <button id="duration-anim" class="anim-option-btn"><img src="img/time.svg" alt="Duration"></button>
-                              </div>
-                              <div class="animation-controls-main">
+              </div>
+            </div>
+            <div class="transform-box">
+              <h3 class="box-title">Transform</h3>
+              <div class="transform-buttons">
+                <button id="flip-v" class="transform-btn">
+                  <img
+                    src="img/flip-v.svg"
+                    alt="Flip V"
+                    style="width: 12px; height: 12px; padding-right: 4px; vertical-align: middle"
+                  />Flip V
+                </button>
+                <button id="flip-h" class="transform-btn">
+                  <img
+                    src="img/flip-h.svg"
+                    alt="Flip H"
+                    style="width: 12px; height: 12px; padding-right: 4px; vertical-align: middle"
+                  />Flip H
+                </button>
+                <button id="rotate180" class="transform-btn">
+                  <img
+                    src="img/rotate.svg"
+                    alt="Rotate 180"
+                    style="width: 12px; height: 12px; padding-right: 4px; vertical-align: middle"
+                  />Rotate 180°
+                </button>
+                <button id="invert" class="transform-btn">
+                  <img
+                    src="img/invert.svg"
+                    alt="Invert"
+                    style="width: 12px; height: 12px; padding-right: 4px; vertical-align: middle"
+                  />Invert Matrix
+                </button>
+                <button id="invert-not-null" class="transform-btn">
+                  <img
+                    src="img/invert-draw.svg"
+                    alt="Invert Brightness"
+                    style="width: 12px; height: 12px; padding-right: 4px; vertical-align: middle"
+                  />Invert Draw
+                </button>
+              </div>
+            </div>
+            <div class="shift-draw-box">
+              <div class="shift-title-container">
+                <h3 class="box-title">Shift draw</h3>
+                <div class="wrap-around-container">
+                  <input type="checkbox" id="wrap-around-checkbox" />
+                  <label for="wrap-around-checkbox">Wrap-around</label>
+                </div>
+              </div>
+              <div class="shift-buttons">
+                <button id="shift-up" class="shift-btn">
+                  <img src="img/shift-draw-arrow-up.svg" alt="Up" />
+                </button>
+                <button id="shift-left" class="shift-btn">
+                  <img src="img/shift-draw-arrow-left.svg" alt="Left" />
+                </button>
+                <div></div>
+                <button id="shift-right" class="shift-btn">
+                  <img src="img/shift-draw-arrow-right.svg" alt="Right" />
+                </button>
+                <button id="shift-down" class="shift-btn">
+                  <img src="img/shift-draw-arrow-down.svg" alt="Down" />
+                </button>
+              </div>
+            </div>
+          </div>
 
-                                  <div id="anim-controls">
-                                    <input id="anim-name" placeholder="Animation name" />
-                                  </div>
-                                                    <!-- Frame name goes above the list of frames and below animation name (if present) -->
-                                                    <div id="global-frame-inputs">
-                                                      <input id="name" placeholder="Frame name (optional)" />
-                                                      <input id="duration" type="number" min="0" step="10" value="1000" title="Duration in ms" />
-                                                    </div>                                                                      <div id="frames" class="frames"></div>                                                </div>                          </div>    </div>
-  </div>
-  <div id="error-container" class="error-message" style="display: none;"></div>
-  </div>
+          <div class="center-content">
+            <div class="center-content-header">
+              <h3 class="box-title" id="frame-title">Frame 1</h3>
+              <div class="frame-controls">
+                <button id="clear" class="transform-btn">
+                  <img
+                    src="img/clear.svg"
+                    alt="Clear"
+                    style="width: 16px; height: 16px; padding-right: 4px; vertical-align: middle"
+                  />Clear Frame
+                </button>
+                <span class="vertical-separator"></span>
+                <button id="undo-btn" class="transform-btn" title="Undo">
+                  <img
+                    src="img/arrow-left.svg"
+                    alt="Back"
+                    style="width: 16px; height: 16px; vertical-align: middle"
+                  />
+                </button>
+                <button id="redo-btn" class="transform-btn" title="Redo">
+                  <img
+                    src="img/arrow-right.svg"
+                    alt="Forward"
+                    style="width: 16px; height: 16px; vertical-align: middle"
+                  />
+                </button>
+              </div>
+            </div>
+            <section class="maincol">
+              <div id="grid" class="grid"></div>
+              <div id="export-tools"></div>
+            </section>
+          </div>
 
-  <div id="duration-modal" class="modal">
-    <div class="modal-content">
-      <span class="close-button">&times;</span>
-      <p class="modal-content-title">Set a duration to all frames</p>
-      <p class="modal-content-p">This will replace individual frame settings</p>
-      <input type="number" id="all-frames-duration" placeholder="Duration in ms" min="0" step="10">
-      <button id="apply-duration">Apply</button>
+          <div class="controls-section-right">
+            <h3 class="box-title">Project code preview</h3>
+            <pre id="vector" class="out"></pre>
+          </div>
+        </div>
+      </main>
+      <div class="frames-section-bottom">
+        <div class="controls-section-left">
+          <div class="sidebar-header">
+            <div style="display: flex; align-items: center; gap: 8px">
+              <div style="display: flex; align-items: center; gap: 8px; position: relative">
+                <h3 style="margin: 0; font-size: 0.9rem; color: #666">Animation</h3>
+                <img src="img/info.svg" alt="Info" class="info-btn" />
+                <div class="popover">To select multiple frames at once, hold the shift key.</div>
+              </div>
+            </div>
+            <div class="anim-buttons">
+              <button id="play-animation" title="Play Animation">
+                <img src="img/icon-play.svg" alt="Play" />
+              </button>
+              <button id="stop-animation" title="Stop Animation">
+                <img src="img/icon-stop.svg" alt="Stop" />
+              </button>
+            </div>
+          </div>
+          <div class="animation-controls-body">
+            <div class="animation-options">
+              <button id="copy-anim" class="anim-option-btn">
+                <img src="img/copy.svg" alt="Copy" />
+              </button>
+              <button id="delete-anim" class="anim-option-btn">
+                <img src="img/trash.svg" alt="Delete" />
+              </button>
+              <div class="separator"></div>
+              <button id="duration-anim" class="anim-option-btn">
+                <img src="img/time.svg" alt="Duration" />
+              </button>
+            </div>
+            <div class="animation-controls-main">
+              <div id="anim-controls">
+                <input id="anim-name" placeholder="Animation name" />
+              </div>
+              <!-- Frame name goes above the list of frames and below animation name (if present) -->
+              <div id="global-frame-inputs">
+                <input id="name" placeholder="Frame name (optional)" />
+                <input
+                  id="duration"
+                  type="number"
+                  min="0"
+                  step="10"
+                  value="1000"
+                  title="Duration in ms"
+                />
+              </div>
+              <div id="frames" class="frames"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="error-container" class="error-message" style="display: none"></div>
     </div>
-  </div>
 
-  <script src="app.js"></script>
-</body>
+    <div id="duration-modal" class="modal">
+      <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <p class="modal-content-title">Set a duration to all frames</p>
+        <p class="modal-content-p">This will replace individual frame settings</p>
+        <input
+          type="number"
+          id="all-frames-duration"
+          placeholder="Duration in ms"
+          min="0"
+          step="10"
+        />
+        <button id="apply-duration">Apply</button>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
 </html>

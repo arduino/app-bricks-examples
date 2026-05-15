@@ -27,8 +27,7 @@ function onUIConnected() {
 // Called when the websocket connection is lost.
 function onUIDisconnected() {
   errorContainer.style.display = 'block';
-  errorContainer.textContent =
-    'Connection to the board lost. Please check the connection.';
+  errorContainer.textContent = 'Connection to the board lost. Please check the connection.';
 }
 
 // Function to update LED status in the UI

@@ -160,8 +160,8 @@ function initInputHandlers() {
   canvas.addEventListener('touchstart', handleCanvasTouch);
 
   // Prevent default touch behaviors
-  canvas.addEventListener('touchmove', (e) => e.preventDefault());
-  canvas.addEventListener('touchend', (e) => e.preventDefault());
+  canvas.addEventListener('touchmove', e => e.preventDefault());
+  canvas.addEventListener('touchend', e => e.preventDefault());
 }
 
 function handleKeyPress(e) {
@@ -221,16 +221,11 @@ function updateScoreDisplay() {
   const highScoreElement = document.getElementById('highScore');
 
   if (scoreElement) {
-    scoreElement.textContent = String(Math.floor(gameState.score)).padStart(
-      5,
-      '0',
-    );
+    scoreElement.textContent = String(Math.floor(gameState.score)).padStart(5, '0');
   }
 
   if (highScoreElement) {
-    highScoreElement.textContent = String(
-      Math.floor(gameState.high_score),
-    ).padStart(5, '0');
+    highScoreElement.textContent = String(Math.floor(gameState.high_score)).padStart(5, '0');
   }
 }
 
@@ -308,13 +303,7 @@ function drawMascot() {
   if (imageToUse) {
     // Draw image at original size or scale if needed
     // Assuming the PNGs are sized appropriately for the mascot
-    ctx.drawImage(
-      imageToUse,
-      x,
-      y,
-      gameConfig.mascot_width,
-      gameConfig.mascot_height,
-    );
+    ctx.drawImage(imageToUse, x, y, gameConfig.mascot_width, gameConfig.mascot_height);
   } else {
     // Fallback: draw a simple rectangle if image not loaded
     ctx.fillStyle = FG_COLOR;
@@ -441,11 +430,7 @@ function drawGameOver() {
 
   // Score display
   ctx.font = '20px Consolas, monospace';
-  ctx.fillText(
-    `Score: ${Math.floor(gameState.score)}`,
-    canvas.width / 2,
-    canvas.height / 2,
-  );
+  ctx.fillText(`Score: ${Math.floor(gameState.score)}`, canvas.width / 2, canvas.height / 2);
 
   // Blinking restart prompt
   const currentTime = Date.now();
@@ -457,36 +442,8 @@ function drawGameOver() {
   if (blinkState) {
     ctx.font = '16px Consolas, monospace';
     ctx.fillStyle = ACCENT_COLOR;
-    ctx.fillText(
-      'Press SPACE to restart',
-      canvas.width / 2,
-      canvas.height / 2 + 35,
-    );
+    ctx.fillText('Press SPACE to restart', canvas.width / 2, canvas.height / 2 + 35);
   }
-}
-
-function drawDebugInfo() {
-  // Optional: Display debug information
-  if (!gameState || !gameConfig) return;
-
-  ctx.fillStyle = ACCENT_COLOR;
-  ctx.font = '10px monospace';
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'top';
-
-  const debugInfo = [
-    `FPS: ${(1000 / 16).toFixed(0)}`,
-    `Speed: ${gameState.speed.toFixed(1)}`,
-    `Obstacles: ${gameState.obstacles.length}`,
-    `Y: ${gameState.mascot_y.toFixed(0)}`,
-    `Vel: ${gameState.velocity_y.toFixed(1)}`,
-    `Pattern: ${currentMovePattern}`,
-    `Images: ${imagesLoaded ? 'Loaded' : 'Loading...'}`,
-  ];
-
-  debugInfo.forEach((info, i) => {
-    ctx.fillText(info, 10, 10 + i * 12);
-  });
 }
 
 // Main game rendering loop
@@ -496,9 +453,6 @@ function render() {
   drawObstacles();
   drawMascot();
   drawGameOver();
-
-  // Uncomment for debug info
-  //drawDebugInfo();
 }
 
 function startGameLoop() {

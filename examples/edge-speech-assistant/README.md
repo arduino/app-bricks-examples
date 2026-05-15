@@ -169,34 +169,34 @@ The page is a single-screen editor with a Play/Stop toggle button and a timer. A
 
   ```javascript
   playStopButton.addEventListener('click', () => {
-      if (isSpeaking) {
-          ui.send_message('stop');
-      } else {
-          const text = textInput.value.trim();
-          if (text) {
-              ui.send_message('speak', { text });
-          }
+    if (isSpeaking) {
+      ui.send_message('stop');
+    } else {
+      const text = textInput.value.trim();
+      if (text) {
+        ui.send_message('speak', { text });
       }
+    }
   });
   ```
 
 - **Status synchronization**: The backend's `speaking` messages drive the icon, label, timer, disabled-state of the controls, and the highlight overlay so the UI always reflects what the synthesizer is actually doing. The `progress` events carry `start`/`end` offsets into the original text, which `highlightRange` uses to wrap the matching slice in a `<span class="highlight">`.
 
   ```javascript
-  ui.on_message('speaking', (data) => {
-      if (data.status === 'started') {
-          isSpeaking = true;
-          showOverlay(textInput.value.trim());
-          startTimer();
-          updateControls();
-      } else if (data.status === 'progress') {
-          highlightRange(data.start, data.end);
-      } else if (data.status === 'finished') {
-          isSpeaking = false;
-          hideOverlay();
-          stopTimer();
-          updateControls();
-      }
+  ui.on_message('speaking', data => {
+    if (data.status === 'started') {
+      isSpeaking = true;
+      showOverlay(textInput.value.trim());
+      startTimer();
+      updateControls();
+    } else if (data.status === 'progress') {
+      highlightRange(data.start, data.end);
+    } else if (data.status === 'finished') {
+      isSpeaking = false;
+      hideOverlay();
+      stopTimer();
+      updateControls();
+    }
   });
   ```
 
@@ -209,4 +209,3 @@ The page is a single-screen editor with a Play/Stop toggle button and a timer. A
 ### App start fails with "Speaker is busy"
 
 **Fix:** Another audio service is already holding the device exclusively (PipeWire or PulseAudio from a desktop session is the most common cause). Stop the conflicting service or run the board in headless mode so the `tts` Brick can open the speaker.
-

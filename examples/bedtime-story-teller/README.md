@@ -51,10 +51,9 @@ This example requires a valid API Key from an LLM provider (Google Gemini, OpenA
 3. **Add API Key**
 
    In the configuration panel, enter your API Key into the corresponding field. This securely saves your credentials for the App to use. You can generate an API key from your preferred provider:
-   
-   *   **Google Gemini:** [Get API Key](https://aistudio.google.com/app/apikey)
-   *   **OpenAI GPT:** [Get API Key](https://platform.openai.com/api-keys)
-   *   **Anthropic Claude:** [Get API Key](https://console.anthropic.com/settings/keys)
+   - **Google Gemini:** [Get API Key](https://aistudio.google.com/app/apikey)
+   - **OpenAI GPT:** [Get API Key](https://platform.openai.com/api-keys)
+   - **Anthropic Claude:** [Get API Key](https://console.anthropic.com/settings/keys)
 
    ![Enter your API KEY](assets/docs_assets/brick-credentials.png)
 
@@ -75,21 +74,19 @@ This example requires a valid API Key from an LLM provider (Google Gemini, OpenA
 1. **Choose Your Path**
 
    You have two options to create a story:
-
-   *   **Option A: Manual Configuration** (Follow step 2)
-   *   **Option B: Random Generation** (Skip to step 3)
+   - **Option A: Manual Configuration** (Follow step 2)
+   - **Option B: Random Generation** (Skip to step 3)
 
 2. **Set Parameters (Manual)**
 
    Use the interactive interface to configure the story details. The interface unlocks sections sequentially:
-
    - **Age:** Select the target audience (3-5, 6-8, 9-12, 13-16 years, or Adult).
    - **Theme:** Choose a genre (Fantasy/Adventure, Fairy Tale, Mystery/Horror, Science/Universe, Animals, or Comedy).
    - **Story Type (Optional):** Fine-tune the narrative:
-     - *Tone:* e.g., Calm and sweet, Epic and adventurous, Tense and grotesque.
-     - *Ending:* e.g., Happy, With a moral, Open and mysterious.
-     - *Structure:* Classic, Chapter-based, or Episodic.
-     - *Duration:* Short (5 min), Medium (10-15 min), or Long (20+ min).
+     - _Tone:_ e.g., Calm and sweet, Epic and adventurous, Tense and grotesque.
+     - _Ending:_ e.g., Happy, With a moral, Open and mysterious.
+     - _Structure:_ Classic, Chapter-based, or Episodic.
+     - _Duration:_ Short (5 min), Medium (10-15 min), or Long (20+ min).
    - **Characters:** You must add **at least one character** (max 5). Define their Name, Description, and Role (Protagonist, Antagonist, Positive/Negative Helper, or Other).
    - **Generate:** Once ready, click the **Generate story** button.
 
@@ -100,7 +97,6 @@ This example requires a valid API Key from an LLM provider (Google Gemini, OpenA
 4. **Interact**
 
    The story streams in real-time. Once complete, you can:
-
    - **Copy** the text to your clipboard.
    - Click **New story** to reset the interface and start over.
 
@@ -120,9 +116,9 @@ Once the App is running, it performs the following operations:
 The Python script handles the logic of connecting to the AI and managing the data flow. Note that the API Key is not hardcoded; it is retrieved automatically from the Brick configuration.
 
 - **Initialization**: The `CloudLLM` is set up with a system prompt that enforces HTML formatting for the output. The `CloudModel` constants map to specific efficient model versions:
-  *   `CloudModel.GOOGLE_GEMINI` → `gemini-2.5-flash`
-  *   `CloudModel.OPENAI_GPT` → `gpt-4o-mini`
-  *   `CloudModel.ANTHROPIC_CLAUDE` → `claude-3-7-sonnet-latest`
+  - `CloudModel.GOOGLE_GEMINI` → `gemini-2.5-flash`
+  - `CloudModel.OPENAI_GPT` → `gpt-4o-mini`
+  - `CloudModel.ANTHROPIC_CLAUDE` → `claude-3-7-sonnet-latest`
 
 ```python
 # The API Key is loaded automatically from the Brick Configuration
@@ -150,7 +146,7 @@ def generate_story(_, data):
     prompt_for_llm = re.sub('<[^>]*>', '', prompt_for_display) # Clean tags for LLM
     for resp in llm.chat_stream(prompt_for_llm):
         ui.send_message("response", resp)
-        
+
     ui.send_message("stream_end", {})
 ```
 
@@ -161,30 +157,26 @@ The JavaScript manages the complex UI interactions, random generation logic, and
 - **Random Generation**: If the user chooses "Generate Randomly", the frontend programmatically selects random chips from the available options and submits the request.
 
 ```javascript
-document
-  .getElementById('generate-randomly-button')
-  .addEventListener('click', () => {
-    // Select random elements from the UI lists
-    const ageChips = document.querySelectorAll(
-      '.parameter-container:nth-child(1) .chip',
-    );
-    const randomAgeChip = getRandomElement(ageChips);
-    // ... repeat for theme, tone, etc ...
+document.getElementById('generate-randomly-button').addEventListener('click', () => {
+  // Select random elements from the UI lists
+  const ageChips = document.querySelectorAll('.parameter-container:nth-child(1) .chip');
+  const randomAgeChip = getRandomElement(ageChips);
+  // ... repeat for theme, tone, etc ...
 
-    const storyData = {
-      age: randomAgeChip ? randomAgeChip.textContent.trim() : 'any',
-      // ...
-      characters: [], // Random stories use generic characters
-    };
+  const storyData = {
+    age: randomAgeChip ? randomAgeChip.textContent.trim() : 'any',
+    // ...
+    characters: [], // Random stories use generic characters
+  };
 
-    generateStory(storyData);
-  });
+  generateStory(storyData);
+});
 ```
 
 - **UI event listeners**: The frontend listens for chunks of text and appends them to the display buffer, creating the streaming effect.
 
 ```javascript
-ui.on_message('response', (data) => {
+ui.on_message('response', data => {
   document.getElementById('story-container').style.display = 'flex';
   storyBuffer += data; // Accumulate text
 });

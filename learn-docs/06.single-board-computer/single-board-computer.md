@@ -22,6 +22,7 @@ In this guide, we will go through the necessary steps to set up our board as an 
 ## Requirements
 
 To use the board as an SBC, we will need the following:
+
 - USB-C dongle (with an HDMI connector)
 - Power supply powering our USB-C dongle (either directly from a computer's USB port or a phone charger rated at 5V)
 - Screen and an HDMI cable
@@ -66,7 +67,7 @@ Some common troubleshooting topics are listed below:
 
 While the board is set up as an SBC, we can also access the board using [Network Mode](/learn/network-mode). Network Mode allows us to connect to the board over the local Wi-Fi® network, using the Arduino App Lab.
 
-When starting the Arduino App Lab desktop application and the UNO Q is connected to the local network, the board should appear. 
+When starting the Arduino App Lab desktop application and the UNO Q is connected to the local network, the board should appear.
 
 This is a great way of using the board as a standalone computer, but also being able to access it via our computer.
 
@@ -81,6 +82,7 @@ See the sections below to get some inspiration for what we can do with the board
 ### Terminal
 
 The board has a terminal that can be launched (`CTRL+ALT+T` or through the menu). This allows us to run commands such as:
+
 - Installing packages & applications
 - Navigating directories
 - Running code (e.g. Python scripts)

@@ -55,8 +55,7 @@ function onUIConnected() {
 function onUIDisconnected() {
   content.setAttribute('data-state', 'error');
   title.className = 'title-secondary';
-  title.textContent =
-    'Connection to the board lost. Please check the connection.';
+  title.textContent = 'Connection to the board lost. Please check the connection.';
 }
 
 /**
@@ -108,11 +107,7 @@ function resetToInitialState() {
  *   or 'None' when no gesture is currently recognised.
  */
 function handleGestureDetected(event) {
-  if (
-    event.gesture === latestGestureDetected ||
-    isGestureLocked ||
-    isResultReady
-  ) {
+  if (event.gesture === latestGestureDetected || isGestureLocked || isResultReady) {
     return;
   }
 
@@ -162,8 +157,7 @@ function handleNoGestureDetected() {
   icon.src = './img/no-gesture-recognized.svg';
   title.textContent = 'No gesture recognized';
   subtitle.textContent = 'Please try again';
-  bottomCta.innerHTML =
-    '<img src="./img/restart.svg" alt="Try again" /> Try Again';
+  bottomCta.innerHTML = '<img src="./img/restart.svg" alt="Try again" /> Try Again';
 }
 
 /**

@@ -89,7 +89,7 @@
   const volumeBtn = document.getElementById('volume-btn');
 
   if (volumeBtn) {
-    volumeBtn.addEventListener('click', (event) => {
+    volumeBtn.addEventListener('click', event => {
       const plusBtn = event.target.closest('#volume-plus-btn');
       const minusBtn = event.target.closest('#volume-minus-btn');
 
@@ -180,7 +180,7 @@
     });
   }
 
-  playArea.addEventListener('mousemove', (e) => {
+  playArea.addEventListener('mousemove', e => {
     if (powerOn) {
       const rect = playArea.getBoundingClientRect();
       addTrailParticle(e.clientX - rect.left, e.clientY - rect.top);
@@ -189,20 +189,20 @@
     }
   });
 
-  playArea.addEventListener('mouseenter', (e) => {
+  playArea.addEventListener('mouseenter', e => {
     if (powerOn) {
       showDot(e.clientX, e.clientY);
     }
   });
 
-  playArea.addEventListener('mouseleave', (e) => {
+  playArea.addEventListener('mouseleave', () => {
     if (powerOn) {
       removeDot();
       sendStop();
     }
   });
 
-  playArea.addEventListener('touchstart', (e) => {
+  playArea.addEventListener('touchstart', e => {
     e.preventDefault();
     isDown = true;
     const touch = e.touches[0];
@@ -214,7 +214,7 @@
     }
   });
 
-  playArea.addEventListener('touchmove', (e) => {
+  playArea.addEventListener('touchmove', e => {
     if (isDown) {
       e.preventDefault();
       const touch = e.touches[0];
@@ -227,7 +227,7 @@
     }
   });
 
-  playArea.addEventListener('touchend', (e) => {
+  playArea.addEventListener('touchend', e => {
     e.preventDefault();
     if (isDown) {
       isDown = false;
@@ -254,7 +254,7 @@
     if (d) d.remove();
   }
 
-  playArea.addEventListener('dragstart', (e) => {
+  playArea.addEventListener('dragstart', e => {
     e.preventDefault();
   });
 
@@ -272,9 +272,7 @@
     if (amp > 0) {
       const freqScale = freq / 500;
       for (let i = 0; i < width; i++) {
-        const y =
-          mid +
-          amp * (height / 2) * Math.sin((i * freqScale * 2 * Math.PI) / width);
+        const y = mid + amp * (height / 2) * Math.sin((i * freqScale * 2 * Math.PI) / width);
         visualizerCtx.lineTo(i, y);
       }
     } else {
@@ -292,12 +290,12 @@
   }
 
   // --- Socket Event Handlers ---
-  ui.on_message('theremin:state', (s) => {
+  ui.on_message('theremin:state', s => {
     if (accessOn) return;
     updateStateDisplay(s.freq, s.amp);
   });
 
-  ui.on_message('theremin:volume', (v) => {
+  ui.on_message('theremin:volume', v => {
     if (v.volume !== undefined) {
       currentVolume = v.volume;
       updateVolumeIndicator(v.volume);

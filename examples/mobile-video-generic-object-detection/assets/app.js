@@ -14,7 +14,6 @@ const currentHostname = window.location.hostname;
 const targetPort = 4912;
 const targetPath = '/embed';
 const streamUrl = `http://${currentHostname}:${targetPort}${targetPath}`;
-let iframeLoadIntervalId;
 
 // Webcam state management
 let webcamState = {
@@ -35,7 +34,7 @@ ui.on_message('connected', onConnected);
 ui.on_message('disconnected', onDisconnected);
 ui.on_message('streaming', onStreaming);
 ui.on_message('paused', onPaused);
-  
+
 initializeConfidenceSlider();
 updateFeedback(null);
 renderDetections();
@@ -47,7 +46,7 @@ const confidencePopoverText =
 const feedbackPopoverText =
   'An animation will appear here when the camera detects:<ul><li>Cat<li>Clock<li>Cup<li>Dog<li>Plant';
 
-document.querySelectorAll('.info-btn.confidence').forEach((img) => {
+document.querySelectorAll('.info-btn.confidence').forEach(img => {
   const popover = img.nextElementSibling;
   img.addEventListener('mouseenter', () => {
     popover.textContent = confidencePopoverText;
@@ -58,7 +57,7 @@ document.querySelectorAll('.info-btn.confidence').forEach((img) => {
   });
 });
 
-document.querySelectorAll('.info-btn.feedback').forEach((img) => {
+document.querySelectorAll('.info-btn.feedback').forEach(img => {
   const popover = img.nextElementSibling;
   img.addEventListener('mouseenter', () => {
     popover.innerHTML = feedbackPopoverText;
@@ -78,10 +77,7 @@ function updateDisplay() {
   if (webcamState.status == 'streaming') {
     // Webcam is streaming - show video iframe
     dynamicIframe.src = streamUrl;
-    dynamicIframe.height = Math.min(
-      ((window.innerWidth - 60) * 4) / 3 + 60,
-      768,
-    );
+    dynamicIframe.height = Math.min(((window.innerWidth - 60) * 4) / 3 + 60, 768);
     dynamicIframe.width = Math.min(768, window.innerWidth - 60);
     clientName.textContent = `${webcamState.clientName || 'Unknown Device'} connected`;
     clientName.innerHTML +=
@@ -90,12 +86,7 @@ function updateDisplay() {
     // No webcam is connected - show QR code
     clientName.textContent = 'No Device Connected';
     if (webcamState.secret) {
-      generateQRCode(
-        webcamState.secret,
-        webcamState.protocol,
-        webcamState.ip,
-        webcamState.port,
-      );
+      generateQRCode(webcamState.secret, webcamState.protocol, webcamState.ip, webcamState.port);
     }
   }
 }
@@ -129,8 +120,7 @@ function onUIConnected() {
 
 function onUIDisconnected() {
   if (errorContainer) {
-    errorContainer.textContent =
-      'Connection to the board lost. Please check the connection.';
+    errorContainer.textContent = 'Connection to the board lost. Please check the connection.';
     errorContainer.style.display = 'block';
   }
 }
@@ -161,7 +151,7 @@ async function onConnected(message) {
   updateDisplay();
 }
 
-async function onDisconnected(message) {
+async function onDisconnected() {
   console.log('Webcam disconnected!');
   webcamState.status = 'disconnected';
   webcamState.clientAddr = '';
@@ -169,14 +159,14 @@ async function onDisconnected(message) {
   updateDisplay();
 }
 
-async function onStreaming(message) {
+async function onStreaming() {
   console.log('Webcam streaming started!');
   webcamState.status = 'streaming';
   updateDisplay();
   updateConfidenceDisplay();
 }
 
-async function onPaused(message) {
+async function onPaused() {
   console.log('Webcam streaming stopped!');
   webcamState.status = 'paused';
   updateDisplay();
@@ -195,10 +185,7 @@ function updateFeedback(detection) {
   if (detection && objectInfo[detection.content]) {
     const info = objectInfo[detection.content];
     const confidence = detection.confidence * 100;
-    if (
-      feedbackContentElement.getAttribute('data-detection') ===
-      detection.content
-    ) {
+    if (feedbackContentElement.getAttribute('data-detection') === detection.content) {
       return; // No need to update
     }
     feedbackContentElement.setAttribute('data-detection', detection.content);
@@ -240,7 +227,7 @@ function renderDetections() {
     return;
   }
 
-  scans.forEach((scan) => {
+  scans.forEach(scan => {
     const row = document.createElement('div');
     row.className = 'scan-container';
 
@@ -292,20 +279,15 @@ function renderDetections() {
 function initializeConfidenceSlider() {
   const confidenceSlider = document.getElementById('confidenceSlider');
   const confidenceInput = document.getElementById('confidenceInput');
-  const confidenceResetButton = document.getElementById(
-    'confidenceResetButton',
-  );
+  const confidenceResetButton = document.getElementById('confidenceResetButton');
 
   confidenceSlider.addEventListener('input', updateConfidenceDisplay);
   confidenceInput.addEventListener('input', handleConfidenceInputChange);
   confidenceInput.addEventListener('blur', validateConfidenceInput);
   updateConfidenceDisplay();
 
-  confidenceResetButton.addEventListener('click', (e) => {
-    if (
-      e.target.classList.contains('reset-icon') ||
-      e.target.closest('.reset-icon')
-    ) {
+  confidenceResetButton.addEventListener('click', e => {
+    if (e.target.classList.contains('reset-icon') || e.target.closest('.reset-icon')) {
       resetConfidence();
     }
   });
@@ -341,9 +323,7 @@ function validateConfidenceInput() {
 function updateConfidenceDisplay() {
   const confidenceSlider = document.getElementById('confidenceSlider');
   const confidenceInput = document.getElementById('confidenceInput');
-  const confidenceValueDisplay = document.getElementById(
-    'confidenceValueDisplay',
-  );
+  const confidenceValueDisplay = document.getElementById('confidenceValueDisplay');
   const sliderProgress = document.getElementById('sliderProgress');
 
   const value = parseInt(confidenceSlider.value);
@@ -351,9 +331,7 @@ function updateConfidenceDisplay() {
     ui.send_message('override_th', value / 100); // Send confidence to backend
   }
   const percentage =
-    ((value - confidenceSlider.min) /
-      (confidenceSlider.max - confidenceSlider.min)) *
-    100;
+    ((value - confidenceSlider.min) / (confidenceSlider.max - confidenceSlider.min)) * 100;
 
   const displayValue = value;
   confidenceValueDisplay.textContent = displayValue;

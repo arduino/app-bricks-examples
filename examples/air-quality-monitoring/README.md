@@ -1,12 +1,12 @@
 # Air Quality Monitoring App
 
-The **Air Quality Monitoring App** displays real-time air quality data from the *AQICN* service on the Arduino UNO Q LED matrix. It displays air quality levels ranging from "Good" to "Hazardous" using animated face patterns that reflect the current air quality, from smiling to distressed.
+The **Air Quality Monitoring App** displays real-time air quality data from the _AQICN_ service on the Arduino UNO Q LED matrix. It displays air quality levels ranging from "Good" to "Hazardous" using animated face patterns that reflect the current air quality, from smiling to distressed.
 
 ![Air Quality Monitoring App](assets/docs_assets/aqm-banner.png)
 
 ## Description
 
-The App fetches air quality data from the *AQICN API* for a specified city. It converts numeric AQI values into visual patterns on the 8 x 13 LED matrix. When the air quality changes, the display updates with corresponding emoji icons representing different pollution levels.
+The App fetches air quality data from the _AQICN API_ for a specified city. It converts numeric AQI values into visual patterns on the 8 x 13 LED matrix. When the air quality changes, the display updates with corresponding emoji icons representing different pollution levels.
 
 ![Air Quality Emoji Pattern on LED Matrix](assets/docs_assets/aqm-icons.png)
 
@@ -51,11 +51,11 @@ To display air quality data for your specific city, you will need a free API tok
 
 ![AQICN - Token Request](assets/docs_assets/AQICN-registration-token-3.png)
 
-4. After email confirmation, you'll be redirected to a page displaying your unique API token. It will look something like: 
-   
- ```bash
+4. After email confirmation, you'll be redirected to a page displaying your unique API token. It will look something like:
+
+```bash
 a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0
- ```
+```
 
 ![AQICN - Token Request](assets/docs_assets/AQICN-registration-token-4.png)
 
@@ -66,24 +66,24 @@ a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0
 ![App Lab - Duplicate Example](assets/docs_assets/air-quality-monitoring-app-clone.png)
 
 2. Update the API token in your code. Open the `main.py` file and locate this line:
-   
- ```python
+
+```python
 # Insert your API token here
 API_TOKEN = "demo"
- ```
-   
+```
+
 Replace `"demo"` with your actual API token:
-   
- ```python
+
+```python
 # Insert your API token here
 API_TOKEN = "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0"
- ```
+```
 
 3. Set your city. If you want to monitor a different city, update the `city` variable in `main.py`:
-   
- ```python
+
+```python
 city = "Your City Name"
- ```
+```
 
 ### Run the App
 
@@ -95,17 +95,17 @@ Once the application is running, the device performs the following operations:
 
 - **Fetching air quality data from the AQICN API.**
 
- The application makes direct API requests to the AQICN service:
+The application makes direct API requests to the AQICN service:
 
- ```python
+```python
 import requests
 
 endpoint = f"https://api.waqi.info/feed/{city}/?token={API_TOKEN}"
 response = requests.get(endpoint)
 response_json = response.json()
- ```
-    
- The `get_air_quality()` function handles the API communication, JSON parsing, and error checking. It extracts the AQI value from the response and converts it to a readable category using the `map_aqi_level()` function.
+```
+
+The `get_air_quality()` function handles the API communication, JSON parsing, and error checking. It extracts the AQI value from the response and converts it to a readable category using the `map_aqi_level()` function.
 
 - **Converting numeric values to readable categories.**
 
@@ -119,7 +119,7 @@ def map_aqi_level(aqi_value: int) -> str:
     return "N/A"
 ```
 
-For example, a pollution reading of 75 is labeled as *Moderate* rather than leaving users to interpret what that number means.
+For example, a pollution reading of 75 is labeled as _Moderate_ rather than leaving users to interpret what that number means.
 
 - **Exposing air quality functions to the microcontroller.**
 

@@ -13,9 +13,10 @@ The Arduino App Lab is a user-friendly software tool for creating and launching 
 
 Apps can consist of a Linux part (written in Python), and a microcontroller part (written in Arduino / C++). The Linux system is capable of running anything from AI models to web servers, while the microcontroller can interact with the real world.
 
-## Setting Up the UNO Q 
+## Setting Up the UNO Q
 
 The UNO Q board can be programmed in three different modes:
+
 - **USB-C® (desktop mode)** - connect to the board via USB, using the Arduino App Lab desktop version.
 - **Remote Connect (desktop mode)** - connect to the board remotely using the Arduino App Lab (via SSH connection).
 - **Single-Board Computer (SBC)** the board is programmed directly on the board, using a screen, keyboard, and mouse.
@@ -95,6 +96,7 @@ Each example provides documentation on how the example works, and what **Bricks*
 ## Monitoring the App
 
 After launching an App, we can monitor it through the **"Console"** tab. Here we will find three other tabs:
+
 - **Start-up** - this tab shows the logs of the start-up process (the launch).
 - **main** - this tab shows the Python logs of an App (e.g., if we use `print()` in the `main.py` file).
 - **Sketch** - this tab shows the serial data from the sketch (if we use `Monitor.print()` in the sketch).
@@ -105,19 +107,19 @@ When we click on the **"Run"** button, an assembly process will start:
 
 1. The **Arduino sketch** is uploaded to the microcontroller.
 2. The **Python script** is launched on the Linux system.
-3. The two systems then run separately, but can communicate with each other. 
+3. The two systems then run separately, but can communicate with each other.
 
 All Apps run fully on the board, as well as the compilation of the sketch. When using the Arduino App Lab, the examples and Apps we see are the ones present on the board, and are not stored on our local computer.
 
 ### Application Examples
 
-There's a large variety of Apps that can run on the UNO Q. 
+There's a large variety of Apps that can run on the UNO Q.
 
 One example could be running an image recognition model on the Linux side using a camera. If it detects something, it sends a signal to the sketch side, which could make a light blink or produce a loud noise.
 
 ![Example 1](assets/image_classification.png)
 
-Another example could be measuring temperature on the microcontroller, and sending it to the Linux side. On the Linux side, we launch a web server, where we can view real-time data from our temperature sensor! 
+Another example could be measuring temperature on the microcontroller, and sending it to the Linux side. On the Linux side, we launch a web server, where we can view real-time data from our temperature sensor!
 
 ![Example 2](assets/temperature.png)
 

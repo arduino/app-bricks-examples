@@ -27,8 +27,7 @@ function onUIConnected() {
 
 function onUIDisconnected() {
   if (errorContainer) {
-    errorContainer.textContent =
-      'Connection to the board lost. Please check the connection.';
+    errorContainer.textContent = 'Connection to the board lost. Please check the connection.';
     errorContainer.style.display = 'block';
   }
 }
@@ -37,7 +36,7 @@ function onUIDisconnected() {
 const confidencePopoverText =
   'Minimum confidence score for detected cracks. Lower values show more results but may include false positives.';
 
-document.querySelectorAll('.info-btn.confidence').forEach((img) => {
+document.querySelectorAll('.info-btn.confidence').forEach(img => {
   const popover = img.nextElementSibling;
   img.addEventListener('mouseenter', () => {
     popover.textContent = confidencePopoverText;
@@ -49,181 +48,194 @@ document.querySelectorAll('.info-btn.confidence').forEach((img) => {
 });
 
 function initializeElements() {
-    const imageInput = document.getElementById('imageInput');
-    const imagePreview = document.getElementById('imagePreview');
-    const confidenceSlider = document.getElementById('confidenceSlider');
-    const confidenceInput = document.getElementById('confidenceInput');
-    const confidenceResetButton = document.getElementById('confidenceResetButton');
-    const detectButton = document.getElementById('detectButton');
-    const uploadNewButton = document.getElementById('uploadNewButton');
-    const downloadButton = document.getElementById('downloadButton');
-    errorContainer = document.getElementById('error-container');
+  const imageInput = document.getElementById('imageInput');
+  const imagePreview = document.getElementById('imagePreview');
+  const confidenceSlider = document.getElementById('confidenceSlider');
+  const confidenceInput = document.getElementById('confidenceInput');
+  const confidenceResetButton = document.getElementById('confidenceResetButton');
+  const detectButton = document.getElementById('detectButton');
+  const uploadNewButton = document.getElementById('uploadNewButton');
+  const downloadButton = document.getElementById('downloadButton');
+  errorContainer = document.getElementById('error-container');
 
-    const sampleImageBtn = document.getElementById('sampleImageBtn');
-    const uploadImageBtn = document.getElementById('uploadImageBtn');
+  const sampleImageBtn = document.getElementById('sampleImageBtn');
+  const uploadImageBtn = document.getElementById('uploadImageBtn');
 
-    imageInput.addEventListener('change', handleImageUpload);
-    imagePreview.addEventListener('click', () => {
-        if (!currentImage && currentImageSource === 'upload') {
-            imageInput.click();
-        }
-    });
+  imageInput.addEventListener('change', handleImageUpload);
+  imagePreview.addEventListener('click', () => {
+    if (!currentImage && currentImageSource === 'upload') {
+      imageInput.click();
+    }
+  });
 
-    // Drag and drop functionality (only when in upload mode)
-    imagePreview.addEventListener('dragover', (e) => {
-        if (currentImageSource === 'upload') {
-            e.preventDefault();
-            imagePreview.classList.add('drag-over');
-        }
-    });
+  // Drag and drop functionality (only when in upload mode)
+  imagePreview.addEventListener('dragover', e => {
+    if (currentImageSource === 'upload') {
+      e.preventDefault();
+      imagePreview.classList.add('drag-over');
+    }
+  });
 
-    imagePreview.addEventListener('dragleave', () => {
-        imagePreview.classList.remove('drag-over');
-    });
+  imagePreview.addEventListener('dragleave', () => {
+    imagePreview.classList.remove('drag-over');
+  });
 
-    imagePreview.addEventListener('drop', (e) => {
-        if (currentImageSource === 'upload') {
-            e.preventDefault();
-            imagePreview.classList.remove('drag-over');
-            const files = e.dataTransfer.files;
-            if (files.length > 0 && files[0].type.startsWith('image/')) {
-                handleImageFile(files[0]);
-            }
-        }
-    });
+  imagePreview.addEventListener('drop', e => {
+    if (currentImageSource === 'upload') {
+      e.preventDefault();
+      imagePreview.classList.remove('drag-over');
+      const files = e.dataTransfer.files;
+      if (files.length > 0 && files[0].type.startsWith('image/')) {
+        handleImageFile(files[0]);
+      }
+    }
+  });
 
-    // Confidence slider and input
-    confidenceSlider.addEventListener('input', updateConfidenceDisplay);
-    confidenceInput.addEventListener('input', handleConfidenceInputChange);
-    confidenceInput.addEventListener('blur', validateConfidenceInput);
-    updateConfidenceDisplay();
+  // Confidence slider and input
+  confidenceSlider.addEventListener('input', updateConfidenceDisplay);
+  confidenceInput.addEventListener('input', handleConfidenceInputChange);
+  confidenceInput.addEventListener('blur', validateConfidenceInput);
+  updateConfidenceDisplay();
 
-    confidenceResetButton.addEventListener('click', (e) => {
-        if (e.target.classList.contains('reset-icon') || e.target.closest('.reset-icon')) {
-            resetConfidence();
-        }
-    });
+  confidenceResetButton.addEventListener('click', e => {
+    if (e.target.classList.contains('reset-icon') || e.target.closest('.reset-icon')) {
+      resetConfidence();
+    }
+  });
 
-    // Source selection buttons
-    sampleImageBtn.addEventListener('click', () => switchImageSource('sample'));
-    uploadImageBtn.addEventListener('click', () => switchImageSource('upload'));
+  // Source selection buttons
+  sampleImageBtn.addEventListener('click', () => switchImageSource('sample'));
+  uploadImageBtn.addEventListener('click', () => switchImageSource('upload'));
 
-    // Buttons
-    detectButton.addEventListener('click', runDetection);
-    uploadNewButton.addEventListener('click', uploadNewImage);
-    downloadButton.addEventListener('click', downloadResult);
+  // Buttons
+  detectButton.addEventListener('click', runDetection);
+  uploadNewButton.addEventListener('click', uploadNewImage);
+  downloadButton.addEventListener('click', downloadResult);
 
-    // Load sample images on startup
-    loadSampleImages();
+  // Load sample images on startup
+  loadSampleImages();
 }
 
 // Switch between image sources
 function switchImageSource(source) {
-    currentImageSource = source;
-    const sampleImageBtn = document.getElementById('sampleImageBtn');
-    const uploadImageBtn = document.getElementById('uploadImageBtn');
-    const sampleImagesGrid = document.getElementById('sampleImagesGrid');
-    const imagePreview = document.getElementById('imagePreview');
+  currentImageSource = source;
+  const sampleImageBtn = document.getElementById('sampleImageBtn');
+  const uploadImageBtn = document.getElementById('uploadImageBtn');
+  const sampleImagesGrid = document.getElementById('sampleImagesGrid');
+  const imagePreview = document.getElementById('imagePreview');
 
-    // Update button states
-    sampleImageBtn.classList.toggle('active', source === 'sample');
-    uploadImageBtn.classList.toggle('active', source === 'upload');
+  // Update button states
+  sampleImageBtn.classList.toggle('active', source === 'sample');
+  uploadImageBtn.classList.toggle('active', source === 'upload');
 
-    // Show/hide appropriate containers
-    if (source === 'sample') {
-        sampleImagesGrid.style.display = 'grid';
-        imagePreview.style.display = 'none';
+  // Show/hide appropriate containers
+  if (source === 'sample') {
+    sampleImagesGrid.style.display = 'grid';
+    imagePreview.style.display = 'none';
 
-        if (selectedSampleImage) {
-            setButtonState('ready');
-        } else {
-            setButtonState('initial');
-            showImageSelectionHeader();
-        }
-
-        currentImage = null;
+    if (selectedSampleImage) {
+      setButtonState('ready');
     } else {
-        sampleImagesGrid.style.display = 'none';
-        imagePreview.style.display = 'flex';
-
-        if (currentImage) {
-            setButtonState('ready');
-        } else {
-            setButtonState('initial');
-            showImageSelectionHeader();
-        }
+      setButtonState('initial');
+      showImageSelectionHeader();
     }
 
-    clearStatus();
+    currentImage = null;
+  } else {
+    sampleImagesGrid.style.display = 'none';
+    imagePreview.style.display = 'flex';
+
+    if (currentImage) {
+      setButtonState('ready');
+    } else {
+      setButtonState('initial');
+      showImageSelectionHeader();
+    }
+  }
+
+  clearStatus();
 }
 
 function loadSampleImages() {
-    const sampleImagesGrid = document.getElementById('sampleImagesGrid');
-    sampleImagesGrid.innerHTML = '<div class="sample-images-loading">Loading sample images...</div>';
+  const sampleImagesGrid = document.getElementById('sampleImagesGrid');
+  sampleImagesGrid.innerHTML = '<div class="sample-images-loading">Loading sample images...</div>';
 
-    const imageFiles = [
-        'anomaly.cracked.7126-168.jpg',
-        'anomaly.cracked.7133-135.jpg',
-        'anomaly.cracked.7133-81.jpg',
-        'anomaly.cracked.7133-99.jpg',
-        'anomaly.cracked.7135-116.jpg',
-        'no anomaly.uncracked.7117.jpg',
-        'no anomaly.uncracked.7120.jpg',
-        'no anomaly.uncracked.7124.jpg',
-        'no anomaly.uncracked.7125.jpg',
-        'no anomaly.uncracked.7127.jpg'
-    ];
+  const imageFiles = [
+    'anomaly.cracked.7126-168.jpg',
+    'anomaly.cracked.7133-135.jpg',
+    'anomaly.cracked.7133-81.jpg',
+    'anomaly.cracked.7133-99.jpg',
+    'anomaly.cracked.7135-116.jpg',
+    'no anomaly.uncracked.7117.jpg',
+    'no anomaly.uncracked.7120.jpg',
+    'no anomaly.uncracked.7124.jpg',
+    'no anomaly.uncracked.7125.jpg',
+    'no anomaly.uncracked.7127.jpg',
+  ];
 
-    sampleImages = imageFiles.map(filename => ({
-        filename,
-        path: `img/${filename}`,
-        hasAnomaly: filename.includes('anomaly.cracked'),
-        displayName: filename.replace(/\.(jpg|png)$/i, '').replace(/[._]/g, ' ')
-    }));
+  sampleImages = imageFiles.map(filename => ({
+    filename,
+    path: `img/${filename}`,
+    hasAnomaly: filename.includes('anomaly.cracked'),
+    displayName: filename.replace(/\.(jpg|png)$/i, '').replace(/[._]/g, ' '),
+  }));
 
-    renderSampleImages();
+  renderSampleImages();
 }
 
 function renderSampleImages() {
-    const sampleImagesGrid = document.getElementById('sampleImagesGrid');
+  const sampleImagesGrid = document.getElementById('sampleImagesGrid');
 
-    sampleImagesGrid.innerHTML = sampleImages.map((img, index) => `
-        <div class="sample-image-item" data-index="${index}" onclick="selectSampleImage(${index})">
+  sampleImagesGrid.innerHTML = sampleImages
+    .map(
+      (img, index) => `
+        <div class="sample-image-item" data-index="${index}">
             <img src="${img.path}" alt="${img.displayName}" loading="lazy">
         </div>
-    `).join('');
+    `
+    )
+    .join('');
+
+  // Attach event listeners using event delegation
+  sampleImagesGrid.addEventListener('click', e => {
+    const imageItem = e.target.closest('.sample-image-item');
+    if (imageItem) {
+      const index = Number(imageItem.getAttribute('data-index'));
+      selectSampleImage(index);
+    }
+  });
 }
 
 // Select sample image function
 function selectSampleImage(index) {
-    selectedSampleImage = sampleImages[index];
+  selectedSampleImage = sampleImages[index];
 
-    // Update visual selection
-    document.querySelectorAll('.sample-image-item').forEach((item, i) => {
-        item.classList.toggle('selected', i === index);
-    });
+  // Update visual selection
+  document.querySelectorAll('.sample-image-item').forEach((item, i) => {
+    item.classList.toggle('selected', i === index);
+  });
 
-    setButtonState('ready');
-    clearStatus();
+  setButtonState('ready');
+  clearStatus();
 }
 
 // Upload new image function
 function uploadNewImage() {
-    currentImage = null;
-    resultImage = null;
-    selectedSampleImage = null;
+  currentImage = null;
+  resultImage = null;
+  selectedSampleImage = null;
 
-    // Clear selections
-    document.querySelectorAll('.sample-image-item').forEach(item => {
-        item.classList.remove('selected');
-    });
+  // Clear selections
+  document.querySelectorAll('.sample-image-item').forEach(item => {
+    item.classList.remove('selected');
+  });
 
-    // Reset image display
-    resetImageDisplay();
+  // Reset image display
+  resetImageDisplay();
 
-    // Recreate the complete structure of image-container
-    const imageContainer = document.querySelector('.image-container');
-    imageContainer.innerHTML = `
+  // Recreate the complete structure of image-container
+  const imageContainer = document.querySelector('.image-container');
+  imageContainer.innerHTML = `
         <div id="sampleImagesGrid" class="sample-images-grid"></div>
         <div id="imagePreview" class="image-preview" style="display: none;">
             <div class="upload-placeholder">
@@ -242,380 +254,381 @@ function uploadNewImage() {
         </div>
     `;
 
-    // Reset container style
-    imageContainer.style.display = '';
-    imageContainer.style.justifyContent = '';
-    imageContainer.style.alignItems = '';
+  // Reset container style
+  imageContainer.style.display = '';
+  imageContainer.style.justifyContent = '';
+  imageContainer.style.alignItems = '';
 
-    // Reload sample images
-    renderSampleImages();
+  // Reload sample images
+  renderSampleImages();
 
-    // Reattach event listeners
-    const newImageInput = document.getElementById('imageInput');
-    const newImagePreview = document.getElementById('imagePreview');
+  // Reattach event listeners
+  const newImageInput = document.getElementById('imageInput');
+  const newImagePreview = document.getElementById('imagePreview');
 
-    if (newImageInput) {
-        newImageInput.addEventListener('change', handleImageUpload);
-    }
+  if (newImageInput) {
+    newImageInput.addEventListener('change', handleImageUpload);
+  }
 
-    if (newImagePreview) {
-        // Reattach all event listeners for drag & drop
-        newImagePreview.addEventListener('click', () => {
-            if (!currentImage && currentImageSource === 'upload') {
-                newImageInput.click();
-            }
-        });
+  if (newImagePreview) {
+    // Reattach all event listeners for drag & drop
+    newImagePreview.addEventListener('click', () => {
+      if (!currentImage && currentImageSource === 'upload') {
+        newImageInput.click();
+      }
+    });
 
-        newImagePreview.addEventListener('dragover', (e) => {
-            if (currentImageSource === 'upload') {
-                e.preventDefault();
-                newImagePreview.classList.add('drag-over');
-            }
-        });
+    newImagePreview.addEventListener('dragover', e => {
+      if (currentImageSource === 'upload') {
+        e.preventDefault();
+        newImagePreview.classList.add('drag-over');
+      }
+    });
 
-        newImagePreview.addEventListener('dragleave', () => {
-            newImagePreview.classList.remove('drag-over');
-        });
+    newImagePreview.addEventListener('dragleave', () => {
+      newImagePreview.classList.remove('drag-over');
+    });
 
-        newImagePreview.addEventListener('drop', (e) => {
-            if (currentImageSource === 'upload') {
-                e.preventDefault();
-                newImagePreview.classList.remove('drag-over');
-                const files = e.dataTransfer.files;
-                if (files.length > 0 && files[0].type.startsWith('image/')) {
-                    handleImageFile(files[0]);
-                }
-            }
-        });
-    }
+    newImagePreview.addEventListener('drop', e => {
+      if (currentImageSource === 'upload') {
+        e.preventDefault();
+        newImagePreview.classList.remove('drag-over');
+        const files = e.dataTransfer.files;
+        if (files.length > 0 && files[0].type.startsWith('image/')) {
+          handleImageFile(files[0]);
+        }
+      }
+    });
+  }
 
-    // Switch to sample mode by default
-    switchImageSource('sample');
-    setButtonState('initial');
-    clearStatus();
+  // Switch to sample mode by default
+  switchImageSource('sample');
+  setButtonState('initial');
+  clearStatus();
 
-    // Hide result title when resetting
-    showImageSelectionHeader();
+  // Hide result title when resetting
+  showImageSelectionHeader();
 
-    // Show the selection source buttons again
-    const imageSourceSelection = document.querySelector('.image-source-selection');
-    if (imageSourceSelection) {
-        imageSourceSelection.style.display = 'flex';
-    }
+  // Show the selection source buttons again
+  const imageSourceSelection = document.querySelector('.image-source-selection');
+  if (imageSourceSelection) {
+    imageSourceSelection.style.display = 'flex';
+  }
 }
 
 // Show/Hide headers
 function showImageSelectionHeader() {
-    const imageSelectionHeader = document.getElementById('imageSelectionHeader');
-    const resultHeader = document.getElementById('resultHeader');
-    if (imageSelectionHeader) imageSelectionHeader.style.display = 'block';
-    if (resultHeader) resultHeader.style.display = 'none';
+  const imageSelectionHeader = document.getElementById('imageSelectionHeader');
+  const resultHeader = document.getElementById('resultHeader');
+  if (imageSelectionHeader) imageSelectionHeader.style.display = 'block';
+  if (resultHeader) resultHeader.style.display = 'none';
 }
 
 function showResultHeader() {
-    const imageSelectionHeader = document.getElementById('imageSelectionHeader');
-    const resultHeader = document.getElementById('resultHeader');
-    if (imageSelectionHeader) imageSelectionHeader.style.display = 'none';
-    if (resultHeader) resultHeader.style.display = 'block';
+  const imageSelectionHeader = document.getElementById('imageSelectionHeader');
+  const resultHeader = document.getElementById('resultHeader');
+  if (imageSelectionHeader) imageSelectionHeader.style.display = 'none';
+  if (resultHeader) resultHeader.style.display = 'block';
 }
 
 // Handle confidence input change
 function handleConfidenceInputChange() {
-    const confidenceInput = document.getElementById('confidenceInput');
-    const confidenceSlider = document.getElementById('confidenceSlider');
+  const confidenceInput = document.getElementById('confidenceInput');
+  const confidenceSlider = document.getElementById('confidenceSlider');
 
-    let value = parseFloat(confidenceInput.value);
+  let value = parseFloat(confidenceInput.value);
 
-    if (isNaN(value)) value = 0.5;
-    if (value < 0) value = 0;
-    if (value > 1) value = 1;
+  if (isNaN(value)) value = 0.5;
+  if (value < 0) value = 0;
+  if (value > 1) value = 1;
 
-    confidenceSlider.value = value;
-    updateConfidenceDisplay();
+  confidenceSlider.value = value;
+  updateConfidenceDisplay();
 }
 
 function validateConfidenceInput() {
-    const confidenceInput = document.getElementById('confidenceInput');
-    let value = parseFloat(confidenceInput.value);
+  const confidenceInput = document.getElementById('confidenceInput');
+  let value = parseFloat(confidenceInput.value);
 
-    if (isNaN(value)) value = 0.5;
-    if (value < 0) value = 0;
-    if (value > 1) value = 1;
+  if (isNaN(value)) value = 0.5;
+  if (value < 0) value = 0;
+  if (value > 1) value = 1;
 
-    confidenceInput.value = value.toFixed(2);
+  confidenceInput.value = value.toFixed(2);
 
-    handleConfidenceInputChange();
+  handleConfidenceInputChange();
 }
 
 // Update confidence display
 function updateConfidenceDisplay() {
-    const confidenceSlider = document.getElementById('confidenceSlider');
-    const confidenceInput = document.getElementById('confidenceInput');
-    const confidenceValueDisplay = document.getElementById('confidenceValueDisplay');
-    const sliderProgress = document.getElementById('sliderProgress');
+  const confidenceSlider = document.getElementById('confidenceSlider');
+  const confidenceInput = document.getElementById('confidenceInput');
+  const confidenceValueDisplay = document.getElementById('confidenceValueDisplay');
+  const sliderProgress = document.getElementById('sliderProgress');
 
-    const value = parseFloat(confidenceSlider.value);
-    const percentage = (value - confidenceSlider.min) / (confidenceSlider.max - confidenceSlider.min) * 100;
+  const value = parseFloat(confidenceSlider.value);
+  const percentage =
+    ((value - confidenceSlider.min) / (confidenceSlider.max - confidenceSlider.min)) * 100;
 
-    const displayValue = value.toFixed(2);
-    confidenceValueDisplay.textContent = displayValue;
+  const displayValue = value.toFixed(2);
+  confidenceValueDisplay.textContent = displayValue;
 
-    if (document.activeElement !== confidenceInput) {
-        confidenceInput.value = displayValue;
-    }
+  if (document.activeElement !== confidenceInput) {
+    confidenceInput.value = displayValue;
+  }
 
-    sliderProgress.style.width = percentage + '%';
-    confidenceValueDisplay.style.left = percentage + '%';
+  sliderProgress.style.width = percentage + '%';
+  confidenceValueDisplay.style.left = percentage + '%';
 }
 
 // Reset confidence
 function resetConfidence() {
-    const confidenceSlider = document.getElementById('confidenceSlider');
-    const confidenceInput = document.getElementById('confidenceInput');
+  const confidenceSlider = document.getElementById('confidenceSlider');
+  const confidenceInput = document.getElementById('confidenceInput');
 
-    confidenceSlider.value = '0.5';
-    confidenceInput.value = '0.50';
-    updateConfidenceDisplay();
+  confidenceSlider.value = '0.5';
+  confidenceInput.value = '0.50';
+  updateConfidenceDisplay();
 }
 
 function handleImageUpload(event) {
-    const file = event.target.files[0];
-    if (file) {
-        handleImageFile(file);
-    }
+  const file = event.target.files[0];
+  if (file) {
+    handleImageFile(file);
+  }
 }
 
 function handleImageFile(file) {
-    if (!file.type.startsWith('image/')) {
-        showError('Please select a valid image file');
-        return;
-    }
+  if (!file.type.startsWith('image/')) {
+    showError('Please select a valid image file');
+    return;
+  }
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        currentImage = e.target.result.split(',')[1];
+  const reader = new FileReader();
+  reader.onload = e => {
+    currentImage = e.target.result.split(',')[1];
 
-        const imagePreview = document.getElementById('imagePreview');
-        imagePreview.innerHTML = `<img src="${e.target.result}" alt="Uploaded image" class="preview-image">`;
+    const imagePreview = document.getElementById('imagePreview');
+    imagePreview.innerHTML = `<img src="${e.target.result}" alt="Uploaded image" class="preview-image">`;
 
-        setButtonState('ready');
-        clearStatus();
-    };
-    reader.readAsDataURL(file);
+    setButtonState('ready');
+    clearStatus();
+  };
+  reader.readAsDataURL(file);
 }
 
 function runDetection() {
-    setButtonState('detecting');
-    showStatus('Running anomaly detection...', 'info');
-    showResultHeader();
+  setButtonState('detecting');
+  showStatus('Running anomaly detection...', 'info');
+  showResultHeader();
 
-    if (currentImageSource === 'sample' && selectedSampleImage && !currentImage) {
-        loadSampleImageForDetection(selectedSampleImage.path)
-            .then(() => {
-                sendDetectionRequest();
-            })
-            .catch(error => {
-                console.error('❌ Error loading sample image:', error);
-                showError('Failed to load sample image');
-                setButtonState('ready');
-            });
-    } else {
+  if (currentImageSource === 'sample' && selectedSampleImage && !currentImage) {
+    loadSampleImageForDetection(selectedSampleImage.path)
+      .then(() => {
         sendDetectionRequest();
-    }
+      })
+      .catch(error => {
+        console.error('❌ Error loading sample image:', error);
+        showError('Failed to load sample image');
+        setButtonState('ready');
+      });
+  } else {
+    sendDetectionRequest();
+  }
 }
 
 function sendDetectionRequest() {
-    if (!currentImage) {
-        showError('No image available for detection');
-        setButtonState('ready');
-        return;
-    }
+  if (!currentImage) {
+    showError('No image available for detection');
+    setButtonState('ready');
+    return;
+  }
 
-    const confidence = parseFloat(document.getElementById('confidenceSlider').value);
+  const confidence = parseFloat(document.getElementById('confidenceSlider').value);
 
-    ui.send_message('detect_anomalies', {
-        image: currentImage,
-        confidence: confidence
-    });
+  ui.send_message('detect_anomalies', {
+    image: currentImage,
+    confidence: confidence,
+  });
 }
 
 function loadSampleImageForDetection(imagePath) {
-    return new Promise((resolve, reject) => {
-        fetch(imagePath)
-            .then(response => response.blob())
-            .then(blob => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    currentImage = e.target.result.split(',')[1];
-                    resolve();
-                };
-                reader.onerror = reject;
-                reader.readAsDataURL(blob);
-            })
-            .catch(reject);
-    });
+  return new Promise((resolve, reject) => {
+    fetch(imagePath)
+      .then(response => response.blob())
+      .then(blob => {
+        const reader = new FileReader();
+        reader.onload = e => {
+          currentImage = e.target.result.split(',')[1];
+          resolve();
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      })
+      .catch(reject);
+  });
 }
 
 function displayImage(imageSrc, container) {
-    const imageContainer = document.querySelector(container);
+  const imageContainer = document.querySelector(container);
 
-    // Clear existing content
-    imageContainer.innerHTML = '';
+  // Clear existing content
+  imageContainer.innerHTML = '';
 
-    // Create image element
-    const img = document.createElement('img');
-    img.src = imageSrc;
-    img.alt = 'Detection Result';
-    img.className = 'preview-image';
-    img.style.maxWidth = '100%';
-    img.style.maxHeight = '500px';
-    img.style.objectFit = 'contain';
-    img.style.borderRadius = '8px';
+  // Create image element
+  const img = document.createElement('img');
+  img.src = imageSrc;
+  img.alt = 'Detection Result';
+  img.className = 'preview-image';
+  img.style.maxWidth = '100%';
+  img.style.maxHeight = '500px';
+  img.style.objectFit = 'contain';
+  img.style.borderRadius = '8px';
 
-    // Add image to container
-    imageContainer.appendChild(img);
+  // Add image to container
+  imageContainer.appendChild(img);
 
-    // Show the image container and hide sample grid
-    imageContainer.style.display = 'flex';
-    imageContainer.style.justifyContent = 'center';
-    imageContainer.style.alignItems = 'center';
+  // Show the image container and hide sample grid
+  imageContainer.style.display = 'flex';
+  imageContainer.style.justifyContent = 'center';
+  imageContainer.style.alignItems = 'center';
 
-    const sampleGrid = document.getElementById('sampleImagesGrid');
-    if (sampleGrid) {
-        sampleGrid.style.display = 'none';
-    }
+  const sampleGrid = document.getElementById('sampleImagesGrid');
+  if (sampleGrid) {
+    sampleGrid.style.display = 'none';
+  }
 
-    const imagePreview = document.getElementById('imagePreview');
-    if (imagePreview) {
-        imagePreview.style.display = 'none';
-    }
+  const imagePreview = document.getElementById('imagePreview');
+  if (imagePreview) {
+    imagePreview.style.display = 'none';
+  }
 }
 
 function handleDetectionResult(data) {
-    if (data.error) {
-        showError(`Detection failed: ${data.error}`);
-        setButtonState('ready');
-        return;
-    }
+  if (data.error) {
+    showError(`Detection failed: ${data.error}`);
+    setButtonState('ready');
+    return;
+  }
 
-    if (data.result_image) {
-        // Store the result image
-        resultImage = data.result_image;
+  if (data.result_image) {
+    // Store the result image
+    resultImage = data.result_image;
 
-        // Display the result image in the image container
-        displayImage(`data:image/png;base64,${data.result_image}`, '.image-container');
+    // Display the result image in the image container
+    displayImage(`data:image/png;base64,${data.result_image}`, '.image-container');
 
-        // Show result title and download button
-        showResultHeader();
+    // Show result title and download button
+    showResultHeader();
 
-        showStatus('Detection completed successfully!', 'success');
-    } else {
-        showError('No result image received from detection');
-        setButtonState('ready');
-        return;
-    }
+    showStatus('Detection completed successfully!', 'success');
+  } else {
+    showError('No result image received from detection');
+    setButtonState('ready');
+    return;
+  }
 
-    setButtonState('completed');
+  setButtonState('completed');
 }
 
 function handleDetectionError(data) {
-    showError(`Anomaly detection failed: ${data.error}`);
-    setButtonState('ready');
+  showError(`Anomaly detection failed: ${data.error}`);
+  setButtonState('ready');
 }
 
 function setButtonState(state) {
-    const detectButton = document.getElementById('detectButton');
-    const uploadNewButton = document.getElementById('uploadNewButton');
-    const downloadButton = document.getElementById('downloadButton');
-    const imageSourceSelection = document.querySelector('.image-source-selection'); // Add this line
+  const detectButton = document.getElementById('detectButton');
+  const uploadNewButton = document.getElementById('uploadNewButton');
+  const downloadButton = document.getElementById('downloadButton');
+  const imageSourceSelection = document.querySelector('.image-source-selection'); // Add this line
 
-    switch (state) {
-        case 'initial':
-            detectButton.style.display = 'none';
-            uploadNewButton.style.display = 'none';
-            downloadButton.style.display = 'none';
-            imageSourceSelection.style.display = 'flex'; // Show selection buttons
-            break;
-        case 'ready':
-            detectButton.style.display = 'inline-block';
-            detectButton.disabled = false;
-            detectButton.textContent = 'Run Detection ▶';
-            uploadNewButton.style.display = 'flex';
-            downloadButton.style.display = 'none';
-            imageSourceSelection.style.display = 'none'; // Hide selection buttons
-            break;
-        case 'detecting':
-            detectButton.style.display = 'none';
-            uploadNewButton.style.display = 'none';
-            downloadButton.style.display = 'none';
-            imageSourceSelection.style.display = 'none'; // Hide selection buttons
-            break;
-        case 'completed':
-            detectButton.style.display = 'inline-block';
-            detectButton.disabled = false;
-            detectButton.textContent = 'Run Again ▶';
-            uploadNewButton.style.display = 'flex';
-            downloadButton.style.display = 'inline-block';
-            imageSourceSelection.style.display = 'none'; // Hide selection buttons
-            break;
-    }
+  switch (state) {
+    case 'initial':
+      detectButton.style.display = 'none';
+      uploadNewButton.style.display = 'none';
+      downloadButton.style.display = 'none';
+      imageSourceSelection.style.display = 'flex'; // Show selection buttons
+      break;
+    case 'ready':
+      detectButton.style.display = 'inline-block';
+      detectButton.disabled = false;
+      detectButton.textContent = 'Run Detection ▶';
+      uploadNewButton.style.display = 'flex';
+      downloadButton.style.display = 'none';
+      imageSourceSelection.style.display = 'none'; // Hide selection buttons
+      break;
+    case 'detecting':
+      detectButton.style.display = 'none';
+      uploadNewButton.style.display = 'none';
+      downloadButton.style.display = 'none';
+      imageSourceSelection.style.display = 'none'; // Hide selection buttons
+      break;
+    case 'completed':
+      detectButton.style.display = 'inline-block';
+      detectButton.disabled = false;
+      detectButton.textContent = 'Run Again ▶';
+      uploadNewButton.style.display = 'flex';
+      downloadButton.style.display = 'inline-block';
+      imageSourceSelection.style.display = 'none'; // Hide selection buttons
+      break;
+  }
 }
 
 function showStatus(message, type = 'info') {
-    const statusElement = document.getElementById('statusMessage');
-    statusElement.textContent = message;
-    statusElement.className = `status-message ${type}`;
-    statusElement.style.display = 'block';
+  const statusElement = document.getElementById('statusMessage');
+  statusElement.textContent = message;
+  statusElement.className = `status-message ${type}`;
+  statusElement.style.display = 'block';
 }
 
 function showError(message) {
-    showStatus(message, 'error');
+  showStatus(message, 'error');
 }
 
 function clearStatus() {
-    const statusElement = document.getElementById('statusMessage');
-    statusElement.style.display = 'none';
-    statusElement.textContent = '';
+  const statusElement = document.getElementById('statusMessage');
+  statusElement.style.display = 'none';
+  statusElement.textContent = '';
 }
 
 function downloadResult() {
-    if (!resultImage) {
-        showError('No result image to download');
-        return;
-    }
+  if (!resultImage) {
+    showError('No result image to download');
+    return;
+  }
 
-    // Create download link
-    const link = document.createElement('a');
-    link.href = `data:image/png;base64,${resultImage}`;
-    link.download = 'anomaly-detection-result.png';
+  // Create download link
+  const link = document.createElement('a');
+  link.href = `data:image/png;base64,${resultImage}`;
+  link.download = 'anomaly-detection-result.png';
 
-    // Trigger download
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  // Trigger download
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 
-    console.log('📥 Result image downloaded');
+  console.log('📥 Result image downloaded');
 }
 
 // Also add a function to reset the view when changing images
 function resetImageDisplay() {
-    const imageContainer = document.querySelector('.image-container');
-    const sampleGrid = document.getElementById('sampleImagesGrid');
-    const imagePreview = document.getElementById('imagePreview');
+  const imageContainer = document.querySelector('.image-container');
+  const sampleGrid = document.getElementById('sampleImagesGrid');
+  const imagePreview = document.getElementById('imagePreview');
 
-    // Reset to show appropriate container based on current source
-    if (currentImageSource === 'sample') {
-        if (sampleGrid) sampleGrid.style.display = 'grid';
-        if (imagePreview) imagePreview.style.display = 'none';
-    } else {
-        if (sampleGrid) sampleGrid.style.display = 'none';
-        if (imagePreview) imagePreview.style.display = 'flex';
-    }
+  // Reset to show appropriate container based on current source
+  if (currentImageSource === 'sample') {
+    if (sampleGrid) sampleGrid.style.display = 'grid';
+    if (imagePreview) imagePreview.style.display = 'none';
+  } else {
+    if (sampleGrid) sampleGrid.style.display = 'none';
+    if (imagePreview) imagePreview.style.display = 'flex';
+  }
 
-    // Reset the image container style in case it was modified by displayImage
-    if (imageContainer) {
-        imageContainer.style.display = '';
-        imageContainer.style.justifyContent = '';
-        imageContainer.style.alignItems = '';
-    }
+  // Reset the image container style in case it was modified by displayImage
+  if (imageContainer) {
+    imageContainer.style.display = '';
+    imageContainer.style.justifyContent = '';
+    imageContainer.style.alignItems = '';
+  }
 }

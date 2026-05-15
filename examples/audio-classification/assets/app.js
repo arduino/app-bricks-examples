@@ -4,7 +4,6 @@
 
 // Global variables to hold the application state
 let currentAudio = null; // This will hold base64 data for UPLOADED files only
-let resultAudio = null;
 
 let currentAudioSource = 'sample'; // 'sample' or 'upload'
 let sampleAudios = []; // Array of sample audio filenames
@@ -28,8 +27,7 @@ function onUIConnected() {
 
 function onUIDisconnected() {
   if (errorContainer) {
-    errorContainer.textContent =
-      'Connection to the board lost. Please check the connection.';
+    errorContainer.textContent = 'Connection to the board lost. Please check the connection.';
     errorContainer.style.display = 'block';
   }
 }
@@ -38,7 +36,7 @@ function onUIDisconnected() {
 const confidencePopoverText =
   'Minimum confidence score for detected audio. Lower values show more results but may include false positives.';
 
-document.querySelectorAll('.info-btn.confidence').forEach((img) => {
+document.querySelectorAll('.info-btn.confidence').forEach(img => {
   const popover = img.nextElementSibling;
   img.addEventListener('mouseenter', () => {
     popover.textContent = confidencePopoverText;
@@ -57,9 +55,7 @@ function initializeElements() {
   const audioPreview = document.getElementById('audioPreview');
   const confidenceSlider = document.getElementById('confidenceSlider');
   const confidenceInput = document.getElementById('confidenceInput');
-  const confidenceResetButton = document.getElementById(
-    'confidenceResetButton',
-  );
+  const confidenceResetButton = document.getElementById('confidenceResetButton');
   const classifyButton = document.getElementById('classifyButton');
   const uploadNewButton = document.getElementById('uploadNewButton');
 
@@ -79,7 +75,7 @@ function initializeElements() {
   });
 
   // Drag and drop functionality (only when in upload mode)
-  audioPreview.addEventListener('dragover', (e) => {
+  audioPreview.addEventListener('dragover', e => {
     if (currentAudioSource === 'upload') {
       e.preventDefault();
       audioPreview.classList.add('drag-over');
@@ -90,7 +86,7 @@ function initializeElements() {
     audioPreview.classList.remove('drag-over');
   });
 
-  audioPreview.addEventListener('drop', (e) => {
+  audioPreview.addEventListener('drop', e => {
     if (currentAudioSource === 'upload') {
       e.preventDefault();
       audioPreview.classList.remove('drag-over');
@@ -107,11 +103,8 @@ function initializeElements() {
   confidenceInput.addEventListener('blur', validateConfidenceInput);
   updateConfidenceDisplay();
 
-  confidenceResetButton.addEventListener('click', (e) => {
-    if (
-      e.target.classList.contains('reset-icon') ||
-      e.target.closest('.reset-icon')
-    ) {
+  confidenceResetButton.addEventListener('click', e => {
+    if (e.target.classList.contains('reset-icon') || e.target.closest('.reset-icon')) {
       resetConfidence();
     }
   });
@@ -182,11 +175,7 @@ function loadSampleAudios() {
   }
 
   // load the files from the audio folder
-  const localAudioFiles = [
-    '1_glass_breaking.wav',
-    '2_glass_breaking.wav',
-    '3_background.wav',
-  ];
+  const localAudioFiles = ['1_glass_breaking.wav', '2_glass_breaking.wav', '3_background.wav'];
 
   // Simulate backend response
   sampleAudios = localAudioFiles;
@@ -220,28 +209,38 @@ function renderSampleAudios() {
     .map(
       (audio, index) => `
         <div class="sample-audio-item" data-index="${index}">
-            <div class="audio-info-container" onclick="selectSampleAudio(${index})">
+            <div class="audio-info-container">
                 <div class="audio-icon">🎵</div>
                 <span class="audio-name">${audio}</span>
             </div>
             <audio controls controlsList="noplaybackrate" src="audio/${audio}" preload="none" class="sample-audio-player"></audio>
         </div>
-    `,
+    `
     )
     .join('');
 
   sampleAudiosGrid.innerHTML = html;
 
+  // Attach event listeners using event delegation
+  sampleAudiosGrid.addEventListener('click', e => {
+    const audioInfoContainer = e.target.closest('.audio-info-container');
+    if (audioInfoContainer) {
+      const sampleAudioItem = audioInfoContainer.closest('.sample-audio-item');
+      if (sampleAudioItem) {
+        const index = Number(sampleAudioItem.getAttribute('data-index'));
+        selectSampleAudio(index);
+      }
+    }
+  });
+
   // Add event listeners to stop other audios when one starts playing
-  document.querySelectorAll('.sample-audio-player').forEach((player) => {
-    player.addEventListener('play', (e) => {
-      document
-        .querySelectorAll('.sample-audio-player')
-        .forEach((otherPlayer) => {
-          if (otherPlayer !== e.target) {
-            otherPlayer.pause();
-          }
-        });
+  document.querySelectorAll('.sample-audio-player').forEach(player => {
+    player.addEventListener('play', e => {
+      document.querySelectorAll('.sample-audio-player').forEach(otherPlayer => {
+        if (otherPlayer !== e.target) {
+          otherPlayer.pause();
+        }
+      });
     });
   });
 }
@@ -265,9 +264,7 @@ function selectSampleAudio(index) {
   }
 
   setButtonState('ready');
-  const audioSourceSelection = document.querySelector(
-    '.image-source-selection',
-  );
+  const audioSourceSelection = document.querySelector('.image-source-selection');
   if (audioSourceSelection) audioSourceSelection.style.display = 'flex';
   clearStatus();
 }
@@ -293,14 +290,12 @@ function handleAudioFile(file) {
   }
 
   const reader = new FileReader();
-  reader.onload = (e) => {
+  reader.onload = e => {
     currentAudio = e.target.result.split(',')[1];
 
     const audioPreview = document.getElementById('audioPreview');
     const audioPlayer = document.getElementById('audioPlayer');
-    const audioPlayerContainer = document.getElementById(
-      'audioPlayerContainer',
-    );
+    const audioPlayerContainer = document.getElementById('audioPlayerContainer');
     const audioInfo = document.getElementById('audioInfo');
 
     // Hide upload area and show player
@@ -325,11 +320,10 @@ function handleAudioFile(file) {
  */
 function uploadNewAudio() {
   currentAudio = null;
-  resultAudio = null;
   selectedSampleAudio = null;
 
   // Clear selections
-  document.querySelectorAll('.sample-audio-item').forEach((item) => {
+  document.querySelectorAll('.sample-audio-item').forEach(item => {
     item.classList.remove('selected');
     item.style.display = ''; // Reset display style to default
   });
@@ -344,9 +338,7 @@ function uploadNewAudio() {
   if (audioInput) audioInput.value = '';
 
   // Hide classification results table
-  const classificationResults = document.getElementById(
-    'classificationResults',
-  );
+  const classificationResults = document.getElementById('classificationResults');
   if (classificationResults) {
     classificationResults.style.display = 'none';
     classificationResults.innerHTML = '';
@@ -358,9 +350,7 @@ function uploadNewAudio() {
   clearStatus();
 
   // Show the selection source buttons again
-  const audioSourceSelection = document.querySelector(
-    '.image-source-selection',
-  );
+  const audioSourceSelection = document.querySelector('.image-source-selection');
   if (audioSourceSelection) {
     audioSourceSelection.style.display = 'flex';
   }
@@ -397,16 +387,12 @@ function validateConfidenceInput() {
 function updateConfidenceDisplay() {
   const confidenceSlider = document.getElementById('confidenceSlider');
   const confidenceInput = document.getElementById('confidenceInput');
-  const confidenceValueDisplay = document.getElementById(
-    'confidenceValueDisplay',
-  );
+  const confidenceValueDisplay = document.getElementById('confidenceValueDisplay');
   const sliderProgress = document.getElementById('sliderProgress');
 
   const value = parseFloat(confidenceSlider.value);
   const percentage =
-    ((value - confidenceSlider.min) /
-      (confidenceSlider.max - confidenceSlider.min)) *
-    100;
+    ((value - confidenceSlider.min) / (confidenceSlider.max - confidenceSlider.min)) * 100;
 
   const displayValue = value.toFixed(2);
   if (confidenceValueDisplay) confidenceValueDisplay.textContent = displayValue;
@@ -416,8 +402,7 @@ function updateConfidenceDisplay() {
   }
 
   if (sliderProgress) sliderProgress.style.width = percentage + '%';
-  if (confidenceValueDisplay)
-    confidenceValueDisplay.style.left = percentage + '%';
+  if (confidenceValueDisplay) confidenceValueDisplay.style.left = percentage + '%';
 }
 
 // Reset confidence
@@ -443,10 +428,7 @@ function handleClassificationResult(data) {
 
   // Check if we have a list of results or a single result
   if (data.classifications && Array.isArray(data.classifications)) {
-    displayMultipleClassificationResults(
-      data.classifications,
-      data.processing_time,
-    );
+    displayMultipleClassificationResults(data.classifications, data.processing_time);
   } else if (data.classification) {
     displayClassificationResults(data.classification, data.processing_time);
   } else if (data.results) {
@@ -476,9 +458,7 @@ function displayClassificationResults(classification, processingTime) {
  * Renders the classification results into a table in the UI.
  */
 function displayMultipleClassificationResults(classifications, processingTime) {
-  const classificationResults = document.getElementById(
-    'classificationResults',
-  );
+  const classificationResults = document.getElementById('classificationResults');
 
   if (!classificationResults) {
     return;
@@ -491,7 +471,7 @@ function displayMultipleClassificationResults(classifications, processingTime) {
     if (currentText.includes('Processing time:')) {
       audioInfo.textContent = currentText.replace(
         /Processing time: .+/,
-        `Processing time: ${processingTime.toFixed(1)} ms`,
+        `Processing time: ${processingTime.toFixed(1)} ms`
       );
     } else {
       audioInfo.textContent = `${currentText} | Processing time: ${processingTime.toFixed(1)} ms`;
@@ -510,12 +490,10 @@ function displayMultipleClassificationResults(classifications, processingTime) {
                 </thead>
                 <tbody>
                     ${classifications
-                      .map((result) => {
+                      .map(result => {
                         // Check if confidence is already in percentage (> 1) or in decimal (0-1)
                         const confidenceValue =
-                          result.confidence > 1
-                            ? result.confidence
-                            : result.confidence * 100;
+                          result.confidence > 1 ? result.confidence : result.confidence * 100;
                         return `<tr><td class="class-name">${result.class_name}</td><td class="confidence">${confidenceValue.toFixed(1)}%</td></tr>`;
                       })
                       .join('')}
@@ -534,9 +512,7 @@ function displayMultipleClassificationResults(classifications, processingTime) {
  * to the backend in a single 'run_classification' event.
  */
 function runClassification() {
-  const classificationResults = document.getElementById(
-    'classificationResults',
-  );
+  const classificationResults = document.getElementById('classificationResults');
   if (classificationResults) {
     classificationResults.style.display = 'none';
     classificationResults.innerHTML = '';
@@ -544,7 +520,7 @@ function runClassification() {
 
   setButtonState('classifying');
   if (currentAudioSource === 'sample') {
-    document.querySelectorAll('.sample-audio-item').forEach((item) => {
+    document.querySelectorAll('.sample-audio-item').forEach(item => {
       if (!item.classList.contains('selected')) {
         item.style.display = 'none';
       }
@@ -553,9 +529,7 @@ function runClassification() {
     setSampleAudiosDisabled(true);
   }
 
-  const confidence = parseFloat(
-    document.getElementById('confidenceSlider').value,
-  );
+  const confidence = parseFloat(document.getElementById('confidenceSlider').value);
   const payload = { confidence: confidence };
 
   if (currentAudioSource === 'upload') {
@@ -585,9 +559,7 @@ function runClassification() {
 function setButtonState(state) {
   const classifyButton = document.getElementById('classifyButton');
   const uploadNewButton = document.getElementById('uploadNewButton');
-  const audioSourceSelection = document.querySelector(
-    '.image-source-selection',
-  );
+  const audioSourceSelection = document.querySelector('.image-source-selection');
 
   switch (state) {
     case 'initial':
@@ -672,7 +644,7 @@ function resetAudioDisplay() {
 }
 
 function setSampleAudiosDisabled(disabled) {
-  document.querySelectorAll('.sample-audio-item').forEach((item) => {
+  document.querySelectorAll('.sample-audio-item').forEach(item => {
     if (disabled) {
       item.classList.add('disabled');
       item.style.pointerEvents = 'none';

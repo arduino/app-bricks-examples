@@ -56,7 +56,7 @@ The theremin simulator example uses the following Bricks:
 
 4. **Turn on Power**
    Locate the orange control panel at the bottom of the interface. Click the **POWER** switch to toggle it **ON** (the small LED indicator will light up).
-   *Note: No sound will be produced if this switch is OFF.*
+   _Note: No sound will be produced if this switch is OFF._
 
 5. **Set Master Volume**
    Use the **+** and **-** buttons near the **VOL** indicator to adjust the master volume. This sets the maximum output limit for the application.
@@ -103,7 +103,7 @@ The Python script simplifies audio logic by utilizing the `WaveGenerator` Brick.
 - **Event Handling**: Listens for `theremin:move` events from the frontend to update frequency and amplitude.
 
 ```python
-wave_gen = WaveGenerator(...) 
+wave_gen = WaveGenerator(...)
 
 SAMPLE_RATE = wave_gen.sample_rate
 
@@ -115,7 +115,7 @@ def on_move(sid, data):
     # Calculate target frequency and amplitude based on coordinates
     freq = _freq_from_x(data.get("x"))
     amp = max(0.0, min(1.0, 1.0 - float(data.get("y"))))
-    
+
     wave_gen.frequency = freq
     wave_gen.amplitude = amp
 ```
@@ -133,22 +133,26 @@ The web interface handles user input and visualization.
 socket.emit('theremin:move', { x, y });
 
 // Receive state for visualization
-socket.on('theremin:state', (data) => {
-    updateStateDisplay(data.freq, data.amp);
+socket.on('theremin:state', data => {
+  updateStateDisplay(data.freq, data.amp);
 });
 ```
 
 ## Troubleshooting
 
 ### "No USB speaker found" error
+
 If the application fails to start and you see an error regarding the speaker:
 **Fix:**
+
 1. Ensure a **powered USB-C® hub** is connected to the UNO Q.
 2. Verify the **USB audio device** is connected to the hub and turned on.
 3. Restart the application.
 
 ### No Sound Output
+
 If the interface works but there is no sound:
+
 - **Power Button:** Ensure the **POWER** switch in the web UI is **ON**.
 - **Pointer Position:** Ensure you are interacting with the upper part of the play area (bottom is zero volume).
 - **Volume Controls:** Increase the volume using the **+** button in the UI.
@@ -156,6 +160,7 @@ If the interface works but there is no sound:
 - **Audio Device:** Remember that **HDMI audio** and **Bluetooth® speakers** are not supported.
 
 ### Choppy or Crackling Audio
+
 - **CPU Load:** Close other applications running on the Arduino UNO Q.
 - **Power Supply:** Ensure you are using a stable 5 V, 3 A power supply for the USB-C® hub. Insufficient power often degrades USB audio performance.
 

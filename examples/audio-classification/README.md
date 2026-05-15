@@ -1,4 +1,3 @@
-
 # Glass Breaking Sensor
 
 The **Glass Breaking Sensor** uses a pre-trained machine learning model to classify audio files and detect glass breaking sounds. It provides a web-based interface where users can either upload their own WAV audio files or select from pre-loaded sample audio files, adjust detection confidence levels, and receive real-time classification results with confidence scores.

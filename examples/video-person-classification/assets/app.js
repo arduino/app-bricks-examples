@@ -3,9 +3,7 @@
 // SPDX-License-Identifier: MPL-2.0
 
 let errorContainer = document.getElementById('error-container');
-const recentDetectionsElement = document.getElementById(
-  'recentClassifications',
-);
+const recentDetectionsElement = document.getElementById('recentClassifications');
 const feedbackContentElement = document.getElementById('feedback-content');
 const MAX_RECENT_SCANS = 5;
 let scans = [];
@@ -13,11 +11,10 @@ let scans = [];
 const ui = new WebUI();
 ui.on_connect(onUIConnected);
 ui.on_disconnect(onUIDisconnected);
-ui.on_message('classifications', async (message) => {
+ui.on_message('classifications', async message => {
   printClassifications(message);
   renderClasses();
 });
-  
 
 // Start the application
 initializeConfidenceSlider();
@@ -27,10 +24,9 @@ renderClasses();
 // Popover logic
 const confidencePopoverText =
   'Minimum confidence score for detected faces. Lower values show more results but may include false positives.';
-const feedbackPopoverText =
-  'When camera detects a face, an animation will appear here.';
+const feedbackPopoverText = 'When camera detects a face, an animation will appear here.';
 
-document.querySelectorAll('.info-btn.confidence').forEach((img) => {
+document.querySelectorAll('.info-btn.confidence').forEach(img => {
   const popover = img.nextElementSibling;
   img.addEventListener('mouseenter', () => {
     popover.textContent = confidencePopoverText;
@@ -41,7 +37,7 @@ document.querySelectorAll('.info-btn.confidence').forEach((img) => {
   });
 });
 
-document.querySelectorAll('.info-btn.feedback').forEach((img) => {
+document.querySelectorAll('.info-btn.feedback').forEach(img => {
   const popover = img.nextElementSibling;
   img.addEventListener('mouseenter', () => {
     popover.textContent = feedbackPopoverText;
@@ -61,8 +57,7 @@ function onUIConnected() {
 
 function onUIDisconnected() {
   if (errorContainer) {
-    errorContainer.textContent =
-        'Connection to the board lost. Please check the connection.';
+    errorContainer.textContent = 'Connection to the board lost. Please check the connection.';
     errorContainer.style.display = 'block';
   }
 }
@@ -70,8 +65,7 @@ function onUIDisconnected() {
 function updateFeedback(hasDetections) {
   const greetings = ['Person classified!', 'I know who you are!', 'Gotcha!'];
   if (hasDetections) {
-    const randomGreeting =
-      greetings[Math.floor(Math.random() * greetings.length)];
+    const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
     feedbackContentElement.innerHTML = `
             <img src="img/hand.gif" alt="Hand">
             <p>${randomGreeting}</p>
@@ -97,27 +91,19 @@ function printClassifications(newDetection) {
   // Parsing and handling the result for display
   try {
     const detections = JSON.parse(newDetection);
-    const personDetection = detections.find(
-      (d) => d.content && d.content.toLowerCase() === 'person',
-    );
+    const personDetection = detections.find(d => d.content && d.content.toLowerCase() === 'person');
     const newState = personDetection ? 'person' : 'non-person';
     const now = Date.now();
 
-    if (
-      newState !== currentState &&
-      now - lastChangeTimestamp > UPDATE_INTERVAL
-    ) {
+    if (newState !== currentState && now - lastChangeTimestamp > UPDATE_INTERVAL) {
       showDetection(newState);
       currentState = newState;
       lastChangeTimestamp = now;
     }
-  } catch (e) {
+  } catch {
     // In case of parsing error, show neutral state
     const now = Date.now();
-    if (
-      'non-person' !== currentState &&
-      now - lastChangeTimestamp > UPDATE_INTERVAL
-    ) {
+    if ('non-person' !== currentState && now - lastChangeTimestamp > UPDATE_INTERVAL) {
       showDetection('non-person');
       currentState = 'non-person';
       lastChangeTimestamp = now;
@@ -139,7 +125,7 @@ function renderClasses() {
     return;
   }
 
-  scans.forEach((iscan) => {
+  scans.forEach(iscan => {
     try {
       const iiscan = JSON.parse(iscan);
 
@@ -147,7 +133,7 @@ function renderClasses() {
         return; // Skip empty detection arrays
       }
 
-      iiscan.forEach((scan) => {
+      iiscan.forEach(scan => {
         const row = document.createElement('div');
         row.className = 'scan-container';
 
@@ -165,9 +151,7 @@ function renderClasses() {
         // Time
         const timeText = document.createElement('span');
         timeText.className = 'scan-content-time';
-        timeText.textContent = new Date(scan.timestamp)
-          .toLocaleString('it-IT')
-          .replace(',', ' -');
+        timeText.textContent = new Date(scan.timestamp).toLocaleString('it-IT').replace(',', ' -');
 
         // Append content and time to the container
         cellContainer.appendChild(contentText);
@@ -179,10 +163,7 @@ function renderClasses() {
     } catch (e) {
       console.error('Failed to parse scan data:', iscan, e);
       // Display an error in the list itself
-      if (
-        recentDetectionsElement.getElementsByClassName('scan-error').length ===
-        0
-      ) {
+      if (recentDetectionsElement.getElementsByClassName('scan-error').length === 0) {
         const errorRow = document.createElement('div');
         errorRow.className = 'scan-error';
         errorRow.textContent = `Error processing detection data. Check console for details.`;
@@ -195,20 +176,15 @@ function renderClasses() {
 function initializeConfidenceSlider() {
   const confidenceSlider = document.getElementById('confidenceSlider');
   const confidenceInput = document.getElementById('confidenceInput');
-  const confidenceResetButton = document.getElementById(
-    'confidenceResetButton',
-  );
+  const confidenceResetButton = document.getElementById('confidenceResetButton');
 
   confidenceSlider.addEventListener('input', updateConfidenceDisplay);
   confidenceInput.addEventListener('input', handleConfidenceInputChange);
   confidenceInput.addEventListener('blur', validateConfidenceInput);
   updateConfidenceDisplay();
 
-  confidenceResetButton.addEventListener('click', (e) => {
-    if (
-      e.target.classList.contains('reset-icon') ||
-      e.target.closest('.reset-icon')
-    ) {
+  confidenceResetButton.addEventListener('click', e => {
+    if (e.target.classList.contains('reset-icon') || e.target.closest('.reset-icon')) {
       resetConfidence();
     }
   });
@@ -244,17 +220,13 @@ function validateConfidenceInput() {
 function updateConfidenceDisplay() {
   const confidenceSlider = document.getElementById('confidenceSlider');
   const confidenceInput = document.getElementById('confidenceInput');
-  const confidenceValueDisplay = document.getElementById(
-    'confidenceValueDisplay',
-  );
+  const confidenceValueDisplay = document.getElementById('confidenceValueDisplay');
   const sliderProgress = document.getElementById('sliderProgress');
 
   const value = parseFloat(confidenceSlider.value);
   ui.send_message('override_th', value); // Send confidence to backend
   const percentage =
-    ((value - confidenceSlider.min) /
-      (confidenceSlider.max - confidenceSlider.min)) *
-    100;
+    ((value - confidenceSlider.min) / (confidenceSlider.max - confidenceSlider.min)) * 100;
 
   const displayValue = value.toFixed(2);
   confidenceValueDisplay.textContent = displayValue;
