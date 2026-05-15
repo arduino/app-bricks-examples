@@ -18,6 +18,8 @@ let dotsAnimationInterval = null;
 let scanStartTime = null;
 
 const ui = new WebUI();
+ui.on_connect(onUIConnected);
+ui.on_disconnect(onUIDisconnected);
 // Listen for analysis results from the backend and display them when received
 ui.on_message('analysis_result', showScanResult);
 
