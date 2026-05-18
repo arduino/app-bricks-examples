@@ -8,7 +8,7 @@ The **Edge Speech Assistant** example turns the Arduino® VENTUNO Q into a fully
 
 This App provides a clean web interface where you can paste or type any text and have it read aloud, with everything running locally on the board. There is no cloud round-trip, no account, and no internet connection required at inference time, which keeps your data private and the latency low.
 
-The backend uses the `tts` Brick to synthesize speech with an on-device MeloTTS model and streams the audio to a USB speaker through ALSA. The frontend, served by the `web_ui` Brick, gives you a Play/Stop control, an elapsed-time counter, and a Reset button so you can quickly iterate on the text you want to hear.
+The backend uses the `tts` Brick to synthesize speech with an on-device text-to-speech model and streams the audio to a USB speaker through ALSA. The frontend, served by the `web_ui` Brick, gives you a Play/Stop control, an elapsed-time counter, and a Reset button so you can quickly iterate on the text you want to hear.
 
 Key features include:
 
@@ -45,7 +45,7 @@ The Edge Speech Assistant example uses the following Bricks:
 
 2. **Launch the App**
 
-   Open the App in App Lab and click the **Run** button in the top right corner. The first launch downloads the audio container and the MeloTTS model, so it can take a few minutes.
+   Open the App in App Lab and click the **Run** button in the top right corner. The first launch downloads the audio container and the text-to-speech model, so it can take a few minutes.
 
    ![Launch the App](assets/docs_assets/launch-app.png)
 
@@ -74,7 +74,7 @@ Once the application is running, the device performs the following operations:
                                                                 │ HTTP POST /tts/synthesize
                                                                 ▼
                                                        audio-analytics container
-                                                         (MeloTTS on QNN DSP)
+                                                       (text-to-speech on QNN DSP)
                                                                 │ PCM audio
                                                                 ▼
                                                          ALSA  ──▶  USB Speaker
@@ -82,11 +82,13 @@ Once the application is running, the device performs the following operations:
 
 1. The browser instantiates the `WebUI` helper, which opens a Socket.IO connection to the `web_ui` Brick under the hood, and calls `ui.send_message('speak', { text })` with the text typed by the user.
 2. `main.py` receives the event and forwards the text to the `tts` Brick in a single `tts.speak(text)` call. The Brick takes care of splitting long inputs into sentence-aware chunks internally so the App code stays trivial.
-3. The `tts` Brick calls the local audio-analytics REST API (`http://audio-analytics-runner:8085`) which runs the MeloTTS model on the Qualcomm® DSP and returns raw PCM audio.
+3. The `tts` Brick calls the local audio-analytics REST API (`http://audio-analytics-runner:8085`) which runs the text-to-speech model on the Qualcomm® DSP and returns raw PCM audio.
 4. The Brick writes the PCM stream to ALSA, which routes it to the USB speaker.
 5. The backend emits a `speaking` status message (`started` when synthesis begins, `finished` when it ends or is stopped or cancelled). The frontend listens with `ui.on_message('speaking', ...)` to drive the Play/Stop toggle and the elapsed-time counter.
 
-The MeloTTS model and the audio analytics service are managed by the `tts` Brick, so the App does not need any model files of its own.
+The text-to-speech model and the audio-analytics service are managed by the `tts` Brick, so the App does not need any model files of its own.
+
+You can pick a different text-to-speech model (MeloTTS or piper) by selecting the `tts` Brick from the left sidebar in App Lab and opening the **AI Models** tab from its menu.
 
 ## Understanding the Code
 
