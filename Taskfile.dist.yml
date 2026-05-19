@@ -7,6 +7,16 @@ vars:
   REUSE_VENV_DIR: '.reuse-venv'
 
 tasks:
+  fmt:
+    desc: Run all formatters
+    cmds:
+      - task: fmt:python
+
+  fmt:python:
+    desc: Format Python examples with Ruff lint fixes
+    cmds:
+      - ruff check --fix --unsafe-fixes
+
   license:init-venvs:
     desc: Recreate the environments used by the license tasks
     internal: true

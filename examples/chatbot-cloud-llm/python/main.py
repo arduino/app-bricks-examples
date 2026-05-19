@@ -32,7 +32,7 @@ def generate_prompt(_, data):
 def commands_handler(_, data):
     command = data.get('command', '')
     try:
-        if command == "clear_chat":   
+        if command == "clear_chat":
             llm.stop_stream()
             llm.clear_memory()
             ui.send_message("command_ok", {"command": command})

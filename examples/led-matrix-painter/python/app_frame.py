@@ -13,7 +13,7 @@ class AppFrame(Frame):
     This subclass of `arduino.app_utils.Frame` takes care of Frame validation
     and array management while adding application-specific attributes used
     in the LED matrix tool app.
-    
+
     Usage:
 
         # Create from JSON-serializable dict from API payload
@@ -71,11 +71,11 @@ class AppFrame(Frame):
             brightness_levels: int = 256
         ):
         """Initialize the AppFrame instance with application-specific attributes.
-        
+
         Args:
             arr (numpy.ndarray): The array data for the frame.
             brightness_levels (int): Number of brightness levels (default 256).
-        
+
         Attributes:
             id (int): database ID of the frame.
             name (str): user-defined name of the frame.
@@ -223,7 +223,7 @@ class AppFrame(Frame):
         if re.match(r'^[0-9]', s):
             s = f"f_{s}"
         return s
-    
+
     # -- create empty AppFrame --------------------------------
     @classmethod
     def create_empty(
@@ -265,27 +265,27 @@ class AppFrame(Frame):
     # -- animation export --------------------------------
     def to_animation_hex(self) -> list[str]:
         """Convert frame to animation format: 5 hex strings [hex0, hex1, hex2, hex3, duration_ms].
-        
+
         This format is used by Arduino_LED_Matrix library for animations.
         Each frame in an animation is represented as:
         - 4 uint32_t values (128 bits total) for binary pixel data
         - 1 uint32_t value for duration in milliseconds
-        
+
         Returns:
             list[str]: List of 5 hex strings in format ["0xHHHHHHHH", "0xHHHHHHHH", "0xHHHHHHHH", "0xHHHHHHHH", "duration"]
         """
         # Rescale to 0-255 range for threshold
         arr_scaled = self.rescale_quantized_frame(scale_max=255)
         height, width = arr_scaled.shape
-        
+
         # Convert to binary presence (non-zero pixels -> 1)
         pixels = (arr_scaled > 0).astype(int).flatten().tolist()
-        
+
         # Pad to 128 bits (4 * 32)
         if len(pixels) > 128:
             raise ValueError(f"Pixel buffer too large: {len(pixels)} > 128")
         pixels += [0] * (128 - len(pixels))
-        
+
         # Pack into 4 uint32_t hex values
         hex_values = []
         for i in range(0, 128, 32):
@@ -294,11 +294,11 @@ class AppFrame(Frame):
                 bit = int(pixels[i + j]) & 1
                 value |= bit << (31 - j)
             hex_values.append(f"0x{value:08x}")
-        
+
         # Append duration_ms as last value
         duration = int(self.duration_ms) if self.duration_ms is not None else 1000
         hex_values.append(str(duration))
-        
+
         return hex_values
 
     @staticmethod
@@ -345,7 +345,7 @@ class AppFrame(Frame):
         """Create an AppFrame from frontend rows.
 
         **Do NOT use it in the app directly, please use `AppFrame.from_json()` or `AppFrame.from_record()` instead.**
-        
+
         This method overrides Frame.from_rows which constructs a Frame and it is intended
         only for subclass construction and coherence with Frame API and accepts frontend rows either
         already expressed in the target brightness range or in 8-bit
@@ -360,7 +360,7 @@ class AppFrame(Frame):
         Args:
             rows (list | list[str]): frontend rows representation (list of lists or list of strings).
             brightness_levels (int): number of brightness levels (default 256).
-        
+
         Attributes:
             id (int): database ID of the frame.
             name (str): user-defined name of the frame.
