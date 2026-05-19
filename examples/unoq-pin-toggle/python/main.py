@@ -12,7 +12,7 @@ from arduino.app_bricks.web_ui import WebUI
 PIN_CONFIG = {
     # JDIGITAL
     "D21": {"active_low": False},
-    "D20": {"active_low": False},   
+    "D20": {"active_low": False},
     "D13": {"active_low": False},
     "D12": {"active_low": False},
     "D11": {"active_low": False},

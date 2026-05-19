@@ -23,7 +23,7 @@ detection_stream.on_detect("person", person_detected)
 def send_detections_to_ui(classifications: dict):
   if len(classifications) == 0:
       return
-      
+
   entries = []
   for key, value in classifications.items():
     entry = {
@@ -31,8 +31,8 @@ def send_detections_to_ui(classifications: dict):
       "confidence": value,
       "timestamp": datetime.now(UTC).isoformat()
     }
-    entries.append(entry)    
-  
+    entries.append(entry)
+
   if len(entries) > 0:
     msg = json.dumps(entries)
     ui.send_message("classifications", message=msg)
