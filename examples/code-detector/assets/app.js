@@ -13,81 +13,81 @@ const recentScansListElement = document.getElementById('recentScansList');
 const initialListErrorElement = document.getElementById('initialListError');
 const cameraStatusElement = document.getElementById('cameraStatus');
 const scanMessageElement = document.getElementById('scanMessage');
-const rescanButtonContainer = document.getElementById('rescan-button-container');
+const rescanButtonContainer = document.getElementById(
+  'rescan-button-container',
+);
 const deleteScanElement = document.getElementById('delete-scan');
 let errorContainer = document.getElementById('error-container');
-
 
 const MAX_RECENT_SCANS = 5;
 let scans = [];
 let currentImageBitmap = null; // Holds the current ImageBitmap for cleanup
-const socket = io(`http://${window.location.host}`); // Initialize socket.io connection
 
-/*
- * Socket initialization. We need it to communicate with the server
- */
-function initSocketIO() {
-    socket.on('connect', () => {
-        if (errorContainer) {
-            errorContainer.style.display = 'none';
-            errorContainer.textContent = '';
-        }
-    });
+const ui = new WebUI();
+ui.on_connect(onUIConnected);
+ui.on_disconnect(onUIDisconnected);
+ui.on_message('code_detected', handleCodeDetected);
+ui.on_message('frame_detected', handleFrameDetected);
+ui.on_message('error', handleOnError);
 
-    socket.on('disconnect', (reason) => {
-        if (currentImageBitmap) { // Clean up bitmap on disconnect
-            currentImageBitmap.close();
-            currentImageBitmap = null;
-        }
-        if (errorContainer) {
-            errorContainer.textContent = 'Connection to the board lost. Please check the connection.';
-            errorContainer.style.display = 'block';
-        }
-    });
+function onUIConnected() {
+  if (errorContainer) {
+    errorContainer.style.display = 'none';
+    errorContainer.textContent = '';
+  }
+}
 
-    socket.on('code_detected', async (message) => {
-        updateCameraStatus('hide'); // Hide camera status when code is detected
-        renderScanInfo(message);
-        addScan(message);
-        renderScans();
-        await renderLatestScanImage(message.image, message.image_type);
-    });
+function onUIDisconnected(reason) {
+  if (currentImageBitmap) {
+    // Clean up bitmap on disconnect
+    currentImageBitmap.close();
+    currentImageBitmap = null;
+  }
+  if (errorContainer) {
+    errorContainer.textContent =
+      'Connection to the board lost. Please check the connection.';
+    errorContainer.style.display = 'block';
+  }
+}
 
-    socket.on('frame_detected', async (message) => {
-        updateCameraStatus('show');
-        scanInfoElement.innerHTML = ``; // Clear the scan info display
-        rescanButtonContainer.style.display = 'none'; // Hide the "Scan another" button while scanning
-        await renderFrameImage(message.image, message.image_type);
-    });
+async function handleCodeDetected(message) {
+  updateCameraStatus('hide'); // Hide camera status when code is detected
+  renderScanInfo(message);
+  addScan(message);
+  renderScans();
+  await renderLatestScanImage(message.image, message.image_type);
+}
 
-    socket.on('error', async (message) => {
-        if (errorContainer) {
-            errorContainer.textContent = message;
-            errorContainer.style.display = 'block';
-        }
-    });
+async function handleFrameDetected(message) {
+    updateCameraStatus('show');
+    scanInfoElement.innerHTML = ``; // Clear the scan info display
+    rescanButtonContainer.style.display = 'none'; // Hide the "Scan another" button while scanning
+    await renderFrameImage(message.image, message.image_type);
+}
+
+function handleOnError(message) {
+    if (errorContainer) {
+      errorContainer.textContent = message;
+      errorContainer.style.display = 'block';
+    }
 }
 
 /*
  * These functions are used to update the UI based on the code detected.
  */
 function updateCameraStatus(action = 'show') {
-    if (cameraStatusElement) {
-        if (action === 'hide') {
-            cameraStatusElement.style.display = 'none';
-        } else {
-            cameraStatusElement.style.display = 'flex';
-        }
+  if (cameraStatusElement) {
+    if (action === 'hide') {
+      cameraStatusElement.style.display = 'none';
+    } else {
+      cameraStatusElement.style.display = 'flex';
     }
+  }
 }
 
 // Start the application
-document.addEventListener('DOMContentLoaded', () => {
-    listScans();
-    initSocketIO();
-    socket.emit('reset_detection', {}); // Notify the server to reset detection
-});
-
+listScans();
+ui.send_message('reset_detection'); // Notify the server to reset detection
 
 // Function to copy text to clipboard and show tooltip feedback
 function copyToClipboard(iconWrapper, text) {
@@ -141,7 +141,7 @@ function addScan(newScan) {
 
 // Rescan button handler
 function rescan() {
-    socket.emit('reset_detection', {}); // Notify the server to reset detection
+    ui.send_message('reset_detection', {}); // Notify the server to reset detection
     scanInfoElement.innerHTML = ``; // Clear the scan info display
     updateCameraStatus('show'); // Show the search status again
 

@@ -2,11 +2,26 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-let socket;
 let currentImage = null;
 let imageType = null;
 let imageInput;
 let errorContainer;
+
+initializeElements();
+
+const ui = new WebUI();
+ui.on_connect(onUIConnected);
+ui.on_disconnect(onUIDisconnected);
+ui.on_message('classification_result', (data) => {
+  console.log('📥 Received classification_result:', data);
+  handleClassificationResult(data);
+});
+
+ui.on_message('classification_error', (data) => {
+  console.log('📥 Received classification_error:', data);
+  showError(`Classification failed: ${data.error}`);
+  setButtonState('ready');
+});
 
 function onImagePreviewClick() {
     if (!currentImage) {
@@ -14,14 +29,20 @@ function onImagePreviewClick() {
     }
 }
 
-/*
- * Socket and elements initialization. We need it to communicate with the server
- */
+function onUIConnected() {
+    if (errorContainer) {
+      errorContainer.style.display = 'none';
+      errorContainer.textContent = '';
+    }
+}
 
-document.addEventListener('DOMContentLoaded', () => {
-    initializeElements();
-    initSocketIO();
-});
+function onUIDisconnected() {
+    if (errorContainer) {
+      errorContainer.textContent =
+        'Connection to the board lost. Please check the connection.';
+      errorContainer.style.display = 'block';
+    }
+}
 
 function initializeElements() {
     imageInput = document.getElementById('imageInput');
@@ -171,34 +192,6 @@ function resetConfidence() {
     updateConfidenceDisplay();
 }
 
-function initSocketIO() {
-    socket = io(`http://${window.location.host}`);
-
-    socket.on('connect', () => {
-        if (errorContainer) {
-            errorContainer.style.display = 'none';
-            errorContainer.textContent = '';
-        }
-    });
-
-    socket.on('classification_result', (data) => {
-        console.log('📥 Received classification_result:', data);
-        handleClassificationResult(data);
-    });
-
-    socket.on('classification_error', (data) => {
-        console.log('📥 Received classification_error:', data);
-        showError(`Classification failed: ${data.error}`);
-        setButtonState('ready');
-    });
-
-    socket.on('disconnect', () => {
-        if (errorContainer) {
-            errorContainer.textContent = 'Connection to the board lost. Please check the connection.';
-            errorContainer.style.display = 'block';
-        }
-    });
-}
 
 function handleImageUpload(event) {
     const file = event.target.files[0];
@@ -238,7 +231,7 @@ function runClassification() {
 
     const confidence = parseFloat(document.getElementById('confidenceSlider').value);
 
-    socket.emit('classify_image', {
+    ui.send_message('classify_image', {
         image: currentImage,
         confidence: confidence,
         image_type: imageType

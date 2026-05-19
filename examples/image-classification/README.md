@@ -1,20 +1,22 @@
 # Image Classification
+
 The **Image Classification** example lets you perform image classification using a pre-trained neural network model. It features a web-based interface that allows you to upload images for classification, set the confidence threshold and see the inference results.
 
 ![Image classification Example](assets/docs_assets/thumbnail.png)
 
 ## Description
+
 This example uses a pre-trained model to classify images into various categories. The workflow involves uploading an input image, processing it through the model, and displaying the top predicted classes along with their corresponding probabilities. The code is structured to be easily adaptable to different models.
 
 The `assets` folder contains some static images and a CSS style sheet for the web interface. In the `python` folder, you will find the main script.
 
-This example only uses the Arduino UNO Q CPU for running the application, as no C++ sketch is present in the example structure. 
+This example only uses the Arduino UNO Q CPU for running the application, as no C++ sketch is present in the example structure.
 
 ## Bricks Used
 
 The image classification example uses the following Bricks:
 
-- `imageclassification`: Brick to classify objects within an image. 
+- `imageclassification`: Brick to classify objects within an image.
 - `web_ui`: Brick to create a web interface to display the image classification dashboard.
 
 ## Hardware and Software Requirements
@@ -86,9 +88,9 @@ image_classification = ImageClassification()
 
 The function `on_classify_image` performs the following:
 
-  - Read inputs from the browser
-  - Decode image and run inference
-  - Send result (or error) back to the browser
+- Read inputs from the browser
+- Decode image and run inference
+- Send result (or error) back to the browser
 
 The App initialize the web interface, set up the endpoint and starts the runtime:
 
@@ -111,6 +113,6 @@ The (app.js) manages the browser-side logic of the App by doing the following:
 - Initializes page elements (upload area, preview, confidence slider, buttons).
 - Handles **image selection** (upload or drag & drop), shows a preview, and stores the image as base64.
 - Manages the **confidence control** (slider, input, reset, tooltip).
-- Connects to the backend via **Socket.IO**.
+- Connects to the backend via **WebUI**.
 - Sends a `classify_image` request to the server when the user clicks **Run Classification**.
 - Receives `classification_result` or `classification_error` and updates the UI (status message, results table, button states).

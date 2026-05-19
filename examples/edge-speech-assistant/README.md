@@ -163,15 +163,9 @@ The Python® backend is small: it wires the `web_ui` events to the `tts` Brick a
 
 ### 💻 Frontend (`index.html` + `app.js`)
 
-The page is a single-screen editor with a Play/Stop toggle button, a timer, and a highlight overlay layered on top of the textarea. The frontend talks to the backend through a `WebUI` helper class (`assets/libs/arduino.js`) that wraps the underlying Socket.IO client and exposes the same `send_message` / `on_message` shape as the Python side — so you never write `socket.emit` or `socket.on` directly in `app.js`.
+The page is a single-screen editor with a Play/Stop toggle button and a timer. All state changes go through a `WebUI` connection to the `web_ui` Brick.
 
-- **Connecting to the brick**: A single line creates the connection and the helper takes care of the Socket.IO handshake.
-
-  ```javascript
-  const ui = new WebUI();
-  ```
-
-- **Sending text**: When the user presses Play, the frontend sends a `speak` message with the current textarea value. Pressing the same button while speaking sends `stop` instead.
+- **Sending text**: When the user presses Play, the frontend sends a `speak` event with the current textarea value. Pressing the same button while speaking sends `stop` instead.
 
   ```javascript
   playStopButton.addEventListener('click', () => {

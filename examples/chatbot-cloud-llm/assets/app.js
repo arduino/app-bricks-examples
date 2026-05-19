@@ -2,14 +2,31 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-const socket = io(`http://${window.location.host}`);
-
 let thinkingMessageElement = null; // To keep track of the thinking message element
 let sendButton;
 let sendButtonImg;
 let quickActionButtonsContainer;
 let customPlaceholder;
 let lastUserPrompt = ''; // To store the last user prompt
+
+const ui = new WebUI();
+ui.on_connect(onUIConnected);
+ui.on_disconnect(onUIDisconnected);
+ui.on_message('response', handleResponse);
+ui.on_message('stream_end', handleStreamEnd);
+ui.on_message('llm_error', handleLLMError);
+ui.on_message('command_ok', handleCompletedCommand);
+ui.on_message('command_error', handleCommandError);
+
+function onUIConnected() {
+  console.log('Connected to backend');
+}
+
+function onUIDisconnected() {
+  showError(
+    'Connection to backend lost. Please refresh the page or check the backend server.',
+  );
+}
 
 function showError(message) {
     console.log(message);
@@ -121,7 +138,7 @@ function handleCommandError(data) {
 }
 
 function sendClearChatCommand() {
-    socket.emit('commands', { command: 'clear_chat' });
+  ui.send_message('commands', { command: 'clear_chat' });
 }
 
 
@@ -134,22 +151,6 @@ function handleLLMError(data) {
         quickActionButtonsContainer.style.display = 'none'; // Hide quick action buttons
     }
     handleStreamEnd();
-}
-
-function initSocketIO() {
-    socket.on('response', handleResponse);
-    socket.on('stream_end', handleStreamEnd);
-    socket.on('llm_error', handleLLMError);
-    socket.on('command_ok', handleCompletedCommand);
-    socket.on('command_error', handleCommandError);
-
-    socket.on('connect', () => {
-        console.log("Connected to backend");
-    });
-
-    socket.on('disconnect', () => {
-        showError("Connection to backend lost. Please refresh the page or check the backend server.");
-    });
 }
 
 function autoExpandInput(field) {
@@ -240,7 +241,7 @@ function sendMessage(text) {
 
     document.getElementById('messages').appendChild(thinkingMessageElement);
 
-    socket.emit('prompt', { prompt: text });
+    ui.send_message('prompt', { prompt: text });
     updateClearChatButtonState();
     document.getElementById('user-input').focus();
 }
@@ -256,81 +257,79 @@ function updatePlaceholderVisibility() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    initSocketIO();
+const userInput = document.getElementById('user-input');
+sendButton = document.getElementById('send-button');
+sendButtonImg = sendButton ? sendButton.querySelector('img') : null;
+quickActionButtonsContainer = document.getElementById('quick-action-buttons');
+customPlaceholder = document.querySelector('.custom-placeholder');
+const clearChatButton = document.getElementById('clear-chat-button-header');
 
-    const userInput = document.getElementById('user-input');
-    sendButton = document.getElementById('send-button');
-    sendButtonImg = sendButton ? sendButton.querySelector('img') : null;
-    quickActionButtonsContainer = document.getElementById('quick-action-buttons');
-    customPlaceholder = document.querySelector('.custom-placeholder');
-    const clearChatButton = document.getElementById('clear-chat-button-header');
+// Initial state
+updateSendButtonState();
+updateClearChatButtonState();
+updatePlaceholderVisibility();
+userInput.focus(); // Set initial focus
 
-    // Initial state
-    updateSendButtonState();
-    updateClearChatButtonState();
-    updatePlaceholderVisibility();
-    userInput.focus(); // Set initial focus
-
-    // Listen for input changes
-    userInput.addEventListener('input', () => {
-        autoExpandInput(userInput);
-        updateSendButtonState();
-        updatePlaceholderVisibility();
-    });
-
-    // Listen for Enter key press in the input field
-    userInput.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault();
-            // Ensure the send button is not disabled before sending
-            if (!sendButton.classList.contains('disabled')) {
-                sendMessage();
-            }
-        }
-    });
-
-    // Use a single click handler for the send button, acting as send or stop
-    if (sendButton) {
-        sendButton.addEventListener('click', (event) => {
-            event.preventDefault(); // Prevent default form submission if any
-            if (sendButton.classList.contains('disabled')) {
-                return;
-            } else if (sendButton.classList.contains('sending-state')) {
-                socket.emit('commands', { command: 'stop_stream' });
-            } else {
-                sendMessage();
-            }
-        });
-    }
-
-    clearChatButton.addEventListener('click', (event) => {
-        if (clearChatButton.classList.contains('disabled')) {
-            event.preventDefault(); // Prevent action if disabled
-        } else {
-            sendClearChatCommand();
-        }
-    });
-
-    // Add event listeners for quick action buttons
-    if (quickActionButtonsContainer) {
-        const quickButtons = quickActionButtonsContainer.querySelectorAll('.quick-action-button');
-        quickButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                if (userInput.value.length > 0 && userInput.value.slice(-1) !== ' ') {
-                    userInput.value += ' ';
-                }
-                userInput.value += button.textContent;
-                autoExpandInput(userInput);
-                updateSendButtonState();
-                updatePlaceholderVisibility();
-                userInput.focus();
-            });
-        });
-    }
-
-    document.getElementById('card-1').addEventListener('click', () => sendMessage(document.getElementById('card-1').querySelector('p').textContent));
-    document.getElementById('card-2').addEventListener('click', () => sendMessage(document.getElementById('card-2').querySelector('p').textContent));
-    document.getElementById('card-3').addEventListener('click', () => sendMessage(document.getElementById('card-3').querySelector('p').textContent));
-    document.getElementById('card-4').addEventListener('click', () => sendMessage(document.getElementById('card-4').querySelector('p').textContent));
+// Listen for input changes
+userInput.addEventListener('input', () => {
+  autoExpandInput(userInput);
+  updateSendButtonState();
+  updatePlaceholderVisibility();
 });
+
+// Listen for Enter key press in the input field
+userInput.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault();
+    // Ensure the send button is not disabled before sending
+    if (!sendButton.classList.contains('disabled')) {
+      sendMessage();
+    }
+  }
+});
+
+// Use a single click handler for the send button, acting as send or stop
+if (sendButton) {
+  sendButton.addEventListener('click', (event) => {
+    event.preventDefault(); // Prevent default form submission if any
+    if (sendButton.classList.contains('disabled')) {
+      return;
+    } else if (sendButton.classList.contains('sending-state')) {
+      ui.send_message('commands', { command: 'stop_stream' });
+    } else {
+      sendMessage();
+    }
+  });
+}
+
+clearChatButton.addEventListener('click', (event) => {
+  if (clearChatButton.classList.contains('disabled')) {
+    event.preventDefault(); // Prevent action if disabled
+  } else {
+    sendClearChatCommand();
+  }
+});
+
+// Add event listeners for quick action buttons
+if (quickActionButtonsContainer) {
+  const quickButtons = quickActionButtonsContainer.querySelectorAll(
+    '.quick-action-button',
+  );
+  quickButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      if (userInput.value.length > 0 && userInput.value.slice(-1) !== ' ') {
+        userInput.value += ' ';
+      }
+      userInput.value += button.textContent;
+      autoExpandInput(userInput);
+      updateSendButtonState();
+      updatePlaceholderVisibility();
+      userInput.focus();
+    });
+  });
+}
+
+document.getElementById('card-1').addEventListener('click', () => sendMessage(document.getElementById('card-1').querySelector('p').textContent));
+document.getElementById('card-2').addEventListener('click', () => sendMessage(document.getElementById('card-2').querySelector('p').textContent));
+document.getElementById('card-3').addEventListener('click', () => sendMessage(document.getElementById('card-3').querySelector('p').textContent));
+document.getElementById('card-4').addEventListener('click', () => sendMessage(document.getElementById('card-4').querySelector('p').textContent));

@@ -2,9 +2,9 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-(function(){
+(function () {
   const TEST_MODE = false;
-  const socket = io({ transports: ['websocket'] });
+  const ui = new WebUI({ transports: ['websocket'] });
   const playArea = document.getElementById('play-area');
   const powerBtn = document.getElementById('power-btn');
   const accessBtn = document.getElementById('access-btn');
@@ -36,7 +36,6 @@
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
 
-
   // --- Control Buttons ---
   let testModeInterval = null;
 
@@ -57,7 +56,7 @@
     accessBtn.src = powerOn ? 'img/switch-on.svg' : 'img/switch-off.svg';
     powerBtn.src = powerOn ? 'img/power-on.svg' : 'img/power-off.svg';
     thereminSvg.src = powerOn ? 'img/theremin-on.svg' : 'img/theremin.svg';
-    socket.emit('theremin:power', { on: powerOn });
+    ui.send_message('theremin:power', { on: powerOn });
 
     if (powerOn) {
       if (TEST_MODE) {
@@ -76,8 +75,6 @@
       updateStateDisplay(0, 0); // Reset to silent
     }
   }
-
-
 
   accessBtn.addEventListener('click', () => {
     setPower(!powerOn);
@@ -107,12 +104,10 @@
       if (newVolume !== currentVolume) {
         currentVolume = newVolume;
         updateVolumeIndicator(currentVolume);
-        socket.emit('theremin:set_volume', { volume: newVolume });
+        ui.send_message('theremin:set_volume', { volume: newVolume });
       }
     });
   }
-
-
 
   // --- Mouse Trail ---
   const trailParticles = [];
@@ -162,23 +157,27 @@
   }
   animateTrail();
 
-
   // --- Theremin Play Area Logic ---
-  function sendPos(e){
-    if(!powerOn || accessOn) return;
+  function sendPos(e) {
+    if (!powerOn || accessOn) return;
     const now = Date.now();
-    if(now - lastEmit < EMIT_MIN_MS) return;
+    if (now - lastEmit < EMIT_MIN_MS) return;
     lastEmit = now;
     const rect = playArea.getBoundingClientRect();
     const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
-    if(x === lastPos.x && y === lastPos.y) return;
-    lastPos.x = x; lastPos.y = y;
-    socket.emit('theremin:move', { x, y, ts: Date.now() });
+    if (x === lastPos.x && y === lastPos.y) return;
+    lastPos.x = x;
+    lastPos.y = y;
+    ui.send_message('theremin:move', { x, y, ts: Date.now() });
   }
 
-  function sendStop(){
-    socket.emit('theremin:move', { x: (lastPos.x || 0), y: 1, ts: Date.now() });
+  function sendStop() {
+    ui.send_message('theremin:move', {
+      x: lastPos.x || 0,
+      y: 1,
+      ts: Date.now(),
+    });
   }
 
   playArea.addEventListener('mousemove', (e) => {
@@ -216,7 +215,7 @@
   });
 
   playArea.addEventListener('touchmove', (e) => {
-    if(isDown) {
+    if (isDown) {
       e.preventDefault();
       const touch = e.touches[0];
       sendPos(touch);
@@ -230,7 +229,7 @@
 
   playArea.addEventListener('touchend', (e) => {
     e.preventDefault();
-    if(isDown){
+    if (isDown) {
       isDown = false;
       sendStop();
       removeDot();
@@ -238,17 +237,26 @@
   });
 
   // --- Visual Indicators ---
-  function showDot(x, y){
+  function showDot(x, y) {
     let dot = document.getElementById('lock-dot');
-    if(!dot){ dot = document.createElement('div'); dot.id = 'lock-dot'; playArea.appendChild(dot); }
+    if (!dot) {
+      dot = document.createElement('div');
+      dot.id = 'lock-dot';
+      playArea.appendChild(dot);
+    }
     const r = playArea.getBoundingClientRect();
-    dot.style.left = (x - r.left) + 'px';
-    dot.style.top = (y - r.top) + 'px';
+    dot.style.left = x - r.left + 'px';
+    dot.style.top = y - r.top + 'px';
   }
 
-  function removeDot(){ const d = document.getElementById('lock-dot'); if(d) d.remove(); }
+  function removeDot() {
+    const d = document.getElementById('lock-dot');
+    if (d) d.remove();
+  }
 
-  playArea.addEventListener('dragstart', (e) => { e.preventDefault(); });
+  playArea.addEventListener('dragstart', (e) => {
+    e.preventDefault();
+  });
 
   function drawVisualizer(freq, amp) {
     const width = visualizer.width;
@@ -264,7 +272,9 @@
     if (amp > 0) {
       const freqScale = freq / 500;
       for (let i = 0; i < width; i++) {
-        const y = mid + (amp * (height / 2) * Math.sin(i * freqScale * 2 * Math.PI / width));
+        const y =
+          mid +
+          amp * (height / 2) * Math.sin((i * freqScale * 2 * Math.PI) / width);
         visualizerCtx.lineTo(i, y);
       }
     } else {
@@ -276,25 +286,23 @@
   function updateVolumeIndicator(volume) {
     const indicator = document.getElementById('volume-indicator');
     if (indicator) {
-      const angle = ((volume / 100.0) - 0.5) * 180; // -90 to +90 degrees
+      const angle = (volume / 100.0 - 0.5) * 180; // -90 to +90 degrees
       indicator.style.transform = `rotate(${angle}deg)`;
     }
   }
 
   // --- Socket Event Handlers ---
-  socket.on('theremin:state', (s) => {
+  ui.on_message('theremin:state', (s) => {
     if (accessOn) return;
     updateStateDisplay(s.freq, s.amp);
   });
 
-  socket.on('theremin:volume', (v) => {
-    if(v.volume !== undefined) {
+  ui.on_message('theremin:volume', (v) => {
+    if (v.volume !== undefined) {
       currentVolume = v.volume;
       updateVolumeIndicator(v.volume);
     }
   });
 
   setPower(true);
-
-
 })();
