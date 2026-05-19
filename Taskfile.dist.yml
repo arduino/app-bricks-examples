@@ -1,4 +1,4 @@
-version: "3"
+version: '3'
 
 vars:
   LICENSED_VERSION: '5.0.6'
@@ -11,11 +11,24 @@ tasks:
     desc: Run all formatters
     cmds:
       - task: fmt:python
+      - task: fmt:js
 
   fmt:python:
     desc: Format Python examples with Ruff lint fixes
     cmds:
       - ruff check --fix --unsafe-fixes
+
+  fmt:js:
+    desc: Run ESLint with auto-fix and Prettier on all JS and other files
+    cmds:
+      - task: init:npm
+      - npx eslint --fix '**/*.js'
+      - npx prettier --write '**/*.{js,html,css}'
+
+  init:npm:
+    desc: Install npm formatter/linter tools locally
+    cmds:
+      - npm install --no-save --no-package-lock @eslint/js@9.39.1 eslint@9.39.1 eslint-config-prettier@10.1.8 eslint-plugin-prettier@5.5.4 globals@16.5.0 prettier@3.6.2
 
   license:init-venvs:
     desc: Recreate the environments used by the license tasks
