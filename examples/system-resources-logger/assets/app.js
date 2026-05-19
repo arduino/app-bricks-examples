@@ -56,41 +56,32 @@ const liveCircle = document.getElementById('live-circle');
 liveCircle.style.display = 'none';
 
 // Tab switching logic
-document.querySelectorAll('.tab').forEach((tab) => {
+document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', function () {
-    document
-      .querySelectorAll('.tab')
-      .forEach((t) => t.classList.remove('active'));
-    document
-      .querySelectorAll('.tab-content')
-      .forEach((tc) => tc.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
     this.classList.add('active');
     document.getElementById(this.dataset.tab).classList.add('active');
   });
 });
-document
-  .querySelector('.tab[data-tab="historical-1h"]')
-  .addEventListener('click', async () => {
-    const cpu_samples = await listSamples('cpu', '-1h', '5m');
-    renderChartData(cpuUsage1h, cpu_samples, 12, true, false);
-    const memory_samples = await listSamples('mem', '-1h', '5m');
-    renderChartData(memoryUsage1h, memory_samples, 12, true, false);
-  });
-document
-  .querySelector('.tab[data-tab="historical-1d"]')
-  .addEventListener('click', async () => {
-    const cpu_samples = await listSamples('cpu', '-1d', '1h');
-    renderChartData(cpuUsage1d, cpu_samples, 24, false, false);
-    const memory_samples = await listSamples('mem', '-1d', '1h');
-    renderChartData(memoryUsage1d, memory_samples, 24, false, false);
-  });
+document.querySelector('.tab[data-tab="historical-1h"]').addEventListener('click', async () => {
+  const cpu_samples = await listSamples('cpu', '-1h', '5m');
+  renderChartData(cpuUsage1h, cpu_samples, 12, true, false);
+  const memory_samples = await listSamples('mem', '-1h', '5m');
+  renderChartData(memoryUsage1h, memory_samples, 12, true, false);
+});
+document.querySelector('.tab[data-tab="historical-1d"]').addEventListener('click', async () => {
+  const cpu_samples = await listSamples('cpu', '-1d', '1h');
+  renderChartData(cpuUsage1d, cpu_samples, 24, false, false);
+  const memory_samples = await listSamples('mem', '-1d', '1h');
+  renderChartData(memoryUsage1d, memory_samples, 24, false, false);
+});
 
 // Popover logic for CPU and Memory info buttons
-const cpuPopoverText =
-  'Shows the percentage of CPU used. Data is average per 1h (1D view) or per 1 minute (1h view)';
+const cpuPopoverText = 'Shows the percentage of CPU used. Data is average per 1h (1D view) or per 1 minute (1h view)';
 const memoryPopoverText =
   'Displays the percentage of memory used. Data is average per 1h (1D view) or per 1 minute (1h view)';
-document.querySelectorAll('.info-btn.cpu').forEach((img) => {
+document.querySelectorAll('.info-btn.cpu').forEach(img => {
   img.style.position = 'relative';
   const popover = img.nextElementSibling;
   img.addEventListener('mouseenter', () => {
@@ -102,7 +93,7 @@ document.querySelectorAll('.info-btn.cpu').forEach((img) => {
   });
 });
 
-document.querySelectorAll('.info-btn.memory').forEach((img) => {
+document.querySelectorAll('.info-btn.memory').forEach(img => {
   img.style.position = 'relative';
   const popover = img.nextElementSibling;
   img.addEventListener('mouseenter', () => {
@@ -117,10 +108,10 @@ document.querySelectorAll('.info-btn.memory').forEach((img) => {
 const ui = new WebUI();
 ui.on_connect(onUIConnected);
 ui.on_disconnect(onUIDisconnected);
-ui.on_message('cpu_usage', (message) => {
+ui.on_message('cpu_usage', message => {
   renderChartData(cpuUsageLive, [message]);
 });
-ui.on_message('memory_usage', (message) => {
+ui.on_message('memory_usage', message => {
   renderChartData(memoryUsageLive, [message]);
 });
 
@@ -133,17 +124,14 @@ function onUIConnected() {
 
 function onUIDisconnected() {
   if (errorContainer) {
-    errorContainer.textContent =
-      'Connection to the board lost. Please check the connection.';
+    errorContainer.textContent = 'Connection to the board lost. Please check the connection.';
     errorContainer.style.display = 'block';
   }
 }
 
 async function listSamples(resource, start, aggr_window) {
   try {
-    const response = await fetch(
-      `http://${window.location.host}/get_samples/${resource}/${start}/${aggr_window}`,
-    );
+    const response = await fetch(`http://${window.location.host}/get_samples/${resource}/${start}/${aggr_window}`);
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     if (data.error) {
@@ -156,13 +144,7 @@ async function listSamples(resource, start, aggr_window) {
   }
 }
 
-function renderChartData(
-  obj,
-  messages,
-  maxPoints = 20,
-  showMinutes = true,
-  showSeconds = true,
-) {
+function renderChartData(obj, messages, maxPoints = 20, showMinutes = true, showSeconds = true) {
   if (!messages || messages.length === 0) {
     return;
   }
@@ -170,9 +152,7 @@ function renderChartData(
   const noDataDiv = document.getElementById(obj.canvas.id + '-nodata');
   const liveCircle = document.getElementById('live-circle');
   const isLiveChart =
-    obj.canvas &&
-    (obj.canvas.id === 'cpu-usage-live-chart' ||
-      obj.canvas.id === 'memory-usage-live-chart');
+    obj.canvas && (obj.canvas.id === 'cpu-usage-live-chart' || obj.canvas.id === 'memory-usage-live-chart');
 
   // Only clear data for non-live charts
   if (!isLiveChart) {
@@ -215,10 +195,7 @@ function renderChartData(
       obj.data.datasets[0].data.shift();
     }
 
-    if (
-      obj.data.labels.length === 0 ||
-      obj.data.datasets[0].data.length === 0
-    ) {
+    if (obj.data.labels.length === 0 || obj.data.datasets[0].data.length === 0) {
       obj.canvas.style.display = 'none';
       if (noDataDiv) noDataDiv.style.display = 'flex';
       if (isLiveChart && liveCircle) {
