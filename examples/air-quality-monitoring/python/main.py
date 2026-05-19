@@ -10,7 +10,7 @@ import requests
 # Insert your API token here
 API_TOKEN = "demo"
 
-# Edit this variable to see your city data 
+# Edit this variable to see your city data
 city = "Torino"
 
 # Endpoint for AQICN API

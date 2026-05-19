@@ -26,7 +26,7 @@ def send_detections_to_ui(detections: dict):
         "content": key,
         "confidence": value.get("confidence"),
         "timestamp": datetime.now(UTC).isoformat()
-      }    
+      }
       ui.send_message("detection", message=entry)
 
 detection_stream.on_detect_all(send_detections_to_ui)
