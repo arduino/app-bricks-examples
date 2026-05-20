@@ -7,7 +7,7 @@ from arduino.app_bricks.web_ui import WebUI
 from arduino.app_utils import App
 
 
-asr = AutomaticSpeechRecognition(language="en")
+asr = AutomaticSpeechRecognition()
 ui = WebUI()
 
 
