@@ -51,12 +51,17 @@ The Edge Dictation Assistant example uses the following Bricks:
    Open the App in your browser at `<VENTUNO-IP-ADDRESS>:7000`.
 
 ### Interacting with the App
+1. **Language selection**
+   The UI let you select a language to be recognized. English language is selected by default.
 
-1. **Start dictation**
+2. **Start dictation**
    On the UI interface press the microphone button to start collecting audio from the microphone connected to the VENTUNO. The dictation will automatically start showing on the UI.
 
-2. **Copy or start new dictation**
-   After the dictation is finished you can hit the copy button to quickly copy the dictation result. Or press the new recording button to start a new dictation process.
+3. **Pause dictation**
+   On the UI interface press the pause button to stop transcribing audio to the UI. To resume the dictation press the microphone button again.
+
+4. **Copy or start new dictation**
+   After the dictation is finished you can hit the copy button to quickly copy the dictation result. Otherwise press the new recording button to start a new dictation process. You can also select another language to be transcribed.
 
 ## How it Works
 
@@ -71,20 +76,43 @@ Once the App is running, it performs the following operations:
 
 The Python® script handles the logic of connecting to the speech recognition brick and managing the data flow.
 
-- **Initialization**: The `AutomaticSpeechRecognition` is set up with a system prompt that enforces HTML formatting for the output.
+- **Initialization**: The `AutomaticSpeechRecognition` brick is set up easily and it instanciate a microphone internally. Also a `WebUI` brick instance is created.
+
+```python
+asr = AutomaticSpeechRecognition()
+ui = WebUI()
+```
+
+- **Set Language**: The App exposes a simple callback for the UI to select a language for automatic speech recognition and set it a brick's property.
+
+```python
+def set_language(session_id, data):
+    asr.language = data["language"]
+```
+
+- **Start Dictation**: This callback starts the transcribe stream method of the ASR brick sending messages to the UI. This method send both partial and full text transcription type of messages. The frontend takes care of their handling.
 
 ```python
 def start_dictation(session_id, data):
-    stream = asr.transcribe_mic_stream(mic)
+    stream = asr.transcribe_mic_stream()
     for chunk in stream:
         ui.send_message("transcription", {"type": chunk.type, "text": chunk.data})
 ```
+
+- **Stop Dictation**: This callback stops the asr dictation.
+
+```python
+def stop_dictation(session_id, data):
+    asr.cancel()
+```
+
+- **New Recording**: This callback wraps `stop_dictation()`, exposing proper functionality for the "new recording" event on frontend side.
 
 ### 💻 Frontend (`app.js`)
 
 The JavaScript manages UI interactions, language selection, recording state, and communication with the backend via the `WebUI` class.
 
-**Recording toggle** — starts or stops dictation and updates the UI state accordingly:
+**Recording toggle**: starts or stops dictation and updates the UI state accordingly:
 
 ```javascript
 function toggleRecording() {
@@ -102,7 +130,7 @@ function toggleRecording() {
 }
 ```
 
-**Transcription handler** — receives partial and full transcription chunks from the backend and updates the UI in real time:
+**Transcription handler**: receives partial and full transcription chunks from the backend and updates the UI in real time:
 
 ```javascript
 function onTranscription(data) {
@@ -123,7 +151,7 @@ function onTranscription(data) {
 }
 ```
 
-**Language picker** — lets the user choose the transcription language; the selection is sent to the backend immediately:
+**Language picker**: lets the user choose the transcription language; the selection is sent to the backend immediately:
 
 ```javascript
 function selectLanguageOption(option) {
