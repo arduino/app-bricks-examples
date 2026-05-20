@@ -92,12 +92,17 @@ precedence = "override"
 [[annotations]]
 path = [
   ".github/**",
+  ".editorconfig",
   ".licenses/**",
   ".gitignore",
   ".licensed.yml",
+  ".prettierignore",
+  ".prettierrc.json",
   "*.dist.yml",
   "**/requirements.txt",
+  "eslint.config.mjs",
   "REUSE.toml",
+  "ruff.toml",
 ]
 SPDX-FileCopyrightText = "Copyright (C) Arduino s.r.l. and/or its affiliated companies"
 SPDX-License-Identifier = "CC0-1.0"
