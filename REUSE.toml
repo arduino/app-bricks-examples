@@ -93,7 +93,6 @@ precedence = "override"
 path = [
   ".github/**",
   ".editorconfig",
-  ".husky/**",
   ".licenses/**",
   ".gitignore",
   ".licensed.yml",
