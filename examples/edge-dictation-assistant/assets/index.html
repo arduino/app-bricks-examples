@@ -16,16 +16,16 @@ SPDX-License-Identifier: MPL-2.0
     <div class="container">
       <div class="header">
         <div>
-          <img src="img/RGB-Arduino-Logo-Color-Inline-Loop.svg" alt="Arduino Logo" class="arduino-logo" />
+          <img src="img/logo.svg" alt="Arduino Logo" class="arduino-logo" />
           <p class="arduino-text">Edge Dictation Assistant</p>
         </div>
 
-        <button id="new-recording-button" class="primary" onclick="startNewRecording()">
+        <button id="new-recording-button" class="primary">
           <img src="img/reset.svg" alt="Reset" />
           <span>New recording</span>
         </button>
       </div>
-      <div class="content">
+      <div class="content" data-state="initial" data-has-text="false">
         <div id="animated-bars">
           <div class="bar"></div>
           <div class="bar"></div>
@@ -35,17 +35,37 @@ SPDX-License-Identifier: MPL-2.0
 
         <div id="dictation-ended">
           <span>Dictation ended</span>
-          <button id="copy-button" onclick="copyResult()">
+          <button id="copy-button">
             <img src="img/copy.svg" />
           </button>
         </div>
 
         <p id="title" class="title">Start your Dictation</p>
 
+        <p id="subtitle" class="subtitle">
+          Choose your language and click the microphone to start recording.
+          <br />
+          Your speech will be automatically formatted.
+        </p>
+
+        <div class="language-picker" id="language-picker">
+          <label class="language-picker-label" for="language-select-button"> Select language </label>
+          <button id="language-select-button" class="language-select-trigger" type="button">
+            <span class="selected-option">
+              <img id="selected-language-icon" class="option-icon" src="img/flag/en.svg" />
+              <span id="selected-language-label">English</span>
+            </span>
+            <span class="select-caret">&#9662;</span>
+          </button>
+
+          <div id="language-options" class="language-options" hidden></div>
+        </div>
+
         <div id="transcription-area" class="transcription-area">
           <span id="full-text"></span><span id="partial-text"></span>
         </div>
-        <button id="mic-button" onclick="toggleRecording()">
+
+        <button id="mic-button">
           <img src="img/microphone.svg" alt="Record" />
         </button>
       </div>
