@@ -82,54 +82,66 @@ def start_dictation(session_id, data):
 
 ### 💻 Frontend (`app.js`)
 
-The JavaScript manages the complex UI interactions, buttons, and WebSocket communication.
+The JavaScript manages UI interactions, language selection, recording state, and communication with the backend via the `WebUI` class.
+
+**Recording toggle** — starts or stops dictation and updates the UI state accordingly:
 
 ```javascript
-
-function resetSilenceTimer() {
-    clearTimeout(silenceTimer);
-    silenceTimer = setTimeout(() => {
-        if (isRecording) {
-            pauseRecording();
-        }
-    }, SILENCE_TIMEOUT_MS);
-}
-
-function startRecording() {
+function toggleRecording() {
+  if (!isRecording) {
     isRecording = true;
-    socket.emit('start_dictation', {});
+    ui.send_message('start_dictation');
+    content.setAttribute('data-state', 'recording');
     resetSilenceTimer();
-    updateUI();
-}
-
-function pauseRecording() {
+    resetTranscriptionTimer();
+  } else {
     isRecording = false;
-    clearTimeout(silenceTimer);
-    socket.emit('stop_dictation', {});
+    ui.send_message('stop_dictation');
     partialText.textContent = '';
-    updateUI();
+  }
 }
+```
 
-function updateUI() {
-    const hasText = fullText.length > 0;
-    placeholderText.style.display = (hasText || isRecording) ? 'none' : 'block';
+**Transcription handler** — receives partial and full transcription chunks from the backend and updates the UI in real time:
 
-    if (isRecording) {
-        micButton.classList.add('recording');
-        statusLabel.textContent = 'Listening...';
-        statusLabel.classList.add('recording');
-        newRecordingButton.disabled = true;
-        newRecordingButton.classList.add('disabled');
-        copyButton.disabled = true;
-        copyButton.classList.add('disabled');
-    } else {
-        micButton.classList.remove('recording');
-        statusLabel.textContent = hasText ? 'Paused' : 'Ready';
-        statusLabel.classList.remove('recording');
-        newRecordingButton.disabled = !hasText;
-        newRecordingButton.classList.toggle('disabled', !hasText);
-        copyButton.disabled = !hasText;
-        copyButton.classList.toggle('disabled', !hasText);
+```javascript
+function onTranscription(data) {
+  if (!isRecording) return;
+
+  if (data.type === 'partial_text') {
+    partialText.textContent = resultText ? ` ${data.text}` : data.text;
+  } else if (data.type === 'full_text') {
+    const trimmedText = data.text.trim();
+    if (trimmedText) {
+      resultText = resultText ? `${resultText} ${trimmedText}` : trimmedText;
+      fullText.textContent = resultText;
     }
+    partialText.textContent = '';
+  }
+
+  resetSilenceTimer();
+}
+```
+
+**Language picker** — lets the user choose the transcription language; the selection is sent to the backend immediately:
+
+```javascript
+function selectLanguageOption(option) {
+  selectedLanguage = option.getAttribute('data-lang');
+  ui.send_message('set_language', { language: selectedLanguage });
+}
+```
+
+**Auto-stop on silence** — if no transcription is received for `DICTATION_ENDED_TIMEOUT_MS` (20 s), recording stops automatically:
+
+```javascript
+function resetSilenceTimer() {
+  clearTimeout(silenceTimer);
+  silenceTimer = setTimeout(() => {
+    if (isRecording) {
+      toggleRecording();
+      content.setAttribute('data-state', 'ended');
+    }
+  }, DICTATION_ENDED_TIMEOUT_MS);
 }
 ```

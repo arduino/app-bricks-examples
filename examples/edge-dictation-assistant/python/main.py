@@ -7,15 +7,17 @@ from arduino.app_bricks.web_ui import WebUI
 from arduino.app_utils import App
 
 
-asr = AutomaticSpeechRecognition()
+asr = AutomaticSpeechRecognition(language="en")
 ui = WebUI()
 
+
+def set_language(session_id, data):
+    asr.language = data["language"]
 
 def start_dictation(session_id, data):
     with asr.transcribe_stream() as stream:
         for chunk in stream:
             ui.send_message("transcription", {"type": chunk.type, "text": chunk.data})
-
 
 def stop_dictation(session_id, data):
     asr.cancel()
@@ -26,5 +28,6 @@ def new_recording(session_id, data):
 ui.on_message("start_dictation", start_dictation)
 ui.on_message("stop_dictation", stop_dictation)
 ui.on_message("new_recording", new_recording)
+ui.on_message("set_language", set_language)
 
 App.run()
