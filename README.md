@@ -1,6 +1,12 @@
 # app-bricks-examples
 
-Example applications based on Arduino Bricks for the Arduino UNO Q.
+This repository contains all the source files for Examples based on Bricks, as well as the Learn section for Arduino App Lab.
+
+You can find all examples in the [examples folder](./examples/). 
+
+You can find all the learn articles in the [learn-docs folder](./learn-docs/).
+
+To learn more about Arduino App Lab, what it can do, and all its features, go to [docs.arduino.cc/software/app-lab](https://docs.arduino.cc/software/app-lab/).
 
 ## Update licenses
 
