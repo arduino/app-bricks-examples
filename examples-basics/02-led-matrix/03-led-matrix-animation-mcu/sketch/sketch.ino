@@ -2,13 +2,13 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-#include <Arduino_LED_Matrix.h>       // Include the LED_Matrix library
-#include "frames.h"                   // Include the animation frames
+#include <Arduino_LED_Matrix.h>
+#include "frames.h"                   // Include the animation frames defined in frames.h
 
-Arduino_LED_Matrix matrix;            // Create an instance of the Arduino_LED_Matrix class
+Arduino_LED_Matrix matrix;
 
 void setup() {
-    matrix.begin();                   // Initialize the LED matrix
+    matrix.begin();
     matrix.loadSequence(animation);   // Load the animation frames into the library's internal sequence player
 }
 

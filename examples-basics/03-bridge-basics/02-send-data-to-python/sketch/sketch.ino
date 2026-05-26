@@ -10,13 +10,12 @@ unsigned long previousMillis = 0;
 const long interval = 1000;
 
 void setup() {
-    Bridge.begin(); // Start the Bridge
+    Bridge.begin();
 }
 
 void loop() {
     unsigned long currentMillis = millis();
 
-    // Non-blocking timing: send a new value every `interval` ms
     if (currentMillis - previousMillis >= interval) {
         previousMillis = currentMillis;
         counter++;

@@ -13,7 +13,7 @@ void say_hello(String name) {
 void setup() {
     Monitor.begin(115200);
 
-    Bridge.begin(); // Start the Bridge
+    Bridge.begin(); // To use the Bridge we need to initialize it
     Bridge.provide("say_hello", say_hello); // Expose the function to Python
 }
 
