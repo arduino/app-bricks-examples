@@ -3,8 +3,6 @@
 # SPDX-License-Identifier: MPL-2.0
 
 # Empty App, the logic is implemented in the sketch.ino file, which is executed on the microcontroller.
-from arduino.app_utils import App # Import the App class to create an App Lab application
+from arduino.app_utils import App
 
-# The App.run() method starts the application and keeps it running, allowing the Arduino App Lab to start
-# and stop the app.
 App.run()
