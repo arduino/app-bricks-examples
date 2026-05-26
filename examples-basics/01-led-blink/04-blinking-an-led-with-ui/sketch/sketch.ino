@@ -7,24 +7,19 @@
    off based on the boolean value passed from Python.
 */
 
-#include <Arduino_RouterBridge.h> // Include the RouterBridge library to enable communication between the Arduino and Python
+#include "Arduino_RouterBridge.h"
 
-void setup() {    
+void setup() {
+    
     pinMode(LED_BUILTIN, OUTPUT);                   // Initialize digital pin LED_BUILTIN as an output.
-    digitalWrite(LED_BUILTIN, HIGH);                // Start with the LED OFF (HIGH state of the PIN)
 
-    Bridge.begin();                                 // Initialize the Bridge
-    Bridge.provide("set_led_state", set_led_state); //Provide the "set_led_state" function to be called from Python
+    Bridge.begin();                                 // Is mandatory calling Bridge.begin() to initialize Bridge communication.
+    Bridge.provide("set_led_state", set_led_state); // Provide the "set_led_state" function to be called from Python
 }
 
-void loop() {}
+void loop() {
+}
 
-// Define the function to set the state of the LED, callable from Python
 void set_led_state(bool state) {
-    /* Set the LED state based on the input from Python
-       Turn on the LED if state is True (LOW), or turn it off if state is False (HIGH)
-       Note that the logic is inverted (LOW for on, HIGH for off), which is typical for 
-       built-in LEDs that are wired with the cathode connected to the pin.
-    */
-    digitalWrite(LED_BUILTIN, state ? LOW : HIGH);
+    digitalWrite(LED_BUILTIN, state ? LOW : HIGH);  // Set the LED state based on the state input parameter
 }
