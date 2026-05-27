@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-# Example app to blink the built-in LED on the board by calling a function defined in the sketch from Python, 
+# Example app to blink the built-in LED on the board by calling a function defined in the sketch from Python,
 # and providing a simple Web UI to control it.
 from arduino.app_utils import *
 from arduino.app_bricks.web_ui import WebUI

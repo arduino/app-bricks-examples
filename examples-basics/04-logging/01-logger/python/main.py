@@ -9,11 +9,11 @@ from arduino.app_utils import Logger
 import logging
 
 # Create a logger instance with the name "LoggerExample", and set the logging level to INFO
-# Setting the logging level to INFO allows to log all messages with a level of INFO and above 
+# Setting the logging level to INFO allows to log all messages with a level of INFO and above
 # (WARNING, ERROR, CRITICAL), while DEBUG messages will be ignored.
 logger = Logger("LoggerExample", level=logging.INFO)
 
-def loop():    
+def loop():
     logger.error('This is an error message and will be printed')
     logger.warning('This is a warning message and will be printed')
     logger.info('This is an info message and will be printed')

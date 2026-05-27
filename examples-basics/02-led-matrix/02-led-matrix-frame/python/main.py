@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from arduino.app_utils import App, Bridge, Frame 
+from arduino.app_utils import App, Bridge, Frame
 import numpy as np
 
 # Define a 2D numpy array of brightness values for the 8x13 LED matrix (X shape)

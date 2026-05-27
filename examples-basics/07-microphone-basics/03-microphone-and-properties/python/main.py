@@ -69,7 +69,7 @@ print(f"- is_started_after_stop: {custom_microphone.is_started()}")  # Verify th
 
 # 3. == Access the microphone with context manager syntax =============================================================
 
-# We can also use the Microphone class with context manager syntax, which automatically starts the microphone 
+# We can also use the Microphone class with context manager syntax, which automatically starts the microphone
 # when entering the block and stops it when exiting the block, even if an error occurs.
 # This is a convenient way to ensure that the microphone is properly released after use.
 

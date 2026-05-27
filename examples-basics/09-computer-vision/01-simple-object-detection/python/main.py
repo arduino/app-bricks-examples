@@ -34,7 +34,7 @@ def loop():
             confidence = detection.get("confidence", "0")                                                   # Get the confidence score of the detected object, or "0" if not available
 
             logger.info(f"Object {idx}: Label={label}, Confidence={confidence}")                            # Log the label and confidence score of each detected object
-        
+
         img_with_boxes = object_detection.draw_bounding_boxes(pil_image, results)                           # Draw bounding boxes around the detected objects in the input image
 
         if img_with_boxes is not None:

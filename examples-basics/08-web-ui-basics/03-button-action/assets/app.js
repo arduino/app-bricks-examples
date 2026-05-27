@@ -10,7 +10,6 @@ const ui = new WebUI();
 ui.on_connect(onUIConnected);
 ui.on_disconnect(onUIDisconnected);
 
-
 function onUIConnected() {
   websocketButton.addEventListener('click', sendViaWebSocket);
   httpButton.addEventListener('click', sendViaHttp);
@@ -31,9 +30,9 @@ async function sendViaHttp() {
     const response = await fetch('/print_message', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({})
+      body: JSON.stringify({}),
     });
 
     if (response.ok) {

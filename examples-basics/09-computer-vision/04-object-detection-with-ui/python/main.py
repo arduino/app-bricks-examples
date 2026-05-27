@@ -5,7 +5,7 @@
 # Example app to perform object detection on an image sent from the UI, and send back the results with bounding boxes drawn on the image.
 
 from arduino.app_utils import *
-from arduino.app_bricks.web_ui import WebUI                         # Import the WebUI class to create a web-based user interface 
+from arduino.app_bricks.web_ui import WebUI                         # Import the WebUI class to create a web-based user interface
 from arduino.app_bricks.object_detection import ObjectDetection     # Import the ObjectDetection class to perform object detection on images
 from PIL import Image                                               # Import the Image class from the Pillow library to handle image processing
 import io
@@ -14,8 +14,8 @@ import time
 
 object_detection = ObjectDetection()                                # Initialize the ObjectDetection brick to perform object detection tasks
 
-# Define a callback function to handle object detection requests from the UI. 
-# This function will be called when the UI sends a message with the 'detect_objects' event, 
+# Define a callback function to handle object detection requests from the UI.
+# This function will be called when the UI sends a message with the 'detect_objects' event,
 # and it will perform object detection on the provided image and send back the results.
 def on_detect_objects(client_id, data):
     """Callback function to handle object detection requests."""
@@ -52,7 +52,7 @@ def on_detect_objects(client_id, data):
             img_buffer.seek(0)
             b64_result = base64.b64encode(img_buffer.getvalue()).decode("utf-8")
 
-        # Prepare the response with the detection results, including the processed image, 
+        # Prepare the response with the detection results, including the processed image,
         # the count of detected objects, and the processing time, and send it back to the UI
         response = {
             'success': True,
@@ -66,8 +66,8 @@ def on_detect_objects(client_id, data):
         ui.send_message('detection_error', {'error': str(e)})
 
 ui = WebUI() # Initialize the WebUI brick to create a web-based user interface for sending images and receiving detection results
-# Register the callback function to handle 'detect_objects' messages from the UI, which will trigger the object detection process 
+# Register the callback function to handle 'detect_objects' messages from the UI, which will trigger the object detection process
 # when an image is sent from the UI
-ui.on_message('detect_objects', on_detect_objects) 
+ui.on_message('detect_objects', on_detect_objects)
 
 App.run()

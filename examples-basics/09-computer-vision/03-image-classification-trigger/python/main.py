@@ -22,20 +22,20 @@ detection_stream = VideoImageClassification(camera=camera, confidence=CONFIDENCE
 #detection_stream = VideoImageClassification(camera=camera, confidence=CONFIDENCE_THRESHOLD, debounce_sec=0.0) # Trigger every classification event
 
 # Variable to keep track of the previous state of person detection, used to avoid triggering the animation repeatedly when the state hasn't changed
-previous_state : bool = False 
+previous_state : bool = False
 
-# Function to turn on or off the LED matrix animation based on the detection of a person. 
+# Function to turn on or off the LED matrix animation based on the detection of a person.
 # It checks if the new state is different from the previous state to avoid unnecessary triggers to the LED matrix.
 def turn_on_off_animation(new_state: bool):
     global previous_state                                          # Use the global variable to keep track of the previous state of person detection
-    if new_state != previous_state:            
+    if new_state != previous_state:
         previous_state = new_state                                 # Update the previous state to the new state
         if new_state == True:
            Bridge.call("turn_led_matrix", True)                    # Call the "turn_led_matrix" function defined in the sketch to turn on the LED matrix animation
         else:
            logger.info("No person detected, stopping animation.")  # Log a message when no person is detected
            Bridge.call("turn_led_matrix", False)                   # Call the "turn_led_matrix" function defined in the sketch to turn off the LED matrix animation
-        
+
 
 
 # Define the callback function for when a person is detected

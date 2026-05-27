@@ -26,4 +26,4 @@ if imageJpeg is not None:                       # Check if the image was success
     with open("captured_image.jpg", "wb") as f: # Open a file in binary write mode to save the captured image
         f.write(imageBytes)                     # Write the JPEG image bytes to the file
 
-camera.stop()                                   # Stop the camera 
+camera.stop()                                   # Stop the camera

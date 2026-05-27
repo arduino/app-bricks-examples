@@ -7,7 +7,7 @@ import time
 from arduino.app_utils import App
 from arduino.app_utils import Leds
 
-def loop():    
+def loop():
     # Please note that the Leds.set_led1_color function takes three parameters (R, G, B) to set the color of the LED
     Leds.set_led1_color(1,0,0) # Turn on the LED red segment(1, 0, 0)
     time.sleep(1)

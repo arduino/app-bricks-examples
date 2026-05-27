@@ -23,7 +23,7 @@ detection_stream = VideoObjectDetection(camera=camera, confidence=CONFIDENCE_THR
 #detection_stream = VideoObjectDetection(camera=camera, confidence=CONFIDENCE_THRESHOLD, debounce_sec=1.0) # Debounce repeated detections of the same object
 
 # Define a callback for when all objects are detected
-# This function will be called every time the VideoObjectDetection brick detects objects in the video stream, 
+# This function will be called every time the VideoObjectDetection brick detects objects in the video stream,
 # and it will log the detected objects and their confidence scores to the console.
 def send_detections_to_console(detections: dict):
   for key, values in detections.items():                                              # iterate through the detected objects and log their labels and confidence scores
