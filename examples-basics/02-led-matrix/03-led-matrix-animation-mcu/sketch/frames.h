@@ -1,6 +1,8 @@
-// SPDX-FileCopyrightText: Copyright (C) Arduino s.r.l. and/or its affiliated companies
-//
-// SPDX-License-Identifier: MPL-2.0
+/*
+ * SPDX-FileCopyrightText: Copyright (C) Arduino s.r.l. and/or its affiliated companies
+ *
+ * SPDX-License-Identifier: MPL-2.0
+ */
 
 // Animation frames for the LED matrix.
 // Each frame is 5 uint32_t values: [pixel0, pixel1, pixel2, pixel3, duration_ms].
