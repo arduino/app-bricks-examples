@@ -10,11 +10,10 @@
 # log a message in the console indicating that the button was clicked along with the source.
 from arduino.app_utils import *
 from arduino.app_utils import Logger
-from arduino.app_bricks.web_ui import WebUI # Import the WebUI class to manage the Web UI server
-import time
+from arduino.app_bricks.web_ui import WebUI
 
-logger = Logger("WebUIButtonAction") # Initialize a logger to log messages in the console
-ui = WebUI() # Initialize WebUI, by default it will serve the content in the "assets" folder of the App
+logger = Logger("WebUIButtonAction")
+ui = WebUI()
 
 # Define a function to handle incoming messages from the Web UI, both via WebSocket and HTTP POST requests.
 def print_message(source: str):
@@ -27,13 +26,13 @@ def wss_print_message(client, data):
 # Define a function to be called when the 'print_message' API endpoint is called via an HTTP POST request from the Web UI.
 def http_print_message():
     print_message("HTTP POST")
-    return {} # Return a JSON response indicating that the message was received successfully
+    return {}  # Return a JSON response indicating that the message was received successfully
 
 
-# Register the wss_print_message function to be called when the "print_message" event is received from the Web UI
-# via websocket.
+# Register the wss_print_message function to be called when the "print_message" event is received from the Web UI via websocket.
 ui.on_message("print_message", wss_print_message)
-# Expose the http_print_message function as an HTTP RESTful API endpoint that can be called from the Web UI using a
-# POST request
+
+# Expose the http_print_message function as an HTTP RESTful API endpoint that can be called from the Web UI using a POST request
 ui.expose_api(method="POST", path="/print_message", function=http_print_message)
-App.run() # Start the application
+
+App.run()

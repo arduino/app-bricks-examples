@@ -4,7 +4,7 @@
 
 # Example app to demonstrate how to serve the Web UI over HTTPS using the WebUI brick.
 from arduino.app_utils import *
-from arduino.app_bricks.web_ui import WebUI # Import the WebUI class to manage the Web UI server
+from arduino.app_bricks.web_ui import WebUI
 
 # Initialize WebUI with TLS enabled, this will serve the content in the "assets" folder of the App over HTTPS
 # This will generate a self-signed certificate on the fly, so the first time you access the Web UI you might
@@ -14,4 +14,4 @@ from arduino.app_bricks.web_ui import WebUI # Import the WebUI class to manage t
 # for example: WebUI(use_tls=True, certs_dir_path="cert")
 ui = WebUI(use_tls=True)
 
-App.run() # Start the application
+App.run()
