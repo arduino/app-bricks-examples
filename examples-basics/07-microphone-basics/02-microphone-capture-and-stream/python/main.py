@@ -25,7 +25,6 @@ microphone = Microphone()
 #microphone = Microphone(sample_rate=Microphone.RATE_16K, channels=Microphone.CHANNELS_MONO, buffer_size=Microphone.BUFFER_SIZE_SAFE, shared=False) # Safer stream with a larger buffer
 #microphone = Microphone("hw:0,0", sample_rate=Microphone.RATE_16K, channels=Microphone.CHANNELS_MONO, shared=False) # Use an explicit ALSA device name
 
-# Start the microphone before capturing or streaming.
 microphone.start()
 
 # capture() reads a single chunk from the microphone and returns it as a NumPy array.
@@ -50,6 +49,4 @@ for audio_chunk in microphone.stream():
 
 print(f"Stream ended after {received_chunks} chunks.")
 
-# The App.run() method starts the application and keeps it running, allowing the Arduino App Lab
-# to start and stop the app.
 App.run()

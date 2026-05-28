@@ -76,6 +76,4 @@ print(f"- is_started_after_stop: {custom_microphone.is_started()}")  # Verify th
 with Microphone() as mic:
     print_microphone_properties(mic)
 
-# The App.run() method starts the application and keeps it running, allowing the Arduino App Lab
-# to start and stop the app.
 App.run()
