@@ -17,7 +17,7 @@ class Greeter:
 greeter = Greeter()          # Create an instance of the Greeter brick class
 
 App.register(greeter)        # Add the brick to the App's waiting queue
-App.start_brick(greeter)     # Start this specific brick (spawns a worker
+App.start_brick(greeter)     # Start this specific brick (spawns a worker)
 
 try:
     App.loop()               # Keep the main thread alive until Ctrl+C

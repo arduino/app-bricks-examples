@@ -13,4 +13,4 @@ def loop():
     print(f"User loop iteration #{counter}")
     time.sleep(1)
 
-App.run(user_loop=loop) # The App runs `loop` repeatedly on the main thread
+App.run(user_loop=loop)  # The App runs `loop` repeatedly on the main thread
