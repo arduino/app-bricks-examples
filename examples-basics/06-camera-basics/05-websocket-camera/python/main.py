@@ -19,14 +19,14 @@ camera = WebSocketCamera(port=8080, resolution=(640, 480), fps=15)
 camera.start()                                  # Start the WebSocket server and wait for incoming frames
 
 image = None
-while image is None:                            # Keep waiting until a client sends the first valid frame
+while image is None:
     image = camera.capture()
 
-imageJpeg = compress_to_jpeg(image, 100)        # Convert the raw image to JPEG format at highest quality (100)
+imageJpeg = compress_to_jpeg(frame=image, quality=100)
 
-if imageJpeg is not None:                       # Check if the image was successfully captured and compressed
-    imageBytes = imageJpeg.tobytes()            # Get the JPEG image bytes
+if imageJpeg is not None:
+    imageBytes = imageJpeg.tobytes()
     with open("captured_websocket_image.jpg", "wb") as f:
-        f.write(imageBytes)                     # Write the JPEG image bytes to the file
+        f.write(imageBytes)
 
-camera.stop()                                   # Stop the WebSocket camera server
+camera.stop()
