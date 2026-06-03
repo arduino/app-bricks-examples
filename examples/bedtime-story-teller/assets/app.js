@@ -82,16 +82,25 @@ function handleStoryError(data) {
 
 function unlockAndOpenNext(currentContainer) {
   const nextContainer = currentContainer.nextElementSibling;
-  if (nextContainer && nextContainer.classList.contains('parameter-container')) {
-    if (nextContainer.classList.contains('disabled')) {
-      nextContainer.classList.remove('disabled');
-      const content = nextContainer.querySelector('.parameter-content');
-      const arrow = nextContainer.querySelector('.arrow-icon');
-      if (content.style.display !== 'block') {
-        content.style.display = 'block';
-        arrow.classList.add('rotated');
-      }
+  if (!nextContainer || !nextContainer.classList.contains('parameter-container')) return;
+  if (!nextContainer.classList.contains('disabled')) return;
+
+  nextContainer.classList.remove('disabled');
+
+  // "Story type" is optional, so it must never gate the following section.
+  // Unlock the panel after it (Characters) as soon as Story type becomes available,
+  if (nextContainer.querySelector('.story-type-selections')) {
+    const charactersContainer = nextContainer.nextElementSibling;
+    if (charactersContainer && charactersContainer.classList.contains('parameter-container')) {
+      charactersContainer.classList.remove('disabled');
     }
+  }
+
+  const content = nextContainer.querySelector('.parameter-content');
+  const arrow = nextContainer.querySelector('.arrow-icon');
+  if (content.style.display !== 'block') {
+    content.style.display = 'block';
+    arrow.classList.add('rotated');
   }
 }
 
