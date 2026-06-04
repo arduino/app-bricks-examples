@@ -2,15 +2,20 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-(function(){
-  const socket = io({ transports: ['websocket'] });
+(function () {
+  const ui = new WebUI({ transports: ['websocket'] });
+  ui.on_connect(onUIConnected);
+  ui.on_message('composer:state', onComposerState);
+  ui.on_message('composer:step_playing', onComposerStepPlaying);
+  ui.on_message('composer:playback_ended', onComposerPlaybackEnded);
+  ui.on_message('composer:export_data', onComposerExportData);
 
   // Logger utility
   const log = {
     info: (msg, ...args) => console.log(`[MusicComposer] ${msg}`, ...args),
     debug: (msg, ...args) => console.debug(`[MusicComposer] ${msg}`, ...args),
     warn: (msg, ...args) => console.warn(`[MusicComposer] ${msg}`, ...args),
-    error: (msg, ...args) => console.error(`[MusicComposer] ${msg}`, ...args)
+    error: (msg, ...args) => console.error(`[MusicComposer] ${msg}`, ...args),
   };
 
   // Configuration
@@ -21,7 +26,6 @@
   // State
   let grid = {};
   let notes = [];
-  let isPlaying = false;
   let isPaused = false;
   let isAppInitialized = false;
   let currentStep = 0;
@@ -34,7 +38,7 @@
     chorus: 0,
     tremolo: 0,
     vibrato: 0,
-    overdrive: 0
+    overdrive: 0,
   };
 
   // History for Undo/Redo
@@ -56,24 +60,21 @@
   const sequencerGrid = document.getElementById('sequencer-grid');
   const volumeSlider = document.getElementById('volume-slider');
   const waveButtons = document.querySelectorAll('.wave-btn');
-  const knobs = document.querySelectorAll('.knob');
 
-  // Initialize
-  socket.on('connect', () => {
+  // UI callback functions
+  function onUIConnected() {
     log.info('Connected to server');
-    socket.emit('composer:get_state', {});
-  });
+    ui.send_message('composer:get_state', {});
+  }
 
-  // Socket events
-  socket.on('composer:state', (data) => {
+  function onComposerState(data) {
     log.info('Received state from server:', JSON.stringify(data));
 
     const nextNotes = Array.isArray(data.notes) ? data.notes : [];
     const hadRenderedGrid = sequencerViewport.dataset.ready === 'true';
-    const notesChanged = nextNotes.length > 0 && (
-      nextNotes.length !== notes.length ||
-      nextNotes.some((note, index) => note !== notes[index])
-    );
+    const notesChanged =
+      nextNotes.length > 0 &&
+      (nextNotes.length !== notes.length || nextNotes.some((note, index) => note !== notes[index]));
 
     if (notesChanged) {
       notes = nextNotes.slice();
@@ -116,20 +117,20 @@
 
     renderGrid();
     updateEffectsKnobs();
-  });
+  }
 
-  socket.on('composer:step_playing', (data) => {
+  function onComposerStepPlaying(data) {
     // Backend callback - used only for synchronization check, not for UI updates
     log.debug('Backend step playing:', data.step, '(frontend is handling UI timing locally)');
-  });
+  }
 
-  socket.on('composer:playback_ended', () => {
+  function onComposerPlaybackEnded() {
     // Backend signals sequence generation complete (but audio still in queue)
     // Don't stop UI animation - it runs on its own timer until effectiveLength
     log.info('Backend sequence generation complete (audio still playing from queue)');
-  });
+  }
 
-  socket.on('composer:export_data', (data) => {
+  function onComposerExportData(data) {
     log.info('Export data received');
     const blob = new Blob([data.content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -138,7 +139,7 @@
     a.download = data.filename || 'composition.h';
     a.click();
     URL.revokeObjectURL(url);
-  });
+  }
 
   // History management
   function saveStateToHistory() {
@@ -170,7 +171,7 @@
       historyIndex--;
       grid = JSON.parse(JSON.stringify(history[historyIndex]));
       renderGrid();
-      socket.emit('composer:update_grid', { grid });
+      ui.send_message('composer:update_grid', { grid });
       updateUndoRedoButtons();
     }
   }
@@ -180,14 +181,13 @@
       historyIndex++;
       grid = JSON.parse(JSON.stringify(history[historyIndex]));
       renderGrid();
-      socket.emit('composer:update_grid', { grid });
+      ui.send_message('composer:update_grid', { grid });
       updateUndoRedoButtons();
     }
   }
 
   undoBtn.addEventListener('click', undo);
   redoBtn.addEventListener('click', redo);
-
 
   function getEffectiveSequenceLength() {
     return Math.max(sequenceLength || 0, findLastNoteStep() + 1, 16);
@@ -208,14 +208,15 @@
   }
 
   function scrollStepIntoView(step) {
-    const referenceCell = sequencerGrid.querySelector(`.grid-cell[data-note="0"][data-step="${step}"]`)
-      || sequencerGrid.querySelector(`.grid-cell[data-step="${step}"]`);
+    const referenceCell =
+      sequencerGrid.querySelector(`.grid-cell[data-note="0"][data-step="${step}"]`) ||
+      sequencerGrid.querySelector(`.grid-cell[data-step="${step}"]`);
 
     if (!referenceCell) {
       return;
     }
 
-    const targetScroll = referenceCell.offsetLeft - ((sequencerViewport.clientWidth - referenceCell.offsetWidth) / 2);
+    const targetScroll = referenceCell.offsetLeft - (sequencerViewport.clientWidth - referenceCell.offsetWidth) / 2;
     sequencerViewport.scrollLeft = Math.max(0, targetScroll);
   }
 
@@ -307,7 +308,7 @@
     }
 
     renderGrid();
-    socket.emit('composer:update_grid', { grid });
+    ui.send_message('composer:update_grid', { grid });
   }
 
   function renderGrid() {
@@ -374,7 +375,7 @@
     const effectiveLength = getEffectiveSequenceLength();
 
     // Calculate step duration in milliseconds for 16th notes (4 per beat)
-    const stepDurationMs = (60000 / bpm) / 4;
+    const stepDurationMs = 60000 / bpm / 4;
 
     currentStep = 0;
     highlightStep(currentStep);
@@ -394,7 +395,6 @@
       clearInterval(playInterval);
       playInterval = null;
     }
-    isPlaying = false;
     isPaused = false;
     playBtn.style.display = 'flex';
     pauseBtn.style.display = 'none';
@@ -404,7 +404,6 @@
 
   // Play button - starts from beginning or resumes from pause
   playBtn.addEventListener('click', () => {
-    isPlaying = true;
     playBtn.style.display = 'none';
     pauseBtn.style.display = 'flex';
     stopBtn.style.display = 'flex';
@@ -414,35 +413,35 @@
     startLocalPlayback();
 
     // Trigger backend audio playback
-    socket.emit('composer:play', { grid, bpm });
+    ui.send_message('composer:play', { grid, bpm });
   });
 
   // Pause button - for infinite loop we only have stop (pause not supported with loop=True)
   pauseBtn.addEventListener('click', () => {
     stopLocalPlayback();
     log.info('Stopping playback (pause not supported in infinite loop mode)');
-    socket.emit('composer:stop', {});
+    ui.send_message('composer:stop', {});
   });
 
   // Stop button - resets to beginning, clears highlight
   stopBtn.addEventListener('click', () => {
     stopLocalPlayback();
     log.info('Stopping playback');
-    socket.emit('composer:stop', {});
+    ui.send_message('composer:stop', {});
   });
 
   // BPM controls
   bpmInput.addEventListener('change', () => {
     bpm = parseInt(bpmInput.value);
     log.info('BPM changed to:', bpm);
-    socket.emit('composer:set_bpm', { bpm });
+    ui.send_message('composer:set_bpm', { bpm });
   });
 
   resetBpmBtn.addEventListener('click', () => {
     bpm = 120;
     bpmInput.value = bpm;
     log.info('BPM reset to 120');
-    socket.emit('composer:set_bpm', { bpm });
+    ui.send_message('composer:set_bpm', { bpm });
   });
 
   // Clear button
@@ -455,13 +454,13 @@
       });
       saveStateToHistory();
       renderGrid();
-      socket.emit('composer:update_grid', { grid });
+      ui.send_message('composer:update_grid', { grid });
     }
   });
 
   // Export button
   exportBtn.addEventListener('click', () => {
-    socket.emit('composer:export', { grid });
+    ui.send_message('composer:export', { grid });
   });
 
   // Wave buttons
@@ -470,7 +469,7 @@
       waveButtons.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       const wave = btn.dataset.wave;
-      socket.emit('composer:set_waveform', { waveform: wave });
+      ui.send_message('composer:set_waveform', { waveform: wave });
     });
   });
 
@@ -486,7 +485,7 @@
   volumeSlider.addEventListener('input', () => {
     const volume = parseInt(volumeSlider.value);
     updateVolumeSliderBackground();
-    socket.emit('composer:set_volume', { volume });
+    ui.send_message('composer:set_volume', { volume });
   });
 
   // Knobs
@@ -519,7 +518,7 @@
       // Update the global state and emit
       const effectName = knob.id.replace('-knob', '');
       effects[effectName] = currentValue;
-      socket.emit('composer:set_effects', { effects });
+      ui.send_message('composer:set_effects', { effects });
     });
   });
 
@@ -546,5 +545,4 @@
   playBtn.style.display = 'flex';
   stopBtn.style.display = 'none';
   log.info('Sequencer UI ready, waiting for server state...');
-
 })();

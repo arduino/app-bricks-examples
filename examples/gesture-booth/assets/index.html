@@ -29,12 +29,7 @@ SPDX-License-Identifier: MPL-2.0
             </div>
 
             <img id="videoFeed" src="" crossorigin="anonymous" />
-            <dotlottie-player
-              id="videoOverlay"
-              background="transparent"
-              loop
-              autoplay
-            ></dotlottie-player>
+            <dotlottie-player id="videoOverlay" background="transparent" loop autoplay></dotlottie-player>
             <div id="countdown">5</div>
             <img id="resultImage" />
           </div>
@@ -45,12 +40,7 @@ SPDX-License-Identifier: MPL-2.0
           <p id="title" class="title-primary">Try one of these gestures</p>
           <p id="subtitle" class="title-primary"></p>
 
-          <dotlottie-player
-            id="animatedGesture"
-            background="transparent"
-            loop
-            autoplay
-          ></dotlottie-player>
+          <dotlottie-player id="animatedGesture" background="transparent" loop autoplay></dotlottie-player>
 
           <button id="mainCta" onclick="takePicture()">
             <img src="./img/camera-icon.svg" alt="Take Picture" /> Take picture
@@ -66,16 +56,14 @@ SPDX-License-Identifier: MPL-2.0
             <img src="./img/gestures/static/closed_fist.svg" alt="✊" />
           </div>
 
-          <button id="bottomCta" onclick="resetToInitialState()">
-            <img src="./img/stop.svg" alt="Stop" /> Stop
-          </button>
+          <button id="bottomCta" onclick="resetToInitialState()"><img src="./img/stop.svg" alt="Stop" /> Stop</button>
         </div>
       </div>
     </div>
 
     <script src="libs/socket.io.min.js"></script>
     <script src="libs/dotlottie-player.js"></script>
-    <script src="function.js"></script>
+    <script src="libs/arduino.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

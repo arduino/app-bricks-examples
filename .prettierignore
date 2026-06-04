@@ -1,0 +1,20 @@
+node_modules/
+.venv/
+.reuse-venv/
+dist/
+build/
+*.pyc
+__pycache__/
+.DS_Store
+.git/
+.licenses/
+.vscode/
+.idea/
+*.egg-info/
+
+# Excluded file types and folders
+*.min.js
+*.yaml
+*.yml
+*.json
+**/libs/**

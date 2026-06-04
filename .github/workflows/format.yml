@@ -1,0 +1,60 @@
+name: Check formatting
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/format.yml"
+      - "Taskfile.dist.yml"
+      - "ruff.toml"
+      - ".prettierrc.json"
+      - "eslint.config.mjs"
+      - "examples/**/*.py"
+      - "examples-basics/**/**/*.py"
+      - "**/*.js"
+      - "**/*.html"
+      - "**/*.css"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    env:
+      PYTHON_VERSION: "3.13"
+      NODE_VERSION: "22"
+      RUFF_VERSION: "0.14.2"
+      TASKFILE_VERSION: "v3.44.0"
+      TASKFILE_PATH: "/home/runner/go/bin"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Taskfile
+        run: which task || curl -sSfL https://taskfile.dev/install.sh | sh -s -- -b ${{ env.TASKFILE_PATH }} ${{ env.TASKFILE_VERSION }}
+
+      - name: Install Ruff
+        run: python -m pip install --disable-pip-version-check --no-cache-dir "ruff==${{ env.RUFF_VERSION }}"
+
+      - name: Check formatting
+        run: |
+          export PATH="${{ env.TASKFILE_PATH }}:$PATH"
+          task fmt
+          if git diff --quiet; then
+            echo "Formatting is up to date."
+          else
+            echo "::error::Formatting is out of date. Please run 'task fmt' locally, then commit and push the changes."
+            git diff --name-only
+            exit 1
+          fi

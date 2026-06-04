@@ -1,0 +1,57 @@
+# SPDX-FileCopyrightText: Copyright (C) Arduino s.r.l. and/or its affiliated companies
+# SPDX-License-Identifier: CC0-1.0
+
+target-version = "py313"
+line-length = 120
+src = ["examples", "examples-basics"]
+extend-exclude = [
+  ".licenses",
+  ".reuse-venv",
+  ".venv",
+  "LICENSES",
+]
+
+[lint]
+select = [
+  "B",
+  "C4",
+  "E4",
+  "E7",
+  "E9",
+  "F",
+  "ISC",
+  "LOG",
+  "PERF",
+  "PIE",
+  "RSE",
+  "RUF",
+  "SIM",
+  "T10",
+  "UP",
+  "YTT",
+  "W291",
+  "W292",
+  "W293"
+]
+ignore = [
+  "B007",
+  "C420",
+  "E401",
+  "E701",
+  "E712",
+  "F401",
+  "F403",
+  "F405",
+  "F811",
+  "PERF102",
+  "RUF013",
+  "RUF059",
+  "SIM108",
+  "UP015",
+  "UP031",
+]
+
+[format]
+quote-style = "preserve"
+indent-style = "space"
+line-ending = "lf"

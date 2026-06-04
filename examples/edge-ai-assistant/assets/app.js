@@ -2,7 +2,14 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-const socket = io(`http://${window.location.host}`);
+const ui = new WebUI();
+ui.on_connect(onUIConnected);
+ui.on_disconnect(onUIDisconnected);
+ui.on_message('response', handleResponse);
+ui.on_message('stream_end', handleStreamEnd);
+ui.on_message('llm_error', handleLLMError);
+ui.on_message('command_ok', handleCompletedCommand);
+ui.on_message('command_error', handleCommandError);
 
 let thinkingMessageElement = null;
 let lastUserPrompt = '';
@@ -11,23 +18,27 @@ let thinkingMessageInterval = null;
 
 const errorBanner = document.getElementById('error-banner');
 const errorMessage = document.getElementById('error-message');
-const chatMessagesContainer = document.getElementById(
-  'chat-messages-container',
-);
+const chatMessagesContainer = document.getElementById('chat-messages-container');
 const userInput = document.getElementById('user-input');
 const messagesContainer = document.getElementById('messages');
 const emptyChatContainer = document.getElementById('empty-chat-container');
 const mainContent = document.querySelector('.main-content');
 const sendButton = document.getElementById('send-button');
 const sendButtonImg = sendButton ? sendButton.querySelector('img') : null;
-const quickActionButtonsContainer = document.getElementById(
-  'quick-action-buttons',
-);
+const quickActionButtonsContainer = document.getElementById('quick-action-buttons');
 const clearChatButton = document.getElementById('clear-chat-button-header');
 const card1 = document.getElementById('card-1');
 const card2 = document.getElementById('card-2');
 const card3 = document.getElementById('card-3');
 const card4 = document.getElementById('card-4');
+
+function onUIConnected() {
+  console.log('Connected to backend');
+}
+
+function onUIDisconnected() {
+  showError('Connection to backend lost. Please refresh the page or check the backend server.');
+}
 
 /**
  * Displays an error message in the error banner.
@@ -85,9 +96,7 @@ function handleResponse(data) {
 
   if (ai_msg) {
     ai_msg.dataset.rawText += data;
-    ai_msg.querySelector('.text-content').innerHTML = marked.parse(
-      ai_msg.dataset.rawText,
-    );
+    ai_msg.querySelector('.text-content').innerHTML = marked.parse(ai_msg.dataset.rawText);
     scrollToBottom();
   }
 }
@@ -98,7 +107,7 @@ function handleResponse(data) {
  */
 function handleStreamEnd() {
   removeThinkingMessage();
-  ai_msg = document.getElementById('active-ai-response');
+  const ai_msg = document.getElementById('active-ai-response');
   if (ai_msg) {
     ai_msg.id = '';
   }
@@ -161,7 +170,7 @@ function handleCommandError(data) {
 
 /** Emits a clear_chat command to the backend. */
 function sendClearChatCommand() {
-  socket.emit('commands', { command: 'clear_chat' });
+  ui.send_message('commands', { command: 'clear_chat' });
 }
 
 /**
@@ -175,25 +184,6 @@ function handleLLMError(data) {
   removeThinkingMessage();
   quickActionButtonsContainer.style.display = 'none';
   handleStreamEnd();
-}
-
-/** Initialises all Socket.IO event listeners. */
-function initSocketIO() {
-  socket.on('response', handleResponse);
-  socket.on('stream_end', handleStreamEnd);
-  socket.on('llm_error', handleLLMError);
-  socket.on('command_ok', handleCompletedCommand);
-  socket.on('command_error', handleCommandError);
-
-  socket.on('connect', () => {
-    console.log('Connected to backend');
-  });
-
-  socket.on('disconnect', () => {
-    showError(
-      'Connection to backend lost. Please refresh the page or check the backend server.',
-    );
-  });
 }
 
 /**
@@ -306,12 +296,10 @@ function sendMessage(text) {
   messagesContainer.appendChild(thinkingMessageElement);
   scrollToBottom();
 
-  socket.emit('prompt', { prompt: text });
+  ui.send_message('prompt', { prompt: text });
   updateClearChatButtonState();
   userInput.focus();
 }
-
-initSocketIO();
 
 // Initial state
 updateSendButtonState();
@@ -325,7 +313,7 @@ userInput.addEventListener('input', () => {
 });
 
 // Listen for Enter key press in the input field
-userInput.addEventListener('keydown', (event) => {
+userInput.addEventListener('keydown', event => {
   if (event.key === 'Enter' && !event.shiftKey) {
     event.preventDefault();
     // Ensure the send button is not disabled before sending
@@ -336,18 +324,18 @@ userInput.addEventListener('keydown', (event) => {
 });
 
 // Use a single click handler for the send button, acting as send or stop
-sendButton.addEventListener('click', (event) => {
+sendButton.addEventListener('click', event => {
   event.preventDefault(); // Prevent default form submission if any
   if (sendButton.classList.contains('disabled')) {
     return;
   } else if (sendButton.classList.contains('sending-state')) {
-    socket.emit('commands', { command: 'stop_stream' });
+    ui.send_message('commands', { command: 'stop_stream' });
   } else {
     sendMessage();
   }
 });
 
-clearChatButton.addEventListener('click', (event) => {
+clearChatButton.addEventListener('click', event => {
   if (clearChatButton.classList.contains('disabled')) {
     event.preventDefault(); // Prevent action if disabled
   } else {
@@ -356,10 +344,8 @@ clearChatButton.addEventListener('click', (event) => {
 });
 
 // Add event listeners for quick action buttons
-const quickButtons = quickActionButtonsContainer.querySelectorAll(
-  '.quick-action-button',
-);
-quickButtons.forEach((button) => {
+const quickButtons = quickActionButtonsContainer.querySelectorAll('.quick-action-button');
+quickButtons.forEach(button => {
   button.addEventListener('click', () => {
     if (userInput.value.length > 0 && userInput.value.slice(-1) !== ' ') {
       userInput.value += ' ';
@@ -371,15 +357,7 @@ quickButtons.forEach((button) => {
   });
 });
 
-card1.addEventListener('click', () =>
-  sendMessage(card1.querySelector('p').textContent),
-);
-card2.addEventListener('click', () =>
-  sendMessage(card2.querySelector('p').textContent),
-);
-card3.addEventListener('click', () =>
-  sendMessage(card3.querySelector('p').textContent),
-);
-card4.addEventListener('click', () =>
-  sendMessage(card4.querySelector('p').textContent),
-);
+card1.addEventListener('click', () => sendMessage(card1.querySelector('p').textContent));
+card2.addEventListener('click', () => sendMessage(card2.querySelector('p').textContent));
+card3.addEventListener('click', () => sendMessage(card3.querySelector('p').textContent));
+card4.addEventListener('click', () => sendMessage(card4.querySelector('p').textContent));

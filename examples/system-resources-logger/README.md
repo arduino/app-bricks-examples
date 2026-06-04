@@ -131,7 +131,7 @@ The web interface provides interactive charts and real-time monitoring capabilit
 
 - **Tab-based interface**: Switches between Live, 1 hour, and 1 day views with appropriate data fetching and chart configuration for each time range.
 
-- **Socket.IO communication**: Receives real-time data via `cpu_usage` and `memory_usage` events, automatically updating live charts as new data arrives.
+- **WebUI communication**: Receives real-time data via `cpu_usage` and `memory_usage` events, automatically updating live charts as new data arrives.
 
 - **Historical data fetching**: Makes REST API calls to retrieve aggregated data when switching to historical tabs, with 5 minute windows for 1 hour view and 1 hour windows for 1 day view.
 

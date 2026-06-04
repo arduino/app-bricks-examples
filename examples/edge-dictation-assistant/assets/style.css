@@ -103,6 +103,106 @@ button.primary img {
   border-radius: 8px;
 }
 
+.language-picker {
+  display: none;
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+}
+
+.language-picker-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2c353a;
+}
+
+.language-select-trigger {
+  width: 100%;
+  height: 40px;
+  padding: 3px 12px;
+  border: 1.5px solid #c9d2d2;
+  border-radius: 4px;
+  background: white;
+  color: #2c353a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.selected-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.select-caret {
+  font-size: 10px;
+  color: #2c353a;
+  transform-origin: center;
+  transition: transform 0.2s ease;
+}
+
+.language-picker.open .select-caret {
+  transform: rotate(180deg);
+}
+
+.language-picker.open .language-select-trigger {
+  border-color: #2b6d76;
+}
+
+.language-options {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 100%;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 8px 22px rgba(44, 53, 58, 0.2);
+  z-index: 1;
+  padding-block: 4px;
+  overflow: visible;
+}
+
+.language-option {
+  width: 100%;
+  background: transparent;
+  color: #2c353a;
+  padding: 7px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 400;
+  text-align: left;
+}
+
+.language-option .checkmark {
+  margin-left: auto;
+  opacity: 0;
+  width: 12px;
+  height: 12px;
+  display: block;
+}
+
+.language-option.selected .checkmark {
+  opacity: 1;
+}
+
+.language-option:hover,
+.language-option:focus-visible {
+  background: #f2f6f6;
+}
+
+.option-icon {
+  width: 16px;
+  height: 16px;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5));
+}
+
 #mic-button img {
   width: 48px;
   height: 48px;
@@ -113,9 +213,20 @@ button.primary img {
 }
 
 .title {
+  display: none;
   font-family: 'Roboto Mono', monospace;
   font-size: 28px;
   font-weight: 700;
+  line-height: 1.7;
+  text-align: center;
+}
+
+.subtitle {
+  display: none;
+  font-size: 14px;
+  font-weight: normal;
+  margin-top: -30px;
+  text-align: center;
 }
 
 #animated-bars {
@@ -204,11 +315,7 @@ button.primary img {
   left: 0;
   right: 0;
   height: 30px;
-  background: linear-gradient(
-    180deg,
-    rgba(236, 241, 241, 1) 0%,
-    rgba(236, 241, 241, 0) 100%
-  );
+  background: linear-gradient(180deg, rgba(236, 241, 241, 1) 0%, rgba(236, 241, 241, 0) 100%);
   pointer-events: none;
   opacity: var(--gradient-opacity, 0);
   transition: opacity 0.2s ease;
@@ -237,11 +344,23 @@ button.primary img {
   display: block;
 }
 
-[data-has-text='true'] #title {
-  display: none;
+[data-state='ended'][data-has-text='true'] #dictation-ended {
+  display: flex;
 }
 
-[data-has-text='true'][data-state='ended'] #dictation-ended {
+[data-state='initial'] #title {
+  display: block;
+}
+
+[data-state='initial'] #subtitle {
+  display: block;
+}
+
+[data-state='initial'] #language-picker {
+  display: block;
+}
+
+[data-state='recording'][data-has-text='false'] #title {
   display: flex;
 }
 

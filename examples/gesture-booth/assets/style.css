@@ -140,11 +140,7 @@ button img {
 }
 
 #countdown.shoot {
-  background: radial-gradient(
-    ellipse,
-    rgba(0, 0, 0, 0) 0%,
-    rgba(255, 255, 255, 1) 70%
-  );
+  background: radial-gradient(ellipse, rgba(0, 0, 0, 0) 0%, rgba(255, 255, 255, 1) 70%);
 }
 
 .gestures {

@@ -9,6 +9,12 @@ Taskfile.yml
 .vscode/*
 .idea/*
 
+# Node.js
+node_modules/
+package.json
+package-lock.json
+npm-debug.log*
+
 # Python
 .venv
 .reuse-venv

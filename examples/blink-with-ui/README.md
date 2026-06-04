@@ -100,11 +100,11 @@ The Python code manages the web interface, handles user interactions, and commun
 
 The web interface provides a simple toggle button for LED control.
 
-- **Socket.IO connection:** Establishes WebSocket communication with the Python backend through the `web_ui` Brick.
+- **WebUI connection:** Establishes WebSocket communication with the Python backend through the `web_ui` Brick.
 
-- **`socket.emit('toggle_led', {})`:** Sends a toggle message to the backend when the user clicks the button.
+- **`ui.send_message('toggle_led')`:** Sends a toggle message to the backend when the user clicks the button.
 
-- **`socket.on('led_status_update', updateLedStatus)`:** Receives LED status updates and updates the button appearance accordingly.
+- **`ui.on_message('led_status_update', updateLedStatus)`:** Receives LED status updates and updates the button appearance accordingly.
 
 - **`updateLedStatus(status)`:** Changes the button's visual state (LED IS ON/OFF) based on the received status.
 
@@ -121,4 +121,3 @@ The Arduino code handles LED hardware control and sets up Bridge communication.
 - **`set_led_state(bool state)`:** Controls the LED hardware by setting the pin HIGH or LOW based on the received state parameter.
 
 - **Empty `loop()`:** The main loop remains empty since all LED control is event-driven through Bridge function calls.
-

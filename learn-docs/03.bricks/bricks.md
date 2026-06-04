@@ -1,74 +1,69 @@
 ---
-title: What is a Brick?
-description: Learn about Bricks, the code building blocks for Apps.
-author: Karl Söderby
-tags: [Bricks, AI Models]
-icon: Brick
+title: About Bricks in Arduino App Lab
+description: Learn about Bricks, the modular building blocks that provide pre-packaged AI models and functionalities for your Apps.
+tags: [Bricks, AI, IoT, Modular]
+icon: 
 category: basic
 ---
 
-![Bricks in the Arduino App Lab](assets/brick-hero.png)
+**Bricks** are pre-built, modular components that you can add to your Arduino App to quickly introduce complex features. Think of them as "plug-and-play" services: instead of writing thousands of lines of code for a web server, a database, or an AI model, you can simply add a Brick to your project and interact with it using a few lines of Python.
 
-[Bricks](/bricks) are **code building blocks** that can be used in our Apps. They are designed to make the App design and coding easier, by making complex code available through only a couple of lines of code.
+## How Bricks Help You
 
-Bricks vary in functionality: some embed AI models (computer vision, audio recognition), others are used to provide networking & web interfaces. But they are used in the same way: by importing them into the `main.py` script of our App.
+Bricks save time by handling heavy infrastructure tasks in the background. For example:
 
-In this tutorial, we will learn about:
-- How they are used in an App
-- How a Brick works
-- What Bricks are available
+- **AI & Vision:** Use a Brick to add object detection or face recognition without setting up complex machine learning libraries yourself.
+- **Web Dashboards:** Add a Web UI Brick to create a custom dashboard that you can control from your phone or computer.
+- **Cloud & Storage:** Use Bricks to connect to the Arduino Cloud or store sensor data in a local database.
 
-## How Bricks are Used in Apps
+## What is a Brick?
 
-Bricks are imported into the `main.py` (Python) file that runs on the Linux system. When importing a Brick, we can access its functions, such as making requests to a weather API service, launching a web server, or classifying the video input of a camera.
+Technically, a **Brick** is a pre-configured service that runs as an isolated **Docker container** on the board's Linux system. Each Brick exposes a high-level API (Application Programming Interface), which means your Python code (`main.py`) can "talk" to the Brick to send or receive data without needing to know how the Brick works internally.
 
-For example, importing the `weather_forecast` Brick will make it possible to use:
- - `get_forecast_by_city("London")`
+## How Bricks Work
 
-Where the API call to the weather forecast platform is already pre-made and ready to be used.
+When you add a Brick to your App via the App Lab interface, the system automates several steps:
 
-![How Bricks work](assets/how-bricks-work.png)
+1. **Configuration:** The Brick's unique ID is added to your App's `app.yaml` file.
+2. **Deployment:** The system downloads and starts the required container image on your board.
+3. **Integration:** A dedicated Python library is made available, allowing you to `import` the Brick's functionality directly into your script.
 
-## How to Import a Brick to an App
+> **Note:** Most Bricks require an active internet connection the first time they are deployed so the board can download the necessary files from the Arduino registry.
 
-To import a Brick to an App, we can click on the **"Add Brick"** button inside an App.
 
-![Click the "Add Brick" button](assets/add-brick-1.png)
+## List of Bricks
 
-From the list, we can select a Brick, and add it to our App:
+<!-- app-bricks-py table start -->
+| Brick | Description | Source |
+| --- | --- | --- |
+| Air Quality Monitoring | Online air quality monitoring module for Arduino using aqicn.org. Requires an internet connection. | [GitHub](https://github.com/arduino/app-bricks-py/tree/main/src/arduino/app_bricks/air_quality_monitoring) |
+| Arduino Cloud | Connects to Arduino Cloud | [GitHub](https://github.com/arduino/app-bricks-py/tree/main/src/arduino/app_bricks/arduino_cloud) |
+| Audio Classification | Brick for audio classification using a pre-trained model. It processes audio input to classify different sounds. Brick is designed to work with pre-trained models provided by framework or with custom audio classification models trained on Edge Impulse platform. | [GitHub](https://github.com/arduino/app-bricks-py/tree/main/src/arduino/app_bricks/audio_classification) |
+| Automatic Speech Recognition (ASR) | Automatic Speech Recognition brick for offline speech-to-text processing | [GitHub](https://github.com/arduino/app-bricks-py/tree/main/src/arduino/app_bricks/asr) |
+| Camera Code Detection | Scans a camera for barcodes and QR codes | [GitHub](https://github.com/arduino/app-bricks-py/tree/main/src/arduino/app_bricks/camera_code_detection) |
+| Cloud ASR | Cloud ASR Brick provides a unified and flexible way to connect cloud-based Automatic Speech Recognition (ASR) services and transform spoken audio into text. It enables real-time, streaming transcription from a connected microphone, leveraging leading cloud providers to deliver low-latency speech-to-text processing. | [GitHub](https://github.com/arduino/app-bricks-py/tree/main/src/arduino/app_bricks/cloud_asr) |
+| Cloud LLM | Cloud LLM Brick enables seamless integration with cloud-based Large Language Models (LLMs) for advanced AI capabilities in your Arduino projects. | [GitHub](https://github.com/arduino/app-bricks-py/tree/main/src/arduino/app_bricks/cloud_llm) |
+| Database - SQL | Simplified database storage layer for Arduino sensor data using SQLite local database. | [GitHub](https://github.com/arduino/app-bricks-py/tree/main/src/arduino/app_bricks/dbstorage_sqlstore) |
+| Database - Time Series | Simplified time series database storage layer for Arduino sensor samples built on top of InfluxDB. | [GitHub](https://github.com/arduino/app-bricks-py/tree/main/src/arduino/app_bricks/dbstorage_tsstore) |
+| Gesture Recognition | This gesture recognition brick utilizes a pre-trained model to analyze video streams from a camera. The output is a video stream featuring gesture recognition as overlay, with the added capability to trigger actions based on these detections. | [GitHub](https://github.com/arduino/app-bricks-py/tree/main/src/arduino/app_bricks/gesture_recognition) |
+| Image Classification | Brick for image classification using a pre-trained model. It processes images and returns the predicted class label and confidence score. Brick is designed to work with pre-trained models provided by framework or with custom image classification models trained on Edge Impulse platform. | [GitHub](https://github.com/arduino/app-bricks-py/tree/main/src/arduino/app_bricks/image_classification) |
+| Keyword Spotting | Brick for keyword spotting using a pre-trained model. It processes audio input to detect specific keywords or phrases. Brick is designed to work with pre-trained models provided by framework or with custom audio classification models trained on Edge Impulse platform. | [GitHub](https://github.com/arduino/app-bricks-py/tree/main/src/arduino/app_bricks/keyword_spotting) |
+| Large Language Model (LLM) | Large Language Model (LLM) Brick enables seamless integration with locally hosted LLMs for advanced AI capabilities in your Arduino projects. | [GitHub](https://github.com/arduino/app-bricks-py/tree/main/src/arduino/app_bricks/llm) |
+| Mood Detection | This brick analyzes text sentiment to detect the mood expressed. It classifies text as positive, negative, or neutral. | [GitHub](https://github.com/arduino/app-bricks-py/tree/main/src/arduino/app_bricks/mood_detector) |
+| Motion detection | This Brick is designed for motion detection and recognition, leveraging pre-trained models. It takes input from accelerometer sensors to identify various motion patterns. You can use it with pre-trained models provided by the framework or with your custom motion classification models trained on the Edge Impulse platform. | [GitHub](https://github.com/arduino/app-bricks-py/tree/main/src/arduino/app_bricks/motion_detection) |
+| MQTT Connector | MQTT connector module. Acts as a client for receiving and publishing messages to an MQTT broker. | [GitHub](https://github.com/arduino/app-bricks-py/tree/main/src/arduino/app_bricks/mqtt) |
+| Object Detection | Brick for object detection using a pre-trained model. It processes images and returns the predicted class label, bounding-boxes and confidence score. Brick is designed to work with pre-trained models provided by framework or with custom object detection models trained on Edge Impulse platform. | [GitHub](https://github.com/arduino/app-bricks-py/tree/main/src/arduino/app_bricks/object_detection) |
+| Sound Generator | Generate sounds like notes, tones, or melodies using waveforms. | [GitHub](https://github.com/arduino/app-bricks-py/tree/main/src/arduino/app_bricks/sound_generator) |
+| Telegram Bot | A brick to interact with Telegram Bot API | [GitHub](https://github.com/arduino/app-bricks-py/tree/main/src/arduino/app_bricks/telegram_bot) |
+| Text-to-Speech (TTS) | Text-to-Speech brick for offline speech synthesis | [GitHub](https://github.com/arduino/app-bricks-py/tree/main/src/arduino/app_bricks/tts) |
+| Vibration Anomaly detection | This Brick is designed for vibration anomaly detection and recognition, leveraging pre-trained models. It takes input from sensors (accelerometer) to identify possible anomalies based on vibration patterns. You can use it with pre-trained models provided by the framework or with your own custom anomaly detections models trained on the Edge Impulse platform. | [GitHub](https://github.com/arduino/app-bricks-py/tree/main/src/arduino/app_bricks/vibration_anomaly_detection) |
+| Video Image Classification | This image classification brick utilizes a pre-trained model to analyze video streams from a camera. It identifies objects, returning their predicted class labels and confidence scores. The output is a video stream featuring classification as overaly, with the added capability to trigger actions based on these detections. It supports pre-trained models provided by the framework and custom object detection models trained on the Edge Impulse platform. | [GitHub](https://github.com/arduino/app-bricks-py/tree/main/src/arduino/app_bricks/video_imageclassification) |
+| Video Object Detection | This object detection brick utilizes a pre-trained model to analyze video streams from a camera. It identifies objects, returning their predicted class labels, bounding boxes, and confidence scores. The output is a video stream featuring bounding boxes around detected objects, with the added capability to trigger actions based on these detections. It supports pre-trained models provided by the framework and custom object detection models trained on the Edge Impulse platform. | [GitHub](https://github.com/arduino/app-bricks-py/tree/main/src/arduino/app_bricks/video_objectdetection) |
+| Visual Anomaly Detection | Brick for visual anomaly detection using a pre-trained model. It processes images to identify unusual patterns and returns detected anomalies with bounding boxes.  Supports pre-trained models provided by the framework or custom anomaly detection models trained on the Edge Impulse platform. | [GitHub](https://github.com/arduino/app-bricks-py/tree/main/src/arduino/app_bricks/visual_anomaly_detection) |
+| Visual Language Model (VLM) | Visual Language Model (VLM) Brick enables seamless integration with locally hosted VLMs for advanced AI capabilities in your Arduino projects. | [GitHub](https://github.com/arduino/app-bricks-py/tree/main/src/arduino/app_bricks/vlm) |
+| Wave Generator | Continuous wave generator for audio synthesis. Generates sine, square, sawtooth, and triangle waveforms with smooth frequency and amplitude transitions. | [GitHub](https://github.com/arduino/app-bricks-py/tree/main/src/arduino/app_bricks/wave_generator) |
+| Weather Forecast | Online weather forecast module for Arduino using open-meteo.com geolocation and weather APIs. Requires an internet connection. | [GitHub](https://github.com/arduino/app-bricks-py/tree/main/src/arduino/app_bricks/weather_forecast) |
+| WebUI - HTML | A user interface based on HTML and JavaScript that can rely on additional APIs and a WebSocket exposed by a web server. | [GitHub](https://github.com/arduino/app-bricks-py/tree/main/src/arduino/app_bricks/web_ui) |
+| WebUI - Streamlit | A simplified user interface based on Streamlit and Python. | [GitHub](https://github.com/arduino/app-bricks-py/tree/main/src/arduino/app_bricks/streamlit_ui) |
 
-![Find a Brick and add it](assets/add-brick-2.png)
-
-## What Type of Bricks are Available?
-
-There are a number of Bricks to choose from when developing our App, and the list is updated frequently. To see the current list of Bricks that are available, navigate to the [Bricks](/bricks) section.
-
-This section contains an up-to-date list of Bricks, with detailed API documentation available.
-
-### Web UI Brick
-
-The Web UI Brick is used to create a web server running on the Linux system. The Web UI Brick launches the content of a folder named `assets` that is stored in the App folder.
-
-![Assets folder](assets/web-ui-brick.png)
-
-When using it inside of `main.py`, we just use `WebUI()` to start the web server.
-
-The HTML file contains the web page of the App's user interface. The JavaScript file contains the logic to communicate with the Web UI Brick.
-
-### Bricks with AI Models
-
-Some Bricks are a bit more advanced and embed AI models.
-
-With the models, we can, for example, connect a USB camera and run a real-time object detection (see **Code Scanner** example that uses the `camera_code_detection` Brick).
-
-These models are designed to run on the Linux system, meaning that Apps run entirely on the UNO Q device and require no additional hardware or service to operate.
-
-### Examples Based on Bricks
-
-There are several examples that showcase how a Brick works, and all are available in the [Examples](/examples) section.
-
-## Next Steps
-
-Bricks are used to build Apps in just minutes. In this guide, we have learned a little bit about how they work and which ones are available.
-
-In the next guide, we will take a look at **AI models**, which ones are readily available, and what they do.
+<!-- app-bricks-py table end -->

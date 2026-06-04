@@ -17,11 +17,7 @@ SPDX-License-Identifier: MPL-2.0
       <main>
         <div class="header">
           <div class="header-left">
-            <img
-              src="img/RGB-Arduino-Logo-Color-Inline-Loop.svg"
-              alt="Arduino Logo"
-              class="arduino-logo"
-            />
+            <img src="img/RGB-Arduino-Logo-Color-Inline-Loop.svg" alt="Arduino Logo" class="arduino-logo" />
             <p class="arduino-text">Edge AI Assistant</p>
           </div>
           <div class="header-right">
@@ -29,13 +25,7 @@ SPDX-License-Identifier: MPL-2.0
               <img
                 src="img/reset.svg"
                 alt="Reset"
-                style="
-                  width: 20px;
-                  height: 20px;
-                  padding-right: 8px;
-                  vertical-align: middle;
-                "
-              />Reset chat
+                style="width: 20px; height: 20px; padding-right: 8px; vertical-align: middle" />Reset chat
             </button>
           </div>
         </div>
@@ -69,11 +59,7 @@ SPDX-License-Identifier: MPL-2.0
               </div>
               <div id="messages"></div>
             </div>
-            <div
-              id="quick-action-buttons"
-              class="quick-action-buttons-container"
-              style="display: none"
-            >
+            <div id="quick-action-buttons" class="quick-action-buttons-container" style="display: none">
               <button class="quick-action-button">Act as …</button>
               <button class="quick-action-button">Answer briefly</button>
               <button class="quick-action-button">Answer in rhyme</button>
@@ -82,19 +68,13 @@ SPDX-License-Identifier: MPL-2.0
             </div>
             <div class="input-container">
               <div class="textarea-wrapper">
-                <textarea
-                  id="user-input"
-                  placeholder="Type your message here..."
-                ></textarea>
+                <textarea id="user-input" placeholder="Type your message here..."></textarea>
               </div>
               <button id="send-button">
                 <img src="img/send.svg" alt="Send" />
               </button>
             </div>
-            <p class="disclaimer">
-              Responses are generated from pre-existing knowledge. No live web
-              access.
-            </p>
+            <p class="disclaimer">Responses are generated from pre-existing knowledge. No live web access.</p>
             <button id="stop-stream-button" hidden>Stop Stream</button>
           </div>
         </div>
@@ -104,6 +84,7 @@ SPDX-License-Identifier: MPL-2.0
       <p id="error-message"></p>
     </div>
     <script src="libs/socket.io.min.js"></script>
+    <script src="libs/arduino.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
     <script src="app.js"></script>
   </body>

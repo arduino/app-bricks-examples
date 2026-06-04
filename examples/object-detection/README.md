@@ -1,20 +1,22 @@
 # Object Detection
+
 The **Object Detection** example lets you perform object detection using a pre-trained machine learning model. It shows how to process input images, run inference, and visualize detected objects with bounding boxes and labels.
 
 ![Object Detection Example](assets/docs_assets/thumbnail.png)
 
 ## Description
+
 This example uses a pre-trained model to detect objects in an uploaded image. The workflow involves uploading the input image, running it through the model, drawing bounding boxes around detected objects, and labeling each inference with its corresponding class name. The code is structured for easy adaptation to different models.
 
 The `assets` folder contains some static images and a CSS style sheet for the web interface. In the python folder, we find the main script.
 
-This example only uses the Arduino UNO Q CPU for running the application, as no C++ sketch is present in the example structure. 
+This example only uses the Arduino UNO Q CPU for running the application, as no C++ sketch is present in the example structure.
 
 ## Bricks Used
 
 The code detector example uses the following Bricks:
 
-- `objectdetection`: Brick to identify objects within an image. 
+- `objectdetection`: Brick to identify objects within an image.
 - `web_ui`: Brick to create a web interface.
 
 ## Hardware and Software Requirements
@@ -84,10 +86,10 @@ object_detection = ObjectDetection()
 
 The function `on_detect_objects` performs the following:
 
-  - Read inputs from the browser
-  - Decode image and run inference
-  - Draw bounding boxes to overlay detected objects in the image.
-  - Send result (or error) back to the browser
+- Read inputs from the browser
+- Decode image and run inference
+- Draw bounding boxes to overlay detected objects in the image.
+- Send result (or error) back to the browser
 
 The App initialize the web interface, set up the endpoint and starts the runtime:
 
@@ -110,7 +112,7 @@ The (app.js) manages the browser-side logic of the App by doing the following:
 - Initializes page elements (upload area, preview, confidence slider, Detect/Upload/Download buttons, result title).
 - Handles **image selection** (upload or drag & drop), shows a preview, and stores the image as base64.
 - Manages the **confidence control** (slider, input, reset, tooltip).
-- Connects to the backend via **Socket.IO**.
+- Connects to the backend via **WebUI**.
 - Sends a `detect_objects` request to the server when the user clicks **Run Detection**.
 - Receives `detection_result` or `detection_error`; on success, displays the annotated result image and shows a success status.
 - Controls UI states, including showing/hiding **Run Again**, **Change Image**, and **Download** actions.

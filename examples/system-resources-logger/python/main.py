@@ -27,7 +27,7 @@ ui.expose_api("GET", "/get_samples/{resource}/{start}/{aggr_window}", on_get_sam
 
 def get_events():
     ts = int(datetime.datetime.now().timestamp() * 1000)
-    
+
     # CPU usage
     cpu_percent = psutil.cpu_percent(interval=1)
     db.write_sample('cpu', cpu_percent, ts)
@@ -42,7 +42,7 @@ def get_events():
         "value": mem_percent,
         "ts": ts
     })
-    
+
     time.sleep(5)
-            
+
 App.run(user_loop=get_events)

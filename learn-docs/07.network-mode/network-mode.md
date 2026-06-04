@@ -1,87 +1,59 @@
 ---
-title: Network Mode
-description: Learn how to set up and use Network Mode, a mode for accessing and using the UNO Q over a local network.
-author: Karl Söderby
-tags: [SSH, Linux, Network Mode, Local Network]
-icon: Computer
+title: Network Configuration for Arduino App Lab
+description: Learn about the ports, domains, and network types required for your board and App Lab.
+tags: [Network, Troubleshooting, Firewall]
+icon:
 category: basic
-last_revised: 2025/10/16
 ---
 
-![Network Mode](assets/network-hero.png)
+Configure your network environment to ensure reliable remote connectivity. While standard home networks typically work without additional setup, this guide provides the port, domain, and mDNS requirements for advanced users and IT administrators operating on restricted or corporate networks.
 
-**Network Mode** is a mode that allows us to access the Arduino® UNO Q over the local network, using the Arduino App Lab (Desktop) application.
+## Local Network Discovery (mDNS)
 
-This mode is preferred when the board is set up as a [Single Board Computer (SBC)](/learn/single-board-computer), or when it cannot be physically connected to our computer.
+Arduino App Lab uses **mDNS (Multicast DNS)** to automatically detect your board on the local network.
 
-> To use Network Mode, we need to complete the first setup of the board, where we enter Wi-Fi® credentials and a name for our board. This will automatically enable `ssh` which is required to use this mode.
+> **Warning:** Some network environments—such as guest Wi-Fi, corporate networks, or VPNs—may block mDNS traffic, preventing the board from appearing in the App Lab interface.
 
-## Recap on Different Modes
+To ensure discovery works correctly:
 
-In other tutorials (such as [First Setup](/learn/first-setup)), we cover the **three different modes** that we can use to program the UNO Q:
-- **Desktop Mode (over USB)** - we program the board, using the Arduino App Lab desktop application on our host computer (Mac/Windows/Linux)
-- **Network Mode (over SSH / local network)** - we connect to the board over the local network, using SSH. This requires no physical connection (USB) with the board.
-- **Standalone Mode (board as SBC)** - board is setup with a monitor, keyboard and mouse, and can be programmed by using the Arduino App Lab on the board itself.
+- **Allow UDP Port 5353:** Your firewall must allow traffic on this port, which is the standard for mDNS.
+- **Approve mdns-discovery:** On Windows, you must allow `mdns-discovery.exe` through the Windows Defender Firewall when prompted during the first launch of App Lab.
 
-## How to Set Up 
+## Required Ports
 
-Setting up Network Mode only takes a minute, and it works exactly the same as using a physical USB-C® cable.
+Depending on the features and Bricks you use, the board requires access to the following ports:
 
-### First Time Using the Board
+| Port | Protocol | Service | Usage |
+| :--- | :--- | :--- | :--- |
+| 5353 | UDP | mDNS | Automatic board discovery on the local network. |
+| 22 | TCP | SSH | Used for "Network Mode" to deploy and manage Apps. |
+| 80 / 443 | TCP | HTTP/HTTPS | Fetching system updates, Docker images, and API data. |
+| 123 | UDP | NTP | Synchronizing the internal Linux system clock. |
+| 7000 | TCP | WebUI | The default port for the WebUI Brick. Can be overridden when initializing the Brick. |
 
-If this is our first time using the board, we first need to complete the **"First Setup"**, which requires the board to be connected to our host computer via a USB-C® cable.
+## Supported Network Types
 
-To achieve this, simply start the Arduino App Lab, select the **USB** option (only one is available during first setup).
+- **WPA/WPA2 Personal:** Natively supported via the App Lab Wi-Fi setup wizard.
+- **WPA2-Enterprise:** Supported by the underlying Debian OS but requires manual configuration via the terminal using `nmcli`.
+- **Captive Portals:** Networks requiring a web-based login or "Agree" page are **not supported** by the App Lab setup wizard.
 
-![First Setup](assets/first-setup-network.png)
+## Domain Whitelist
 
-Complete the setup, which includes providing Wi-Fi® credentials and a name/password for the board. The board may also look for updates, which will be automatically downloaded and applied.
+If you are operating behind a restrictive firewall, you must allow traffic to the following domains for the board to function correctly:
 
-### Set up Network Mode
+### Core Infrastructure
 
-After the first setup is completed, restart the Arduino App Lab. Wait for the board to appear. If our computer and the board is on the same network, it will appear next to the USB option (marked with **Network**).
+- `downloads.arduino.cc`: System updates, toolchains, and library indexes.
+- `apt-repo.arduino.cc`: Official Arduino Debian package repository.
+- `public.ecr.aws`: Docker container images for App Lab Bricks.
+- `github.com` and `raw.githubusercontent.com`: Source code and package retrieval.
 
-![Select network mode](assets/network-mode-select.png)
+### Arduino Cloud
 
-After selecting the Network mode, we will be asked to provide the password for the board (which is chosen during the first setup).
+- `app.arduino.cc`
+- `login.arduino.cc`
 
-![Enter password for the board](assets/network-password.png)
+### Application Specific
 
-After entering the password, we will have access to the board remotely, and we can create and launch Apps in exactly the same manner. The key difference is that we are now connecting with the board over **Secure Shell (SSH)**, and not over USB.
-
-> Note that the computer and board will need to remain on the same local network.
-
-## Using Network Mode and SBC
-
-Network Mode and SBC Mode can be used simultaneously, and it is a great way of testing out our Apps.
-
-Once the board is setup as an SBC  (monitor, keyboard & mouse), we can also access it from the Arduino App Lab desktop application. This allows us to program the board using our regular computer, but viewing the results on our board.
-
-## Connect via SSH / Terminal (Advanced)
-
-It is also possible to connect to the UNO Q board using SSH in the terminal. This requires SSH to be installed on our computer (in MacOS and several Linux OS, this tool is already installed). 
-
-Note that this requires the use of a **terminal**, and cannot be done inside the Arduino App Lab.
-
-To connect via SSH, open a terminal, and type the following:
-
-```sh
-# replace <boardname> with your username
-ssh arduinœ@<boardname>.local
-```
-
-The first time we attempt to connect to the board, we will be prompted to generate an SSH key. Follow the instructions in the terminal, and we will be able to enter the shell of the board.
-
-Once we are in, we should see this in our terminal:
-
-![Success connecting via SSH](assets/ssh-connect.png)
-
-> Note that we will need to enter the password for the board anytime we want to connect to it. This is the password set during the first setup.
-
-### Troubleshooting Failed SSH Connection
-
-If the SSH connection fails, there are some common things to check out:
-- Has the first setup been completed? If not, go to [First Setup](/learn/first-setup) and see the instructions. The first setup will enable SSH on the board which is required to connect.
-- If the SSH connection gets stuck even though first setup has been completed, it may be a local network issue. Check that the board is connected to the same network as our computer.
-
-For more information and troubleshooting steps, visit the [SSH guide (UNO Q official documentation)](https://docs.arduino.cc/tutorials/uno-q/ssh/). 
+- `api.open-meteo.com`: Used by the Weather Forecast example.
+- `time.nist.gov`: Used for NTP time synchronization.
