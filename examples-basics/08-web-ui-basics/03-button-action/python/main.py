@@ -3,11 +3,9 @@
 # SPDX-License-Identifier: MPL-2.0
 
 # Example app to demonstrate how to receive requests from the Web UI using the WebUI brick.
-# The WebUI brick exposes both a WebSocket endpoint and a RESTful HTTP API that can be called
-# from the Web UI to send data to the Python code.
 # In this example, is defined a WebSocket message handler and an HTTP API endpoint that
-# will be called when the user clicks a button in the Web UI, and the Python code will
-# log a message in the console indicating that the button was clicked along with the source.
+# will be called when the user clicks a button in the Web UI and, the Python code will
+# log a message in the console.
 from arduino.app_utils import *
 from arduino.app_utils import Logger
 from arduino.app_bricks.web_ui import WebUI

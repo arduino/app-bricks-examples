@@ -4,12 +4,12 @@
 
 # Example app to detect objects in a video stream from the camera and log the results to the console.
 
-from arduino.app_utils import App, Logger # Import the App and Logger classes to create an App Lab application and log messages
-from arduino.app_bricks.video_objectdetection import VideoObjectDetection # Import the VideoObjectDetection class to perform object detection on a video stream
-from arduino.app_peripherals.camera import Camera # Import the Camera class to configure the video source
+from arduino.app_utils import App, Logger
+from arduino.app_bricks.video_objectdetection import VideoObjectDetection
+from arduino.app_peripherals.camera import Camera
 
-CONFIDENCE_THRESHOLD = 0.5                                                                 # Confidence threshold for object detection
-logger = Logger("VideoObjectDetectionApp")                                                 # Initialize a logger for the application
+CONFIDENCE_THRESHOLD = 0.5 # Confidence threshold for object detection
+logger = Logger("VideoObjectDetectionApp")
 
 # List of camera configurations available, choose the one uncomment it and comment the others.
 camera = Camera(resolution=(640, 480), fps=30)
@@ -22,14 +22,12 @@ detection_stream = VideoObjectDetection(camera=camera, confidence=CONFIDENCE_THR
 #detection_stream = VideoObjectDetection(camera=camera, confidence=0.7, debounce_sec=0.0) # Use a stricter confidence threshold
 #detection_stream = VideoObjectDetection(camera=camera, confidence=CONFIDENCE_THRESHOLD, debounce_sec=1.0) # Debounce repeated detections of the same object
 
-# Define a callback for when all objects are detected
-# This function will be called every time the VideoObjectDetection brick detects objects in the video stream,
-# and it will log the detected objects and their confidence scores to the console.
+# Define a callback to be called every time the VideoObjectDetection brick detects objects
 def send_detections_to_console(detections: dict):
-  for key, values in detections.items():                                              # iterate through the detected objects and log their labels and confidence scores
+  for key, values in detections.items():
     for value in values:
-      logger.info(f"Detected {key} with confidence {value.get('confidence', 'N/A')}") # Log the label and confidence score of each detected object
+      logger.info(f"Detected {key} with confidence {value.get('confidence', 'N/A')}")
 
-detection_stream.on_detect_all(send_detections_to_console)                                 # Register the callback function to be called when objects are detected in the video stream
+detection_stream.on_detect_all(send_detections_to_console) # Register the callback function to be called when objects are detected in the video stream
 
 App.run()

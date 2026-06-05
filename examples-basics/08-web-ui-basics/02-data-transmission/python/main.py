@@ -20,18 +20,16 @@ def loop():
         # using the 'message' event to update the UI with dynamic content
         ui.send_message("message", {"content": f"Hello from Python! Counter: {counter}"})
         counter += 1
-        time.sleep(10)  # Wait for 10 seconds before sending the next message
+        time.sleep(10)
 
 # Define a callback function to be called when a new client connects to the WebUI brick.
-# This function will set the "connected" variable to True, allowing the loop function
-# to start sending messages to the UI.
+# This function enables the loop function to send messages to the UI
 def on_connect(connection):
     global connected
     connected = True
 
 # Define a callback function to be called when a client disconnects from the WebUI brick.
-# This function will set the "connected" variable to False, stopping the loop function
-# from sending messages to the UI until a new client connects.
+# # This function stops the loop function from sending messages to the UI
 def on_disconnect(connection):
     global connected
     connected = False
