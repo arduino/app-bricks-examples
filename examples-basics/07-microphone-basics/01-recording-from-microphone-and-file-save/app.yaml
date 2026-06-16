@@ -1,0 +1,3 @@
+name: Recording from Microphone and File Save
+icon: 🎙️
+description: Record audio from a microphone with record_wav(duration) and save it to a WAV file.

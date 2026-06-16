@@ -1,0 +1,57 @@
+# SPDX-FileCopyrightText: Copyright (C) Arduino s.r.l. and/or its affiliated companies
+#
+# SPDX-License-Identifier: MPL-2.0
+
+from arduino.app_utils import App, Logger, Bridge
+from arduino.app_bricks.video_imageclassification import VideoImageClassification
+from arduino.app_peripherals.camera import Camera
+
+# Example app to detect people in a video stream, log the results to the console and trigger an action on the MCU
+logger = Logger("VideoPersonClassificationApp")
+CONFIDENCE_THRESHOLD = 0.5 # Confidence threshold for object detection
+
+# List of camera configurations available, choose the one uncomment it and comment the others.
+camera = Camera(resolution=(640, 480), fps=30)
+#camera = Camera("csi:0", resolution=(640, 480), fps=30) # CSI camera with positional source identifier
+#camera = Camera("usb:0", resolution=(640, 480), fps=30) # USB camera with positional source identifier
+#camera = Camera("rtsp://<RTSP_URL>", username="<USERNAME>", password="<PASSWORD>") # RTSP camera stream
+
+# List of video image classification configurations available, choose the one uncomment it and comment the others.
+detection_stream = VideoImageClassification(camera=camera, confidence=CONFIDENCE_THRESHOLD, debounce_sec=1.0)  # Initialize the VideoImageClassification brick with the specified confidence threshold and debounce time
+#detection_stream = VideoImageClassification(camera=camera, confidence=0.7, debounce_sec=1.0) # Use a stricter confidence threshold
+#detection_stream = VideoImageClassification(camera=camera, confidence=CONFIDENCE_THRESHOLD, debounce_sec=0.0) # Trigger every classification event
+
+# Variable to keep track of the previous state of person detection, used to avoid triggering the animation repeatedly when the state hasn't changed
+previous_state : bool = False
+
+# Function to turn on or off the LED matrix animation based on the detection of a person.
+def turn_on_off_animation(new_state: bool):
+    global previous_state
+    if new_state != previous_state:
+        previous_state = new_state
+        if new_state == True:
+           Bridge.call("turn_led_matrix", True) # Call the "turn_led_matrix" function defined in the sketch to turn on the LED matrix animation
+        else:
+           logger.info("No person detected, stopping animation.")
+           Bridge.call("turn_led_matrix", False) # Call the "turn_led_matrix" function defined in the sketch to turn off the LED matrix animation
+
+
+
+# Define the callback function for when a person is detected
+def person_detected():
+  logger.info("Person detected!")
+  turn_on_off_animation(True)
+
+# Define the callback function for when all objects are detected
+def on_all_detections(classifications: dict):
+  if len(classifications) == 0:
+      return
+  for key, _ in classifications.items():
+    if key != "person":
+        turn_on_off_animation(False)
+
+detection_stream.on_detect("person", person_detected) # Register the callback function to be called when a person is detected in the video stream
+
+detection_stream.on_detect_all(on_all_detections)     # Register the callback function to be called at any object detected in the video stream
+
+App.run()

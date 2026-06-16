@@ -1,0 +1,3 @@
+name: Send data to Python
+icon: 📤
+description: The sketch pushes a periodic counter value to Python over the Bridge.
