@@ -334,19 +334,17 @@ function renderAnomalies() {
         minute: '2-digit',
         second: '2-digit',
       });
-      const dateString = date
-        .toLocaleDateString('en-GB', {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric',
-        })
-        .replace(/ /g, ' ');
+      const dateString = date.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      });
 
       listItem.innerHTML = `
-                <span class="anomaly-score">${score}</span>
-                <span class="anomaly-text">Anomaly</span>
-                <span class="anomaly-time">${timeString} - ${dateString}</span>
-            `;
+        <span class="anomaly-score">${score}</span>
+        <span class="anomaly-text">Anomaly</span>
+        <span class="anomaly-time">${timeString} - ${dateString}</span>
+      `;
 
       recentAnomaliesElement.appendChild(listItem);
     } catch (e) {
