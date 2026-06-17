@@ -88,6 +88,12 @@ SPDX-FileCopyrightText = "Copyright (c) David Shim"
 SPDX-License-Identifier = "MIT"
 precedence = "override"
 
+[[annotations]]
+path = "examples/**/assets/libs/dotlottie-player.js"
+SPDX-FileCopyrightText = "Copyright (c) 2023 LottieFiles.com"
+SPDX-License-Identifier = "MIT"
+precedence = "override"
+
 # Configuration & generated files
 [[annotations]]
 path = [
