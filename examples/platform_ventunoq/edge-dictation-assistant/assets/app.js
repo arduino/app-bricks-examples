@@ -94,7 +94,7 @@ function closeLanguagePicker() {
  * Sets the first language as initially selected.
  */
 function renderLanguageOptions() {
-  languageOptions.innerHTML = '';
+  languageOptions.replaceChildren();
 
   LANGUAGES.forEach((language, index) => {
     const optionButton = document.createElement('button');
