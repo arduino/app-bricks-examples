@@ -1,0 +1,7 @@
+name: Edge AI Assistant
+icon: 💬
+description: Chatbot powered by a local LLM
+
+bricks:
+  - arduino:web_ui
+  - arduino:llm
