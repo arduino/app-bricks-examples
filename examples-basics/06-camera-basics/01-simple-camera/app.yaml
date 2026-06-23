@@ -1,0 +1,3 @@
+name: Simple Camera
+icon: 📷
+description: Simple example to capture an image from the camera and store it to the local storage.

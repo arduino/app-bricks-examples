@@ -1,0 +1,6 @@
+name: Button Action
+icon: 💡
+description: A simple example that demonstrates how to handle button actions in the Web UI.
+
+bricks:
+  - arduino:web_ui

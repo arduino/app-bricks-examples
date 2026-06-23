@@ -1,0 +1,3 @@
+name: LED Matrix Frame
+description: A basic example that displays frames using the Python Frame class and sends them to the sketch via Bridge.
+icon: 🟦

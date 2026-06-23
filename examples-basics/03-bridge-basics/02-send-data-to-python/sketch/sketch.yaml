@@ -1,0 +1,6 @@
+profiles:
+  default:
+    platforms:
+      - platform: arduino:zephyr
+    libraries:
+default_profile: default

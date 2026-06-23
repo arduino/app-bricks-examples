@@ -1,0 +1,3 @@
+name: Camera from different sources
+icon: 📷
+description: Simple example to capture an image from different camera sources and store it to the local storage.
