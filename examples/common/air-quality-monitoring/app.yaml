@@ -1,3 +1,5 @@
 name: Air quality on LED matrix
 description: An Air Quality Monitoring System that uses air quality AQI API data to show the air quality state on the LED matrix.
 icon: 🍃
+bricks:
+  - arduino:air_quality_monitoring
