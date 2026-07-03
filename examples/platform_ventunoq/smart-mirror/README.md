@@ -30,7 +30,7 @@ The Smart Mirror example uses the following Bricks:
 
 ### Hardware
 
-- Arduino Ventuno Q (x1)
+- Arduino VENTUNO Q (x1)
 - USB-C® cable (for power) (x1)
 - USB camera (x1)
 
@@ -38,11 +38,11 @@ The Smart Mirror example uses the following Bricks:
 
 - Arduino App Lab
 
-**Note:** You can also run this example using your Arduino Ventuno Q as a Single Board Computer (SBC) using a [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and display attached.
+**Note:** You can also run this example using your Arduino VENTUNO Q as a Single Board Computer (SBC) using a [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and display attached.
 
 ## How to Use the Example
 
-1. **Connect a USB camera to the board.** Plug the camera into one of the available USB ports on the Ventuno Q.
+1. **Connect a USB camera to the board.** Plug the camera into one of the available USB ports on the VENTUNO Q.
 
 2. **Run the app from Arduino App Lab.** Deploy and start the Smart Mirror example. The backend initializes the camera, the VLM model, and the web server.
 
