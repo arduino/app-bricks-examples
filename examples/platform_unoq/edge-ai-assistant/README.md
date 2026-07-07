@@ -1,6 +1,6 @@
 # Edge AI Assistant
 
-The **Edge AI Assistant** example demonstrates how to build a generative AI chatbot using the Arduino® VENTUNO™ Q. It uses a Large Language Model (LLM) to create a chatbot that helps you in your daily life. The board exploits its own hardware features to run the model locally, preserving the confidentiality of your data.
+The **Edge AI Assistant** example demonstrates how to build a generative AI chatbot using the Arduino® UNO Q. It uses a Large Language Model (LLM) to create a chatbot that helps you in your daily life. The board exploits its own hardware features to run the model locally, preserving the confidentiality of your data.
 
 ## Description
 
@@ -20,7 +20,7 @@ The Edge AI Assistant example uses the following Bricks:
 
 ### Hardware
 
-- Arduino VENTUNO Q (x1)
+- Arduino UNO Q (x1)
 - USB-C® cable (for power and programming) (x1)
 
 ### Software
@@ -40,7 +40,7 @@ The Edge AI Assistant example uses the following Bricks:
    ![Launch the App](assets/docs_assets/launch-app.png)
 
 3. **Access the Web Interface**
-   Open the App in your browser at `<VENTUNO-IP-ADDRESS>:7000`.
+   Open the App in your browser at `<UNO-IP-ADDRESS>:7000`.
 
 ### Interacting with the App
 
