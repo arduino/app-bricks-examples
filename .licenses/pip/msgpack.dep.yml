@@ -1,6 +1,6 @@
 ---
 name: msgpack
-version: 1.2.0
+version: 1.2.1
 type: pip
 summary: MessagePack serializer
 homepage: https://msgpack.org/
