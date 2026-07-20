@@ -168,7 +168,7 @@ tasks:
           # Annotate first-party textual sources without touching vendored
           # libraries, third-party fonts, or binary/media assets that would
           # otherwise generate .license sidecars.
-          find examples \
+          find inspirational \
             \( -path '*/python/*' -o -path '*/assets/*' -o -path '*/sketch/*' \) \
             -type f \
             ! -path '*/assets/libs/*' \

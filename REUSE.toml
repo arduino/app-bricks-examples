@@ -11,23 +11,23 @@ path = [
   "learn-docs/**/*.md",
   "learn-docs/**/assets/**",
   "learn-docs/_icons/**",
-  "examples/**/*.py",
-  "examples/**/*.ino",
-  "examples/**/*.h",
-  "examples/**/*.md",
-  "examples/**/*.yaml",
-  "examples/**/*.txt",
-  "examples/**/assets/*.html",
-  "examples/**/assets/*.css",
-  "examples/**/assets/*.js",
-  "examples/**/assets/**/*.json",
-  "examples/**/assets/**/*.png",
-  "examples/**/assets/**/*.jpg",
-  "examples/**/assets/**/*.jpeg",
-  "examples/**/assets/**/*.svg",
-  "examples/**/assets/**/*.gif",
-  "examples/**/assets/**/*.webp",
-  "examples/**/assets/**/*.wav",
+  "inspirational/**/*.py",
+  "inspirational/**/*.ino",
+  "inspirational/**/*.h",
+  "inspirational/**/*.md",
+  "inspirational/**/*.yaml",
+  "inspirational/**/*.txt",
+  "inspirational/**/assets/*.html",
+  "inspirational/**/assets/*.css",
+  "inspirational/**/assets/*.js",
+  "inspirational/**/assets/**/*.json",
+  "inspirational/**/assets/**/*.png",
+  "inspirational/**/assets/**/*.jpg",
+  "inspirational/**/assets/**/*.jpeg",
+  "inspirational/**/assets/**/*.svg",
+  "inspirational/**/assets/**/*.gif",
+  "inspirational/**/assets/**/*.webp",
+  "inspirational/**/assets/**/*.wav",
   "core-and-foundational/**/**/*.py",
   "core-and-foundational/**/**/*.ino",
   "core-and-foundational/**/**/*.h",
@@ -52,9 +52,9 @@ SPDX-License-Identifier = "MPL-2.0"
 # Third-party fonts (Open Sans, Roboto) distributed under OFL-1.1
 [[annotations]]
 path = [
-  "examples/**/assets/fonts/**/*.ttf",
-  "examples/**/assets/fonts/**/*.css",
-  "examples/**/assets/fonts/**/OFL.txt",
+  "inspirational/**/assets/fonts/**/*.ttf",
+  "inspirational/**/assets/fonts/**/*.css",
+  "inspirational/**/assets/fonts/**/OFL.txt",
   "core-and-foundational/**/**/assets/fonts/**/*.ttf",
   "core-and-foundational/**/**/assets/fonts/**/*.css",
   "core-and-foundational/**/**/assets/fonts/**/OFL.txt",
@@ -66,7 +66,7 @@ precedence = "override"
 # Arduino support modules that may live alongside third-party files in
 # assets/libs/ remain first-party code and should keep the project license.
 [[annotations]]
-path = "examples/**/assets/libs/arduino.js"
+path = "inspirational/**/assets/libs/arduino.js"
 SPDX-FileCopyrightText = "Copyright (C) Arduino s.r.l. and/or its affiliated companies"
 SPDX-License-Identifier = "MPL-2.0"
 precedence = "override"
@@ -75,7 +75,7 @@ precedence = "override"
 # cover them via annotations so their upstream headers stay untouched.
 [[annotations]]
 path = [
-  "examples/**/assets/libs/socket.io.min.js",
+  "inspirational/**/assets/libs/socket.io.min.js",
   "core-and-foundational/**/**/assets/libs/socket.io.min.js",
 ]
 SPDX-FileCopyrightText = "Copyright (c) 2014-2024 Guillermo Rauch"
@@ -83,13 +83,13 @@ SPDX-License-Identifier = "MIT"
 precedence = "override"
 
 [[annotations]]
-path = "examples/**/assets/libs/qrcode.min.js"
+path = "inspirational/**/assets/libs/qrcode.min.js"
 SPDX-FileCopyrightText = "Copyright (c) David Shim"
 SPDX-License-Identifier = "MIT"
 precedence = "override"
 
 [[annotations]]
-path = "examples/**/assets/libs/dotlottie-player.js"
+path = "inspirational/**/assets/libs/dotlottie-player.js"
 SPDX-FileCopyrightText = "Copyright (c) 2023 LottieFiles.com"
 SPDX-License-Identifier = "MIT"
 precedence = "override"

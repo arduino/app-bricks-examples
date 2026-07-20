@@ -8,7 +8,7 @@ on:
       - "ruff.toml"
       - ".prettierrc.json"
       - "eslint.config.mjs"
-      - "examples/**/*.py"
+      - "inspirational/**/*.py"
       - "core-and-foundational/**/**/*.py"
       - "**/*.js"
       - "**/*.html"
