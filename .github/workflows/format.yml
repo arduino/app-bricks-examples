@@ -9,7 +9,7 @@ on:
       - ".prettierrc.json"
       - "eslint.config.mjs"
       - "examples/**/*.py"
-      - "examples-basics/**/**/*.py"
+      - "core-and-foundational/**/**/*.py"
       - "**/*.js"
       - "**/*.html"
       - "**/*.css"

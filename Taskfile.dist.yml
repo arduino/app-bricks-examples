@@ -185,8 +185,8 @@ tasks:
               ';' || status=$?
         fi
 
-        if [ "$status" -eq 0 ] && [ -d examples-basics ]; then
-          find examples-basics \
+        if [ "$status" -eq 0 ] && [ -d core-and-foundational ]; then
+          find core-and-foundational \
             \( -path '*/python/*' -o -path '*/assets/*' -o -path '*/sketch/*' \) \
             -type f \
             ! -path '*/assets/libs/*' \
