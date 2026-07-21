@@ -14,23 +14,21 @@ The example uses the following Brick:
 
 - `web_ui`: Brick to create a web interface to display the board pins control dashboard.
 
-## Hardware and Software Requirements
+## Hardware Requirements
 
 ### Hardware
 
 - Arduino UNO Q (x1)
 - USB-C® to USB-A Cable (x1)
 
-### Software
-
-- Arduino App Lab
-
 **Note:** You can run this example using your Arduino UNO Q as a Single Board Computer (SBC) using a [USB-C hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and monitor attached.
 
 ## How to Use the Example
 
 1. Run the App.
+
 2. Open the App on your browser
+
 3. Toggle the pins switches you want to control.
 
 ## How it Works

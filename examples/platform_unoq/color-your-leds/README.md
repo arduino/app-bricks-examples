@@ -14,16 +14,12 @@ The example uses the following Brick:
 
 - `web_ui`: Brick to create a web interface to display the color control dashboard.
 
-## Hardware and Software Requirements
+## Hardware Requirements
 
 ### Hardware
 
 - Arduino UNO Q (x1)
 - USB-C® cable (for power and programming) (x1)
-
-### Software
-
-- Arduino App Lab
 
 **Note:** You can run this example using your Arduino UNO Q as a Single Board Computer (SBC) using a [USB-C hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and monitor attached.
 
@@ -79,8 +75,11 @@ Once the application is running, you can access it from your web browser by navi
 - Processing color requests and routing to the correct hardware.
 
   When the user selects a color or toggles a switch, the frontend emits a `set_color` message. The backend determines if the target LED is managed by the MPU (Linux) or the MCU (Sketch):
+  
   1. Validates the LED ID and color structure.
+  
   2. Routes commands for LED 1 & 2 to `Leds.set_ledX_color` (MPU direct control).
+  
   3. Routes commands for LED 3 & 4 to `Bridge.call` (MCU control).
 
   ```python
