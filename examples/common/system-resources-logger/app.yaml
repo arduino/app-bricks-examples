@@ -1,4 +1,4 @@
-name: System resources logger
+name: System Resources Logger
 icon: 📈
 description: A simple data logger that gets system resources usage from the board and stores them in a database.
 bricks:

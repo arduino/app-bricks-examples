@@ -1,12 +1,14 @@
 # Mascot Jump Game
 
-An endless runner game inspired by the classic browser dinosaur game, where you control an LED character jumping over electronic components. Features progressively increasing difficulty, score tracking, one-button gameplay, and synchronized LED matrix animations on the UNO Q.
+An endless runner game inspired by the classic browser dinosaur game, where you control an LED character jumping over electronic components. Features progressively increasing difficulty, score tracking, one-button gameplay, and synchronized LED matrix animations on the Arduino UNO Q.
+
+*This example was made using the Arduino UNO Q, but works on the Arduino VENTUNO Q as well.*
 
 ![Mascot Jump Game Example](assets/docs_assets/thumbnail.png)
 
 ## Description
 
-The App uses the `web_ui` Brick to create a browser-based game with real-time communication between the UNO Q and a web interface. The backend manages game physics, collision detection, and scoring at 60 FPS, while the frontend renders the LED character using PNG images for different animations.
+The App uses the `web_ui` Brick to create a browser-based game with real-time communication between the board and a web interface. The backend manages game physics, collision detection, and scoring at 60 FPS, while the frontend renders the LED character using PNG images for different animations.
 
 ![Mascot Jump Game - LED Character](assets/docs_assets/led_character_animation.png)
 
@@ -25,24 +27,20 @@ The mascot jump game example uses the following Bricks:
 
 - `web_ui`: Brick to create a web interface with real-time communication between the browser and Arduino board with game state updates, input handling, and rendering synchronization.
 
-## Hardware and Software Requirements
+## Hardware Requirements
 
 ### Hardware
 
 - Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
 - USB-C® cable (for power and programming) (x1)
 
-### Software
-
-- Arduino App Lab
-
-**Note:** You can also run this example using your Arduino UNO Q as a Single Board Computer (SBC) using a [USB-C hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and display attached.
+**Note:** You can also run this example using your board as a Single Board Computer (SBC) using a [USB-C hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and display attached.
 
 ## How to Use the Example
 
 1. **Run the App**
 
-![Arduino App Lab - Run App](assets/docs_assets/launch-app.png)
+Run the App by clicking the **Run** button in the top navigation bar.
 
 2. **Access the Web Interface**
 
@@ -353,7 +351,7 @@ The high-level data flow looks like this:
 - State broadcast to clients
 5. **Parallel Rendering**:
 - Frontend: Canvas draws mascot and obstacles
-- LED matrix update: UNO Q displays synchronized LED animations based on game state
+- LED matrix update: the board displays synchronized LED animations based on game state
 6. **Visual Feedback**: Updated display on browser and LED matrix
 
 ## Understanding the Code
@@ -414,8 +412,11 @@ The LED matrix frames can be easily customized in `game_frames.h`. Each frame is
 To create custom frames:
 
 1. Design your pattern on an 8×13 grid
+
 2. Use values 0-7 for different brightness levels
+
 3. Replace the array values in `game_frames.h`
+
 4. Upload the sketch to see your custom mascot
 
 ### 🕹️ Game Configuration

@@ -17,33 +17,30 @@ The concrete crack detector example uses the following Bricks:
 - `visual_anomaly_detection`: Brick to detect cracks and structural defects in concrete surfaces using computer vision and machine learning.
 - `web_ui`: Brick to create a web interface with image upload capabilities, confidence controls, and real-time result visualization.
 
-## Hardware and Software Requirements
+## Hardware Requirements
 
 ### Hardware
 
 - Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
 - USB-C® cable (for power and programming) (x1)
 
-### Software
-
-- Arduino App Lab
-
-**Note:** You can also run this example using your Arduino UNO Q as a Single Board Computer (SBC) using a [USB-C hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and display attached.
+**Note:** You can also run this example using your board as a Single Board Computer (SBC) using a [USB-C hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and display attached.
 
 ## How to Use the Example
 
-1. Run the App
-
-![Run the App](assets/docs_assets/launch-app.png)
+1. Run the App by clicking the **Run** button in the top navigation bar.
 
 2. The App should open automatically in the web browser. You can open it manually via `<board-name>.local:7000`.
+
 3. Choose your image input method:
 
 - **Image from sample**: Select from pre-loaded concrete surface images (includes examples with and without cracks)
-- **Upload Image**: Upload your own JPG or PNG image file (maximum of 500 KB) using drag-and-drop or file selection
+- **Upload Image**: Upload your own JPG or PNG image file (maximum of 500 kB) using drag-and-drop or file selection
 
 4. Adjust the confidence threshold using the slider (0.0 to 1.0) to set the minimum detection confidence level
+
 5. Click **Run Detection** to analyze the concrete surface
+
 6. View the detection results showing:
 
 - Original image with red square markers highlighting detected cracks
@@ -135,7 +132,7 @@ The Python® component handles image processing and anomaly detection functional
 
 The web interface provides comprehensive image upload and crack detection functionality.
 
-- **Dual input modes**: Switches between sample concrete image grid display and file upload interface with drag-and-drop support for JPG/PNG files up to 500 KB.
+- **Dual input modes**: Switches between sample concrete image grid display and file upload interface with drag-and-drop support for JPG/PNG files up to 500 kB.
 
 - **Sample image management**: Displays pre-loaded concrete surface images categorized by crack presence, with visual selection indicators and an organized grid layout for easy browsing.
 

@@ -1,6 +1,6 @@
-# Linux Blink with UI (JavaScript)
+# Blink LED with UI
 
-The **Linux Blink** example shows a simple Linux application that changes the LED state on the board. It showcases basic event handling and UI updates through a web-based interface.
+The **Blink LED with UI** example shows a simple Linux application that changes the LED state on the board. It showcases basic event handling and UI updates through a web-based interface.
 
 ![Linux Blink App](assets/docs_assets/linux-blink-banner.png)
 
@@ -18,24 +18,21 @@ The Linux blink example uses the following Bricks:
 
 - `web_ui`: Brick to create a web interface to display the LED control toggle switch.
 
-## Hardware and Software Requirements
+## Hardware Requirements
 
 ### Hardware
 
 - Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
 - USB-C® cable (for power and programming) (x1)
 
-### Software
-
-- Arduino App Lab
-
-**Note:** You can run this example using your Arduino UNO Q as a Single Board Computer (SBC) using a [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and display attached.
+**Note:** You can run this example using your board as a Single Board Computer (SBC) using a [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and display attached.
 
 ## How to Use the Example
 
-1. Run the App
-   ![Arduino App Lab - Run App](assets/docs_assets/app-lab-run-app.png)
+1. Run the App by clicking the **Run** button in the top navigation bar.
+
 2. Open the App in your browser at `<UNO-Q-IP-ADDRESS>:7000`
+
 3. Click on the circular switch to change the state of the LED
 
 ## How it Works
@@ -54,7 +51,7 @@ ui.on_message('toggle_led', toggle_led_state)
 ui.on_message('get_initial_state', on_get_initial_state)
 ```
 
-- **Communicating LED state to the Arduino.**
+- **Communicating LED state to the board.**
 
 The Router Bridge sends LED commands to the microcontroller:
 
@@ -84,7 +81,7 @@ Here is a brief explanation of the application components:
 
 ### 🔧 Backend (`main.py`)
 
-The Python code manages the web interface, handles user interactions, and communicates with the Arduino.
+The Python code manages the web interface, handles user interactions, and communicates with the board.
 
 - **`ui = WebUI()`:** Initializes the web server that serves the HTML interface and handles WebSocket communication.
 

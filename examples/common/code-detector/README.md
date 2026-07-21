@@ -1,7 +1,8 @@
-# Code Detector
-The **Code Detector** example lets you detect and scan both barcodes and QR codes using a USB camera. It features a web-based interface that streams the live camera feed and displays the scanned codes content. Also, it stores the detected codes in a local database for future reference.
+# QR and Barcode Scanner
 
-**Note:** This example requires to be run using **Network Mode** in the Arduino App Lab or in **Single-Board Computer (SBC)** mode. Because you will need a USB-C hub and a USB camera.
+The **QR and Barcode Scanner** example lets you detect and scan both barcodes and QR codes using a USB camera. It features a web-based interface that streams the live camera feed and displays the scanned codes content. Also, it stores the detected codes in a local database for future reference.
+
+**Note:** This example requires to be run using **Network Mode** in the Arduino App Lab or in **Single-Board Computer (SBC)** mode, since you will need a USB-C hub and a USB camera.
 
 ![Code Detector Example](assets/docs_assets/thumbnail.png)
 
@@ -10,7 +11,7 @@ The app captures video input from a connected USB camera and continuously scans 
 
 The `assets` folder contains the **database** and **frontend** components of the application. Inside, you’ll find the JavaScript source files along with the HTML and CSS files that make up the web user interface. The `python` folder instead includes the application **backend**.
 
-This example only uses the Arduino UNO Q CPU for running the application since no C++ sketch is present in the example structure.
+This example only uses the board's CPU for running the application since no C++ sketch is present in the example structure.
 
 ## Bricks Used
 
@@ -20,7 +21,7 @@ The code detector example uses the following Bricks:
 - `dbstorage_sqlstore`: Brick to store the detected codes in a database.
 - `web_ui`: Brick to create a web interface to display the detected codes and the camera live feed.
 
-## Hardware and Software Requirements
+## Hardware Requirements
 
 ### Hardware
 
@@ -30,22 +31,26 @@ The code detector example uses the following Bricks:
 - A power supply (5 V, 3 A) for the USB hub (e.g. a phone charger) _(only for UNO Q)_
 - Personal computer with internet access
 
-### Software
-
-- Arduino App Lab
-
-**Note:** You can also run this example using your Arduino UNO Q as a Single Board Computer (SBC) using a [USB-C hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and display attached.
+**Note:** You can also run this example using your board as a Single Board Computer (SBC) using a [USB-C hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and display attached.
 
 ## How to Use the Example
 
+*Note, this example was created using the Arduino UNO Q but also works with VENTUNO Q.*
+
 1. Connect the USB-C hub to the UNO Q and the USB camera.
+
    ![Hardware setup](assets/docs_assets/hardware-setup.png)
+
 2. Attach the external power supply to the USB-C hub to power everything.
-3. Run the App.
-   ![Arduino App Lab - Run App](assets/docs_assets/launch-app.png)
+
+3. Run the App by clicking the **Run** button in the top navigation bar.
+
 4. The App should open automatically in the web browser. You can open it manually via `<board-name>.local:7000`.
+
 5. Detected codes will appear in real-time on the web interface, showing their type and timestamp.
+
 6. Click *Scan another* to repeat the process
+
 7. Review the list of scanned codes directly from your browser as new codes are detected.
 
 ## How it Works

@@ -4,43 +4,42 @@ The **Hey Arduino!** example triggers a LED matrix animation whenever the keywor
 
 To use this example, we need to use **Network Mode**, as it requires a [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) (to connect the microphone).
 
-Network mode is selected when launching the Arduino App Lab. You can read more about this the [Network Mode section](/learn/first-setup#option-2-remote-connect-ssh).
+Network mode is selected when launching the Arduino App Lab. You can read more about this on [Arduino Docs > Network Configuration](https://docs.arduino.cc/software/app-lab/configure/network-configuration/).
 
 ## Bricks Used
 
 - `keyword_spotting` - this Brick is designed to detect sound patterns, triggering event in case of a match.
 
-## Hardware and Software Requirements
+## Hardware Requirements
 
 ### Hardware
 
-- Arduino® UNO Q or Arduino VENTUNO Q
+- Arduino® UNO Q (x1) or Arduino VENTUNO Q (x1)
 - [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) _(only for UNO Q)_
 - USB microphone (or headset)
 - A power supply (5 V, 3 A) for the USB hub (e.g. a phone charger) _(only for UNO Q)_
-
-### Software
-
-- Arduino App Lab
 
 ## How to Use the Example
 
 ### Hardware Setup
 
-1. Connect an USB-C® hub to the board
+1. Connect an USB-C® hub to the board.
+
 2. Connect a USB microphone or headset to the USB-C® hub.
-3. Power the USB-C hub from a 5V power source (e.g. phone charger).
+
+3. Power the USB-C hub from a 5 V power source (e.g. phone charger).
 
 ![Setting up the USB-C® hub](assets/docs_assets/hardware-setup.png)
 
 ### Launch the App
 
 1. Make sure we are connected to the board using the **Network mode** (selected when launching Arduino App Lab).
+
 2. Launch the App by clicking on the "Play" button in the top right corner. Wait until the App has launched.
-    ![Launching an App](assets/docs_assets/launch-app.png)
 
 3. Say the words "Hey Arduino" into the microphone.
-4. An animation on the LED matrix should trigger (heart animation).
+
+4. A heart animation on the LED matrix should be triggered.
 
 ### How it Works
 

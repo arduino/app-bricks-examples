@@ -1,14 +1,15 @@
 # Cloud AI Assistant
 
-The **Cloud AI Assistant** example demonstrates how to build a generative AI chatbot using the Arduino UNO Q. It uses a Large Language Model (LLM) to create a chatbot that helps you in your daily life.
+The **Cloud AI Assistant** example demonstrates how to build a generative AI chatbot using the Arduino UNO Q or Arduino VENTUNO Q. It uses a Large Language Model (LLM) to create a chatbot that helps you in your daily life.
 
 ![Cloud AI Assistant Example](assets/docs_assets/thumbnail.png)
 
 ## Description
 
-This App transforms the UNO Q into an AI assistant. It uses the `cloud_llm` Brick to connect to a cloud-based AI model and the `web_ui` Brick to provide a rich configuration interface.
+This App transforms the board into an AI assistant. It uses the `cloud_llm` Brick to connect to a cloud-based AI model and the `web_ui` Brick to provide a rich configuration interface.
 
 The interface includes pre-built prompts and a free text area. The conversation follows a chat style: your inquiries are on the right, and the AI replies are on the left.
+
 Moreover, tip buttons help you build prompts in the input text area.
 
 ## Bricks Used
@@ -18,16 +19,12 @@ The Cloud AI Assistant example uses the following Bricks:
 - `cloud_llm`: Brick to interact with cloud-based Large Language Models (LLMs) like Google Gemini, OpenAI GPT, or Anthropic Claude.
 - `web_ui`: Brick to create the web interface for parameter input and story display.
 
-## Hardware and Software Requirements
+## Hardware Requirements
 
 ### Hardware
 
 - Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
 - USB-C® cable (for power and programming) (x1)
-
-### Software
-
-- Arduino App Lab
 
 **Note:** This example requires an active internet connection to reach the AI provider's API. You will also need a valid **API Key** for the service used (e.g., Google AI Studio API Key).
 
@@ -38,15 +35,19 @@ This example requires a valid API Key from an LLM provider (Google Gemini, OpenA
 ### Configure & Launch App
 
 1. **Duplicate the Example**
-   Since built-in examples are read-only, you must duplicate this App to edit the configuration. Click the arrow next to the App name and select **Duplicate** or click the **Copy and edit app** button on the top right corner of the App page.
-   ![Duplicate example](assets/docs_assets/duplicate-app.png)
+
+   Since built-in examples are read-only, you must duplicate this App to edit the configuration. Click the **Copy and edit app** button on the top right corner of the App page.
 
 2. **Open Brick Configuration**
+
    On the App page, locate the **Bricks** section on the left. Click on the **Cloud LLM** Brick, then click the **Brick Configuration** button on the right side of the screen.
+
    ![Open Brick Configuration](assets/docs_assets/brick-config.png)
 
 3. **Add API Key**
+
    In the configuration panel, enter your API Key into the corresponding field. This securely saves your credentials for the App to use. You can generate an API key from your preferred provider:
+
    *   **Google Gemini:** [Get API Key](https://aistudio.google.com/app/apikey)
    *   **OpenAI GPT:** [Get API Key](https://platform.openai.com/api-keys)
    *   **Anthropic Claude:** [Get API Key](https://console.anthropic.com/settings/keys)
@@ -54,27 +55,33 @@ This example requires a valid API Key from an LLM provider (Google Gemini, OpenA
    ![Enter your API KEY](assets/docs_assets/brick-credentials.png)
 
 4. **Run the App**
+
    Launch the App by clicking the **Run** button in the top right corner. Wait for the App to start.
-   ![Launch the App](assets/docs_assets/launch-app.png)
 
 5. **Access the Web Interface**
+
    Open the App in your browser at `<UNO-Q-IP-ADDRESS>:7000`.
 
 ### Interacting with the App
 
 1. **Choose Your Card**
+
    You can start a conversation with the AI using a pre-built prompt or by submitting your own question.
 
 2. **Chat page**
+
    In the chat page you can have a conversation with the AI.
    Your inquiries are on the right and the AI replies on the left in a chat-like style.
 
 3. **Enhance your prompt**
+
    Click on the tips buttons to enhance your prompts to make them more sophisticated.
    The text of the clicked button will be appended to your prompt.
 
 4. **Interact**
+
    The AI responses are streamed in real-time. Once complete, you can:
+
    - **Continue on that topic** asking more questions.
    - Click **Reset chat** to reset the interface and start over.
 

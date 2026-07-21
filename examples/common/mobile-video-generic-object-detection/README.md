@@ -2,11 +2,13 @@
 
 The **Detect Objects on Smartphone Camera** example lets you detect objects on a live feed from your smartphone's camera and visualize bounding boxes around the detections in real-time.
 
-**Note:** This example uses your smartphone as a remote camera input. Both the Arduino UNO Q and your smartphone must be connected to the same network.
+**Note:** This example uses your smartphone as a remote camera input. Both the board and your smartphone must be connected to the same network.
 
 ![Detect Objects on Camera](assets/docs_assets/mobile-object-detection.png)
 
 This example uses a pre-trained model to detect objects on a live video feed provided by the **Arduino IoT Remote** mobile app. The workflow involves pairing your phone to the board via a QR code, streaming video over the network, processing it through an AI model using the `video_objectdetection` Brick, and displaying the bounding boxes around detections. The App is managed from an interactive web interface.
+
+*This example is based on the Arduino UNO Q, but also works with Arduino VENTUNO Q.*
 
 ## Bricks Used
 
@@ -19,7 +21,7 @@ The example uses the following Bricks:
 
 ### Hardware
 
-- [Arduino® UNO Q](https://store.arduino.cc/products/uno-q) or Arduino VENTUNO Q
+- Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
 - Smartphone (iOS or Android)
 - Personal computer with internet access (to view the Web UI)
 
@@ -32,19 +34,28 @@ The example uses the following Bricks:
 
 ### Arduino App Lab Setup
 
-1. Ensure your Arduino UNO Q is powered and connected to the network.
-2. Run the App in Arduino App Lab.
+1. Ensure your board is powered and connected to the network.
+
+2. Run the App by clicking the **Run** button in the top navigation bar.
+
 3. The App should open automatically in the web browser. You can open it manually via `<board-name>.local:7000`.
+
 4. The Web UI will display a **QR Code**.
 
 ### Arduino IoT Remote Setup
 
 5. Install the **Arduino IoT Remote** app on your smartphone from your app store.
+
 6. Open the Arduino IoT Remote app on your phone and log in with your Arduino account.
+
 7. Go to Devices, tap on the plus icon to set up a new device and select **Stream phone camera to UNO Q**.
+
    ![IoT Remote setup](assets/docs_assets/iot-remote.png)
+
 8. Scan the QR code.
+
 9. Once connected, the video stream from your phone will appear on the Web UI.
+
 10. Point your phone at objects and watch as the App detects and recognizes them.
 
 Try with one of the following objects for a special reaction:

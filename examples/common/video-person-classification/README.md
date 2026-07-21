@@ -4,6 +4,8 @@ The **Person Classifier** example lets you detect people on a live feed from a c
 
 **Note:** This example requires to be run using **Network Mode** in the Arduino App Lab or in **Single-Board Computer (SBC)** mode. Because you will need a USB-C hub and a USB camera.
 
+*This example is based on Arduino UNO Q, but also works on Arduino VENTUNO Q.*
+
 ![Person Classifier on Camera](assets/docs_assets/person-classification.png)
 
 This example uses a pre-trained model to detect people on a live video feed from a camera. The workflow involves continuously getting the frames from a USB camera, processing it through an AI model using the `video_imageclassification` Brick, and displaying the classification along with their corresponding probabilities. The code is structured to be easily adaptable to different models.
@@ -15,7 +17,7 @@ The example uses the following Bricks:
 - `web_ui`: Brick to create a web interface to display the classification results and model controls.
 - `video_imageclassification`: Brick to classify objects within a live video feed from a camera.
 
-## Hardware and Software Requirements
+## Hardware Requirements
 
 ### Hardware
 
@@ -23,22 +25,21 @@ The example uses the following Bricks:
 - USB camera (x1)
 - USB-C® hub adapter with external power (x1) _(only for UNO Q)_
 - A power supply (5 V, 3 A) for the USB hub (e.g. a phone charger) _(only for UNO Q)_
-- Personal computer with internet access
 
-### Software
-
-- Arduino App Lab
-
-**Note:** You can also run this example using your Arduino UNO Q as a Single-Board Computer (SBC) using a [USB-C hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and monitor attached.
+**Note:** You can also run this example using your board as a Single-Board Computer (SBC) using a [USB-C hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and monitor attached.
 
 ## How to Use the Example
 
 1. Connect the USB-C hub to the UNO Q and the USB camera.
+
    ![Hardware setup](assets/docs_assets/hardware-setup.png)
+
 2. Attach the external power supply to the USB-C hub to power everything.
-3. Run the App.
-   ![Arduino App Lab - Run App](assets/docs_assets/launch-app.png)
+
+3. Run the App on the top navigation bar.
+
 4. The App should open automatically in the web browser. You can open it manually via `<board-name>.local:7000`.
+
 5. Position yourself in front of the camera and watch as the App detects and recognizes a person.
 
 ## How it Works
@@ -88,12 +89,14 @@ Here is a brief explanation of the full-stack application:
 ## Understanding the Code
 
 Once the application is running, you can open it in your browser by navigating to `<BOARD-IP-ADDRESS>:7000`.  
+
 At that point, the device begins performing the following:
 
 - Serving the **video classification UI** and exposing realtime transports.
 
   The UI is hosted by the `WebUI` Brick and communicates with the backend via WebSocket.  
-   The backend pushes classification messages whenever new objects are detected.
+
+  The backend pushes classification messages whenever new objects are detected.
 
   ```python
   from arduino.app_bricks.web_ui import WebUI
@@ -138,6 +141,7 @@ At that point, the device begins performing the following:
 - Rendering and interacting on the frontend.
 
   The **index.html + app.js** bundle defines the interface:
+
   - A **video feed iframe** attempts to connect to the embedded camera stream (`/embed`).
   - A **confidence control** (slider + input) lets the user adjust the detection threshold.
   - A **feedback section** displays animated messages when a person is classified.

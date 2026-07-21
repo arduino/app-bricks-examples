@@ -1,4 +1,4 @@
-name: Glass breaking sensor
+name: Glass Breaking Sensor
 icon: 🪟
 description: Use a pre-trained model to classify audio files in the browser.
 

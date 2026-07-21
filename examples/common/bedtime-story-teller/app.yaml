@@ -1,7 +1,7 @@
-name: Bedtime story teller
+name: Bedtime Story Teller
 icon: 🏰
 description:
-  This example shows how to create a bedtime story teller using Arduino.
+  This example shows how to create a bedtime story teller with an Arduino board.
   It uses a cloud-based language model to generate a story based on user input and shows the story on a web interface.
 
 bricks:

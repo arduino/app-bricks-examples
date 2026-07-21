@@ -10,7 +10,7 @@ This example uses a pre-trained model to classify images into various categories
 
 The `assets` folder contains some static images and a CSS style sheet for the web interface. In the `python` folder, you will find the main script.
 
-This example only uses the Arduino UNO Q CPU for running the application, as no C++ sketch is present in the example structure.
+This example only uses the board's CPU for running the application, as no C++ sketch is present in the example structure.
 
 ## Bricks Used
 
@@ -19,7 +19,7 @@ The image classification example uses the following Bricks:
 - `imageclassification`: Brick to classify objects within an image.
 - `web_ui`: Brick to create a web interface to display the image classification dashboard.
 
-## Hardware and Software Requirements
+## Hardware Requirements
 
 ### Hardware
 
@@ -27,19 +27,20 @@ The image classification example uses the following Bricks:
 - USB-C® to USB-A Cable (x1)
 - Personal computer with internet access
 
-### Software
-
-- Arduino App Lab
-
-**Note:** You can also run this example using your Arduino UNO Q as a Single Board Computer (SBC) using a [USB-C hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and display attached.
+**Note:** You can also run this example using your board as a Single Board Computer (SBC) using a [USB-C hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and display attached.
 
 ## How to Use the Example
 
 1. Run the app.
+
 2. Open the app in your browser.
+
 3. Upload an image you want to analyze.
+
 4. Adjust the confidence threshold slider to set the minimum detection confidence.
+
 5. Click the **Run classification** button to run the image classification.
+
 6. View the classification results, which display the predicted categories and their confidence scores.
 
 ## How it Works

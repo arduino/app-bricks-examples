@@ -1,6 +1,6 @@
 # System Resources Logger
 
-The **System Resources Logger** monitors and displays real-time system performance data from your Arduino UNO Q board. It tracks CPU and memory usage, stores the data in a time series database, and provides a web-based dashboard with live charts and historical analysis over 1-hour and 1-day periods.
+The **System Resources Logger** monitors and displays real-time system performance data from your board. It tracks CPU and memory usage, stores the data in a time series database, and provides a web-based dashboard with live charts and historical analysis over 1-hour and 1-day periods.
 
 ![System Resources Logger](assets/docs_assets/system-resource-log.png)
 
@@ -17,34 +17,30 @@ The system resources logger example uses the following Bricks:
 - `dbstorage_tsstore`: Brick to store CPU and memory usage data in a time series database with retention and aggregation capability.
 - `web_ui`: Brick to create a web interface with real-time charts and historical data visualization.
 
-## Hardware and Software Requirements
+## Hardware Requirements
 
 ### Hardware
 
 - Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
 - USB-C® cable (for power and programming) (x1)
 
-### Software
-
-- Arduino App Lab
-
-**Note:** You can also run this example using your Arduino UNO Q as a Single Board Computer (SBC) using a [USB-C hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and display attached.
+**Note:** You can also run this example using your board as a Single Board Computer (SBC) using a [USB-C hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and display attached.
 
 ## How to Use the Example
 
-1. Run the App
-
-![Run the App](assets/docs_assets/launch-app.png)
+1. Run the App by clicking the button in the top navigation bar.
 
 2. The App should open automatically in the web browser. You can open it manually via `<board-name>.local:7000`.
+
 3. View real-time system performance:
 
-- **Live Tab**: Shows current CPU and memory usage with real-time updates
-- **1h Tab**: Displays last hour performance with 5 minute data aggregation
-- **1D Tab**: Shows last 24 hours with 1 hour data aggregation
+   - **Live Tab**: Shows current CPU and memory usage with real-time updates
+   - **1h Tab**: Displays last hour performance with 5 minute data aggregation
+   - **1D Tab**: Shows last 24 hours with 1 hour data aggregation
 
-4. Monitor the live indicator, a green circle, that flashes when new data arrives
-5. Hover over chart points to see detailed timestamp and percentage values
+4. Monitor the live indicator, a green circle, that flashes when new data arrives.
+
+5. Hover over chart points to see detailed timestamp and percentage values.
 
 ## How it Works
 

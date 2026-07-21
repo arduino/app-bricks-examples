@@ -1,12 +1,14 @@
 # Music Composer
 
-The **Music Composer** example provides a web-based step sequencer interface to create polyphonic music patterns using the Arduino® UNO™ Q. It features 18 notes spanning from F#3 to B4, adjustable BPM, multiple waveforms, and a comprehensive effects rack, all powered by the `sound_generator` Brick.
+The **Music Composer** example provides a web-based step sequencer interface to create polyphonic music patterns using the Arduino UNO Q. It features 18 notes spanning from F#3 to B4, adjustable BPM, multiple waveforms, and a comprehensive effects rack, all powered by the `sound_generator` Brick.
+
+*This example is based on the Arduino UNO Q but also works with Arduino VENTUNO Q.*
 
 ![Music Composer Example](assets/docs_assets/thumbnail.png)
 
 ## Description
 
-This App transforms your UNO Q into a browser-based music workstation. Using a grid where each row represents a musical note and each column represents a sixteenth-note time step, you can compose melodies and chords by toggling cells on and off. The grid dynamically expands as you add notes near the edge, supporting long compositions without limits.
+This App transforms your board into a browser-based music workstation. Using a grid where each row represents a musical note and each column represents a sixteenth-note time step, you can compose melodies and chords by toggling cells on and off. The grid dynamically expands as you add notes near the edge, supporting long compositions without limits.
 
 The `web_ui` Brick serves the interactive frontend, while the `sound_generator` Brick handles real-time audio synthesis with configurable waveforms and effects. Your creation plays back with synchronized visual feedback, and you can export the finished composition as a Python® file containing a `MusicComposition` object ready to reuse in other Arduino App Lab projects.
 
@@ -27,7 +29,7 @@ The Music Composer example uses the following Bricks:
 - `web_ui`: Brick to create the web interface and provide a WebSocket channel for real-time control.
 - `sound_generator`: Brick to handle audio synthesis, effects processing, and step sequence playback.
 
-## Hardware and Software Requirements
+## Hardware Requirements
 
 ### Hardware
 
@@ -37,41 +39,47 @@ The Music Composer example uses the following Bricks:
 - USB-C hub with external power (x1) *(required when using a USB audio device)*  _(only for UNO Q)_
 - Power supply (5 V, 3 A) for the USB-C hub (x1) *(required when using a USB audio device)*  _(only for UNO Q)_
 
-### Software
-
-- Arduino App Lab
-
 **Note:** A **USB-C hub is mandatory** when using an external USB audio device. The UNO Q's single USB-C port must be connected to the hub, which provides the necessary connections for both the power supply and the audio device. When using external audio, this example must be run in **Network Mode** or **SBC Mode** (via a USB-C hub with a mouse, keyboard, and display attached).
 
 ## How to Use the Example
 
 1. **Connect the Hardware (Optional External Audio)**
+
    To use an external USB audio device, connect it to a powered **USB-C hub** attached to the UNO Q. Ensure the hub has its own power supply.
 
 2. **Run the App**
+
    The App will start and initialize the audio engine. Launch it from Arduino App Lab by clicking the **Run** button. Wait until the App has launched completely.
 
 3. **Access the Web Interface**
+
    The web UI will load in your browser. Open it at `<board-name>.local:7000` or `<UNO-Q-IP-ADDRESS>:7000`.
 
 4. **Create a Pattern**
+
    The sequencer grid will appear with note labels on the left and time steps across the top.
+
    - **Toggle Notes:** Click cells in the grid to activate or deactivate notes. Active cells turn purple.
    - **Notes:** Each row corresponds to a specific pitch (B4 at the top, F#3 at the bottom).
    - **Steps:** Each column represents a sixteenth note (1/16 beat).
    - **Grid Expansion:** The grid automatically expands by 32 steps when you add notes within eight steps of the right edge.
 
 5. **Adjust BPM**
+
    The tempo will update immediately. Use the BPM input field in the sequencer controls to set the tempo (40-240 BPM). Click the reset button to return to 120 BPM.
 
 6. **Select a Waveform**
+
    The selected waveform shapes the timbre of all notes. Choose one from the **Wave** section of the control panel:
+
    - **Sine:** Smooth, pure tone.
    - **Square:** Classic synth sound, retro game style.
    - **Triangle:** Mellower, softer than square.
 
 7. **Apply Effects**
+
    Each effect is controlled by a virtual knob with plus/minus buttons. Adjust the five effect knobs in the **Effects** section:
+
    - **Bitcrusher:** Lowers bit depth for lo-fi digital distortion.
    - **Chorus:** Adds depth and richness by simulating multiple voices.
    - **Tremolo:** Rhythmic amplitude modulation (volume vibrato).
@@ -79,9 +87,11 @@ The Music Composer example uses the following Bricks:
    - **Overdrive:** Adds harmonic distortion and saturation.
 
 8. **Play Your Composition**
+
    The current step will be highlighted as the sequence plays. Click the **Play** button in the sequencer controls. Click **Pause** or **Stop** to control playback.
 
 9. **Undo, Clear, or Export**
+
    - **Undo/Redo:** Click the arrow buttons to step backward or forward through your editing history.
    - **Clear:** Click the **Clear all** button to remove all notes (a confirmation dialog will appear).
    - **Export:** Click **Export .py** to download a Python file containing your composition as a `MusicComposition` object.
@@ -103,8 +113,11 @@ Web Browser (UI)  ──►  WebSocket (Socket.IO)  ──►  Python Backend (m
 ```
 
 1. **User Interaction:** The JavaScript frontend captures clicks on the grid and sends the updated grid state to the backend via WebSocket (`composer:update_grid`).
+
 2. **Sequence Building:** The Python backend converts the 2D grid (notes x steps) into a polyphonic sequence — a list of steps where each step contains a list of notes to play simultaneously.
+
 3. **Audio Playback:** The `SoundGenerator` Brick's `play_step_sequence()` method plays the sequence, calling `on_step_callback` for each step to synchronize visual feedback.
+
 4. **Step Highlighting:** The frontend runs a local timer to highlight the current step, ensuring smooth animation regardless of network latency.
 
 ## Understanding the Code
@@ -236,7 +249,9 @@ If the application fails to start and you see an error regarding the speaker:
 **Fix:**
 
 1. Ensure a **powered USB-C hub** is connected to the UNO Q.
+
 2. Verify the **USB audio device** is connected to the hub and turned on.
+
 3. Restart the application.
 
 ### No sound output
@@ -250,7 +265,7 @@ If the interface works but there is no sound:
 
 ### Choppy or crackling audio
 
-- **CPU Load:** Close other applications running on the UNO Q.
+- **CPU Load:** Close other applications running on the board.
 - **Power Supply:** Ensure you are using a stable 5 V, 3 A power supply for the USB-C hub. Insufficient power often degrades USB audio performance.
 
 ### Grid not expanding
