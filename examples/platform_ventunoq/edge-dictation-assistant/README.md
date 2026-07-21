@@ -1,6 +1,6 @@
 # Edge Dictation Assistant
 
-The **Edge Dictation Assistant** example creates a simple dictation assistant that converts your speech to text and displays it on a UI, using the Arduino® VENTUNO™ Q.
+The **Edge Dictation Assistant** example creates a simple dictation assistant that converts your speech to text and displays it on a UI, using the Arduino VENTUNO Q.
 
 ## Description
 
@@ -13,7 +13,7 @@ The Edge Dictation Assistant example uses the following Bricks:
 - `asr`: Brick that provides on-device automatic speech recognition (ASR) capabilities for the audio stream. It offers a high-level interface for transcribing audio using a local model, with support for both real-time audio capture and batch processing.
 - `web_ui`: Brick to create the audio recording web interface.
 
-## Hardware and Software Requirements
+## Hardware Requirements
 
 ### Hardware
 
@@ -22,16 +22,14 @@ The Edge Dictation Assistant example uses the following Bricks:
 - USB microphone (or headset)
 - A power supply (5 V, 3 A) for the USB hub (e.g. a phone charger)
 
-### Software
-
-- Arduino App Lab
-
 ## How to Use the Example
 
 ### Hardware Setup
 
 1. Connect an USB-C® hub to the board
+
 2. Connect a USB microphone or headset to the USB-C® hub.
+
 3. Power the USB-C hub from a 5V power source (e.g. phone charger).
 
 ![Setting up the USB-C® hub](assets/docs_assets/hardware-setup.png)
@@ -39,27 +37,35 @@ The Edge Dictation Assistant example uses the following Bricks:
 ### Configure & Launch App
 
 1. **Duplicate the Example**
+
    Since built-in examples are read-only, you must duplicate this App to edit the configuration. Click the arrow next to the App name and select **Duplicate** or click the **Copy and edit app** button on the top right corner of the App page.
+
    ![Duplicate example](assets/docs_assets/duplicate-app.png)
 
 2. **Run the App**
+
    Launch the App by clicking the **Run** button in the top right corner. Wait for the App to start.
-   ![Launch the App](assets/docs_assets/launch-app.png)
 
 3. **Access the Web Interface**
+
    Open the App in your browser at `<VENTUNO-IP-ADDRESS>:7000`.
 
 ### Interacting with the App
+
 1. **Language selection**
+
    The UI let you select a language to be recognized. English language is selected by default.
 
 2. **Start dictation**
+
    On the UI interface press the microphone button to start collecting audio from the microphone connected to the VENTUNO. The dictation will automatically start showing on the UI.
 
 3. **Pause dictation**
+
    On the UI interface press the pause button to stop transcribing audio to the UI. To resume the dictation press the microphone button again.
 
 4. **Copy or start new dictation**
+
    After the dictation is finished you can hit the copy button to quickly copy the dictation result. Otherwise press the new recording button to start a new dictation process. You can also select another language to be transcribed.
 
 ## How it Works

@@ -15,27 +15,25 @@ The example uses the following Bricks:
 - `web_ui`: Brick to create a web interface to display the classification results and model controls.
 - `video_objectdetection`: Brick to classify faces within a live video feed from a camera.
 
-## Hardware and Software Requirements
+## Hardware Requirements
 
 ### Hardware
 
 - Arduino® VENTUNO Q (x1)
 - USB camera (x1)
 - A power supply (5 V, 3 A) for the USB hub (e.g. a phone charger)
-- Personal computer with internet access
-
-### Software
-
-- Arduino App Lab
-
 ## How to Use the Example
 
 1. Connect the USB-C hub to the UNO Q and the USB camera.
+
    ![Hardware setup](assets/docs_assets/hardware-setup.png)
+
 2. Attach the external power supply to the USB-C hub to power everything.
-3. Run the App.
-   ![Arduino App Lab - Run App](assets/docs_assets/launch-app.png)
+
+3. Run the App from the top navigation bar.
+
 4. The App should open automatically in the web browser. You can open it manually via `<board-name>.local:7000`.
+
 5. Position yourself in front of the camera and watch as the App detects your face and say hi.
 
 ## How it Works
@@ -105,7 +103,8 @@ Once the application is running, you can open it in your browser by navigating t
 - Serving the **face detection UI** and exposing real-time transports.
 
   The UI is hosted by the `WebUI` Brick and communicates with the backend over WebSocket.  
-   The backend pushes detection messages whenever a face is found.
+  
+  The backend pushes detection messages whenever a face is found.
 
   ```python
   from arduino.app_bricks.web_ui import WebUI
