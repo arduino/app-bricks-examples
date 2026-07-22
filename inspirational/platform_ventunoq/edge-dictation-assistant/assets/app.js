@@ -137,7 +137,12 @@ function renderLanguageOptions() {
  * @param {HTMLElement} option - The language option button element that was clicked.
  */
 function selectLanguageOption(option) {
-  selectedLanguage = option.getAttribute('data-lang');
+  // Resolve the clicked option against the static language list so that only
+  // known language codes are used to build the flag icon path.
+  const language = LANGUAGES.find(item => item.code === option.getAttribute('data-lang'));
+  if (!language) return;
+
+  selectedLanguage = language.code;
 
   const options = languageOptions.querySelectorAll('.language-option');
   options.forEach(item => {
@@ -146,9 +151,9 @@ function selectLanguageOption(option) {
 
   option.classList.add('selected');
 
-  selectedLanguageLabel.textContent = option.getAttribute('data-label');
+  selectedLanguageLabel.textContent = language.label;
 
-  selectedLanguageIcon.src = `img/flag/${option.getAttribute('data-lang')}.svg`;
+  selectedLanguageIcon.src = `img/flag/${language.code}.svg`;
 
   ui.send_message('set_language', { language: selectedLanguage });
 }
