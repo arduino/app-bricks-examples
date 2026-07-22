@@ -275,7 +275,11 @@ function handleImageFile(file) {
     currentImage = e.target.result.split(',')[1];
 
     const imagePreview = document.getElementById('imagePreview');
-    imagePreview.innerHTML = `<img src="${e.target.result}" alt="Uploaded image" class="preview-image">`;
+    const previewImage = document.createElement('img');
+    previewImage.src = e.target.result;
+    previewImage.alt = 'Uploaded image';
+    previewImage.className = 'preview-image';
+    imagePreview.replaceChildren(previewImage);
     imagePreview.style.border = 'none';
 
     setButtonState('ready');
