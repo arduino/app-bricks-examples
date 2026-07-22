@@ -35,7 +35,7 @@ The Gesture Booth example uses the following Bricks:
 
 ### Hardware
 
-- Arduino® VENTUNO™ Q (x1)
+- Arduino VENTUNO Q (x1)
 - USB-C® cable (x1)
 - Camera (Integrated or USB camera)
 

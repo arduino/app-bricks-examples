@@ -1,6 +1,6 @@
 # Edge Speech Assistant
 
-The **Edge Speech Assistant** example turns the Arduino® VENTUNO Q into a fully offline text-to-speech device that converts any text you type into spoken audio played through a connected speaker.
+The **Edge Speech Assistant** example turns the Arduino VENTUNO Q into a fully offline text-to-speech device that converts any text you type into spoken audio played through a connected speaker.
 
 ![Edge Speech Assistant Example](assets/docs_assets/thumbnail.png)
 

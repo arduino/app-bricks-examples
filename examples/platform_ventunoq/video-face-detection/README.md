@@ -22,6 +22,7 @@ The example uses the following Bricks:
 - Arduino® VENTUNO Q (x1)
 - USB camera (x1)
 - A power supply (5 V, 3 A) for the USB hub (e.g. a phone charger)
+
 ## How to Use the Example
 
 1. Connect the USB-C hub to the UNO Q and the USB camera.
