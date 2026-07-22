@@ -130,6 +130,7 @@ path = [
   "eslint.config.mjs",
   "REUSE.toml",
   "ruff.toml",
+  "examples.json",
 ]
 SPDX-FileCopyrightText = "Copyright (C) Arduino s.r.l. and/or its affiliated companies"
 SPDX-License-Identifier = "CC0-1.0"
