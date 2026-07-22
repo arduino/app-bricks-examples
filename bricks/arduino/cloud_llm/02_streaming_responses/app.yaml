@@ -1,0 +1,6 @@
+name: Streaming responses from an LLM
+icon: ✨
+description: "Streaming responses from an LLM. Requires a valid API key to a cloud LLM service."
+
+bricks:
+  - arduino:cloud_llm

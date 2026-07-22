@@ -1,0 +1,6 @@
+name: Chat with an Ollama model
+icon: ✨
+description: Chat with an Ollama model
+
+bricks:
+  - arduino:cloud_llm

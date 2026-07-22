@@ -1,0 +1,6 @@
+name: Get camera preview frame and design bounding boxes on it
+icon: 🎬
+description: Get camera preview frame and design bounding boxes on it
+
+bricks:
+  - arduino:video_object_detection

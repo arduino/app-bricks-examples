@@ -1,0 +1,6 @@
+name: Synthesize speech audio from text and save as WAV file
+icon: 🔈
+description: Synthesize speech audio from text and save as WAV file
+
+bricks:
+  - arduino:tts

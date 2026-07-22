@@ -1,0 +1,6 @@
+name: Serve a web application
+icon: 🌐
+description: "Serve a web application. Requires an 'assets' directory in the app's root folder with an index.html file."
+
+bricks:
+  - arduino:web_ui

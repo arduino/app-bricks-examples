@@ -1,0 +1,6 @@
+name: Echo audio messages
+icon: 📱
+description: "Echo audio messages. Requires TELEGRAM_BOT_TOKEN environment variable."
+
+bricks:
+  - arduino:telegram_bot

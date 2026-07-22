@@ -1,0 +1,6 @@
+name: Print connections and disconnections
+icon: 🌐
+description: Print connections and disconnections
+
+bricks:
+  - arduino:web_ui

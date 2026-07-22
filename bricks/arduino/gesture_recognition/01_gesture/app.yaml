@@ -1,0 +1,6 @@
+name: Gesture recognition
+icon: 👋
+description: "Gesture recognition. Requires a connected camera"
+
+bricks:
+  - arduino:gesture_recognition

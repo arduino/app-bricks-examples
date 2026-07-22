@@ -1,0 +1,6 @@
+name: Play polyphonic multi-track music
+icon: 🎵
+description: Play polyphonic multi-track music
+
+bricks:
+  - arduino:sound_generator

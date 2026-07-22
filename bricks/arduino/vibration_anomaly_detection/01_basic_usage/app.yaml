@@ -1,0 +1,6 @@
+name: Basic usage of the Vibration Anomaly Detection Brick
+icon: 📳
+description: Basic usage of the Vibration Anomaly Detection Brick
+
+bricks:
+  - arduino:vibration_anomaly_detection

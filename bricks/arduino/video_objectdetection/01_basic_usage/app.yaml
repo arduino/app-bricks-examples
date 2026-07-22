@@ -1,0 +1,6 @@
+name: Basic usage of the Video Object Detection Brick
+icon: 🎬
+description: Basic usage of the Video Object Detection Brick
+
+bricks:
+  - arduino:video_object_detection

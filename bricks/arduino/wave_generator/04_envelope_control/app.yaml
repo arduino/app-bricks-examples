@@ -1,0 +1,6 @@
+name: Demonstrate different envelope settings.
+icon: 🎶
+description: Demonstrate different envelope settings.
+
+bricks:
+  - arduino:wave_generator

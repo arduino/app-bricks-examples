@@ -1,0 +1,6 @@
+name: Weather Forecast by city name
+icon: ☀️
+description: Weather Forecast by city name
+
+bricks:
+  - arduino:weather_forecast

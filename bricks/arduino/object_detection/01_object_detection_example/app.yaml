@@ -1,0 +1,6 @@
+name: Object Detection
+icon: 🔍
+description: Object Detection
+
+bricks:
+  - arduino:object_detection

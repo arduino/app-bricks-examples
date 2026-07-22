@@ -1,0 +1,6 @@
+name: Monitor a colored light from Arduino Cloud
+icon: ☁️
+description: Monitor a colored light from Arduino Cloud. It requires a valid ARDUINO CLOUD token to work.
+
+bricks:
+  - arduino:arduino_cloud

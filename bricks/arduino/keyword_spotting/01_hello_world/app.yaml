@@ -1,0 +1,6 @@
+name: Detect the 'hello world' keyword
+icon: 🗣️
+description: "Detect the 'hello world' keyword. Requires an USB microphone connected to the Arduino board."
+
+bricks:
+  - arduino:keyword_spotting
