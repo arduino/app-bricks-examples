@@ -2,7 +2,7 @@
 
 This repository contains all the source files for Examples based on Bricks, as well as the Learn section for Arduino App Lab.
 
-You can find all examples in the [examples folder](./examples/). 
+You can find all examples in the [inspirational folder](./inspirational/). 
 
 You can find all the learn articles in the [learn-docs folder](./learn-docs/).
 

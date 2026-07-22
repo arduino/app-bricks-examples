@@ -16,7 +16,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          mapfile -t YAML_FILES < <(find examples/ -type f \( -name "sketch.yml" -o -name "sketch.yaml" \))
+          mapfile -t YAML_FILES < <(find inspirational/ core-and-foundational/ -type f \( -name "sketch.yml" -o -name "sketch.yaml" \))
 
           if [ ${#YAML_FILES[@]} -eq 0 ]; then
             echo "No sketch.yml or sketch.yaml files found."
@@ -64,9 +64,10 @@ jobs:
           warnings = []
 
           yaml_files = []
-          for p in Path("examples").rglob("*"):
-            if p.name in ["sketch.yml", "sketch.yaml"]:
-              yaml_files.append(p)
+          for root in ["inspirational", "core-and-foundational"]:
+            for p in Path(root).rglob("*"):
+              if p.name in ["sketch.yml", "sketch.yaml"]:
+                yaml_files.append(p)
 
           for yf in yaml_files:
             lines = yf.read_text(encoding="utf-8", errors="ignore").splitlines()
@@ -156,4 +157,6 @@ jobs:
         uses: arduino/compile-sketches@v1
         with:
           fqbn: "arduino:zephyr:unoq"
-          sketch-paths: "./examples"
+          sketch-paths: |
+            - ./inspirational
+            - ./core-and-foundational

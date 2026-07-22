@@ -1,0 +1,6 @@
+name: Web UI Camera Stream
+icon: 💡
+description: A simple example that demonstrates how to stream the camera video feed to the Web UI.
+
+bricks:
+  - arduino:web_ui

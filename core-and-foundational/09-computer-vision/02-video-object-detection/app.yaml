@@ -1,0 +1,6 @@
+name: Video Object Detection
+icon: 📽️
+description: This example showcases object detection within a live feed from a camera.
+
+bricks:
+  - arduino:video_object_detection

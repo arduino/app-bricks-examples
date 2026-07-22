@@ -1,0 +1,3 @@
+name: MCU Monitor
+icon: 📃
+description: This example demonstrates how to use the Monitor class to send log messages from the microcontroller to the Arduino App Lab Serial Monitor.

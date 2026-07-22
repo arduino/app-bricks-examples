@@ -1,0 +1,6 @@
+name: Simple Object Detection
+icon: 🏞️
+description: Detect objects in an image, log the results, and display them in a new output image with bounding boxes.
+
+bricks:
+  - arduino:object_detection

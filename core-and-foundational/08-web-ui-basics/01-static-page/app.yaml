@@ -1,0 +1,6 @@
+name: Simple web page
+icon: 💡
+description: A simple web page served using the WebUI brick
+
+bricks:
+  - arduino:web_ui
