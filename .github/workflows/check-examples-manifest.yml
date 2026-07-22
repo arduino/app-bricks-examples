@@ -1,0 +1,33 @@
+name: Check examples manifest
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/check-examples-manifest.yml"
+      - "Taskfile.dist.yml"
+      - "scripts/examples_manifest.py"
+      - "examples.json"
+      - "core-and-foundational/**"
+      - "bricks/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-manifest:
+    runs-on: ubuntu-latest
+    env:
+      TASKFILE_VERSION: "v3.44.0"
+      TASKFILE_PATH: "/home/runner/go/bin"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Taskfile
+        run: which task || curl -sSfL https://taskfile.dev/install.sh | sh -s -- -b ${{ env.TASKFILE_PATH }} ${{ env.TASKFILE_VERSION }}
+
+      - name: Check examples manifest
+        run: |
+          export PATH="${{ env.TASKFILE_PATH }}:$PATH"
+          task examples:check-manifest

@@ -47,6 +47,16 @@ tasks:
     cmds:
       - task: license:init-venvs
 
+  examples:gen-manifest:
+    desc: Generate examples.json from the filesystem
+    cmds:
+      - python3 scripts/examples_manifest.py --write
+
+  examples:check-manifest:
+    desc: Fail when examples.json does not match the filesystem
+    cmds:
+      - python3 scripts/examples_manifest.py --check
+
   install-bricks:
     desc: Install a specific bricks version (e.g. task install-bricks -- 0.8.0rc2)
     cmds:

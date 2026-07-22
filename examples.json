@@ -1,0 +1,542 @@
+{
+  "core-and-foundational": [
+    {
+      "category": "01-led-blink",
+      "examples": [
+        {
+          "id": "examples:core-and-foundational/01-led-blink/01-blinking-an-LED-mcu"
+        },
+        {
+          "id": "examples:core-and-foundational/01-led-blink/02-blinking-an-LED-MPU"
+        },
+        {
+          "id": "examples:core-and-foundational/01-led-blink/03-blinking-an-led-from-python"
+        },
+        {
+          "id": "examples:core-and-foundational/01-led-blink/04-blinking-an-led-with-ui"
+        }
+      ]
+    },
+    {
+      "category": "02-led-matrix",
+      "examples": [
+        {
+          "id": "examples:core-and-foundational/02-led-matrix/01-led-matrix-frame-mcu"
+        },
+        {
+          "id": "examples:core-and-foundational/02-led-matrix/02-led-matrix-frame"
+        },
+        {
+          "id": "examples:core-and-foundational/02-led-matrix/03-led-matrix-animation-mcu"
+        }
+      ]
+    },
+    {
+      "category": "03-bridge-basics",
+      "examples": [
+        {
+          "id": "examples:core-and-foundational/03-bridge-basics/01-call-sketch-function-from-python"
+        },
+        {
+          "id": "examples:core-and-foundational/03-bridge-basics/02-send-data-to-python"
+        },
+        {
+          "id": "examples:core-and-foundational/03-bridge-basics/03-using-structured-data"
+        }
+      ]
+    },
+    {
+      "category": "04-logging",
+      "examples": [
+        {
+          "id": "examples:core-and-foundational/04-logging/01-logger"
+        },
+        {
+          "id": "examples:core-and-foundational/04-logging/02-mcu-monitor"
+        }
+      ]
+    },
+    {
+      "category": "05-apps-basics",
+      "examples": [
+        {
+          "id": "examples:core-and-foundational/05-apps-basics/01-app-register-and-start-bricks"
+        },
+        {
+          "id": "examples:core-and-foundational/05-apps-basics/02-app-run"
+        },
+        {
+          "id": "examples:core-and-foundational/05-apps-basics/03-app-user-loop"
+        }
+      ]
+    },
+    {
+      "category": "06-camera-basics",
+      "examples": [
+        {
+          "id": "examples:core-and-foundational/06-camera-basics/01-simple-camera"
+        },
+        {
+          "id": "examples:core-and-foundational/06-camera-basics/02-camera-from-sources"
+        },
+        {
+          "id": "examples:core-and-foundational/06-camera-basics/03-camera-adjustments"
+        },
+        {
+          "id": "examples:core-and-foundational/06-camera-basics/04-record-camera-stream"
+        },
+        {
+          "id": "examples:core-and-foundational/06-camera-basics/05-websocket-camera"
+        }
+      ]
+    },
+    {
+      "category": "07-microphone-basics",
+      "examples": [
+        {
+          "id": "examples:core-and-foundational/07-microphone-basics/01-recording-from-microphone-and-file-save"
+        },
+        {
+          "id": "examples:core-and-foundational/07-microphone-basics/02-microphone-capture-and-stream"
+        },
+        {
+          "id": "examples:core-and-foundational/07-microphone-basics/03-microphone-and-properties"
+        }
+      ]
+    },
+    {
+      "category": "08-web-ui-basics",
+      "examples": [
+        {
+          "id": "examples:core-and-foundational/08-web-ui-basics/01-static-page"
+        },
+        {
+          "id": "examples:core-and-foundational/08-web-ui-basics/02-data-transmission"
+        },
+        {
+          "id": "examples:core-and-foundational/08-web-ui-basics/03-button-action"
+        },
+        {
+          "id": "examples:core-and-foundational/08-web-ui-basics/04-https-web-ui"
+        },
+        {
+          "id": "examples:core-and-foundational/08-web-ui-basics/05-web-ui-camera-stream"
+        }
+      ]
+    },
+    {
+      "category": "09-computer-vision",
+      "examples": [
+        {
+          "id": "examples:core-and-foundational/09-computer-vision/01-simple-object-detection"
+        },
+        {
+          "id": "examples:core-and-foundational/09-computer-vision/02-video-object-detection"
+        },
+        {
+          "id": "examples:core-and-foundational/09-computer-vision/03-image-classification-trigger"
+        },
+        {
+          "id": "examples:core-and-foundational/09-computer-vision/04-object-detection-with-ui"
+        }
+      ]
+    }
+  ],
+  "bricks": [
+    {
+      "brick": "arduino:air_quality_monitoring",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/air_quality_monitoring/01_get_air_quality_by_city"
+        }
+      ]
+    },
+    {
+      "brick": "arduino:arduino_cloud",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/arduino_cloud/01_led_blink"
+        },
+        {
+          "id": "examples:bricks/arduino/arduino_cloud/02_light_with_colors_monitor"
+        },
+        {
+          "id": "examples:bricks/arduino/arduino_cloud/03_light_with_colors_command"
+        }
+      ]
+    },
+    {
+      "brick": "arduino:asr",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/asr/01_transcribe_wav"
+        },
+        {
+          "id": "examples:bricks/arduino/asr/02_stream_wav_transcription"
+        },
+        {
+          "id": "examples:bricks/arduino/asr/03_transcribe_mic"
+        },
+        {
+          "id": "examples:bricks/arduino/asr/04_stream_mic_transcription"
+        }
+      ]
+    },
+    {
+      "brick": "arduino:audio_classification",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/audio_classification/01_glass_breaking_from_file"
+        }
+      ]
+    },
+    {
+      "brick": "arduino:camera_code_detection",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/camera_code_detection/01_detection"
+        },
+        {
+          "id": "examples:bricks/arduino/camera_code_detection/02_detection_list"
+        },
+        {
+          "id": "examples:bricks/arduino/camera_code_detection/03_detection_with_overrides"
+        }
+      ]
+    },
+    {
+      "brick": "arduino:cloud_asr",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/cloud_asr/01_asr"
+        },
+        {
+          "id": "examples:bricks/arduino/cloud_asr/02_multilingual_asr"
+        },
+        {
+          "id": "examples:bricks/arduino/cloud_asr/03_event_stream"
+        },
+        {
+          "id": "examples:bricks/arduino/cloud_asr/04_different_providers"
+        }
+      ]
+    },
+    {
+      "brick": "arduino:cloud_llm",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/cloud_llm/01_simple_prompt"
+        },
+        {
+          "id": "examples:bricks/arduino/cloud_llm/02_streaming_responses"
+        },
+        {
+          "id": "examples:bricks/arduino/cloud_llm/03_no_memory"
+        },
+        {
+          "id": "examples:bricks/arduino/cloud_llm/04_model_selection"
+        },
+        {
+          "id": "examples:bricks/arduino/cloud_llm/05_tool_calling"
+        },
+        {
+          "id": "examples:bricks/arduino/cloud_llm/06_multimodal"
+        },
+        {
+          "id": "examples:bricks/arduino/cloud_llm/07_external_provider"
+        },
+        {
+          "id": "examples:bricks/arduino/cloud_llm/08_persistent_memory"
+        }
+      ]
+    },
+    {
+      "brick": "arduino:dbstorage_sqlstore",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/dbstorage_sqlstore/01_store_and_read_example"
+        }
+      ]
+    },
+    {
+      "brick": "arduino:dbstorage_tsstore",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/dbstorage_tsstore/01_write_read"
+        },
+        {
+          "id": "examples:bricks/arduino/dbstorage_tsstore/02_read_all_samples"
+        }
+      ]
+    },
+    {
+      "brick": "arduino:gesture_recognition",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/gesture_recognition/01_gesture"
+        },
+        {
+          "id": "examples:bricks/arduino/gesture_recognition/02_enter_exit"
+        },
+        {
+          "id": "examples:bricks/arduino/gesture_recognition/03_confirm_deny"
+        }
+      ]
+    },
+    {
+      "brick": "arduino:image_classification",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/image_classification/01_image_classification_example"
+        }
+      ]
+    },
+    {
+      "brick": "arduino:keyword_spotting",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/keyword_spotting/01_hello_world"
+        }
+      ]
+    },
+    {
+      "brick": "arduino:llm",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/llm/01_simple_chat"
+        },
+        {
+          "id": "examples:bricks/arduino/llm/02_simple_streaming_chat"
+        },
+        {
+          "id": "examples:bricks/arduino/llm/03_select_model_streaming_chat"
+        },
+        {
+          "id": "examples:bricks/arduino/llm/04_tool_calling"
+        },
+        {
+          "id": "examples:bricks/arduino/llm/05_streaming_with_tools"
+        },
+        {
+          "id": "examples:bricks/arduino/llm/06_persistent_memory"
+        }
+      ]
+    },
+    {
+      "brick": "arduino:mood_detector",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/mood_detector/01_basic_usage"
+        }
+      ]
+    },
+    {
+      "brick": "arduino:motion_detection",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/motion_detection/01_basic_usage"
+        }
+      ]
+    },
+    {
+      "brick": "arduino:object_detection",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/object_detection/01_object_detection_example"
+        }
+      ]
+    },
+    {
+      "brick": "arduino:sound_generator",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/sound_generator/01_play_sequence"
+        },
+        {
+          "id": "examples:bricks/arduino/sound_generator/02_stream_sequence"
+        },
+        {
+          "id": "examples:bricks/arduino/sound_generator/03_play_abc_notation"
+        },
+        {
+          "id": "examples:bricks/arduino/sound_generator/04_effects"
+        },
+        {
+          "id": "examples:bricks/arduino/sound_generator/05_play_chords"
+        },
+        {
+          "id": "examples:bricks/arduino/sound_generator/06_play_polyphonic"
+        },
+        {
+          "id": "examples:bricks/arduino/sound_generator/07_play_step_sequence"
+        },
+        {
+          "id": "examples:bricks/arduino/sound_generator/08_play_composition"
+        },
+        {
+          "id": "examples:bricks/arduino/sound_generator/09_play_wav"
+        }
+      ]
+    },
+    {
+      "brick": "arduino:streamlit_ui",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/streamlit_ui/01_basic_usage"
+        },
+        {
+          "id": "examples:bricks/arduino/streamlit_ui/02_using_other_bricks"
+        }
+      ]
+    },
+    {
+      "brick": "arduino:telegram_bot",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/telegram_bot/01_text_echo"
+        },
+        {
+          "id": "examples:bricks/arduino/telegram_bot/02_command_handler"
+        },
+        {
+          "id": "examples:bricks/arduino/telegram_bot/03_whitelist_auth"
+        },
+        {
+          "id": "examples:bricks/arduino/telegram_bot/04_scheduled_messages"
+        },
+        {
+          "id": "examples:bricks/arduino/telegram_bot/05_photo_echo"
+        },
+        {
+          "id": "examples:bricks/arduino/telegram_bot/06_audio_echo"
+        },
+        {
+          "id": "examples:bricks/arduino/telegram_bot/07_video_echo"
+        },
+        {
+          "id": "examples:bricks/arduino/telegram_bot/08_document_echo"
+        }
+      ]
+    },
+    {
+      "brick": "arduino:tts",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/tts/01_speak_through_speaker"
+        },
+        {
+          "id": "examples:bricks/arduino/tts/02_synthesize_wav"
+        },
+        {
+          "id": "examples:bricks/arduino/tts/03_synthesize_pcm"
+        },
+        {
+          "id": "examples:bricks/arduino/tts/04_synthesize_pcm_stream"
+        }
+      ]
+    },
+    {
+      "brick": "arduino:vibration_anomaly_detection",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/vibration_anomaly_detection/01_basic_usage"
+        }
+      ]
+    },
+    {
+      "brick": "arduino:video_imageclassification",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/video_imageclassification/01_basic_usage"
+        }
+      ]
+    },
+    {
+      "brick": "arduino:video_objectdetection",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/video_objectdetection/01_basic_usage"
+        },
+        {
+          "id": "examples:bricks/arduino/video_objectdetection/02_count_objects"
+        },
+        {
+          "id": "examples:bricks/arduino/video_objectdetection/03_get_image"
+        }
+      ]
+    },
+    {
+      "brick": "arduino:visual_anomaly_detection",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/visual_anomaly_detection/01_visual_anomaly_example"
+        }
+      ]
+    },
+    {
+      "brick": "arduino:vlm",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/vlm/01_simple_chat"
+        },
+        {
+          "id": "examples:bricks/arduino/vlm/02_simple_streaming_chat"
+        },
+        {
+          "id": "examples:bricks/arduino/vlm/03_persistent_memory"
+        }
+      ]
+    },
+    {
+      "brick": "arduino:wave_generator",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/wave_generator/01_basic_tone"
+        },
+        {
+          "id": "examples:bricks/arduino/wave_generator/02_waveform_types"
+        },
+        {
+          "id": "examples:bricks/arduino/wave_generator/03_frequency_sweep"
+        },
+        {
+          "id": "examples:bricks/arduino/wave_generator/04_envelope_control"
+        },
+        {
+          "id": "examples:bricks/arduino/wave_generator/05_custom_speaker"
+        }
+      ]
+    },
+    {
+      "brick": "arduino:weather_forecast",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/weather_forecast/01_weather_forecast_by_city_example"
+        },
+        {
+          "id": "examples:bricks/arduino/weather_forecast/02_weather_forecast_by_coords_example"
+        }
+      ]
+    },
+    {
+      "brick": "arduino:web_ui",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/web_ui/01_serve_webapp"
+        },
+        {
+          "id": "examples:bricks/arduino/web_ui/02_serve_webapp_and_api"
+        },
+        {
+          "id": "examples:bricks/arduino/web_ui/03_connect_disconnect"
+        },
+        {
+          "id": "examples:bricks/arduino/web_ui/04_on_message"
+        },
+        {
+          "id": "examples:bricks/arduino/web_ui/05_send_message"
+        }
+      ]
+    }
+  ]
+}
