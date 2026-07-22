@@ -1,0 +1,6 @@
+name: Chat with an Multimodal LLM
+icon: ✨
+description: "Chat with an Multimodal LLM. Requires a valid API key to a cloud LLM service."
+
+bricks:
+  - arduino:cloud_llm

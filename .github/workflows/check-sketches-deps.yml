@@ -16,7 +16,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          mapfile -t YAML_FILES < <(find inspirational/ core-and-foundational/ -type f \( -name "sketch.yml" -o -name "sketch.yaml" \))
+          mapfile -t YAML_FILES < <(find inspirational/ core-and-foundational/ bricks/ -type f \( -name "sketch.yml" -o -name "sketch.yaml" \))
 
           if [ ${#YAML_FILES[@]} -eq 0 ]; then
             echo "No sketch.yml or sketch.yaml files found."
@@ -64,7 +64,7 @@ jobs:
           warnings = []
 
           yaml_files = []
-          for root in ["inspirational", "core-and-foundational"]:
+          for root in ["inspirational", "core-and-foundational", "bricks"]:
             for p in Path(root).rglob("*"):
               if p.name in ["sketch.yml", "sketch.yaml"]:
                 yaml_files.append(p)
@@ -160,3 +160,4 @@ jobs:
           sketch-paths: |
             - ./inspirational
             - ./core-and-foundational
+            - ./bricks

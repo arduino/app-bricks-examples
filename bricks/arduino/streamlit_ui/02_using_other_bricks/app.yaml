@@ -1,0 +1,7 @@
+name: Using Streamlit UI with other bricks
+icon: 🖥️
+description: Using Streamlit UI with other bricks
+
+bricks:
+  - arduino:streamlit_ui
+  - arduino:sound_generator

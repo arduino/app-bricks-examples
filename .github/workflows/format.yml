@@ -10,6 +10,7 @@ on:
       - "eslint.config.mjs"
       - "inspirational/**/*.py"
       - "core-and-foundational/**/**/*.py"
+      - "bricks/**/*.py"
       - "**/*.js"
       - "**/*.html"
       - "**/*.css"

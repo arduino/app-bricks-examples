@@ -1,0 +1,6 @@
+name: Send a message to a client that connects
+icon: 🌐
+description: Send a message to a client that connects
+
+bricks:
+  - arduino:web_ui

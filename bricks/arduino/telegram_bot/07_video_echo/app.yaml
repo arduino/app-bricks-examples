@@ -1,0 +1,6 @@
+name: Echo video messages
+icon: 📱
+description: "Echo video messages. Requires TELEGRAM_BOT_TOKEN environment variable."
+
+bricks:
+  - arduino:telegram_bot

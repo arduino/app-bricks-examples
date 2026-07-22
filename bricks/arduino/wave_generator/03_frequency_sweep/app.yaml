@@ -1,0 +1,6 @@
+name: Sweep through frequency ranges.
+icon: 🎶
+description: Sweep through frequency ranges.
+
+bricks:
+  - arduino:wave_generator

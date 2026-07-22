@@ -1,0 +1,6 @@
+name: Get user confirmation with hand gestures
+icon: 👋
+description: "Get user confirmation with hand gestures. Requires a connected camera"
+
+bricks:
+  - arduino:gesture_recognition

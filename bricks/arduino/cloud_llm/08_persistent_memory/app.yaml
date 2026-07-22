@@ -1,0 +1,7 @@
+name: Conversation with persistent memory
+icon: ✨
+description: "Conversation with persistent memory. Requires a valid API key to a cloud LLM service and the dbstorage_sqlstore brick."
+
+bricks:
+  - arduino:cloud_llm
+  - arduino:dbstorage_sqlstore

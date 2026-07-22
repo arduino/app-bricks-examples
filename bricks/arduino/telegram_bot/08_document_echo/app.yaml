@@ -1,0 +1,6 @@
+name: Echo document messages
+icon: 📱
+description: "Echo document messages. Requires TELEGRAM_BOT_TOKEN environment variable."
+
+bricks:
+  - arduino:telegram_bot

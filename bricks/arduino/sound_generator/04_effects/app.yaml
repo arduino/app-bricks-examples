@@ -1,0 +1,6 @@
+name: Play a sequence using effects
+icon: 🎵
+description: Play a sequence using effects
+
+bricks:
+  - arduino:sound_generator

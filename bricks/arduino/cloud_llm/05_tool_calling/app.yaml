@@ -1,0 +1,6 @@
+name: Chat with an LLM using Tool Calling
+icon: ✨
+description: "Chat with an LLM using Tool Calling. Requires a valid API key to a cloud LLM service."
+
+bricks:
+  - arduino:cloud_llm

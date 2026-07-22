@@ -1,0 +1,6 @@
+name: Play a MusicComposition
+icon: 🎵
+description: Play a MusicComposition
+
+bricks:
+  - arduino:sound_generator

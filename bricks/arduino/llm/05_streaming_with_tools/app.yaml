@@ -1,0 +1,6 @@
+name: Chat with tools and streaming
+icon: 🤖
+description: "Chat with tools and streaming. Models must be downloaded and available locally."
+
+bricks:
+  - arduino:llm

@@ -1,0 +1,27 @@
+<!--
+SPDX-FileCopyrightText: Copyright (C) Arduino s.r.l. and/or its affiliated companies
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Send messages to the board</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Send messages to the board</h1>
+      <p>Type a message and send it: the Python side of the app prints it to the logs.</p>
+      <input id="message-input" type="text" placeholder="Your message" />
+      <button id="send-btn">Send</button>
+      <p id="status"></p>
+    </main>
+    <script src="libs/socket.io.min.js"></script>
+    <script src="libs/arduino.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

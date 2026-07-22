@@ -1,0 +1,6 @@
+name: Command a colored light from Arduino Cloud
+icon: ☁️
+description: Command a colored light from Arduino Cloud. It requires a valid ARDUINO CLOUD token to work.
+
+bricks:
+  - arduino:arduino_cloud

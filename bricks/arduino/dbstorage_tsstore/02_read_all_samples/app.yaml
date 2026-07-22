@@ -1,0 +1,6 @@
+name: Read all samples from database in a given time range
+icon: 📊
+description: Read all samples from database in a given time range
+
+bricks:
+  - arduino:dbstorage_tsstore

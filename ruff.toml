@@ -3,7 +3,7 @@
 
 target-version = "py313"
 line-length = 120
-src = ["inspirational", "core-and-foundational"]
+src = ["inspirational", "core-and-foundational", "bricks"]
 extend-exclude = [
   ".licenses",
   ".reuse-venv",

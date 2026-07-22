@@ -1,0 +1,6 @@
+name: Store and read data using SQLStore
+icon: 🗄️
+description: Store and read data using SQLStore
+
+bricks:
+  - arduino:dbstorage_sqlstore

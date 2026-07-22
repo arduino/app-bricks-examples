@@ -1,0 +1,6 @@
+name: Stream synthesized PCM audio chunks as they arrive
+icon: 🔈
+description: Stream synthesized PCM audio chunks as they arrive
+
+bricks:
+  - arduino:tts

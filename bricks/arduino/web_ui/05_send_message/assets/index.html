@@ -1,0 +1,25 @@
+<!--
+SPDX-FileCopyrightText: Copyright (C) Arduino s.r.l. and/or its affiliated companies
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Receive messages from the board</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Receive messages from the board</h1>
+      <p>On connection, the Python side of the app greets this page with a message.</p>
+      <p id="status">Waiting for a message…</p>
+    </main>
+    <script src="libs/socket.io.min.js"></script>
+    <script src="libs/arduino.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
