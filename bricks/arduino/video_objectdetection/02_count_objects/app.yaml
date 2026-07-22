@@ -1,0 +1,6 @@
+name: Count detected objects
+icon: 🎬
+description: "Count detected objects"
+
+bricks:
+  - arduino:video_object_detection

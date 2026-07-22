@@ -1,0 +1,6 @@
+name: Play a WAV file
+icon: 🎵
+description: Play a WAV file
+
+bricks:
+  - arduino:sound_generator

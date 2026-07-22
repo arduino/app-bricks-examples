@@ -1,0 +1,6 @@
+name: Play chords
+icon: 🎵
+description: Play chords
+
+bricks:
+  - arduino:sound_generator

@@ -1,0 +1,6 @@
+name: Chat with a Local VLM
+icon: 👀
+description: "Chat with a Local VLM. Models must be downloaded and available locally."
+
+bricks:
+  - arduino:vlm

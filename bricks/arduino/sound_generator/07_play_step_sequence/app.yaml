@@ -1,0 +1,6 @@
+name: Play a step sequence with loop and callback
+icon: 🎵
+description: Play a step sequence with loop and callback
+
+bricks:
+  - arduino:sound_generator

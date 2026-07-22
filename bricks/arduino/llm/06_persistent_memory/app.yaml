@@ -1,0 +1,7 @@
+name: Chat with persistent memory
+icon: 🤖
+description: "Chat with persistent memory. Requires local LLM models and the dbstorage_sqlstore brick."
+
+bricks:
+  - arduino:llm
+  - arduino:dbstorage_sqlstore

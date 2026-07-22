@@ -1,0 +1,3 @@
+name: App register and start bricks
+icon: 🧱
+description: A custom brick is auto-registered on instantiation and started by App.run().

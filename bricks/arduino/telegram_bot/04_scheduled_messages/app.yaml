@@ -1,0 +1,6 @@
+name: Schedule recurring messages
+icon: 📱
+description: "Schedule recurring messages. Requires TELEGRAM_BOT_TOKEN environment variable and target chat ID."
+
+bricks:
+  - arduino:telegram_bot

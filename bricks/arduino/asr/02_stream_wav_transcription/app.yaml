@@ -1,0 +1,6 @@
+name: Transcribe a wav file and stream the results
+icon: 🎙️
+description: "Transcribe a wav file and stream the results. Requires a WAV file with a voice recording"
+
+bricks:
+  - arduino:asr

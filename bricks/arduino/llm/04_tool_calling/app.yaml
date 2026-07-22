@@ -1,0 +1,6 @@
+name: Chat with an LLM using Tool Calling
+icon: 🤖
+description: "Chat with an LLM using Tool Calling. Models must be downloaded and available locally."
+
+bricks:
+  - arduino:llm

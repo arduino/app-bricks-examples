@@ -2,7 +2,7 @@
 
 This repository contains all the source files for Examples based on Bricks, as well as the Learn section for Arduino App Lab.
 
-You can find all examples in the [examples folder](./examples/). 
+You can find all examples in the [inspirational folder](./inspirational/), the [core-and-foundational folder](./core-and-foundational/) and the [bricks folder](./bricks/). 
 
 You can find all the learn articles in the [learn-docs folder](./learn-docs/).
 
@@ -33,6 +33,17 @@ Available tasks:
 - `task license` — execute both checks.
 
 The REUSE virtualenv is recreated and cleaned up automatically. The `.venv` used by `licensed` is kept after the task completes and recreated on the next dependency-license run.
+
+#### Examples manifest
+
+This project ships an [examples.json](./examples.json) manifest describing the core-and-foundational and bricks examples. The file is fully derived from the filesystem and must stay in sync with it: a CI check fails any pull request where the manifest is stale.
+
+Available tasks:
+
+- `task examples:gen-manifest` — regenerate `examples.json` from the filesystem.
+- `task examples:check-manifest` — fail when `examples.json` does not match the filesystem.
+
+After adding, removing or renaming an example, run `task examples:gen-manifest` and commit the updated manifest.
 
 #### Code formatting
 

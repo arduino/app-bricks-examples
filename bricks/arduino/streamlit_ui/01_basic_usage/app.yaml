@@ -1,0 +1,6 @@
+name: Basic usage of the Streamlit UI Brick
+icon: 🖥️
+description: Basic usage of the Streamlit UI Brick
+
+bricks:
+  - arduino:streamlit_ui

@@ -1,0 +1,6 @@
+name: Cycle through different waveform types.
+icon: 🎶
+description: Cycle through different waveform types.
+
+bricks:
+  - arduino:wave_generator

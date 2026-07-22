@@ -1,0 +1,6 @@
+name: Code detection with camera overrides
+icon: 📷
+description: "Code detection with camera overrides. Requires an USB webcam connected to the Arduino board."
+
+bricks:
+  - arduino:camera_code_detection

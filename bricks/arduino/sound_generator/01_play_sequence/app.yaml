@@ -1,0 +1,6 @@
+name: Play a sequence of notes (Fur Elise)
+icon: 🎵
+description: Play a sequence of notes (Fur Elise)
+
+bricks:
+  - arduino:sound_generator

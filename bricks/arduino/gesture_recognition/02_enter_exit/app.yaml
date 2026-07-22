@@ -1,0 +1,6 @@
+name: Gesture recognition hand enter/exit detection
+icon: 👋
+description: "Gesture recognition hand enter/exit detection. Requires a connected camera"
+
+bricks:
+  - arduino:gesture_recognition

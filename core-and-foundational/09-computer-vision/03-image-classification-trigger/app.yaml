@@ -1,0 +1,7 @@
+name: Person classifier on camera with trigger
+icon: 🚶‍♂️
+description: This example showcases person classification on camera, using a camera stream and triggering an LED matrix animation when a person is detected.
+
+bricks:
+  - arduino:video_image_classification:
+     model: person-classification

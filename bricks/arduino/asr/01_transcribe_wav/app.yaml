@@ -1,0 +1,6 @@
+name: Transcribe a wav file
+icon: 🎙️
+description: "Transcribe a wav file. Requires a WAV file with a voice recording"
+
+bricks:
+  - arduino:asr

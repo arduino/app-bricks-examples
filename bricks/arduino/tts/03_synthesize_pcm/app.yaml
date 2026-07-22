@@ -1,0 +1,6 @@
+name: Synthesize speech audio from text as raw PCM bytes
+icon: 🔈
+description: Synthesize speech audio from text as raw PCM bytes
+
+bricks:
+  - arduino:tts

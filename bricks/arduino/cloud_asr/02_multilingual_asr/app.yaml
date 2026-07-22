@@ -1,0 +1,6 @@
+name: Detect speech from microphone in Italian
+icon: 🎙️
+description: "Detect speech from microphone in Italian. Requires an USB microphone connected to the Arduino board."
+
+bricks:
+  - arduino:cloud_asr

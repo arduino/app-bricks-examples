@@ -1,0 +1,6 @@
+name: Listen for messages from connected clients
+icon: 🌐
+description: Listen for messages from connected clients
+
+bricks:
+  - arduino:web_ui

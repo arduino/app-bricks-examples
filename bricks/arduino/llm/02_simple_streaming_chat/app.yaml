@@ -1,0 +1,6 @@
+name: Stream responses from a Local LLM
+icon: 🤖
+description: "Stream responses from a Local LLM. Models must be downloaded and available locally."
+
+bricks:
+  - arduino:llm
