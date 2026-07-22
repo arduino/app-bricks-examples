@@ -45,6 +45,23 @@ path = [
   "core-and-foundational/**/**/assets/**/*.gif",
   "core-and-foundational/**/**/assets/**/*.webp",
   "core-and-foundational/**/**/assets/**/*.wav",
+  "bricks/**/*.py",
+  "bricks/**/*.ino",
+  "bricks/**/*.h",
+  "bricks/**/*.md",
+  "bricks/**/*.yaml",
+  "bricks/**/*.txt",
+  "bricks/**/assets/*.html",
+  "bricks/**/assets/*.css",
+  "bricks/**/assets/*.js",
+  "bricks/**/assets/**/*.json",
+  "bricks/**/assets/**/*.png",
+  "bricks/**/assets/**/*.jpg",
+  "bricks/**/assets/**/*.jpeg",
+  "bricks/**/assets/**/*.svg",
+  "bricks/**/assets/**/*.gif",
+  "bricks/**/assets/**/*.webp",
+  "bricks/**/assets/**/*.wav",
 ]
 SPDX-FileCopyrightText = "Copyright (C) Arduino s.r.l. and/or its affiliated companies"
 SPDX-License-Identifier = "MPL-2.0"
@@ -66,7 +83,10 @@ precedence = "override"
 # Arduino support modules that may live alongside third-party files in
 # assets/libs/ remain first-party code and should keep the project license.
 [[annotations]]
-path = "inspirational/**/assets/libs/arduino.js"
+path = [
+  "inspirational/**/assets/libs/arduino.js",
+  "bricks/**/assets/libs/arduino.js",
+]
 SPDX-FileCopyrightText = "Copyright (C) Arduino s.r.l. and/or its affiliated companies"
 SPDX-License-Identifier = "MPL-2.0"
 precedence = "override"
@@ -77,6 +97,7 @@ precedence = "override"
 path = [
   "inspirational/**/assets/libs/socket.io.min.js",
   "core-and-foundational/**/**/assets/libs/socket.io.min.js",
+  "bricks/**/assets/libs/socket.io.min.js",
 ]
 SPDX-FileCopyrightText = "Copyright (c) 2014-2024 Guillermo Rauch"
 SPDX-License-Identifier = "MIT"
