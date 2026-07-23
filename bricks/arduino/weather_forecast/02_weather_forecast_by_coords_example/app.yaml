@@ -1,0 +1,6 @@
+name: Weather Forecast by coordinates
+icon: ☀️
+description: Weather Forecast by coordinates
+
+bricks:
+  - arduino:weather_forecast

@@ -1,0 +1,6 @@
+name: Register and handle commands
+icon: 📱
+description: "Register and handle commands. Requires TELEGRAM_BOT_TOKEN environment variable."
+
+bricks:
+  - arduino:telegram_bot

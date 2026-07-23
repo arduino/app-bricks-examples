@@ -1,0 +1,6 @@
+name: Store and read data using TimeSeriesStore
+icon: 📊
+description: Store and read data using TimeSeriesStore
+
+bricks:
+  - arduino:dbstorage_tsstore

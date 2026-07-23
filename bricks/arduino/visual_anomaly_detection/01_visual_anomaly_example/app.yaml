@@ -1,0 +1,6 @@
+name: Visual Anomaly Detection
+icon: 👁️
+description: Visual Anomaly Detection
+
+bricks:
+  - arduino:visual_anomaly_detection

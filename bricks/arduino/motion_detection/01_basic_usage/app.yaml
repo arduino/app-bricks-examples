@@ -1,0 +1,6 @@
+name: Basic usage of the Motion Detection Brick
+icon: 🏃
+description: Basic usage of the Motion Detection Brick
+
+bricks:
+  - arduino:motion_detection

@@ -1,0 +1,6 @@
+name: Speak text through a speaker
+icon: 🔈
+description: Speak text through a speaker
+
+bricks:
+  - arduino:tts

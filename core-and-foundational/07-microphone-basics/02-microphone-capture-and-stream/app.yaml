@@ -1,0 +1,3 @@
+name: Microphone Capture and Stream
+icon: 🎙️
+description: Read one audio chunk with capture() and then continue with stream() in Python.

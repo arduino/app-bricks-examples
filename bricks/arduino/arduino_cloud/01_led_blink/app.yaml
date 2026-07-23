@@ -1,0 +1,6 @@
+name: Arduino Cloud LED Blink Example
+icon: ☁️
+description: Arduino Cloud LED Blink Example. It requires a valid ARDUINO CLOUD token to work.
+
+bricks:
+  - arduino:arduino_cloud

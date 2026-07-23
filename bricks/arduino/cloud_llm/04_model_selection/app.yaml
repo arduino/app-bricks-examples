@@ -1,0 +1,6 @@
+name: LLM Model Selection
+icon: ✨
+description: "LLM Model Selection. Requires a valid API key to a cloud LLM service."
+
+bricks:
+  - arduino:cloud_llm

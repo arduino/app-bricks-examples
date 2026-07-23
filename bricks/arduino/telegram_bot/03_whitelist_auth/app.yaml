@@ -1,0 +1,6 @@
+name: Bot with user ID whitelist
+icon: 📱
+description: "Bot with user ID whitelist. Requires TELEGRAM_BOT_TOKEN environment variable and authorized user IDs."
+
+bricks:
+  - arduino:telegram_bot

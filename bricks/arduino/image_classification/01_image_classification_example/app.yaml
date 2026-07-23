@@ -1,0 +1,6 @@
+name: Image classification
+icon: 🖼️
+description: Image classification
+
+bricks:
+  - arduino:image_classification

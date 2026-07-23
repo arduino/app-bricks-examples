@@ -1,0 +1,6 @@
+name: Play music in ABC notation
+icon: 🎵
+description: Play music in ABC notation
+
+bricks:
+  - arduino:sound_generator

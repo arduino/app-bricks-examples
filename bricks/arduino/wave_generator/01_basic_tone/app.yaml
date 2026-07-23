@@ -1,0 +1,6 @@
+name: Basic Tone
+icon: 🎶
+description: Basic Tone
+
+bricks:
+  - arduino:wave_generator

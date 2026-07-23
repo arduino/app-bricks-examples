@@ -1,0 +1,6 @@
+name: Get air quality by city
+icon: 🌬️
+description: "Get air quality by city. Requires an AQICN API token (https://aqicn.org/data-platform/token/)."
+
+bricks:
+  - arduino:air_quality_monitoring

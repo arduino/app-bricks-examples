@@ -1,0 +1,6 @@
+name: Play a simple frequency sequence (C4 to C5).
+icon: 🎶
+description: Play a simple frequency sequence (C4 to C5).
+
+bricks:
+  - arduino:wave_generator

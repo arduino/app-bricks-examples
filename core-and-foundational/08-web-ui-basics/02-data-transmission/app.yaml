@@ -1,0 +1,6 @@
+name: Data transmission to Web UI
+icon: 💡
+description: A simple example that demonstrates how to transmit data from the Python code to the Web UI.
+
+bricks:
+  - arduino:web_ui

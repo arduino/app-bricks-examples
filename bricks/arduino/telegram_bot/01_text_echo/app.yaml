@@ -1,0 +1,6 @@
+name: Echo text messages
+icon: 📱
+description: "Echo text messages. Requires TELEGRAM_BOT_TOKEN environment variable."
+
+bricks:
+  - arduino:telegram_bot

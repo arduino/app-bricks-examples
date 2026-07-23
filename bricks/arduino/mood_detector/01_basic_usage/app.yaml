@@ -1,0 +1,6 @@
+name: Basic usage of the Mood Detector
+icon: 😊
+description: Basic usage of the Mood Detector
+
+bricks:
+  - arduino:mood_detector

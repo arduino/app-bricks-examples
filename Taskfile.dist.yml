@@ -47,6 +47,16 @@ tasks:
     cmds:
       - task: license:init-venvs
 
+  examples:gen-manifest:
+    desc: Generate examples.json from the filesystem
+    cmds:
+      - python3 scripts/examples_manifest.py --write
+
+  examples:check-manifest:
+    desc: Fail when examples.json does not match the filesystem
+    cmds:
+      - python3 scripts/examples_manifest.py --check
+
   install-bricks:
     desc: Install a specific bricks version (e.g. task install-bricks -- 0.8.0rc2)
     cmds:
@@ -168,7 +178,7 @@ tasks:
           # Annotate first-party textual sources without touching vendored
           # libraries, third-party fonts, or binary/media assets that would
           # otherwise generate .license sidecars.
-          find examples \
+          find inspirational \
             \( -path '*/python/*' -o -path '*/assets/*' -o -path '*/sketch/*' \) \
             -type f \
             ! -path '*/assets/libs/*' \
@@ -185,8 +195,26 @@ tasks:
               ';' || status=$?
         fi
 
-        if [ "$status" -eq 0 ] && [ -d examples-basics ]; then
-          find examples-basics \
+        if [ "$status" -eq 0 ] && [ -d core-and-foundational ]; then
+          find core-and-foundational \
+            \( -path '*/python/*' -o -path '*/assets/*' -o -path '*/sketch/*' \) \
+            -type f \
+            ! -path '*/assets/libs/*' \
+            ! -path '*/assets/fonts/*' \
+            \( -name '*.py' -o -name '*.js' -o -name '*.css' -o -name '*.html' -o -name '*.ino' -o -name '*.h' \) \
+            -exec "{{.REUSE_VENV_DIR}}"/bin/reuse annotate \
+              --skip-unrecognized \
+              --merge-copyrights \
+              --copyright-prefix 'spdx-string-c' \
+              --copyright 'Arduino s.r.l. and/or its affiliated companies' \
+              --exclude-year \
+              --license 'MPL-2.0' \
+              '{}' \
+              ';' || status=$?
+        fi
+
+        if [ "$status" -eq 0 ] && [ -d bricks ]; then
+          find bricks \
             \( -path '*/python/*' -o -path '*/assets/*' -o -path '*/sketch/*' \) \
             -type f \
             ! -path '*/assets/libs/*' \
