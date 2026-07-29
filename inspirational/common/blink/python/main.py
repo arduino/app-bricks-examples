@@ -5,9 +5,12 @@
 from arduino.app_utils import *
 import time
 
-def loop():
-    time.sleep(1)
+led_state = False
 
-    Bridge.call("say_hello", "Python")  # Invoke the sketch function "say_hello" registered via Bridge.provide
+def loop():
+    global led_state
+    time.sleep(1)
+    led_state = not led_state
+    Bridge.call("set_led_state", led_state)
 
 App.run(user_loop=loop)
