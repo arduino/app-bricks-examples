@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from arduino.app_bricks.cloud_llm import CloudLLM, tool
+from arduino.app_bricks.cloud_llm import CloudLLM, CloudModel, tool
 from arduino.app_utils import App
 
 
@@ -23,7 +23,7 @@ def get_current_weather(location: str) -> str:
 
 
 llm = CloudLLM(
-    model="google:gemini-2.5-flash",
+    model=CloudModel.GOOGLE_GEMINI,
     api_key="YOUR_API_KEY",  # Replace with your actual API key
     tools=[get_current_weather],
 )
