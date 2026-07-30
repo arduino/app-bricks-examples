@@ -1050,7 +1050,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const cell = e.target;
     const brightness = brightnessAlphaSlider.value;
 
-    if (brightness === '0') {
+    if (brightness === cell.dataset.b || '') {
       delete cell.dataset.b;
     } else {
       cell.dataset.b = brightness;
