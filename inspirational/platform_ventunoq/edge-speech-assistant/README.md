@@ -1,6 +1,6 @@
 # Edge Speech Assistant
 
-The **Edge Speech Assistant** example turns the Arduino® VENTUNO Q into a fully offline text-to-speech device that converts any text you type into spoken audio played through a connected speaker.
+The **Edge Speech Assistant** example turns the Arduino VENTUNO Q into a fully offline text-to-speech device that converts any text you type into spoken audio played through a connected speaker.
 
 ![Edge Speech Assistant Example](assets/docs_assets/thumbnail.png)
 
@@ -23,17 +23,13 @@ The Edge Speech Assistant example uses the following Bricks:
 - `tts`: Offline text-to-speech Brick that synthesizes speech locally and plays it through a connected speaker.
 - `web_ui`: Brick that hosts the HTML interface and the messaging channel used to send text and receive playback status.
 
-## Hardware and Software Requirements
+## Hardware Requirements
 
 ### Hardware
 
 - Arduino VENTUNO Q (x1)
 - USB-C® cable (for power and programming) (x1)
 - USB-A speaker or headset (x1)
-
-### Software
-
-- Arduino App Lab
 
 **Note:** This example needs a USB speaker connected to the VENTUNO Q. The `tts` Brick targets the first USB speaker it finds (`usb:1`) by default and will fail to start if no USB speaker is plugged in.
 
@@ -46,8 +42,6 @@ The Edge Speech Assistant example uses the following Bricks:
 2. **Launch the App**
 
    Open the App in App Lab and click the **Run** button in the top right corner. The first launch downloads the audio container and the text-to-speech model, so it can take a few minutes.
-
-   ![Launch the App](assets/docs_assets/launch-app.png)
 
 3. **Open the Web Interface**
 
@@ -81,9 +75,13 @@ Once the application is running, the device performs the following operations:
 ```
 
 1. The browser instantiates the `WebUI` helper, which opens a Socket.IO connection to the `web_ui` Brick under the hood, and calls `ui.send_message('speak', { text })` with the text typed by the user.
+
 2. `main.py` receives the event and forwards the text to the `tts` Brick in a single `tts.speak(text)` call. The Brick takes care of splitting long inputs into sentence-aware chunks internally so the App code stays trivial.
+
 3. The `tts` Brick calls the local audio-analytics REST API (`http://audio-analytics-runner:8085`) which runs the text-to-speech model on the Qualcomm® DSP and returns raw PCM audio.
+
 4. The Brick writes the PCM stream to ALSA, which routes it to the USB speaker.
+
 5. The backend emits a `speaking` status message (`started` when synthesis begins, `finished` when it ends or is stopped or cancelled). The frontend listens with `ui.on_message('speaking', ...)` to drive the Play/Stop toggle and the elapsed-time counter.
 
 The text-to-speech model and the audio-analytics service are managed by the `tts` Brick, so the App does not need any model files of its own.

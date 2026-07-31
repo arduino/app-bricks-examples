@@ -1,8 +1,8 @@
-# Real Time Accelerometer Data
+# Real-time Accelerometer Data
 
-The **Real Time Accelerometer Data** example records accelerometer data from the [Modulino® Movement](https://store.arduino.cc/products/modulino-movement) node, and streams it to a web interface.
+The **Real-time Accelerometer Data** example records accelerometer data from the [Arduino Modulino Movement](https://store.arduino.cc/products/modulino-movement) node, and streams it to a web interface.
 
-The accelerometer data recorded from the Modulino® is then processed by a pre-trained model that classifies different types of movement.
+The accelerometer data recorded from the Modulino is then processed by a pre-trained model that classifies different types of movement.
 
 ## Bricks Used
 
@@ -23,38 +23,37 @@ To read more about the model, visit the following link:
 - [Motion Classification - Continuous Motion Recognition](https://studio.edgeimpulse.com/public/497631/latest)
 
 
-## Hardware and Software Requirements
+## Hardware Requirements
 
 ### Hardware
 
-- Arduino® UNO Q or Arduino VENTUNO Q
+- Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
 - USB-C® cable
-- [Modulino® Movement](https://store.arduino.cc/products/modulino-movement)
+- [ArduinoModulino Movement](https://store.arduino.cc/products/modulino-movement)
 - Qwiic cable
-
-### Software
-
-- Arduino App Lab
 
 ## How to Use the Example
 
 1. Connect the board to a computer using a USB-C® cable.
-2. Connect the Modulino® Movement to the board using the Qwiic connector.
-    ![Connecting Modulino® Movement](assets/docs_assets/hardware-setup.png)
+
+2. Connect the Modulino Movement to the board using the Qwiic connector.
+ 
+   ![Connecting Modulino Movement](assets/docs_assets/hardware-setup.png)
 
 3. Launch the App by clicking on the "Play" button in the top right corner. Wait until the App has launched.
-    ![Launching an App](assets/docs_assets/launch-app.png)
 
 4. Open a browser and access `<UNO-Q-IP-ADDRESS>:7000` (this may also launch automatically).
+
 5. View the data from the Modulino® in real time!
 
 ## How it Works
 
 This example uses the `motion_detection` Brick to classify incoming accelerometer data, and the `web_ui` Brick display the data on a web page.
 
-The data is recorded from a Modulino® Movement, connected to the UNO Q's Qwiic port, and sent to the Linux side using the **Bridge** tool.
+The data is recorded from a Modulino Movement, connected to the board's Qwiic port, and sent to the Linux side using the **Bridge** tool.
 
 The web page displays the raw `x`, `y` and `z` values from the accelerometer, and graphs the values on a chart. 
+
 It also shows the results of processing the data using a pre-trained model (up and down, snake, wave, idle).
 
 ![How Motion Detection works](assets/docs_assets/motion-detection.png)
@@ -62,6 +61,7 @@ It also shows the results of processing the data using a pre-trained model (up a
 ## Understanding the Code
 
 The Real-Time Accelerometer example is a bit more advanced on the Python side, as it includes:
+
 - A pre-trained model that is used to classify different types of movement, using the `motion_detection` Brick.
 - A web API for fetching the latest classification and recent raw samples.
 - A web UI that renders the data and displays what type of motion was detected.

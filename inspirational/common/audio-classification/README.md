@@ -18,33 +18,30 @@ The glass breaking sensor example uses the following Bricks:
 - `audio_classification`: Brick to classify audio files using a pre-trained model for sound detection and analysis.
 - `web_ui`: Brick to create a web interface with audio upload capabilities, confidence controls, and real-time result display.
 
-## Hardware and Software Requirements
+## Hardware Requirements
 
 ### Hardware
 
 - Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
 - USB-C® cable (for power and programming) (x1)
 
-### Software
-
-- Arduino App Lab
-
 **Note:** This example works with pre-loaded sample audio files and uploaded audio files. No external hardware peripherals are required. The example works in [Network Mode](https://docs.arduino.cc/tutorials/uno-q/user-manual/#network-mode) as well.
 
 ## How to Use the Example
 
-1. Run the App
-
-![Run the App](assets/docs_assets/launch-app.png)
+1. Run the App by clicking the **Run** button in the top navigation bar.
 
 2. The App should open automatically in the web browser. You can also open it manually via `<board-name>.local:7000` or `http://<board-ip-address>:7000` (Network Mode).
+
 3. Choose your audio input method:
 
 - **Audio from sample**: Select from pre-loaded sample audio files (includes glass breaking examples and background noise)
 - **Upload Audio**: Upload your own WAV audio file (max 10MB) using drag-and-drop or file selection
 
 4. Adjust the confidence threshold using the slider (0.0 to 1.0) to set the minimum detection confidence level
+
 5. Click **Run Classification** to analyze the audio file
+
 6. View the classification results showing:
 
 - Detected class name

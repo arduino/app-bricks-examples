@@ -1,4 +1,4 @@
-name: Theremin simulator
+name: Theremin Simulator
 icon: 🎼
 description: A simple theremin simulator that generates audio based on user input.
 bricks:

@@ -1,4 +1,4 @@
-name: Weather forecast on LED matrix
+name: Weather Forecast on LED Matrix
 icon: ☀️
 description: A weather forecast system that get the current weather and display it on LED matrix.
 

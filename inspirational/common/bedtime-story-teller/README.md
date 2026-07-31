@@ -1,12 +1,12 @@
 # Bedtime Story Teller
 
-The **Bedtime Story Teller** example demonstrates how to build a generative AI application using the Arduino UNO Q. It uses a Large Language Model (LLM) to create personalized bedtime stories based on user-selected parameters like age, theme, and characters, streaming the result in real-time to a web interface.
+The **Bedtime Story Teller** example demonstrates how to build a generative AI application using the Arduino UNO Q or Arduino VENTUNO Q. It uses a Large Language Model (LLM) to create personalized bedtime stories based on user-selected parameters like age, theme, and characters, streaming the result in real-time to a web interface.
 
 ![Bedtime Story Teller Example](assets/docs_assets/thumbnail.png)
 
 ## Description
 
-This App transforms the UNO Q into an AI storytelling assistant. It uses the `cloud_llm` Brick to connect to a cloud-based AI model and the `web_ui` Brick to provide a rich configuration interface.
+This App transforms the board into an AI storytelling assistant. It uses the `cloud_llm` Brick to connect to a cloud-based AI model and the `web_ui` Brick to provide a rich configuration interface.
 
 The workflow allows you to craft a story by selecting specific parameters—such as the child's age, story theme, tone, and specific characters—or to let the App **generate a story randomly** for a quick surprise. The backend constructs a detailed prompt, sends it to the AI model, and streams the generated story back to the browser text-token by text-token.
 
@@ -17,16 +17,12 @@ The bedtime story teller example uses the following Bricks:
 - `cloud_llm`: Brick to interact with cloud-based Large Language Models (LLMs) like Google Gemini, OpenAI GPT, or Anthropic Claude.
 - `web_ui`: Brick to create the web interface for parameter input and story display.
 
-## Hardware and Software Requirements
+## Hardware Requirements
 
 ### Hardware
 
 - Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
 - USB-C® cable (for power and programming) (x1)
-
-### Software
-
-- Arduino App Lab
 
 **Note:** This example requires an active internet connection to reach the AI provider's API. You will also need a valid **API Key** for the service used (e.g., Google AI Studio API Key).
 
@@ -38,9 +34,7 @@ This example requires a valid API Key from an LLM provider (Google Gemini, OpenA
 
 1. **Duplicate the Example**
 
-   Since built-in examples are read-only, you must duplicate this App to edit the configuration. Click the arrow next to the App name and select **Duplicate** or click the **Copy and edit app** button on the top right corner of the App page.
-
-   ![Duplicate example](assets/docs_assets/duplicate-app.png)
+   Since built-in examples are read-only, you must duplicate this App to edit the configuration. Click the **Copy and edit app** button on the top right corner of the App page.
 
 2. **Open Brick Configuration**
 
@@ -63,8 +57,6 @@ This example requires a valid API Key from an LLM provider (Google Gemini, OpenA
 4. **Run the App**
 
    Launch the App by clicking the **Run** button in the top right corner. Wait for the App to start.
-
-   ![Launch the App](assets/docs_assets/launch-app.png)
 
 5. **Access the Web Interface**
 

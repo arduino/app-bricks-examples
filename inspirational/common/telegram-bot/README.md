@@ -5,7 +5,7 @@ The **Telegram Bot** example demonstrates how to create an interactive bot that 
 
 ## Description
 
-This example transforms your Arduino UNO Q into a Telegram bot that can:
+This example transforms your board into a Telegram bot that can:
 
 - Respond to commands like `/hello` and `/help`
 - Analyze the sentiment (mood) of text messages
@@ -44,19 +44,26 @@ The Telegram Bot example uses the following Bricks:
 To use this example, you need to create a bot on Telegram:
 
 1. Open Telegram and search for [@BotFather](https://t.me/BotFather)
+
 2. Send the message `/newbot`
+
 3. Follow BotFather's instructions to:
+
    - Choose a name for your bot
    - Choose a unique username (must end with "bot")
+
 4. BotFather will provide you with an **API token** that looks like: `123456789:AA...your-token-here...`
+
 5. **Save this token securely** - you'll need it to configure the App
 
 ### Configure the Application
 
 1. **Duplicate the Example**
-   Since built-in examples are read-only, duplicate this App to edit the configuration. Click the arrow next to the App name and select **Duplicate** or click the **Copy and edit app** button.
+
+   Since built-in examples are read-only, duplicate this App to edit the configuration. Click the **Copy and edit app** button in the top navigation.
 
 2. **Configure the Bot Token**
+
    On the App page, locate the **Bricks** section on the left. Click on the **Telegram Bot** Brick, then click the **Brick Configuration** button.
    
    ![Configure Telegram Bot Token](assets/brickConfigTelegram.png)
@@ -66,13 +73,17 @@ To use this example, you need to create a bot on Telegram:
 ### Run the App
 
 1. Click the **Run** button in the top right corner
+
 2. Wait for the App to start (you should see confirmation in the logs)
 
 ### Interact with Your Bot
 
 1. In Telegram, search for your bot using the username you created
+
 2. Start a chat with the bot by clicking **Start** or sending `/start`
+
 3. Try these interactions:
+
    - Send `/hello` for a greeting
    - Send `/help` for available commands
    - Send any text message to get mood analysis

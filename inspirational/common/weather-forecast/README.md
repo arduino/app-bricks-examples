@@ -1,6 +1,8 @@
-# Weather forecast on LED matrix
+# Weather Forecast on LED Matrix
 
 The **Weather Forecasting System** displays real-time weather information from the *open-meteo.com* service on the Arduino UNO Q LED matrix. It shows weather conditions like *sunny*, *cloudy*, *rainy*, *snowy* or *foggy* using animated visual patterns that update automatically every 10 seconds.
+
+*This example is based on the Arduinno UNO Q, but also works on the Arduino VENTUNO Q.*
 
 ![Weather Forecasting App](assets/docs_assets/weather-forecast-banner.png)
 
@@ -16,18 +18,14 @@ The weather forecasting example uses the following Bricks:
 
 - `weather_forecast`: Brick to fetch weather data from the `open-meteo.com` API and convert weather codes into simple categories.
 
-## Hardware and Software Requirements
+## Hardware Requirements
 
 ### Hardware
 
 - Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
 - USB-C® cable (for power and programming) (x1)
 
-### Software
-
-- Arduino App Lab
-
-**Note:** You can also run this example using your Arduino UNO Q as a Single Board Computer (SBC) using a [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and display attached.
+**Note:** You can also run this example using your board as a Single Board Computer (SBC) using a [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and display attached.
 
 ## How to Use the Example
 
@@ -36,8 +34,9 @@ The weather forecasting example uses the following Bricks:
    ```cpp
    String city = "Turin";
    ```
-2. Run the App
-![Arduino App Lab - Run App](assets/docs_assets/app-lab-run-app.png)
+
+2. Run the App from the top navigation bar.
+
 3. Watch animated weather patterns appear on the LED matrix, updating every 10 seconds with current conditions.
 
 ## How it Works
@@ -62,7 +61,7 @@ The Brick provides a clean interface for weather data retrieval, handling API co
 
 - **Processing weather parameters and city requests.**
 
-The Arduino passes the city name as a parameter to the Python® function:
+The board passes the city name as a parameter to the Python® function:
 
 ```python
 def get_weather_forecast(city: str) -> str:
@@ -73,7 +72,7 @@ def get_weather_forecast(city: str) -> str:
 
 - **Exposing weather functions to the microcontroller.**
 
-The Router Bridge makes the weather function callable from the Arduino:
+The Router Bridge makes the weather function callable from the board:
 
 ```python
 Bridge.provide("get_weather_forecast", get_weather_forecast)
@@ -140,7 +139,7 @@ The Arduino code manages animation control and hardware display.
 
 - **Weather category mapping:** Matches each weather type to specific animation parameters tuned to create natural-feeling motion patterns.
 
-- **Animation timing variations:** Uses different frame delays to match natural weather rhythm: fast rain (200ms), slow snow (650ms), gentle sun (500ms).
+- **Animation timing variations:** Uses different frame delays to match natural weather rhythm: fast rain (200 ms), slow snow (650ms), gentle sun (500ms).
 
 - **`Bridge.call()` with parameters:** Shows advanced Router Bridge usage by passing the city name to the Python® function and receiving the weather category response.
 

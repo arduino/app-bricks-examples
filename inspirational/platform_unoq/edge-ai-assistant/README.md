@@ -16,47 +16,52 @@ The Edge AI Assistant example uses the following Bricks:
 - `llm`: Brick to interact with the local Large Language Models (LLMs) onboard the Arduino UNO Q.
 - `web_ui`: Brick to create the chatbot-like web interface.
 
-## Hardware and Software Requirements
+## Hardware Requirements
 
 ### Hardware
 
 - Arduino UNO Q (x1)
 - USB-C® cable (for power and programming) (x1)
 
-### Software
-
-- Arduino App Lab
-
 ## How to Use the Example
 
 ### Configure & Launch App
 
 1. **Duplicate the Example**
+
    Since built-in examples are read-only, you must duplicate this App to edit the configuration. Click the arrow next to the App name and select **Duplicate** or click the **Copy and edit app** button on the top right corner of the App page.
+
    ![Duplicate example](assets/docs_assets/duplicate-app.png)
 
 2. **Run the App**
+
    Launch the App by clicking the **Run** button in the top right corner. Wait for the App to start.
-   ![Launch the App](assets/docs_assets/launch-app.png)
 
 3. **Access the Web Interface**
+
    Open the App in your browser at `<UNO-IP-ADDRESS>:7000`.
 
 ### Interacting with the App
 
 1. **Choose Your Card**
+
    You have the opportunity to start a conversation with the AI using a pre-built prompt or submit your own question.
 
 2. **Chat page**
+
    In the chat page you can have a conversation with the AI.
    Your enquiries are on the right and the AI replies on the left in a chat-like style.
 
 3. **Enhance your prompt**
+
    Click on the tips buttons to enhance your prompts to make them more sophisticated.
+
    The text inside the clicked button will be appended to your prompt in the text area.
 
 4. **Interact**
+
    The AI responses are streamed in real-time. Once complete, you can:
+
    - **Continue on that topic** asking more questions.
    - Click **Reset chat** to reset the interface and start over.
 

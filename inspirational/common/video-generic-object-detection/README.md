@@ -8,6 +8,8 @@ The **Detect Objects on Camera** example lets you detect objects on a live feed 
 
 This example uses a pre-trained model to detect objects on a live video feed from a camera. The workflow involves continuously getting the frames from a USB camera, processing it through an AI model using the `video_objectdetection` Brick, and displaying the bounding boxes around detections. The App is managed from an interactive web interface.
 
+*This example is based on the Arduino UNO Q, but also works on Arduino VENTUNO Q.*
+
 ## Brick Used
 
 The example uses the following Bricks:
@@ -15,28 +17,28 @@ The example uses the following Bricks:
 - `web_ui`: Brick to create a web interface to display the classification results and model controls.
 - `video_objectdetection`: Brick to classify objects within a live video feed from a camera.
 
-## Hardware and Software Requirements
+## Hardware Requirements
 
 ### Hardware
 
-- [Arduino® UNO Q](https://store.arduino.cc/products/uno-q) or Arduino VENTUNO Q
+- Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
 - USB camera (x1)
 - USB-C® hub adapter with external power (x1) _(only for UNO Q)_
 - A power supply (5 V, 3 A) for the USB hub (e.g. a phone charger) _(only for UNO Q)_
 - Personal computer with internet access
 
-### Software
-
-- Arduino App Lab
-
 ## How to Use the Example
 
 1. Connect the USB-C hub to the UNO Q and the USB camera.
+
    ![Hardware setup](assets/docs_assets/hardware-setup.png)
+
 2. Attach the external power supply to the USB-C hub to power everything.
-3. Run the App.
-   ![Arduino App Lab - Run App](assets/docs_assets/launch-app.png)
+
+3. Run the App from the top navigation bar.
+
 4. The App should open automatically in the web browser. You can open it manually via `<board-name>.local:7000`.
+
 5. Position any object in front of the camera and watch as the App detects and recognizes them.
 
 Try with one of the following objects for a special reaction:
@@ -98,12 +100,14 @@ Here is a brief explanation of the full-stack application:
 ## Understanding the Code
 
 Once the application is running, you can open it in your browser by navigating to `<BOARD-IP-ADDRESS>:7000`.  
+
 At that point, the device begins performing the following:
 
 - Serving the **object detection UI** and exposing realtime transports.
 
   The UI is hosted by the `WebUI` Brick and communicates with the backend via WebSocket.  
-   The backend pushes detection messages whenever new objects are found.
+
+  The backend pushes detection messages whenever new objects are found.
 
   ```python
   from arduino.app_bricks.web_ui import WebUI
@@ -125,8 +129,11 @@ At that point, the device begins performing the following:
 - Processing detections and broadcasting updates.
 
   When the model detects objects, the backend:
+
   1. Iterates over all detected objects with their confidence scores.
+
   2. Attaches an ISO 8601 UTC timestamp.
+
   3. Publishes each detection as a JSON entry to the frontend channel `detection`.
 
   ```python
@@ -143,6 +150,7 @@ At that point, the device begins performing the following:
 - Rendering and interacting on the frontend.
 
   The **index.html + app.js** bundle defines the interface:
+  
   - A **video feed iframe** auto-retries `/embed` until the camera stream is live.
   - A **confidence control** (slider + input + reset) lets the user adjust the detection threshold.
   - A **feedback section** shows animations and messages for known classes (cat, dog, cup, clock, potted plant, etc.).

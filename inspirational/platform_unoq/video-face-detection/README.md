@@ -15,7 +15,7 @@ The example uses the following Bricks:
 - `web_ui`: Brick to create a web interface to display the classification results and model controls.
 - `video_objectdetection`: Brick to classify faces within a live video feed from a camera.
 
-## Hardware and Software Requirements
+## Hardware Requirements
 
 ### Hardware
 
@@ -25,18 +25,20 @@ The example uses the following Bricks:
 - A power supply (5 V, 3 A) for the USB hub (e.g. a phone charger)
 - Personal computer with internet access
 
-### Software
-
-- Arduino App Lab
-
 ## How to Use the Example
 
 1. Connect the USB-C hub to the UNO Q and the USB camera.
+
    ![Hardware setup](assets/docs_assets/hardware-setup.png)
+
 2. Attach the external power supply to the USB-C hub to power everything.
+
 3. Run the App.
+
    ![Arduino App Lab - Run App](assets/docs_assets/launch-app.png)
+
 4. The App should open automatically in the web browser. You can open it manually via `<board-name>.local:7000`.
+
 5. Position yourself in front of the camera and watch as the App detects your face and say hi.
 
 ## How it Works
@@ -106,7 +108,8 @@ Once the application is running, you can open it in your browser by navigating t
 - Serving the **face detection UI** and exposing real-time transports.
 
   The UI is hosted by the `WebUI` Brick and communicates with the backend over WebSocket.  
-   The backend pushes detection messages whenever a face is found.
+  
+  The backend pushes detection messages whenever a face is found.
 
   ```python
   from arduino.app_bricks.web_ui import WebUI
@@ -133,8 +136,11 @@ Once the application is running, you can open it in your browser by navigating t
 - Processing detections and broadcasting updates.
 
   When the model detects faces, the backend:
+
   1. Iterates over all detected objects and their confidence scores.
+
   2. Attaches an ISO 8601 UTC timestamp.
+
   3. Publishes each detection as a JSON entry to the frontend channel `detection`.
 
   ```python
@@ -151,6 +157,7 @@ Once the application is running, you can open it in your browser by navigating t
 - Rendering and interacting on the frontend.
 
   The **index.html + app.js** bundle defines the interface:
+
   - A **video iframe** retries `/embed` until the live camera feed is available.
   - A **confidence control** (slider + number + reset) lets the user change the threshold on the fly.
   - A **feedback section** shows greetings with an animated hand when a face is detected.

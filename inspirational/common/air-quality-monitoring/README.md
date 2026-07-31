@@ -1,6 +1,8 @@
 # Air Quality Monitoring App
 
-The **Air Quality Monitoring App** displays real-time air quality data from the *AQICN* service on the Arduino UNO Q LED matrix. It displays air quality levels ranging from "Good" to "Hazardous" using animated face patterns that reflect the current air quality, from smiling to distressed.
+The **Air Quality Monitoring App** displays real-time air quality data from the *AQICN* service on the board's LED matrix. It displays air quality levels ranging from "Good" to "Hazardous" using animated face patterns that reflect the current air quality, from smiling to distressed.
+
+The images in this file will use the Arduino UNO Q as example.
 
 ![Air Quality Monitoring App](assets/docs_assets/aqm-banner.png)
 
@@ -16,18 +18,14 @@ The Python® script handles API communication and data processing, while the Ard
 
 **This example does not use any Bricks.** It shows direct Router Bridge communication between Python® and Arduino.
 
-## Hardware and Software Requirements
+## Hardware Requirements
 
 ### Hardware
 
 - Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
 - USB-C® cable (for power and programming) (x1)
 
-### Software
-
-- Arduino App Lab
-
-**Note:** You can also run this example using your Arduino UNO Q as a Single Board Computer (SBC) using a [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and display attached.
+**Note:** You can also run this example using your board as a Single Board Computer (SBC) using a [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and display attached.
 
 ## How to Use the Example
 
@@ -87,7 +85,7 @@ city = "Your City Name"
 
 ### Run the App
 
-![App Lab - Run App](assets/docs_assets/app-lab-run-app.png)
+Click the **Run** button in the top navigation bar.
 
 ## How it Works
 
@@ -123,13 +121,13 @@ For example, a pollution reading of 75 is labeled as *Moderate* rather than leav
 
 - **Exposing air quality functions to the microcontroller.**
 
-The Router Bridge makes the air quality function callable from the Arduino:
+The Router Bridge makes the air quality function callable from the board:
 
 ```python
 Bridge.provide("get_air_quality", get_air_quality)
 ```
 
-- **Polling for air quality updates from the Arduino.**
+- **Polling for air quality updates from the board.**
 
 The Arduino sketch calls the Python function once every second:
 
@@ -163,7 +161,7 @@ Here is a brief explanation of the application components:
 
 ### 🔧 Backend (`main.py`)
 
-The Python® code serves as the system's data processor, handling all communication with the air quality service and converting raw information into a format that the LED display can use.
+The Python® code serves as the system's data processor, handling all communication with the air quality service and converting raw information into a format that the LED matrix can use.
 
 - **`API_TOKEN`, `city`, `endpoint`**: Simple constants that you edit to target a different location and authenticate with the service.
 

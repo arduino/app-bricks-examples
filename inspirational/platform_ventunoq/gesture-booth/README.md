@@ -35,23 +35,24 @@ The Gesture Booth example uses the following Bricks:
 
 ### Hardware
 
-- Arduino® VENTUNO™ Q (x1)
+- Arduino VENTUNO Q (x1)
 - USB-C® cable (x1)
 - Camera (Integrated or USB camera)
 
-### Software
-
-- Arduino App Lab
-
-**Note:** You can also run this example using your Arduino® VENTUNO™ Q as a Single Board Computer (SBC) using a [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and display attached.
+**Note:** You can also run this example using your Arduino VENTUNO Q as a Single Board Computer (SBC) using a [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and display attached.
 
 ## How to Use the Example
 
 1. Run the App.
+
 2. Open the App in your browser.
+
 3. Allow camera access if prompted.
+
 4. Position your hand in front of the camera.
+
 5. Try one of the supported gestures:
+
    - **Open Palm** <img src="assets/img/gestures/static/open_palm.svg" alt="Open Palm" width="24">
    - **Victory** <img src="assets/img/gestures/static/victory.svg" alt="Victory" width="24">
    - **Thumb Up** <img src="assets/img/gestures/static/thumb_up.svg" alt="Thumb Up" width="24">
@@ -59,6 +60,7 @@ The Gesture Booth example uses the following Bricks:
    - **Pointing Up** <img src="assets/img/gestures/static/pointing_up.svg" alt="Pointing Up" width="24">
    - **Closed Fist** <img src="assets/img/gestures/static/closed_fist.svg" alt="Closed Fist" width="24">
    - **Rock** (I Love You) <img src="assets/img/gestures/static/rock.svg" alt="Rock" width="24">
+
 6. The interface will highlight the detected gesture and provide visual feedback.
 
 ## How it Works

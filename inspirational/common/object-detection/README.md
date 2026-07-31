@@ -10,7 +10,7 @@ This example uses a pre-trained model to detect objects in an uploaded image. Th
 
 The `assets` folder contains some static images and a CSS style sheet for the web interface. In the python folder, we find the main script.
 
-This example only uses the Arduino UNO Q CPU for running the application, as no C++ sketch is present in the example structure.
+This example only uses the board's CPU for running the application, as no C++ sketch is present in the example structure.
 
 ## Bricks Used
 
@@ -19,27 +19,27 @@ The code detector example uses the following Bricks:
 - `objectdetection`: Brick to identify objects within an image.
 - `web_ui`: Brick to create a web interface.
 
-## Hardware and Software Requirements
+## Hardware Requirements
 
 ### Hardware
 
 - Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
 - USB-C® to USB-A Cable (x1)
-- Personal computer with internet access
 
-### Software
-
-- Arduino App Lab
-
-**Note:** You can also run this example using your Arduino UNO Q as a Single Board Computer (SBC) using a [USB-C hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and monitor attached.
+**Note:** You can also run this example using your board as a Single Board Computer (SBC) using a [USB-C hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and monitor attached.
 
 ## How to Use the Example
 
 1. Run the app.
+
 2. Open the app in your browser.
+
 3. Upload an image you want to analyze.
+
 4. Adjust the confidence threshold slider to set the minimum detection confidence.
+
 5. Click the **Run detection** button to run object detection.
+
 6. View the results with detected objects highlighted by bounding boxes and labels.
 
 ## How it Works

@@ -6,9 +6,10 @@ The **Vibration Anomaly Detection** example creates a smart vibration detector t
 
 ## Description
 
-Monitor the physical status of a fan in real-time. This example uses a Modulino Movement to capture acceleration data and a dedicated Brick to detect vibration anomalies. 
+Monitor the physical status of a fan in real-time. This example uses an Arduino Modulino Movement to capture acceleration data and a dedicated Brick to detect vibration anomalies. 
 
 Unlike simple threshold detectors, this App provides:
+
 * **Live Data Visualization:** A real-time scrolling plot of X, Y, and Z acceleration.
 * **Dynamic Sensitivity:** A slider to adjust the anomaly scoring threshold on the fly.
 * **History:** A log of the most recent detected anomalies with timestamps.
@@ -20,43 +21,46 @@ The example uses the following Bricks:
 - `web_ui`: Brick to create a web interface to display the dashboard.
 - `vibration_anomaly_detection`: Brick that processes accelerometer data to detect irregular vibration patterns.
 
-## Hardware and Software Requirements
+## Hardware Requirements
 
 ### Hardware
 
 - Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
-- Modulino Movement (LSM6DSOX) (x1)
+- Arduino Modulino Movement (LSM6DSOX) (x1)
 - Qwiic Cable (x1)
 - USB-C® to USB-A Cable (x1)
 
-### Software
-
-- Arduino App Lab
-
-**Note:** You can also run this example using your Arduino UNO Q as a Single Board Computer (SBC) using a [USB-C hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard, and monitor attached.
+**Note:** You can also run this example using your board as a Single Board Computer (SBC) using a [USB-C hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard, and monitor attached.
 
 ## How to Use the Example
 
 1. **Hardware Setup**
-   Connect the Modulino Movement sensor to the Arduino UNO Q via the Qwiic connector.
+
+   Connect the Modulino Movement sensor to the board via the Qwiic connector.
 
 2. **Run the App**
-   Launch the App from Arduino App Lab.
+
+   Launch the App from the top navigation bar.
 
 3. **Access the Web Interface**
+
    Open the App in your browser at `<UNO-Q-IP-ADDRESS>:7000`.
 
 4. **Monitor Vibrations**
+ 
    Observe the **Accelerometer Data** chart to see the live vibration waveforms.
 
 5. **Adjust Sensitivity**
+
    Use the **Set anomaly threshold** slider to adjust how sensitive the detector is.
+
    - **Lower values:** High sensitivity (small deviations trigger alerts).
    - **Higher values:** Low sensitivity (requires stronger, more unusual vibration patterns to trigger).
    - The threshold is a raw anomaly score, not a 0-1 confidence value; anomaly scores can be greater than 1.0.
    - The slider covers the common range; use the numeric input if your model produces larger anomaly scores.
 
 6. **Trigger an Anomaly**
+
    Shake the sensor or attach it to a fan to simulate an anomaly. The "Feedback" section will show a warning, and the event will be logged in "Recent Anomalies".
 
 ## How it Works

@@ -14,23 +14,19 @@ The Python® script manages the timing and state logic, while the Arduino sketch
 
 **This example does not use any Bricks.** It shows direct Router Bridge communication between Python® and Arduino.
 
-## Hardware and Software Requirements
+## Hardware Requirements
 
 ### Hardware
 
 - Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
 - USB-C® cable (for power and programming) (x1)
 
-### Software
-
-- Arduino App Lab
-
-**Note:** You can also run this example using your Arduino Arduino UNO Q as a Single Board Computer (SBC) using a [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and display attached.
+**Note:** You can also run this example using your board as a Single Board Computer (SBC) using a [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and display attached.
 
 ## How to Use the Example
 
-1. Run the App
-    ![Arduino App Lab - Run App](assets/docs_assets/app-lab-run-app.png)
+1. Run the App by clicking the **Run** button in the top navigation bar.
+
 2. Watch the LED on the board toggle state every second
 
 ## How it Works
@@ -53,7 +49,7 @@ The Python® script uses a simple loop with timing control:
      Bridge.call("set_led_state", led_state)
 ```
 
-The script toggles the LED state variable every second and sends the new state to the Arduino.
+The script toggles the LED state variable every second and sends the new state to the board.
 
 - **Exposing LED control function to Python®.**
 

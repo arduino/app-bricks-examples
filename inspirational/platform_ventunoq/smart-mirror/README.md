@@ -1,6 +1,6 @@
 # Smart Mirror
 
-The **Smart Mirror** example turns your Arduino® Ventuno™ Q into an AI-powered style advisor. Point a USB camera at yourself, tap "Scan your look", and get a real-time outfit description with a personalized styling tip — all powered by a Vision Language Model running locally on the board.
+The **Smart Mirror** example turns your Arduino VENTUNO Q into an AI-powered style advisor. Point a USB camera at yourself, tap "Scan your look", and get a real-time outfit description with a personalized styling tip — all powered by a Vision Language Model running locally on the board.
 
 ![Smart Mirror Example](assets/docs_assets/thumbnail.png)
 
@@ -26,7 +26,7 @@ The Smart Mirror example uses the following Bricks:
 - `vlm`: Provides the `VisionLanguageModel` class to send camera frames and text prompts to a locally hosted Vision Language Model and receive style advice.
 - `web_ui`: Provides the `WebUI` class to serve the frontend, handle WebSocket communication, and expose a custom video streaming API endpoint.
 
-## Hardware and Software Requirements
+## Hardware Requirements
 
 ### Hardware
 
@@ -34,25 +34,33 @@ The Smart Mirror example uses the following Bricks:
 - USB-C® cable (for power) (x1)
 - USB camera (x1)
 
-### Software
-
-- Arduino App Lab
-
 **Note:** You can also run this example using your Arduino VENTUNO Q as a Single Board Computer (SBC) using a [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and display attached.
 
 ## How to Use the Example
 
-1. **Connect a USB camera to the board.** Plug the camera into one of the available USB ports on the VENTUNO Q.
+1. **Connect a USB camera to the board.** 
+  
+  Plug the camera into one of the available USB ports on the VENTUNO Q.
 
-2. **Run the app from Arduino App Lab.** Deploy and start the Smart Mirror example. The backend initializes the camera, the VLM model, and the web server.
+2. **Run the app from Arduino App Lab.** 
+  
+  Deploy and start the Smart Mirror example. The backend initializes the camera, the VLM model, and the web server.
 
-3. **Open the web interface.** Navigate to `<board-name>.local:7000` in your browser. You should see a live camera feed filling the screen with an overlay panel at the bottom.
+3. **Open the web interface.** 
+  
+  Navigate to `<board-name>.local:7000` in your browser. You should see a live camera feed filling the screen with an overlay panel at the bottom.
 
-4. **Scan your outfit.** Tap the **Scan your look** button. A four-second countdown begins — step into view and strike a pose.
+4. **Scan your outfit.** Tap the **Scan your look** button. 
 
-5. **Read your style tip.** After the countdown, the AI analyzes the captured frame. The panel displays "The mirror says:" followed by a two-sentence response: what you are wearing and a styling suggestion.
+  A four-second countdown begins — step into view and strike a pose.
 
-6. **Scan again.** Tap **Scan again** to get a new analysis. Each scan uses a different random opener for variety.
+5. **Read your style tip.** 
+
+  After the countdown, the AI analyzes the captured frame. The panel displays "The mirror says:" followed by a two-sentence response: what you are wearing and a styling suggestion.
+
+6. **Scan again.** 
+
+  Tap **Scan again** to get a new analysis. Each scan uses a different random opener for variety.
 
 ## How it Works
 
@@ -79,9 +87,13 @@ Once the application is running, the device performs the following operations:
 ```
 
 1. **Camera capture loop** — the `Camera` peripheral captures JPEG frames at 30 fps. The latest frame is stored in a lock-protected shared variable (`frame_lock`).
+
 2. **Video streaming** — the backend exposes a `/stream` endpoint that serves an MJPEG stream. The browser displays this as a full-screen background image.
+
 3. **Scan trigger** — when the user taps "Scan your look", the frontend sends a `start_scan` WebSocket event after a four-second countdown.
+
 4. **AI analysis** — the backend grabs the latest frame and calls `vlm.chat()` using the predefined system prompt and a randomized user prompt generated from the user prompt template in `prompt.yaml`. The VLM identifies the most prominent clothing item, its color, and generates a two-sentence response.
+
 5. **Result delivery** — the response is sent back to the requesting client via a `analysis_result` WebSocket event and displayed in the overlay panel.
 
 ## Understanding the Code
