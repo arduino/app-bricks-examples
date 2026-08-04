@@ -9,7 +9,8 @@
 from arduino.app_bricks.arduino_cloud import ArduinoCloud
 from arduino.app_utils import App, Bridge
 
-# If secrets are not provided in the class initialization, they will be read from environment variables
+# The connection to Arduino Cloud is handled by the on-board arduino-cloud-connector daemon,
+# no credentials are needed here: the board just needs to be connected to the Cloud from App Lab.
 iot_cloud = ArduinoCloud()
 
 
