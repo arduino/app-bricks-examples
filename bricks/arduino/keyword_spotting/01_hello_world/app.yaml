@@ -1,6 +1,6 @@
-name: Detect the 'hello world' keyword
+name: Detect the 'hey arduino' keyword
 icon: 🗣️
-description: "Detect the 'hello world' keyword. Requires an USB microphone connected to the Arduino board."
+description: "Detect the 'hey arduino' keyword. Requires an USB microphone connected to the Arduino board."
 
 bricks:
   - arduino:keyword_spotting
