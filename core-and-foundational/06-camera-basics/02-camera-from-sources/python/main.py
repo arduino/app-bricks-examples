@@ -5,6 +5,7 @@
 # Example app to capture an image from the different camera sources and it stores it to the local storage.
 import numpy as np
 from arduino.app_peripherals.camera import Camera
+from arduino.app_utils import App
 from arduino.app_utils.image import compress_to_jpeg
 
 # List of camera sources available, choose the one uncomment it and comment the others.
@@ -27,3 +28,5 @@ if imageJpeg is not None:
         f.write(imageBytes)
 
 camera.stop()
+
+App.run()

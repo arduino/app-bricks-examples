@@ -5,9 +5,10 @@
 # Example app to capture an avi video of 5 seconds from the camera and it stores it to the local storage.
 import numpy as np
 from arduino.app_peripherals.camera import Camera # Import the Camera class to interact with the camera peripheral
+from arduino.app_utils import App
 
 # Instantiate and initialize the camera with resolution 640x480.
-# The first camera found in order of priority (CSI > USB ) will be used.
+# The first camera found in order of priority (USB > CSI) will be used.
 # If no camera is found, an exception will be raised.
 # List of camera configurations available, choose the one uncomment it and comment the others.
 
@@ -27,3 +28,5 @@ with open("captured_video.avi", "wb") as f:
     f.write(recordingBytes)
 
 camera.stop()
+
+App.run()

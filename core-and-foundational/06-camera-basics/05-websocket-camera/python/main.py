@@ -4,6 +4,7 @@
 
 # Example app to capture an image from a WebSocket camera and store it to the local storage.
 from arduino.app_peripherals.camera import WebSocketCamera # Import the WebSocketCamera class to receive frames from a remote client
+from arduino.app_utils import App
 from arduino.app_utils.image import compress_to_jpeg # Import the compress_to_jpeg function to compress images to JPEG format
 
 # Instantiate and initialize a WebSocket camera server on port 8080.
@@ -30,3 +31,5 @@ if imageJpeg is not None:
         f.write(imageBytes)
 
 camera.stop()
+
+App.run()
