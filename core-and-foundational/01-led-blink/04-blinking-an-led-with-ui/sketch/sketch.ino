@@ -12,6 +12,7 @@
 void setup() {
     
     pinMode(LED_BUILTIN, OUTPUT);                   // Initialize digital pin LED_BUILTIN as an output.
+    digitalWrite(LED_BUILTIN, HIGH);                // Ensure the LED starts off (the LED is active-low)
 
     Bridge.begin();                                 // Is mandatory calling Bridge.begin() to initialize Bridge communication.
     Bridge.provide("set_led_state", set_led_state); // Provide the "set_led_state" function to be called from Python
