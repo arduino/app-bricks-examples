@@ -5,11 +5,12 @@
 # Example app to capture an image from the camera, apply basic transformations, and store it to the local storage.
 import numpy as np
 from arduino.app_peripherals.camera import Camera # Import the Camera class to interact with the camera peripheral
+from arduino.app_utils import App
 from arduino.app_utils.image import compress_to_jpeg # Import the compress_to_jpeg function to compress images to JPEG format
 from arduino.app_utils.image.adjustments import adjusted, cropped_to_aspect_ratio, flipped_h, flipped_v, greyscaled, resized  # Import image adjustment functions
 
 # Instantiate and initialize the camera with resolution 640x480.
-# The first camera found in order of priority (CSI > USB ) will be used.
+# The first camera found in order of priority (USB > CSI) will be used.
 # If no camera is found, an exception will be raised.
 # The camera is initialized with basic adjustments: greyscaled and flipped horizontally.
 # The adjustments are added in a transformation pipeline that is applied directly to the stream video from the camera.
@@ -32,3 +33,5 @@ if imageJpeg is not None:
         f.write(imageBytes)
 
 camera.stop()
+
+App.run()
