@@ -66,7 +66,8 @@ tasks:
           echo "Usage: task install-bricks -- <version>"
           exit 1
         fi
-        "{{.LICENSE_VENV_DIR}}"/bin/pip install "https://github.com/arduino/app-bricks-py/releases/download/release%2F${VERSION}/arduino_app_bricks-${VERSION}-py3-none-any.whl"
+        "{{.LICENSE_VENV_DIR}}"/bin/pip install "https://github.com/arduino/app-bricks-py/releases/download/bricks%2F${VERSION}/arduino_app_bricks-${VERSION}-py3-none-any.whl" \
+          || "{{.LICENSE_VENV_DIR}}"/bin/pip install "https://github.com/arduino/app-bricks-py/releases/download/release%2F${VERSION}/arduino_app_bricks-${VERSION}-py3-none-any.whl"
 
   install:licensed:
     internal: true
