@@ -15,6 +15,41 @@ const flipVBtn = document.getElementById('flip-v');
 const frameTitle = document.getElementById('frame-title');
 const frameBackBtn = document.getElementById('frame-back');
 const frameForwardBtn = document.getElementById('frame-forward');
+const codePanelToggle = document.getElementById('code-panel-toggle');
+const codePanel = document.querySelector('.controls-section-right');
+const undoBtn = document.getElementById('undo-btn');
+const redoBtn = document.getElementById('redo-btn');
+const animNameInput = document.getElementById('anim-name');
+const invertNotNullBtn = document.getElementById('invert-not-null');
+const shiftUpBtn = document.getElementById('shift-up');
+const shiftDownBtn = document.getElementById('shift-down');
+const shiftLeftBtn = document.getElementById('shift-left');
+const shiftRightBtn = document.getElementById('shift-right');
+const wrapAroundCheckbox = document.getElementById('wrap-around-checkbox');
+const copyAnimBtn = document.getElementById('copy-anim');
+const deleteAnimBtn = document.getElementById('delete-anim');
+const durationAnimBtn = document.getElementById('duration-anim');
+const durationModal = document.getElementById('duration-modal');
+const closeModalBtn = document.querySelector('#duration-modal .close-button');
+const applyDurationBtn = document.getElementById('apply-duration');
+const allFramesDurationInput = document.getElementById('all-frames-duration');
+
+const ROWS = 8,
+  COLS = 13;
+const AUTO_PERSIST_DELAY_MS = 150; // 150ms unified delay
+
+let BRIGHTNESS_LEVELS = 8;
+let cells = [];
+let sessionFrames = [];
+let loadedFrameId = null; // ID of the frame currently loaded in editor
+let loadedFrame = null; // Full frame object currently loaded
+let selectedFrameIds = [];
+let lastSelectedFrameId = null;
+let history = [];
+let historyIndex = -1;
+let persistTimeout = null; // auto-persist timer (board + DB together)
+let animationTimeout = null;
+
 function showError(message) {
   const errorContainer = document.getElementById('error-container');
   if (errorContainer) {
@@ -22,6 +57,7 @@ function showError(message) {
     errorContainer.style.display = 'block';
   }
 }
+
 function hideError() {
   const errorContainer = document.getElementById('error-container');
   if (errorContainer) {
@@ -29,6 +65,7 @@ function hideError() {
     errorContainer.style.display = 'none';
   }
 }
+
 async function fetchWithHandling(url, options, responseType = 'json', context = 'performing operation') {
   try {
     const response = await fetch(url, options);
@@ -50,8 +87,6 @@ async function fetchWithHandling(url, options, responseType = 'json', context = 
     throw error; // Re-throw to allow specific handlers to catch it if needed
   }
 }
-const codePanelToggle = document.getElementById('code-panel-toggle');
-const codePanel = document.querySelector('.controls-section-right');
 if (codePanelToggle && codePanel) {
   codePanelToggle.addEventListener('change', () => {
     codePanel.style.display = codePanelToggle.checked ? 'flex' : 'none';
@@ -59,21 +94,6 @@ if (codePanelToggle && codePanel) {
   // set initial state
   codePanel.style.display = codePanelToggle.checked ? 'flex' : 'none';
 }
-
-const ROWS = 8,
-  COLS = 13;
-let BRIGHTNESS_LEVELS = 8;
-let cells = [];
-let sessionFrames = [];
-let loadedFrameId = null; // ID of the frame currently loaded in editor
-let loadedFrame = null; // Full frame object currently loaded
-let selectedFrameIds = [];
-let lastSelectedFrameId = null;
-let history = [];
-let historyIndex = -1;
-// Auto-persist timer (unified: board + DB together)
-let persistTimeout = null;
-const AUTO_PERSIST_DELAY_MS = 150; // 150ms unified delay
 
 function updateUndoRedoButtons() {
   const undoBtn = document.getElementById('undo-btn');
@@ -124,14 +144,16 @@ function clampBrightness(v) {
   return Math.min(v, maxValue);
 }
 
+function cellBrightness(cell) {
+  return cell.dataset.b ? parseInt(cell.dataset.b, 10) : 0;
+}
+
 function collectGridBrightness() {
   const grid = [];
   for (let r = 0; r < ROWS; r++) {
     const row = [];
     for (let c = 0; c < COLS; c++) {
-      const idx = r * COLS + c;
-      const raw = cells[idx].dataset.b ? parseInt(cells[idx].dataset.b) : 0;
-      row.push(clampBrightness(raw));
+      row.push(clampBrightness(cellBrightness(cells[r * COLS + c])));
     }
     grid.push(row);
   }
@@ -373,8 +395,6 @@ makeGrid();
 if (exportBtn) exportBtn.addEventListener('click', exportH);
 else console.warn('[ui] export button not found');
 
-let animationTimeout = null;
-
 function displayFrame(frame) {
   if (!frame) return;
   // Populate grid
@@ -384,6 +404,7 @@ function displayFrame(frame) {
   // Mark as loaded in sidebar
   markLoaded(frame);
 }
+
 async function playAnimation() {
   if (!playAnimationBtn) return;
   // Stop any previous animation loop
@@ -467,8 +488,6 @@ if (stopAnimationBtn) {
     }
   });
 }
-const undoBtn = document.getElementById('undo-btn');
-const redoBtn = document.getElementById('redo-btn');
 
 if (undoBtn) {
   undoBtn.addEventListener('click', () => {
@@ -492,8 +511,6 @@ if (redoBtn) {
   });
 }
 
-// Save frame button removed - auto-persist replaces it
-const animNameInput = document.getElementById('anim-name');
 // set default placeholder and default value
 if (animNameInput) {
   animNameInput.placeholder = 'Animation name (optional)';
@@ -756,6 +773,7 @@ function renderFrames() {
   newFrameBtn.addEventListener('click', handleNewFrameClick);
   container.appendChild(newFrameBtn);
 }
+
 // 'save-anim' button functionality has been removed as it is no longer part of the UI.
 // Mode toggle handling removed
 // Transform button handlers
@@ -799,15 +817,9 @@ if (flipVBtn) {
 if (invertBtn) {
   invertBtn.addEventListener('click', () => transformFrame('invert'));
 }
-const invertNotNullBtn = document.getElementById('invert-not-null');
 if (invertNotNullBtn) {
   invertNotNullBtn.addEventListener('click', () => transformFrame('invert_not_null'));
 }
-const shiftUpBtn = document.getElementById('shift-up');
-const shiftDownBtn = document.getElementById('shift-down');
-const shiftLeftBtn = document.getElementById('shift-left');
-const shiftRightBtn = document.getElementById('shift-right');
-const wrapAroundCheckbox = document.getElementById('wrap-around-checkbox');
 if (shiftUpBtn) {
   shiftUpBtn.addEventListener('click', () => shiftGrid('up'));
 }
@@ -820,6 +832,7 @@ if (shiftLeftBtn) {
 if (shiftRightBtn) {
   shiftRightBtn.addEventListener('click', () => shiftGrid('right'));
 }
+
 async function shiftGrid(direction) {
   console.debug(`[ui] shift ${direction} button clicked`);
   const grid = collectGridBrightness();
@@ -1033,62 +1046,144 @@ document.addEventListener('DOMContentLoaded', () => {
       const percent = (value / max) * 100;
       brightnessAlphaSlider.style.setProperty('--slider-value-percent', `${percent}%`);
       brightnessAlphaValue.textContent = value;
-      if (value === 0) {
-        gridEl.dataset.tool = 'eraser';
-      } else {
-        gridEl.dataset.tool = 'brush';
-      }
+      updateToolCursor();
     };
     brightnessAlphaSlider.addEventListener('input', updateSliderBackground);
     // Call once to set initial state
     updateSliderBackground();
   }
   loadConfig(brightnessAlphaSlider, brightnessAlphaValue);
+  // Decided once per stroke: toggling per event made a click cancel itself as
+  // soon as the pointer jittered by a pixel.
   let isDrawing = false;
-  function draw(e) {
-    if (!e.target.classList.contains('cell')) return;
-    const cell = e.target;
-    const brightness = brightnessAlphaSlider.value;
+  let strokeMode = null; // { erases, brightness }, resolved from the first cell
+  let strokeChanged = false;
+  let lastCellPos = null;
 
-    if (brightness === cell.dataset.b || '') {
+  function currentBrightness() {
+    return clampBrightness(parseInt(brightnessAlphaSlider ? brightnessAlphaSlider.value : '0', 10));
+  }
+
+  function updateToolCursor() {
+    gridEl.dataset.tool = currentBrightness() === 0 ? 'eraser' : 'brush';
+  }
+
+  function resolveStrokeMode(cell) {
+    const brightness = currentBrightness();
+    // Brightness 0 is the eraser, and so is clicking a cell that already holds
+    // the selected brightness.
+    return { erases: brightness === 0 || cellBrightness(cell) === brightness, brightness };
+  }
+
+  function paintCell(cell) {
+    if (!strokeMode) {
+      strokeMode = resolveStrokeMode(cell);
+    }
+    if (strokeMode.erases) {
+      if (cell.dataset.b === undefined) {
+        return;
+      }
       delete cell.dataset.b;
     } else {
-      cell.dataset.b = brightness;
+      if (cellBrightness(cell) === strokeMode.brightness) {
+        return;
+      }
+      cell.dataset.b = String(strokeMode.brightness);
+    }
+    strokeChanged = true;
+  }
+
+  // Bresenham, so a fast drag can't skip the cells the pointer flew over
+  // between two samples.
+  function paintBetween(from, to) {
+    let r = from.r;
+    let c = from.c;
+    const dr = Math.abs(to.r - r);
+    const dc = Math.abs(to.c - c);
+    const sr = r < to.r ? 1 : -1;
+    const sc = c < to.c ? 1 : -1;
+    let err = dc - dr;
+    for (;;) {
+      paintCell(cells[r * COLS + c]);
+      if (r === to.r && c === to.c) {
+        return;
+      }
+      const e2 = 2 * err;
+      if (e2 > -dr) {
+        err -= dr;
+        c += sc;
+      }
+      if (e2 < dc) {
+        err += dc;
+        r += sr;
+      }
     }
   }
 
-  gridEl.addEventListener('mousedown', e => {
+  function paintAtPointer(e) {
+    // Pointer capture retargets e.target to the grid, so hit-test by position.
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    const cell = el && el.closest('.cell');
+    if (!cell) {
+      // Leaving the matrix breaks the stroke so re-entering doesn't bridge it.
+      if (!el || !gridEl.contains(el)) {
+        lastCellPos = null;
+      }
+      return;
+    }
+    const pos = { r: parseInt(cell.dataset.r, 10), c: parseInt(cell.dataset.c, 10) };
+    paintBetween(lastCellPos || pos, pos);
+    lastCellPos = pos;
+  }
+
+  function endStroke() {
+    if (!isDrawing) {
+      return;
+    }
+    isDrawing = false;
+    if (!strokeChanged) {
+      return;
+    }
+    pushStateToHistory(collectGridBrightness());
+    schedulePersist();
+  }
+
+  gridEl.addEventListener('pointerdown', e => {
+    // left button / touch / pen only
+    if (e.button !== 0) {
+      return;
+    }
     isDrawing = true;
-    draw(e);
+    strokeMode = null;
+    strokeChanged = false;
+    lastCellPos = null;
+    // Keeps the moves (and the pointerup) coming if the pointer leaves the grid.
+    try {
+      gridEl.setPointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
+    }
+    e.preventDefault(); // don't start a text selection / touch scroll
+    paintAtPointer(e);
   });
 
-  gridEl.addEventListener('mousemove', e => {
-    if (isDrawing) {
-      draw(e);
+  gridEl.addEventListener('pointermove', e => {
+    if (!isDrawing) {
+      return;
+    }
+    // Coalesced moves give every intermediate position of a fast drag.
+    const coalesced = e.getCoalescedEvents ? e.getCoalescedEvents() : [];
+    if (coalesced.length) {
+      coalesced.forEach(paintAtPointer);
     } else {
-      if (!e.target.classList.contains('cell')) return;
-      const brightness = brightnessAlphaSlider.value;
-      if (brightness === '0') {
-        gridEl.dataset.tool = 'eraser';
-      } else {
-        gridEl.dataset.tool = 'brush';
-      }
+      paintAtPointer(e);
     }
   });
-  window.addEventListener('mouseup', () => {
-    if (isDrawing) {
-      isDrawing = false;
-      pushStateToHistory(collectGridBrightness());
-      schedulePersist();
-    }
-  });
-  gridEl.addEventListener('mouseleave', () => {
-    if (isDrawing) {
-      isDrawing = false;
-      pushStateToHistory(collectGridBrightness());
-      schedulePersist();
-    }
-  });
+
+  // These bubble out of the grid, so the release is caught wherever it happens.
+  window.addEventListener('pointerup', endStroke);
+  window.addEventListener('pointercancel', endStroke);
+  window.addEventListener('blur', endStroke);
 
   const framesContainer = document.getElementById('frames');
   if (framesContainer) {
@@ -1121,13 +1216,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 // --- Option Buttons Functionality ---
-const copyAnimBtn = document.getElementById('copy-anim');
-const deleteAnimBtn = document.getElementById('delete-anim');
-const durationAnimBtn = document.getElementById('duration-anim');
-const durationModal = document.getElementById('duration-modal');
-const closeModalBtn = document.querySelector('#duration-modal .close-button');
-const applyDurationBtn = document.getElementById('apply-duration');
-const allFramesDurationInput = document.getElementById('all-frames-duration');
 if (copyAnimBtn) {
   copyAnimBtn.addEventListener('click', async () => {
     if (loadedFrameId === null) {

@@ -408,47 +408,57 @@ input:checked + .slider:before {
 /* Specific styles for LED Matrix Painter components */
 
 /* Grid and cells */
+/* Cells tile the grid edge to edge (46px = the 40px square plus what used to be
+   a 6px gap) so no click can land in dead space; ::before draws the square. */
 .grid {
   display: grid;
-  grid-template-columns: repeat(13, 40px);
-  grid-auto-rows: 40px;
-  gap: 6px;
+  grid-template-columns: repeat(13, 46px);
+  grid-auto-rows: 46px;
+  gap: 0;
   margin: 16px auto;
   background-color: #374146;
-  padding: 16px;
+  padding: 13px;
   border-radius: 8px;
   width: 624px;
+  touch-action: none;
+  user-select: none;
 }
 .cell {
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cell::before {
+  content: '';
+  box-sizing: border-box;
   width: 40px;
   height: 40px;
   border-radius: 4px;
   border: 1px solid #434f54;
   background: #232b2e;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
-.cell[data-b='1'] {
+.cell[data-b='1']::before {
   background: #3ce2ff33;
 }
-.cell[data-b='2'] {
+.cell[data-b='2']::before {
   background: #3ce2ff4d;
 }
-.cell[data-b='3'] {
+.cell[data-b='3']::before {
   background: #3ce2ff66;
 }
-.cell[data-b='4'] {
+.cell[data-b='4']::before {
   background: #3ce2ff80;
 }
-.cell[data-b='5'] {
+.cell[data-b='5']::before {
   background: #3ce2ff99;
 }
-.cell[data-b='6'] {
+.cell[data-b='6']::before {
   background: #3ce2ffb3;
 }
-.cell[data-b='7'] {
+.cell[data-b='7']::before {
   background: #3ce2ffd9;
 }
 
@@ -748,13 +758,13 @@ input {
 
 .grid[data-tool='brush'] {
   cursor:
-    url('img/mouse-brush.svg') 8 8,
+    url('img/mouse-brush.svg') 4 28,
     auto;
 }
 
 .grid[data-tool='eraser'] {
   cursor:
-    url('img/mouse-eraser.svg') 8 8,
+    url('img/mouse-eraser.svg') 6 25,
     auto;
 }
 #anim-controls {
@@ -865,13 +875,17 @@ input {
 
 @media (max-width: 700px) {
   .grid {
-    grid-template-columns: repeat(13, 20px);
-    grid-auto-rows: 20px;
-    gap: 3px;
+    grid-template-columns: repeat(13, 23px);
+    grid-auto-rows: 23px;
+    gap: 0;
     width: calc(13 * 20px + 12 * 3px + 32px);
-    padding: 16px;
+    padding: 14.5px;
   }
   .cell {
+    width: 23px;
+    height: 23px;
+  }
+  .cell::before {
     width: 20px;
     height: 20px;
   }
