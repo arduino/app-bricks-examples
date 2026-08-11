@@ -5,6 +5,7 @@
 import os
 
 from arduino.app_bricks.mcp_client import MCPClient, HTTPEndpoint
+from arduino.app_bricks.cloud_llm import CloudLLM, CloudModel
 from arduino.app_utils import Logger, App
 
 
@@ -30,6 +31,16 @@ github = HTTPEndpoint(
 
 client = MCPClient(endpoints=[github])
 
-logger.info(client.get_tools())
+llm = CloudLLM(
+    model=CloudModel.GOOGLE_GEMINI,
+    api_key="YOUR_API_KEY",  # Replace with your actual API key
+    tools=client.get_tools(),
+)
 
-App.run()
+
+def ask_prompt():
+    logger.info(llm.chat("List all private github repositories I have access to."))
+    raise StopIteration
+
+
+App.run(user_loop=ask_prompt)
