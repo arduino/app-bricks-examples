@@ -1,0 +1,24 @@
+services:
+  mcp-server:
+    image: docker/mcp-gateway:latest
+    # Serve the docker catalog's `time` MCP server over streamable HTTP.
+    command:
+      - --transport=streaming
+      - --port=8080
+      - --servers=time
+      - --allow-unauthenticated
+    volumes:
+      # The gateway needs the Docker socket to run the catalog servers.
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      SIGSTORE_NO_CACHE: "true"
+    group_add:
+      # Join the host group owning the mounted socket.
+      # 126 is the UNO Q / VENTUNO Q value; if access is denied,
+      # check yours with: stat -c %g /var/run/docker.sock
+      - "126"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/health || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 60
