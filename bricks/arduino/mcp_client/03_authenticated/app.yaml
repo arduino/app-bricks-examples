@@ -1,0 +1,8 @@
+name: Connect to an authenticated MCP server
+icon: 🔐
+description: "Connect to a remote MCP server that requires authentication. Requires an access token/API key for the target MCP server."
+
+bricks:
+  - arduino:mcp_client:
+      variables:
+        GITHUB_MCP_PAT: ""

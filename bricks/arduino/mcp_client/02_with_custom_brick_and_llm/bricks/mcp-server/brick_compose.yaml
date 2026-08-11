@@ -1,0 +1,8 @@
+services:
+  mcp-server:
+    build: .
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import socket; socket.create_connection(('localhost', 8080), 2)\""]
+      interval: 2s
+      timeout: 3s
+      retries: 15

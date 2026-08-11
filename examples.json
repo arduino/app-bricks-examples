@@ -323,6 +323,20 @@
       ]
     },
     {
+      "brick": "arduino:mcp_client",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/mcp_client/01_with_custom_brick_basic_usage"
+        },
+        {
+          "id": "examples:bricks/arduino/mcp_client/02_with_custom_brick_and_llm"
+        },
+        {
+          "id": "examples:bricks/arduino/mcp_client/03_authenticated"
+        }
+      ]
+    },
+    {
       "brick": "arduino:mood_detector",
       "examples": [
         {

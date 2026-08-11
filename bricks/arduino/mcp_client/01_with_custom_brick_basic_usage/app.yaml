@@ -1,0 +1,7 @@
+name: Basic usage with custom brick
+icon: 🧰
+description: List the tools of an MCP server image deployed with the app as a custom brick
+
+bricks:
+  - arduino:mcp_client
+  - mcp-server

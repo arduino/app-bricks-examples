@@ -1,0 +1,3 @@
+id: mcp-server
+name: Docker MCP Gateway
+description: Docker's MCP Gateway running the `time` MCP server from the Docker MCP catalog, deployed with the app as a container

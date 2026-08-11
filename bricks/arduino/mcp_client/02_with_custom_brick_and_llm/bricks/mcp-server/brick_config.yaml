@@ -1,0 +1,3 @@
+id: mcp-server
+name: Clock MCP Server
+description: A minimal MCP server built from a local Dockerfile and deployed with the app

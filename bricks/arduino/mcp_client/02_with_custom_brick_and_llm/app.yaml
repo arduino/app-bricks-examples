@@ -1,0 +1,8 @@
+name: Use MCP tools with an LLM
+icon: 🤖
+description: "Let a cloud LLM call the tools of an MCP server built and deployed with the app. Requires a valid API key to a cloud LLM service."
+
+bricks:
+  - arduino:mcp_client
+  - arduino:cloud_llm
+  - mcp-server
