@@ -458,24 +458,24 @@
       ]
     },
     {
-      "brick": "arduino:video_imageclassification",
+      "brick": "arduino:video_image_classification",
       "examples": [
         {
-          "id": "examples:bricks/arduino/video_imageclassification/01_basic_usage"
+          "id": "examples:bricks/arduino/video_image_classification/01_basic_usage"
         }
       ]
     },
     {
-      "brick": "arduino:video_objectdetection",
+      "brick": "arduino:video_object_detection",
       "examples": [
         {
-          "id": "examples:bricks/arduino/video_objectdetection/01_basic_usage"
+          "id": "examples:bricks/arduino/video_object_detection/01_basic_usage"
         },
         {
-          "id": "examples:bricks/arduino/video_objectdetection/02_count_objects"
+          "id": "examples:bricks/arduino/video_object_detection/02_count_objects"
         },
         {
-          "id": "examples:bricks/arduino/video_objectdetection/03_get_image"
+          "id": "examples:bricks/arduino/video_object_detection/03_get_image"
         }
       ]
     },
