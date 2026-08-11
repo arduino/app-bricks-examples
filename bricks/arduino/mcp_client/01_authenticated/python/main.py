@@ -16,7 +16,7 @@ logger = Logger(name="authenticated_mcp_client_example")
 github = HTTPEndpoint(
     name="github",
     url="https://api.githubcopilot.com/mcp/",
-    token=os.getenv("GITHUB_MCP_PAT"),
+    token="YOUR_GITHUB_PAT",
 )
 
 # Some providers use custom headers instead of a bearer token:
