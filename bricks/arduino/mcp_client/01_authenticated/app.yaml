@@ -4,6 +4,4 @@ description: "Connect to a remote MCP server that requires authentication. Requi
 
 bricks:
   - arduino:cloud_llm
-  - arduino:mcp_client:
-      variables:
-        GITHUB_MCP_PAT: ""
+  - arduino:mcp_client
