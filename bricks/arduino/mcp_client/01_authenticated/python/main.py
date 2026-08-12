@@ -11,8 +11,6 @@ from arduino.app_utils import Logger, App
 
 logger = Logger(name="authenticated_mcp_client_example")
 
-# `token` is sent as an "Authorization: Bearer" header;
-# set GITHUB_MCP_PAT in app.yaml under the brick's `variables`.
 github = HTTPEndpoint(
     name="github",
     url="https://api.githubcopilot.com/mcp/",
@@ -24,8 +22,8 @@ github = HTTPEndpoint(
 #     name="datadog",
 #     url="https://<your-datadog-mcp-domain>/mcp",
 #     headers={
-#         "DD-API-KEY": os.getenv("DD_API_KEY", ""),
-#         "DD-APPLICATION-KEY": os.getenv("DD_APP_KEY", ""),
+#         "DD-API-KEY": "YOUR_DATADOG_API_KEY",
+#         "DD-APPLICATION-KEY": "YOUR_DATADOG_APPLICATION_KEY",
 #     },
 # )
 
