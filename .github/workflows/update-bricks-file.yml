@@ -22,22 +22,24 @@ jobs:
       - name: Get latest stable bricks version
         id: get-latest-version
         run: |
-          LATEST_RELEASE=$(curl -s https://api.github.com/repos/arduino/app-bricks-py/releases \
+          LATEST_TAG=$(curl -s https://api.github.com/repos/arduino/app-bricks-py/releases \
             | jq -r '[.[] | select(
                 .prerelease == false
                 and .draft == false
-                and (.tag_name | test("^release/[0-9]+\\.[0-9]+\\.[0-9]+$"))
-              )][0].tag_name // empty' \
-            | sed 's/^release\///')
-          if [[ -z "$LATEST_RELEASE" ]]; then
-            echo "::error::No stable app-bricks release found (expected tag release/X.Y.Z)"
+                and (.tag_name | test("^(bricks|release)/[0-9]+\\.[0-9]+\\.[0-9]+$"))
+              )][0].tag_name // empty')
+          if [[ -z "$LATEST_TAG" ]]; then
+            echo "::error::No stable app-bricks release found (expected tag bricks/X.Y.Z or release/X.Y.Z)"
             exit 1
           fi
+          LATEST_RELEASE=${LATEST_TAG#*/}
+          echo "LATEST_TAG=$LATEST_TAG"
           echo "LATEST_RELEASE=$LATEST_RELEASE"
           if [[ ! "$LATEST_RELEASE" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "::error::Invalid version format: $LATEST_RELEASE (expected X.Y.Z)"
             exit 1
           fi
+          echo "LATEST_TAG_ENCODED=${LATEST_TAG/\//%2F}" >> $GITHUB_OUTPUT
           echo "LATEST_RELEASE=$LATEST_RELEASE" >> $GITHUB_OUTPUT
 
       - name: Check if there is an existing branch for the latest version
@@ -65,7 +67,8 @@ jobs:
         if: steps.check-branch.outputs.branch_exists != 'true' && steps.check-update.outputs.update_needed != 'false'
         run: |
           LATEST_RELEASE=${{ steps.get-latest-version.outputs.LATEST_RELEASE }}
-          sed -i "s|arduino_app_bricks @ .*|arduino_app_bricks @ https://github.com/arduino/app-bricks-py/releases/download/release%2F${LATEST_RELEASE}/arduino_app_bricks-${LATEST_RELEASE}-py3-none-any.whl|" requirements.txt
+          LATEST_TAG_ENCODED=${{ steps.get-latest-version.outputs.LATEST_TAG_ENCODED }}
+          sed -i "s|arduino_app_bricks @ .*|arduino_app_bricks @ https://github.com/arduino/app-bricks-py/releases/download/${LATEST_TAG_ENCODED}/arduino_app_bricks-${LATEST_RELEASE}-py3-none-any.whl|" requirements.txt
 
       - name: Create Pull Request
         if: steps.check-branch.outputs.branch_exists != 'true' && steps.check-update.outputs.update_needed != 'false'
