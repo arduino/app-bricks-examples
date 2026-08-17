@@ -1,0 +1,762 @@
+/*
+ * SPDX-FileCopyrightText: Copyright (C) Arduino s.r.l. and/or its affiliated companies
+ *
+ * SPDX-License-Identifier: MPL-2.0
+ */
+
+@import url('fonts/fonts.css');
+
+:root {
+  --bg: #ecf1f1;
+  --surface: #ffffff;
+  --surface-2: #f3f6f6;
+  --border: #dae3e3;
+  --border-strong: #c9d2d2;
+  --text: #2c353a;
+  --muted: #5d6a6b;
+  --accent: #008184;
+  --accent-2: #00a7ac;
+  --warn: #f4a261;
+  --danger: #e0435c;
+  --good: #2ec27e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family:
+    'Open Sans',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+}
+
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 18px;
+}
+
+/* Header: no solid background, title left, logo right */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.brand {
+  margin: 0;
+  font-family: 'Roboto Mono', monospace;
+  font-weight: 600;
+  color: var(--accent);
+  font-size: 20px;
+  letter-spacing: 0.28px;
+}
+.header-logo {
+  height: 40px;
+  width: auto;
+}
+
+/* Subheader: phone icon + connection status text. */
+.subheader {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 24px;
+}
+.subheader-icon {
+  height: 40px;
+  width: auto;
+  flex: 0 0 auto;
+}
+.subheader-info {
+  background: var(--surface);
+  flex-direction: row;
+  display: flex;
+  flex: 1;
+  align-self: stretch;
+  border-radius: 8px;
+  padding: 8px 16px;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.subheader-content {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 160%;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.subheader-note {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.subheader-info-bold {
+  font-weight: 700;
+  color: var(--text);
+}
+/* Only show the "receiving data from" detail once a client is actually paired. */
+body:not(.paired) .subheader-note {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  /* The icon stays to the left of the white band; only the band's own
+     content (status line + "receiving data" note) stacks vertically. */
+  .subheader-icon {
+    height: 56px;
+  }
+  .subheader-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+  /* Without an explicit width these text rows size to their own content
+     and can grow past the band, forcing the whole page to scroll sideways. */
+  .subheader-content,
+  .subheader-note {
+    width: 100%;
+  }
+}
+
+/* Pairing screen: single centred column, QR in the middle, OTP right below it. */
+.pairing-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 32px 24px;
+  margin-bottom: 18px;
+}
+.pairing-card h2 {
+  margin: 0;
+  font-size: 16px;
+  font-family: 'Roboto Mono', monospace;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+}
+.pairing-card p.muted {
+  margin: 0;
+  max-width: 360px;
+  font-size: 16px;
+}
+.pairing.hidden {
+  display: none;
+}
+.pairing.paired .pairing-card {
+  display: none;
+}
+.qr {
+  width: 200px;
+  height: 200px;
+  background: white;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  padding: 8px;
+}
+.qr canvas,
+.qr img {
+  width: 100%;
+  height: 100%;
+}
+.otp-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.otp-label {
+  font-size: 14px;
+  color: var(--muted);
+  font-family: 'Roboto Mono', monospace;
+}
+.otp {
+  font-size: 26px;
+  color: var(--accent);
+  letter-spacing: 4px;
+  font-weight: 700;
+}
+.muted {
+  color: var(--muted);
+}
+
+/* Grid: uniform cards. Hidden until a client is actually paired. */
+.grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  margin-bottom: 18px;
+}
+body:not(.paired) .grid {
+  display: none;
+}
+.card {
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 16px;
+  height: 340px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.card h3 {
+  margin: 0;
+  align-self: flex-start;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 700;
+  font-family: 'Roboto Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+}
+/* Body wrapper: everything below the title is centred, both horizontally and vertically, in the remaining card space. */
+.card-body {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.readout {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 13px;
+  color: var(--muted);
+}
+.readout b {
+  color: var(--text);
+  font-weight: 600;
+}
+.readout.small {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+.readout.big-num {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text);
+  text-align: center;
+}
+.readout.big-num .unit-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 2px;
+}
+
+/* ----- HTML/CSS Dial (compass + magnetometer) -----
+   .dial is a square; .dial-rotor fills it and rotates around its own centre
+   (the default transform-origin for an HTML block), which by construction
+   coincides with the dial centre. No SVG transform-box trickery needed. */
+.dial {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  margin: 6px auto;
+  flex: 0 0 auto;
+}
+.dial-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+.dial-marks span {
+  position: absolute;
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+  transform: translate(-50%, -50%);
+}
+.dial-marks.faint span {
+  color: var(--border-strong);
+}
+.dial-marks .m-n {
+  left: 50%;
+  top: 10%;
+}
+.dial-marks .m-e {
+  left: 90%;
+  top: 50%;
+}
+.dial-marks .m-s {
+  left: 50%;
+  top: 90%;
+}
+.dial-marks .m-w {
+  left: 10%;
+  top: 50%;
+}
+
+.dial-rotor {
+  position: absolute;
+  inset: 0;
+  transform: rotate(0deg);
+  transition: transform 0.2s ease-out;
+  /* default transform-origin is 50% 50% 0 for HTML blocks */
+}
+/* Compass needle (HTML/CSS, rotates around centre of parent .dial-rotor) */
+.needle-n,
+.needle-s {
+  position: absolute;
+  left: 50%;
+  width: 14px;
+  height: 42%;
+  transform: translateX(-50%);
+}
+.needle-n {
+  top: 8%;
+  background: var(--danger);
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+}
+.needle-s {
+  bottom: 8%;
+  background: rgba(0, 167, 172, 0.4);
+  clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+}
+.needle-hub {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--text);
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
+/* Magnetometer arrow (HTML/CSS) */
+.mag-dial .dial-ring {
+  background: var(--surface-2);
+}
+.mag-arrow-stick {
+  position: absolute;
+  left: 50%;
+  top: 12%;
+  width: 4px;
+  height: 38%;
+  background: var(--warn);
+  transform: translateX(-50%);
+}
+.mag-arrow-head {
+  position: absolute;
+  left: 50%;
+  top: 8%;
+  width: 16px;
+  height: 14%;
+  background: var(--warn);
+  transform: translateX(-50%);
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+}
+
+/* Bubble level (accelerometer) */
+.level-wrap {
+  display: grid;
+  grid-template-columns: 1fr 32px;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+}
+.level-svg {
+  width: 100%;
+  max-width: 180px;
+  aspect-ratio: 1/1;
+  height: auto;
+  margin: 0 auto;
+  display: block;
+}
+.level-ring {
+  fill: var(--surface-2);
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.level-ring.sub {
+  fill: none;
+  stroke: var(--border);
+  stroke-dasharray: 2 3;
+}
+.level-cross {
+  stroke: var(--border);
+  stroke-width: 0.6;
+}
+.level-bubble {
+  fill: var(--accent);
+  filter: drop-shadow(0 0 6px rgba(0, 129, 132, 0.45));
+  transition:
+    cx 0.18s linear,
+    cy 0.18s linear;
+}
+.level-z {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--muted);
+}
+.level-z .zbar {
+  width: 12px;
+  height: 150px;
+  background: var(--surface-2);
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+.level-z .zfill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(0deg, var(--accent), var(--accent-2));
+  transition: height 0.18s linear;
+}
+.level-z b {
+  color: var(--text);
+  font-family: 'Roboto Mono', monospace;
+  font-size: 11px;
+  display: inline-block;
+  min-width: 4ch;
+  text-align: center;
+}
+.level-z .muted {
+  font-size: 10px;
+}
+/* Signed Z bar: fills from the centre upward (positive) or downward (negative). */
+.level-z .zbar.signed .zfill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  bottom: auto;
+  height: 0;
+  background: linear-gradient(180deg, var(--accent-2), var(--accent));
+  transition:
+    top 0.18s linear,
+    height 0.18s linear,
+    background 0.2s;
+}
+
+/* Cube (gyroscope) */
+.cube-wrap {
+  perspective: 600px;
+  display: grid;
+  place-items: center;
+  min-height: 130px;
+  width: 100%;
+  margin-bottom: 12px;
+}
+.cube {
+  width: 90px;
+  height: 90px;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.18s linear;
+  transform: rotateX(0) rotateY(0);
+}
+.cube .face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 129, 132, 0.1);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 12px;
+}
+.cube.wire .face {
+  background: transparent;
+  border-color: var(--accent-2);
+  color: var(--accent-2);
+}
+.cube .front {
+  transform: translateZ(45px);
+}
+.cube .back {
+  transform: rotateY(180deg) translateZ(45px);
+}
+.cube .right {
+  transform: rotateY(90deg) translateZ(45px);
+}
+.cube .left {
+  transform: rotateY(-90deg) translateZ(45px);
+}
+.cube .top {
+  transform: rotateX(90deg) translateZ(45px);
+}
+.cube .bottom {
+  transform: rotateX(-90deg) translateZ(45px);
+}
+
+.xyz {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 13px;
+  color: var(--muted);
+}
+.xyz b {
+  color: var(--text);
+  margin-left: 4px;
+  display: inline-block;
+  min-width: 4.2ch;
+  text-align: right;
+}
+
+.mag-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  font-size: 12px;
+  color: var(--muted);
+}
+.mag-bar .fill {
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  height: 6px;
+  border-radius: 8px;
+  flex: 1;
+  width: 0%;
+  transition: width 0.2s;
+}
+.mag-bar span {
+  white-space: nowrap;
+}
+
+/* VU + piano */
+.vu,
+.piano {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+.vu-bar {
+  height: 12px;
+  background: var(--surface-2);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.vu-bar .fill {
+  height: 100%;
+  width: 0%;
+  background: var(--accent);
+  transition: width 0.15s;
+}
+.piano-keys {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 2px;
+  height: 28px;
+}
+.piano-keys span {
+  background: var(--surface-2);
+  border-radius: 8px;
+  opacity: 0.6;
+  transition:
+    opacity 0.2s,
+    background 0.2s;
+}
+.piano-keys span.on {
+  background: var(--accent);
+  opacity: 1;
+}
+
+/* Battery */
+.battery {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 60px;
+  width: 100%;
+}
+.battery .cell {
+  flex: 1;
+  height: 100%;
+  background: var(--surface-2);
+  border-radius: 8px;
+  padding: 3px;
+}
+.battery .cell .fill {
+  height: 100%;
+  width: 0%;
+  background: var(--good);
+  border-radius: 8px;
+  transition:
+    width 0.4s,
+    background 0.4s;
+}
+.battery .tip {
+  width: 6px;
+  height: 22px;
+  background: var(--border-strong);
+  border-radius: 0 8px 8px 0;
+}
+
+/* Gauge (barometer) */
+.gauge {
+  width: 100%;
+  height: 110px;
+}
+.gauge-bg {
+  fill: none;
+  stroke: var(--surface-2);
+  stroke-width: 8;
+  stroke-linecap: round;
+}
+.gauge-fg {
+  fill: none;
+  stroke: var(--accent-2);
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.3s;
+}
+.gauge-needle {
+  stroke: var(--text);
+  stroke-width: 2;
+  transform-origin: 0 0;
+  transition: transform 0.3s;
+}
+.gauge-hub {
+  fill: var(--text);
+}
+
+/* Brightness */
+.sun {
+  display: grid;
+  place-items: center;
+  height: 70px;
+}
+.sun-body {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ffd166;
+  box-shadow: 0 0 20px 4px rgba(255, 209, 102, 0.4);
+  transition:
+    box-shadow 0.4s,
+    transform 0.4s,
+    opacity 0.4s;
+}
+.bright-bar {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 3px;
+  height: 28px;
+  width: 100%;
+}
+.bright-bar span {
+  background: var(--surface-2);
+  border-radius: 8px;
+  transition: background 0.3s;
+}
+.bright-bar span.on {
+  background: var(--warn);
+}
+
+/* Globe (GPS) */
+.globe {
+  display: grid;
+  place-items: center;
+}
+.globe svg {
+  width: 160px;
+  height: 160px;
+}
+.globe-ring {
+  fill: var(--surface-2);
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.globe-eq {
+  fill: none;
+  stroke: var(--border);
+}
+.globe-dot {
+  fill: var(--danger);
+  transition:
+    cx 0.5s,
+    cy 0.5s;
+  filter: drop-shadow(0 0 4px var(--danger));
+}
+
+/* Touch */
+.touch-card .touch-area {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  max-width: 200px;
+  margin: 0 auto;
+  background: var(--surface-2);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.touch-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, var(--border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--border) 1px, transparent 1px);
+  background-size: 25% 25%;
+  opacity: 0.8;
+}
+.touch-dot {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  filter: drop-shadow(0 0 8px rgba(0, 129, 132, 0.5));
+  transform: translate(-50%, -50%);
+  transition:
+    left 0.1s linear,
+    top 0.1s linear,
+    opacity 0.2s;
+  opacity: 0;
+  left: 50%;
+  top: 50%;
+}
+.touch-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  background: rgba(236, 241, 241, 0.75);
+  transition: opacity 0.2s;
+}

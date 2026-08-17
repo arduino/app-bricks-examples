@@ -1,0 +1,248 @@
+<!--
+SPDX-FileCopyrightText: Copyright (C) Arduino s.r.l. and/or its affiliated companies
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Visualize Smartphone Sensors</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+  </head>
+  <body>
+    <main>
+      <div class="header">
+        <h1 class="brand">Visualize Smartphone Sensors</h1>
+        <img class="header-logo" src="img/logo.svg" alt="Arduino Logo" />
+      </div>
+
+      <div class="subheader">
+        <img class="subheader-icon" src="img/phone.svg" alt="Phone" />
+        <div class="subheader-info" id="subheaderInfo">
+          <span class="subheader-content" id="clientStatus">No device connected</span>
+          <span class="subheader-note">Receiving data from <span class="subheader-info-bold">Sensors</span></span>
+        </div>
+      </div>
+
+      <section id="pairing" class="pairing">
+        <div class="pairing-card">
+          <h2>Pair your phone</h2>
+          <p class="muted">Connect your phone by scanning this QR code</p>
+          <div id="qr" class="qr"></div>
+          <div class="otp-row"><span class="otp-label">Password:</span><span class="otp" id="info-otp">—</span></div>
+        </div>
+      </section>
+
+      <section class="grid">
+        <!-- Gyroscope -->
+        <div class="card">
+          <h3>Gyroscope (rad/s)</h3>
+          <div class="card-body">
+            <div class="cube-wrap">
+              <div class="cube wire" id="gyro-cube">
+                <div class="face front"></div>
+                <div class="face back"></div>
+                <div class="face right"></div>
+                <div class="face left"></div>
+                <div class="face top"></div>
+                <div class="face bottom"></div>
+              </div>
+            </div>
+            <div class="xyz">
+              <span>X <b data-k="gyroscopeX">—</b></span>
+              <span>Y <b data-k="gyroscopeY">—</b></span>
+              <span>Z <b data-k="gyroscopeZ">—</b></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accelerometer (bubble level) -->
+        <div class="card">
+          <h3>Accelerometer (g)</h3>
+          <div class="card-body">
+            <div class="level-wrap">
+              <svg viewBox="-60 -60 120 120" class="level-svg">
+                <circle r="55" class="level-ring" />
+                <circle r="35" class="level-ring sub" />
+                <circle r="15" class="level-ring sub" />
+                <line x1="-55" y1="0" x2="55" y2="0" class="level-cross" />
+                <line x1="0" y1="-55" x2="0" y2="55" class="level-cross" />
+                <circle id="accel-bubble" cx="0" cy="0" r="9" class="level-bubble" />
+              </svg>
+              <div class="level-z">
+                <div class="zbar signed"><div class="zfill" id="accel-z-fill"></div></div>
+                <b data-k="accelerometerZ">—</b>
+                <span class="muted">Z g</span>
+              </div>
+            </div>
+            <div class="xyz" id="accel-xyz">
+              <span>X <b data-k="accelerometerX">—</b></span>
+              <span>Y <b data-k="accelerometerY">—</b></span>
+              <span>Z <b data-k="accelerometerZ">—</b></span>
+            </div>
+            <div class="mag-bar">
+              <div class="fill" id="accel-lin-fill"></div>
+              <span>linear: <b id="accel-lin">—</b> g</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Magnetometer (heading needle + signed Z bar) -->
+        <div class="card">
+          <h3>Magnetometer (µT)</h3>
+          <div class="card-body">
+            <div class="level-wrap">
+              <div class="dial mag-dial">
+                <div class="dial-ring"></div>
+                <div class="dial-marks faint">
+                  <span class="m-n">N</span><span class="m-e">E</span> <span class="m-s">S</span
+                  ><span class="m-w">W</span>
+                </div>
+                <div class="dial-rotor" id="mag-arrow">
+                  <div class="mag-arrow-stick"></div>
+                  <div class="mag-arrow-head"></div>
+                  <div class="needle-hub"></div>
+                </div>
+              </div>
+              <div class="level-z">
+                <div class="zbar signed"><div class="zfill" id="mag-z-fill"></div></div>
+                <b data-k="magnetometerZ">—</b>
+                <span class="muted">Z µT</span>
+              </div>
+            </div>
+            <div class="xyz">
+              <span>X <b data-k="magnetometerX">—</b></span>
+              <span>Y <b data-k="magnetometerY">—</b></span>
+              <span>Z <b data-k="magnetometerZ">—</b></span>
+            </div>
+            <div class="mag-bar">
+              <div class="fill" id="mag-lin-fill"></div>
+              <span>linear: <b id="mag-lin">—</b></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Compass -->
+        <div class="card compass-card">
+          <h3>Compass</h3>
+          <div class="card-body">
+            <div class="dial">
+              <div class="dial-ring"></div>
+              <div class="dial-marks">
+                <span class="m-n">N</span><span class="m-e">E</span> <span class="m-s">S</span
+                ><span class="m-w">W</span>
+              </div>
+              <div class="dial-rotor" id="compass-rose">
+                <div class="needle-n"></div>
+                <div class="needle-s"></div>
+                <div class="needle-hub"></div>
+              </div>
+            </div>
+            <div class="readout big-num" id="compass-deg">—°</div>
+          </div>
+        </div>
+
+        <!-- GPS -->
+        <div class="card">
+          <h3>GPS</h3>
+          <div class="card-body">
+            <div class="globe">
+              <svg viewBox="-60 -60 120 120">
+                <circle r="55" class="globe-ring" />
+                <ellipse rx="55" ry="20" class="globe-eq" />
+                <ellipse rx="20" ry="55" class="globe-eq" />
+                <circle r="4" id="globe-dot" cx="0" cy="0" class="globe-dot" />
+              </svg>
+            </div>
+            <div class="readout small">
+              <div>lat <b id="gps-lat">—</b></div>
+              <div>lng <b id="gps-lng">—</b></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Barometer -->
+        <div class="card">
+          <h3>Barometer</h3>
+          <div class="card-body">
+            <svg class="gauge" viewBox="-60 -60 120 70">
+              <path d="M -50 0 A 50 50 0 0 1 50 0" class="gauge-bg" />
+              <path
+                d="M -50 0 A 50 50 0 0 1 50 0"
+                class="gauge-fg"
+                id="bar-arc"
+                stroke-dasharray="157"
+                stroke-dashoffset="157" />
+              <line x1="0" y1="0" x2="0" y2="-46" class="gauge-needle" id="bar-needle" />
+              <circle r="4" class="gauge-hub" />
+            </svg>
+            <div class="readout big-num"><b id="bar-val">—</b> hPa</div>
+          </div>
+        </div>
+
+        <!-- Brightness -->
+        <div class="card">
+          <h3>Brightness</h3>
+          <div class="card-body">
+            <div class="sun" id="sun">
+              <div class="sun-body"></div>
+            </div>
+            <div class="bright-bar" id="bright-bar"></div>
+            <div class="readout big-num"><b id="bright-val">—</b> / 10</div>
+          </div>
+        </div>
+
+        <!-- Sound -->
+        <div class="card">
+          <h3>Sound</h3>
+          <div class="card-body">
+            <div class="vu">
+              <div class="vu-bar"><div class="fill" id="sound-level-fill"></div></div>
+              <div class="readout big-num"><span class="unit-label">level</span><b id="sound-level">—</b> dB</div>
+            </div>
+            <div class="piano">
+              <div class="piano-keys" id="piano-keys"></div>
+              <div class="readout big-num"><span class="unit-label">pitch</span><b id="sound-pitch">—</b> Hz</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Battery -->
+        <div class="card">
+          <h3>Battery</h3>
+          <div class="card-body">
+            <div class="battery">
+              <div class="cell"><div class="fill" id="battery-fill"></div></div>
+              <div class="tip"></div>
+            </div>
+            <div class="readout big-num"><b id="battery-pct">—</b>%</div>
+          </div>
+        </div>
+
+        <!-- Touch -->
+        <div class="card touch-card">
+          <h3>Touch</h3>
+          <div class="card-body">
+            <div class="touch-area" id="touch-area">
+              <div class="touch-grid"></div>
+              <div class="touch-dot" id="touch-dot"></div>
+              <div class="touch-overlay" id="touch-overlay">not touching</div>
+            </div>
+            <div class="readout small">
+              <div>X <b id="touch-x">—</b></div>
+              <div>Y <b id="touch-y">—</b></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="libs/socket.io.min.js"></script>
+    <script src="libs/qrcode.min.js"></script>
+    <script src="libs/arduino.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

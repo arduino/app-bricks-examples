@@ -1,0 +1,9 @@
+name: Visualize Smartphone Sensors
+icon: 📡
+description: This example visualizes live sensor data streamed from a smartphone in an interactive web dashboard.
+
+ports:
+  - 8090
+
+bricks:
+  - arduino:web_ui
