@@ -40,7 +40,7 @@ The example uses the following Bricks:
 
 3. The App should open automatically in the web browser. You can open it manually via `<board-name>.local:7000`.
 
-4. The Web UI will display a **QR Code**.
+4. The Web UI will display a **QR Code** and a six-digit **password**.
 
 ### Arduino IoT Remote Setup
 
@@ -48,15 +48,16 @@ The example uses the following Bricks:
 
 6. Open the Arduino IoT Remote app on your phone and log in with your Arduino account.
 
-7. Go to Devices, tap on the plus icon to set up a new device and select **Stream phone camera to UNO Q**.
+7. Pair your phone with the board in one of two ways:
+
+   - Scan the QR code shown in the Web UI with your phone camera (outside the Arduino IoT Remote app), or
+   - In the Arduino IoT Remote app, go to Devices, tap on the plus icon, select **Stream phone data to UNO Q or VENTUNO Q**, pick your board, then enter the **password** the Web UI reports below the QR code.
 
    ![IoT Remote setup](assets/docs_assets/iot-remote.png)
 
-8. Scan the QR code.
+8. Once connected, the video stream from your phone will appear on the Web UI.
 
-9. Once connected, the video stream from your phone will appear on the Web UI.
-
-10. Point your phone at objects and watch as the App detects and recognizes them.
+9. Point your phone at objects and watch as the App detects and recognizes them.
 
 Try with one of the following objects for a special reaction:
 
