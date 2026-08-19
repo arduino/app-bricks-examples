@@ -6,6 +6,7 @@
 
 void setup() {
     pinMode(LED_BUILTIN, OUTPUT);
+    digitalWrite(LED_BUILTIN, HIGH); // Ensure the LED starts off (the LED is active-low)
 
     Bridge.begin();
     Bridge.provide("set_led_state", set_led_state);
