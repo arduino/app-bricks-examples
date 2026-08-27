@@ -1,0 +1,507 @@
+/*
+ * SPDX-FileCopyrightText: Copyright (C) Arduino s.r.l. and/or its affiliated companies
+ *
+ * SPDX-License-Identifier: MPL-2.0
+ */
+
+@import url('fonts/fonts.css');
+
+:root {
+  --bg-page: #dae3e3;
+  --bg-panel: #ecf1f1;
+  --bg-card: #ffffff;
+  --text-default: #2c353a;
+  --text-accent: #008184;
+  --text-inverted: #ffffff;
+  --accent: #008184;
+  --accent-hover: #006e70;
+  --success: #16a588;
+  --success-subtle: #dcf2ed;
+  --scrim: rgba(0, 0, 0, 0.5);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding: 0 24px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--bg-page);
+  color: var(--text-default);
+  font-family: 'Open Sans', system-ui, sans-serif;
+}
+
+/* ---- Header ---- */
+
+header {
+  width: 100%;
+  max-width: 1280px;
+  padding: 24px 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+header h1 {
+  flex: 1;
+  margin: 0;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.7;
+  letter-spacing: 0.01em;
+  color: var(--text-accent);
+}
+
+.arduino-logo {
+  width: 48px;
+}
+
+/* ---- Layout ---- */
+
+main {
+  width: 100%;
+  max-width: 1280px;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 24px;
+}
+
+#stream-panel {
+  flex: 1;
+  min-width: 320px;
+  /* Fixed height so switching to the win screen cannot resize either panel */
+  min-height: 671px;
+  background: var(--bg-panel);
+  border-radius: 8px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+#pose-panel {
+  width: 480px;
+  max-width: 480px;
+  min-width: 320px;
+  min-height: 671px;
+  background: var(--bg-panel);
+  border-radius: 8px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ---- Video and overlays ---- */
+
+#video-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--text-default);
+}
+
+#stream {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+#video-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: var(--bg-panel);
+  font-family: 'Roboto Mono', monospace;
+  font-size: 16px;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--success-subtle);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: var(--scrim);
+  color: var(--text-inverted);
+  text-align: center;
+}
+
+.overlay h2 {
+  margin: 0;
+  padding: 0 24px;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+}
+
+.overlay ol {
+  margin: 0;
+  padding-left: 30px;
+  font-size: 20px;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  text-align: left;
+}
+
+.overlay p {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+}
+
+/* ---- Win screen ---- */
+
+#win-screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  text-align: center;
+}
+
+#win-screen .party {
+  width: 64px;
+}
+
+#win-screen h2 {
+  margin: 0;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+  color: var(--text-accent);
+}
+
+#win-screen p {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+}
+
+#win-screen .btn-primary {
+  margin-top: 16px;
+}
+
+#people-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 4px 16px;
+  border-radius: 20px;
+  background: var(--scrim);
+  color: var(--text-inverted);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+/* ---- Pose panel ---- */
+
+#panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+#panel-title {
+  width: 100%;
+  margin: 0;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.7;
+  letter-spacing: 0.01em;
+  color: var(--text-accent);
+  text-align: center;
+}
+
+#found-chip {
+  background: var(--bg-card);
+  border-radius: 20px;
+  padding: 4px 16px;
+  font-size: 20px;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+#found-chip.complete {
+  background: var(--success);
+  color: var(--text-inverted);
+}
+
+#pose-grid {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.pose-card {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  min-width: 130px;
+  min-height: 130px;
+  background: var(--bg-card);
+  border: 3px solid transparent;
+  border-radius: 8px;
+  padding: 16px 16px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.pose-card .illo {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pose-card .illo.flip {
+  transform: scaleX(-1);
+}
+
+.pose-card-sitting .illo {
+  padding-top: 16px;
+}
+
+.pose-card .illo img {
+  height: 100%;
+  width: auto;
+}
+
+.pose-card .pose-illo-found,
+.pose-card .found-check {
+  display: none;
+}
+
+.pose-card .pose-label {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.pose-card.found {
+  background: var(--success-subtle);
+  border-color: var(--success);
+}
+
+.pose-card.found .pose-illo {
+  display: none;
+}
+
+.pose-card.found .pose-illo-found {
+  display: block;
+}
+
+.pose-card.found .pose-label {
+  color: var(--success);
+}
+
+.pose-card.found .found-check {
+  display: block;
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 24px;
+  height: 24px;
+}
+
+/* ---- Buttons and error banner ---- */
+
+#start-cta {
+  display: flex;
+  justify-content: center;
+}
+
+.btn-primary {
+  border: none;
+  border-radius: 12px;
+  padding: 13px 16px;
+  background: var(--accent);
+  color: var(--text-inverted);
+  font-family: 'Open Sans', system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+}
+
+#error-container {
+  margin-top: 20px;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ---- State machine (data-state on body) ---- */
+
+body[data-state='loading'] #stream,
+body[data-state='win'] #video-wrap {
+  display: none;
+}
+
+body[data-state='start'] #start-overlay {
+  display: flex;
+}
+
+body[data-state='playing'] #move-back-overlay {
+  display: flex;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.25s ease,
+    visibility 0.25s;
+}
+
+body[data-state='playing'] #move-back-overlay.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+body[data-state='playing'] #people-overlay.visible {
+  display: flex;
+}
+
+/* The two overlays share the video: never stack their scrims */
+body[data-state='playing'] #people-overlay.visible ~ #move-back-overlay {
+  opacity: 0;
+  visibility: hidden;
+}
+
+body[data-state='win'] #win-screen {
+  display: flex;
+}
+
+body:not([data-state='loading']) #video-placeholder {
+  display: none;
+}
+
+body[data-state='loading'] #found-chip,
+body[data-state='start'] #found-chip {
+  display: none;
+}
+
+body:not([data-state='loading']):not([data-state='start']) #panel-title,
+body:not([data-state='loading']):not([data-state='start']) #start-cta,
+body:not([data-state='playing']) #people-badge {
+  display: none;
+}
+
+/* ---- Responsive ---- */
+
+@media (max-width: 1024px) {
+  main {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #stream-panel {
+    width: 100%;
+  }
+
+  #pose-panel {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 0 12px 12px;
+  }
+
+  #stream-panel,
+  #pose-panel {
+    min-height: 0;
+  }
+
+  .pose-card {
+    width: 130px;
+    height: 130px;
+  }
+
+  .pose-card .pose-label {
+    font-size: 14px;
+  }
+
+  header h1,
+  #panel-title {
+    font-size: 20px;
+  }
+
+  .overlay h2,
+  #win-screen h2 {
+    font-size: 24px;
+  }
+
+  .overlay ol,
+  .overlay p,
+  #found-chip,
+  #win-screen p {
+    font-size: 16px;
+  }
+}

@@ -1,0 +1,105 @@
+<!--
+SPDX-FileCopyrightText: Copyright (C) Arduino s.r.l. and/or its affiliated companies
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pose Detection</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body data-state="loading">
+    <div id="error-container" class="hidden">Connection to the board lost. Please check the connection.</div>
+
+    <header>
+      <h1>Pose Detection</h1>
+      <img class="arduino-logo" src="img/logo.svg" alt="Arduino logo" />
+    </header>
+
+    <main>
+      <section id="stream-panel">
+        <div id="video-wrap">
+          <img id="stream" crossorigin="anonymous" alt="Camera stream with skeleton overlay" />
+          <div id="video-placeholder">
+            <div class="spinner"></div>
+            <p>Starting camera&hellip;</p>
+          </div>
+          <div id="start-overlay" class="overlay">
+            <h2>Ready to play?</h2>
+            <ol>
+              <li>Press &ldquo;Start Game&rdquo;</li>
+              <li>Stand where your whole body fits in the picture</li>
+              <li>Try the poses on the right</li>
+            </ol>
+          </div>
+          <div id="people-overlay" class="overlay">
+            <h2>Tracking whoever takes up more space</h2>
+          </div>
+          <div id="move-back-overlay" class="overlay">
+            <h2>Move back</h2>
+            <p>We need to see you head to toe</p>
+          </div>
+          <span id="people-badge" class="hidden">Multiple people</span>
+        </div>
+        <div id="win-screen">
+          <img class="party" src="img/party.svg" alt="" />
+          <h2>You matched them all!</h2>
+          <p>Nice moves. You tried every pose on the list.</p>
+          <button id="play-again-btn" class="btn-primary">Play again</button>
+        </div>
+      </section>
+
+      <section id="pose-panel">
+        <div id="panel-header">
+          <h2 id="panel-title">Try all these poses</h2>
+          <span id="found-chip"><strong id="found-count">0</strong> / 4 found</span>
+        </div>
+        <div id="pose-grid">
+          <div class="pose-card" id="pose-standing">
+            <span class="illo">
+              <img class="pose-illo" src="img/pose-standing.svg" alt="" />
+              <img class="pose-illo-found" src="img/pose-standing-found.svg" alt="" />
+            </span>
+            <span class="pose-label">Standing</span>
+            <img class="found-check" src="img/checkmark.svg" alt="Found" />
+          </div>
+          <div class="pose-card pose-card-sitting" id="pose-sitting">
+            <span class="illo">
+              <img class="pose-illo" src="img/pose-sitting.svg" alt="" />
+              <img class="pose-illo-found" src="img/pose-sitting-found.svg" alt="" />
+            </span>
+            <span class="pose-label">Sitting</span>
+            <img class="found-check" src="img/checkmark.svg" alt="Found" />
+          </div>
+          <div class="pose-card" id="pose-right_arm_raised">
+            <span class="illo">
+              <img class="pose-illo" src="img/pose-arm-up.svg" alt="" />
+              <img class="pose-illo-found" src="img/pose-arm-up-found.svg" alt="" />
+            </span>
+            <span class="pose-label">Right arm up</span>
+            <img class="found-check" src="img/checkmark.svg" alt="Found" />
+          </div>
+          <div class="pose-card" id="pose-left_arm_raised">
+            <span class="illo flip">
+              <img class="pose-illo" src="img/pose-arm-up.svg" alt="" />
+              <img class="pose-illo-found" src="img/pose-arm-up-found.svg" alt="" />
+            </span>
+            <span class="pose-label">Left arm up</span>
+            <img class="found-check" src="img/checkmark.svg" alt="Found" />
+          </div>
+        </div>
+        <div id="start-cta">
+          <button id="start-game-btn" class="btn-primary">Start Game</button>
+        </div>
+      </section>
+    </main>
+
+    <script src="libs/socket.io.min.js"></script>
+    <script src="libs/arduino.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

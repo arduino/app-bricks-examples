@@ -1,0 +1,7 @@
+name: Pose Detection
+icon: 🕺
+description: Match all the poses in front of the camera to win the game
+
+bricks:
+  - arduino:pose_estimation
+  - arduino:web_ui

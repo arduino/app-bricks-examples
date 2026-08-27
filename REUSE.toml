@@ -104,6 +104,24 @@ SPDX-License-Identifier = "MIT"
 precedence = "override"
 
 [[annotations]]
+path = "inspirational/platform_ventunoq/pose-detection/assets/sounds/start.wav"
+SPDX-FileCopyrightText = "2021 Kenneth_Cooney <https://freesound.org/people/Kenneth_Cooney/sounds/609336/>"
+SPDX-License-Identifier = "CC0-1.0"
+precedence = "override"
+
+[[annotations]]
+path = "inspirational/platform_ventunoq/pose-detection/assets/sounds/pose-found.wav"
+SPDX-FileCopyrightText = "2019 Joao_Janz <https://freesound.org/people/Joao_Janz/sounds/482653/>"
+SPDX-License-Identifier = "CC0-1.0"
+precedence = "override"
+
+[[annotations]]
+path = "inspirational/platform_ventunoq/pose-detection/assets/sounds/win.wav"
+SPDX-FileCopyrightText = "2021 Fupicat <https://freesound.org/people/Fupicat/sounds/607207/>"
+SPDX-License-Identifier = "CC0-1.0"
+precedence = "override"
+
+[[annotations]]
 path = "inspirational/**/assets/libs/qrcode.min.js"
 SPDX-FileCopyrightText = "Copyright (c) David Shim"
 SPDX-License-Identifier = "MIT"
