@@ -1,0 +1,6 @@
+name: Raise or lower a value with your arms
+icon: 🧍
+description: "Raise or lower a value with your arms. Requires a connected camera"
+
+bricks:
+  - arduino:pose_estimation

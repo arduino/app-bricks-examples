@@ -1,0 +1,6 @@
+name: Detect people entering and leaving the scene
+icon: 🧍
+description: "Detect people entering and leaving the scene, and count them. Requires a connected camera"
+
+bricks:
+  - arduino:pose_estimation

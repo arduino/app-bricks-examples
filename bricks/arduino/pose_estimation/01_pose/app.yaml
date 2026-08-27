@@ -1,0 +1,6 @@
+name: Pose estimation
+icon: 🧍
+description: "Pose estimation. Requires a connected camera"
+
+bricks:
+  - arduino:pose_estimation

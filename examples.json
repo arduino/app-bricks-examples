@@ -361,6 +361,20 @@
       ]
     },
     {
+      "brick": "arduino:pose_estimation",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/pose_estimation/01_pose"
+        },
+        {
+          "id": "examples:bricks/arduino/pose_estimation/02_enter_exit"
+        },
+        {
+          "id": "examples:bricks/arduino/pose_estimation/03_raise_lower"
+        }
+      ]
+    },
+    {
       "brick": "arduino:sound_generator",
       "examples": [
         {
