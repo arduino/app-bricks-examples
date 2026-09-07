@@ -21,7 +21,7 @@ for (let i = 0; i < 10; i++) brightBar.appendChild(document.createElement('span'
 
 // -------- Pairing / connection state --------
 // The remote_sensor peripheral itself reports lifecycle transitions
-// ("disconnected"/"connected"/"streaming"/"paused") via the sensor_status
+// ("disconnected"/"connected") via the sensor_status
 // event, so the UI reflects that directly instead of guessing from the
 // dashboard's own websocket connection (which is always "connected" as
 // soon as this page loads, regardless of whether a phone is paired).
@@ -264,7 +264,7 @@ ui.on_message('history', rows => (rows || []).forEach(applyDatapoint));
 ui.on_message('datapoint', applyDatapoint);
 // sensor_status drives pairing-card collapse:
 //   disconnected → expanded (show QR + OTP)
-//   connected/streaming/paused → collapsed (show the connected client)
+//   connected → collapsed (show the connected client)
 ui.on_message('sensor_status', m => {
   if (!m || typeof m.status !== 'string') return;
   const paired = m.status !== 'disconnected';

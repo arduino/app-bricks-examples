@@ -40,18 +40,19 @@ def pairing_payload() -> dict:
 
 
 def on_ui_connect(sid):
-    # Send connection details to the UI so it can draw the pairing QR code,
-    # then replay the recent history so the dashboard fills up immediately.
-    ui.send_message("welcome", pairing_payload())
+    # Send connection details to the newly connected client only, so it can
+    # draw the pairing QR code, then replay the recent history to it so the
+    # dashboard fills up immediately.
+    ui.send_message("welcome", pairing_payload(), room=sid)
     with history_lock:
-        ui.send_message("history", list(history))
+        ui.send_message("history", list(history), room=sid)
 
 
 ui.on_connect(on_ui_connect)
 
 
 def on_status_changed(status: str, info: dict):
-    # Lifecycle events: "disconnected", "connected", "streaming", "paused".
+    # Lifecycle events: "disconnected", "connected".
     ui.send_message("sensor_status", {"status": status, "info": info})
 
 

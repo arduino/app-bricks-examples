@@ -85,7 +85,7 @@ Here is a brief explanation of the full-stack application:
   - **WebUI** (`ui = WebUI()`): Manages the frontend interface.
 
 - **Event Handling**:
-  - **Status Updates**: Wires sensor lifecycle changes (connected, streaming) to the UI.
+  - **Status Updates**: Wires sensor lifecycle changes (connected, disconnected) to the UI.
   - **UI Connection**: When a user opens the browser (`ui.on_connect`), the backend sends the connection details (IP, port, secret) so the frontend can generate the pairing QR code, plus the recent history of datapoints so the dashboard fills up immediately.
   - **Datapoints**: Uses `on_datapoint` to parse each JSON message from the phone and forward it to the UI.
 
@@ -122,11 +122,11 @@ Once the application is running, you can open it in your browser. At that point,
   ui = WebUI()
   sensor = RemoteSensor(secret=secret)
 
-  # Send connection details to the UI so it can draw the pairing QR code
+  # Send connection details to the newly connected client so it can draw the pairing QR code
   def on_ui_connect(sid):
-      ui.send_message("welcome", pairing_payload())
+      ui.send_message("welcome", pairing_payload(), room=sid)
       with history_lock:
-          ui.send_message("history", list(history))
+          ui.send_message("history", list(history), room=sid)
 
 
   ui.on_connect(on_ui_connect)
