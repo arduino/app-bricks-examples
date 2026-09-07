@@ -2,6 +2,12 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+# AI USAGE DISCLAIMER
+# This application is meant to demonstrate the capabilities of different LLM models
+# as they are, hence your prompt and the LLM answer are unfiltered. Use AI responsibly.
+# Applications meant for final usage are recommended to include guardrails to filter
+# unwanted prompts and answers.
+
 import re
 from arduino.app_bricks.cloud_llm import CloudLLM, CloudModel
 from arduino.app_bricks.web_ui import WebUI
