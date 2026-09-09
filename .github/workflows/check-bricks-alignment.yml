@@ -117,11 +117,18 @@ jobs:
           retention-days: 15
 
       - name: Report alignment diff
-        run: >
-          python bricks/scripts/check_examples_alignment.py diff --base base.json --head head.json
-          --examples-label "${{ github.event_name == 'pull_request' && 'this PR' || github.ref_name }}"
-          --library-label "[app-bricks-py](https://github.com/arduino/app-bricks-py)@${{ env.BRICKS_REF }}"
-          --reports-url "${{ steps.reports.outputs.artifact-url }}"
+        run: |
+          labels=()
+          # The summary labels exist in the script only from a given app-bricks-py
+          # revision: keep working against older refs without them.
+          if python bricks/scripts/check_examples_alignment.py diff --help | grep -q -- --examples-label; then
+            labels=(
+              --examples-label "${{ github.event_name == 'pull_request' && 'this PR' || github.ref_name }}"
+              --library-label "[app-bricks-py](https://github.com/arduino/app-bricks-py)@${{ env.BRICKS_REF }}"
+            )
+          fi
+          python bricks/scripts/check_examples_alignment.py diff --base base.json --head head.json "${labels[@]}" \
+            --reports-url "${{ steps.reports.outputs.artifact-url }}"
 
       - name: Report bricks example coverage
         run: python bricks/scripts/check_examples_alignment.py coverage --examples-dir head --head-src bricks/src
