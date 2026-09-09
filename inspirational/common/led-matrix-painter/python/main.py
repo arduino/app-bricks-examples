@@ -220,19 +220,14 @@ def export_frames(payload: dict | None = None):
     for frame in frames:
         frame_names[frame.name] = frame_names.get(frame.name, 0) + 1
 
-    # Assign unique names if duplicates exist
-    name_counters = {}  # name -> current index
+    # Assign unique C identifiers, sanitizing the user-defined names
     for frame in frames:
         if frame_names[frame.name] > 1:
-            # Duplicate detected, add suffix
-            if frame.name not in name_counters:
-                name_counters[frame.name] = 0
-            # Use _idN suffix for uniqueness
-            frame._export_name = f"{frame.name}_id{frame.id}"
+            # Duplicate detected, use _idN suffix for uniqueness
+            frame._export_name = AppFrame._sanitize_c_ident(f"{frame.name}_id{frame.id}")
             logger.debug(f"Duplicate name '{frame.name}' -> '{frame._export_name}'")
         else:
-            # Unique name, use as-is
-            frame._export_name = frame.name
+            frame._export_name = AppFrame._sanitize_c_ident(frame.name or f"frame_{frame.id}")
 
     # Check if we're in animations mode
     animations = payload.get('animations') if payload else None
