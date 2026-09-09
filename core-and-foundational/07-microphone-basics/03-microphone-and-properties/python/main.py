@@ -2,13 +2,14 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from arduino.app_peripherals.microphone import Microphone
+from arduino.app_peripherals.microphone import Microphone, BaseMicrophone, ALSAMicrophone
 from arduino.app_utils import App
 
 
 # This function is a helper to print the main properties of a microphone instance in the Python console.
-def print_microphone_properties(microphone: Microphone):
-    print(f"- resolved_device: {microphone.device_stable_ref}")
+# Microphone() returns the implementation matching the requested device (e.g. ALSAMicrophone for local
+# microphones), so the common interface to annotate is BaseMicrophone.
+def print_microphone_properties(microphone: BaseMicrophone):
     print(f"- name: {microphone.name}")
     print(f"- sample_rate: {microphone.sample_rate} Hz")
     print(f"- channels: {microphone.channels}")
@@ -16,7 +17,10 @@ def print_microphone_properties(microphone: Microphone):
     print(f"- buffer_size: {microphone.buffer_size} frames")
     print(f"- volume: {microphone.volume}%")
     print(f"- is_started: {microphone.is_started()}")
-    print(f"- shared: {microphone.shared}")
+    if isinstance(microphone, ALSAMicrophone):
+        # Properties specific to local (ALSA) microphones
+        print(f"- resolved_device: {microphone.device_stable_ref}")
+        print(f"- shared: {microphone.shared}")
 
 # 1. === The simplest case to create a Microhone instance with default settings =======================================
 
