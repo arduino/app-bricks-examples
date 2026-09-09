@@ -11,7 +11,7 @@ video_detector = VideoObjectDetection(confidence=0.4, camera_preview=True)
 
 
 # Callback for all detections (must take one dict argument for detections and one bytes argument for the camera preview frame)
-def on_all_detections(detections: dict, frame: bytes):
+def on_all_detections(detections: dict, frame: bytes | None):
     print("All detections:", detections)
     if frame is None:
         return

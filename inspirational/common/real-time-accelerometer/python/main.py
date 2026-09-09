@@ -38,12 +38,11 @@ def _get_detection():
 web_ui.expose_api("GET", "/detection", _get_detection)
 
 # When a client connects, send the current detection immediately
-web_ui.on_connect(
-    lambda sid: (
-        logger.debug(f"Client connected: {sid} - sending current detection"),
-        web_ui.send_message('movement', detection_df.to_dict(orient='records')[0])
-    )
-)
+def on_client_connected(sid: str):
+    logger.debug(f"Client connected: {sid} - sending current detection")
+    web_ui.send_message('movement', detection_df.to_dict(orient='records')[0])
+
+web_ui.on_connect(on_client_connected)
 logger.debug("Registered on_connect handler for WebUI")
 
 
