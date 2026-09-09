@@ -12,7 +12,7 @@ vibration = VibrationAnomalyDetection(anomaly_detection_threshold=1.0)
 
 
 # Register the callback to run when an anomaly is detected
-def on_detected_anomaly(anomaly_score: float, classification: dict = None):
+def on_detected_anomaly(anomaly_score: float, classification: dict | None = None):
     print(f"[Anomaly] score={anomaly_score:.3f}")
 
 

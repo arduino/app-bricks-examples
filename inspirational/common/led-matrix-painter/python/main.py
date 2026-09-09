@@ -84,7 +84,7 @@ def bulk_update_frame_duration(payload) -> bool:
     return True
 
 
-def load_frame(payload: dict = None):
+def load_frame(payload: dict | None = None):
     """Load a frame for editing or create empty if none exist.
 
     Optional payload: {id: int} to load specific frame
@@ -193,7 +193,7 @@ def transform_frame(payload: dict):
     return {'ok': True, 'frame': frame.to_json(), 'vector': frame.to_c_string()}
 
 
-def export_frames(payload: dict = None):
+def export_frames(payload: dict | None = None):
     """Export multiple frames into a single C header string.
 
     Payload (optional): {frames: [id,...], animations: [{name, frames}]}
