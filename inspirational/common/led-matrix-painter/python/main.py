@@ -121,6 +121,8 @@ def list_frames():
 def get_frame(payload: dict):
     """Get single frame by ID."""
     fid = payload.get('id')
+    if fid is None:
+        return {'error': 'missing id'}
     record = store.get_frame_by_id(fid)
 
     if not record:
