@@ -16,9 +16,13 @@ def on_all_detections(detections: dict, frame: bytes | None):
     if frame is None:
         return
     image_with_bb = draw_bounding_boxes(frame, detections)
+    image_bytes = get_image_bytes(image_with_bb)
+    if image_bytes is None:
+        print("Could not encode the annotated frame")
+        return
     # Do something with the image with bounding boxes (e.g., save it, etc.)
     with open("/app/latest_frame_with_detections.jpg", "wb") as f:
-        f.write(get_image_bytes(image_with_bb))
+        f.write(image_bytes)
 
 
 video_detector.on_detect_all(on_all_detections)

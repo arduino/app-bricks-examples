@@ -38,6 +38,8 @@ def help_cmd(sender: Sender, message: Message):
 
 def sentiment(sender: Sender, message: Message):
     """Reply sentiment analysis for text messages - using convenient reply helper!"""
+    if message.text is None:
+        return  # on_text only delivers text messages, but text is optional in the Message contract
     result = mood.get_sentiment(message.text)
     sender.reply(f"Your mood is: {result}")
 
@@ -56,13 +58,16 @@ def detect_objects(
     image = Image.open(BytesIO(photo))
     results = obj_detection.detect(image, confidence=0.1)
     img_with_boxes = obj_detection.draw_bounding_boxes(image, results)
+    if results is None or img_with_boxes is None:
+        sender.reply("No objects detected")
+        return
 
     # Send result using reply_photo helper
     output = BytesIO()
     img_with_boxes.save(output, format="PNG")
     output.seek(0)
 
-    caption = f"✅ Found {len(results['detection'])} object(s)!" if results else "No objects detected"
+    caption = f"✅ Found {len(results['detection'])} object(s)!"
 
     if not sender.reply_photo(output.getvalue(), caption):
         sender.reply("❌ Failed to send processed image")

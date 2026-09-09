@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MPL-2.0
 
 # Example app to capture an image from the camera and it stores it to the local storage.
-import numpy as np
 from arduino.app_peripherals.camera import Camera  # Import the Camera class to interact with the camera peripheral
 from arduino.app_utils import App
 from arduino.app_utils.image import compress_to_jpeg  # Import the compress_to_jpeg function to compress images to JPEG format
@@ -13,13 +12,15 @@ from arduino.app_utils.image import compress_to_jpeg  # Import the compress_to_j
 # If no camera is found, an exception will be raised.
 camera = Camera(resolution=(640, 480))
 camera.start()                                  # Start the camera to begin capturing images
-image: np.ndarray = camera.capture()            # Capture a raw image from the camera
-imageJpeg = compress_to_jpeg(frame=image, quality=100)
-
-if imageJpeg is not None:
-    imageBytes = imageJpeg.tobytes()
-    with open("captured_image.jpg", "wb") as f:
-        f.write(imageBytes)                     # Write the JPEG image bytes to the file
+image = camera.capture()                        # Capture a raw image from the camera (None if no frame is available)
+if image is None:
+    print("No frame captured from the camera")
+else:
+    imageJpeg = compress_to_jpeg(frame=image, quality=100)
+    if imageJpeg is not None:
+        imageBytes = imageJpeg.tobytes()
+        with open("captured_image.jpg", "wb") as f:
+            f.write(imageBytes)                     # Write the JPEG image bytes to the file
 
 camera.stop()                                   # Stop the camera
 
