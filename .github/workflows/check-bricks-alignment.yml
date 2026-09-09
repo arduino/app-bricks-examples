@@ -1,0 +1,127 @@
+name: Check bricks alignment
+
+# Mirror of the check-examples-alignment workflow of app-bricks-py: pyright
+# analyzes the Python code of the examples, resolving the library from a
+# source checkout of app-bricks-py, and compares the PR base and head. New
+# errors mean the PR uses the library in a way its API contract does not
+# support: they fail the job (pre-existing errors are reported but tolerated).
+#
+# Pull requests are always checked against the main branch of app-bricks-py,
+# so main of the two repositories stays coherent: merge the library change
+# first, then the examples one. The manual run accepts another library ref to
+# verify an examples change ahead of that merge; it reports every error of
+# the selected examples ref, as there is no base to compare with.
+
+on:
+  pull_request:
+    paths:
+      - "**/python/**"
+      - ".github/workflows/check-bricks-alignment.yml"
+  workflow_dispatch:
+    inputs:
+      bricks-ref:
+        description: "app-bricks-py branch, tag or commit to check the examples against"
+        required: false
+        default: "main"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bricks-alignment-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.13"
+  NODE_VERSION: "22"
+  BRICKS_REF: ${{ github.event_name == 'workflow_dispatch' && inputs.bricks-ref || 'main' }}
+
+jobs:
+  bricks-alignment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout examples head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          path: head
+
+      - name: Checkout examples base
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: base
+
+      - name: Checkout app-bricks-py
+        uses: actions/checkout@v4
+        with:
+          repository: arduino/app-bricks-py
+          ref: ${{ env.BRICKS_REF }}
+          path: bricks
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install system build dependencies
+        # Headers needed to compile the audio C extensions (pyalsaaudio, pyaudio),
+        # same packages installed by 'task install:deps' in app-bricks-py.
+        run: sudo apt-get update -q && sudo apt-get install -y -q --no-install-recommends libasound2-dev portaudio19-dev
+
+      - name: Build check venv
+        run: |
+          python -m venv checkenv
+          # Library dependencies (core + [all] extra), without the library itself:
+          # pyright resolves the library from the app-bricks-py sources.
+          python bricks/scripts/check_examples_alignment.py deps --pyproject bricks/pyproject.toml > library-deps.txt
+          # Runtime baseline of the app container + library dependencies.
+          # Tolerant per-package install: a package that still fails to build on
+          # the runner only degrades the affected types to Unknown, it must not
+          # fail the job.
+          cat bricks/containers/base/python-base/requirements-base.txt library-deps.txt | while IFS= read -r pkg; do
+            pkg="${pkg%%#*}"
+            [ -z "${pkg// /}" ] && continue
+            ./checkenv/bin/pip install -q "$pkg" || echo "::notice::package not installed in the check venv: $pkg"
+          done
+          # Per-example dependencies, from both sides of the PR.
+          find head base -path '*/python/requirements.txt' 2>/dev/null -exec ./checkenv/bin/pip install -q -r {} \;
+
+      - name: Run pyright on the base
+        if: github.event_name == 'pull_request'
+        run: python bricks/scripts/check_examples_alignment.py run --examples-dir base --library-src bricks/src --python checkenv/bin/python --out base.json
+
+      - name: Use an empty base for the manual run
+        # Without a PR base every error of the selected ref is reported as new.
+        if: github.event_name != 'pull_request'
+        run: |
+          echo '{"generalDiagnostics": []}' > base.json
+
+      - name: Run pyright on the head
+        run: python bricks/scripts/check_examples_alignment.py run --examples-dir head --library-src bricks/src --python checkenv/bin/python --out head.json
+
+      - name: Upload run outputs
+        id: reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: bricks-alignment-reports
+          path: |
+            base.json
+            head.json
+          retention-days: 15
+
+      - name: Report alignment diff
+        run: >
+          python bricks/scripts/check_examples_alignment.py diff --base base.json --head head.json
+          --examples-label "${{ github.event_name == 'pull_request' && 'this PR' || github.ref_name }}"
+          --library-label "[app-bricks-py](https://github.com/arduino/app-bricks-py)@${{ env.BRICKS_REF }}"
+          --reports-url "${{ steps.reports.outputs.artifact-url }}"
+
+      - name: Report bricks example coverage
+        run: python bricks/scripts/check_examples_alignment.py coverage --examples-dir head --head-src bricks/src
