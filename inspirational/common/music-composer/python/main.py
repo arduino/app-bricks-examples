@@ -142,7 +142,7 @@ def on_get_state(sid, data=None):
 def on_update_grid(sid, data: dict | None = None):
     """Update grid state."""
     global grid_state
-    data = data or {}
+    data = data or {}  # The client may emit the event without a payload
 
     if is_playing:
         logger.warning("Grid update rejected: playback in progress")
@@ -218,7 +218,7 @@ def on_stop(sid, data=None):
 def on_set_waveform(sid, data: dict | None = None):
     """Change waveform."""
     global waveform
-    data = data or {}
+    data = data or {}  # The client may emit the event without a payload
     waveform = data.get("waveform", "sine")
     if waveform in ["sine", "square", "triangle", "sawtooth"]:
         gen.set_wave_form(waveform)
@@ -228,7 +228,7 @@ def on_set_waveform(sid, data: dict | None = None):
 def on_set_volume(sid, data: dict | None = None):
     """Change volume."""
     global volume
-    data = data or {}
+    data = data or {}  # The client may emit the event without a payload
     volume = data.get("volume", 80) / 100.0
     gen.set_master_volume(volume)
     logger.info(f"Volume: {volume:.2f}")
@@ -237,7 +237,7 @@ def on_set_volume(sid, data: dict | None = None):
 def on_set_effects(sid, data: dict | None = None):
     """Update effects."""
     global effects_state
-    data = data or {}
+    data = data or {}  # The client may emit the event without a payload
     effects_state = data.get("effects", {})
     effect_list = [SoundEffect.adsr()]
 

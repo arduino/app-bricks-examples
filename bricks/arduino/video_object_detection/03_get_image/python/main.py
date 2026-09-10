@@ -10,7 +10,8 @@ from arduino.app_bricks.video_objectdetection import VideoObjectDetection
 video_detector = VideoObjectDetection(confidence=0.4, camera_preview=True)
 
 
-# Callback for all detections (must take one dict argument for detections and one bytes argument for the camera preview frame)
+# Callback for all detections: one dict argument for the detections and one `frame` argument for the camera
+# preview frame as JPEG bytes, which is None when no preview frame is available yet (or camera_preview is off)
 def on_all_detections(detections: dict, frame: bytes | None):
     print("All detections:", detections)
     if frame is None:

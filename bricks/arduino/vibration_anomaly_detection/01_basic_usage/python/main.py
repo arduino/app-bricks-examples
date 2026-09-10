@@ -11,7 +11,9 @@ logger = Logger("Vibration Anomaly Example")
 vibration = VibrationAnomalyDetection(anomaly_detection_threshold=1.0)
 
 
-# Register the callback to run when an anomaly is detected
+# Register the callback to run when an anomaly is detected.
+# `classification` holds the label scores of the auxiliary classification head when the model has one,
+# None otherwise: keep the parameter optional so the callback works with both kinds of model.
 def on_detected_anomaly(anomaly_score: float, classification: dict | None = None):
     print(f"[Anomaly] score={anomaly_score:.3f}")
 
