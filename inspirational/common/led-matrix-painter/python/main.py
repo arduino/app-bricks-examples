@@ -214,20 +214,18 @@ def export_frames(payload: dict | None = None):
 
     logger.debug(f"Exporting {len(records)} frames to C header")
 
-    # Build frame objects and check for duplicate names
+    # Build frame objects and make their C identifiers unique. Duplicates are counted on the
+    # sanitized names (AppFrame computes them from the user-defined ones), so names that differ
+    # only by case or punctuation, e.g. "My Frame" and "my-frame", are disambiguated as well.
     frames = [AppFrame.from_record(r) for r in records]
-    frame_names = {}  # name -> count
+    export_names = {}  # sanitized name -> count
     for frame in frames:
-        frame_names[frame.name] = frame_names.get(frame.name, 0) + 1
-
-    # Assign unique C identifiers, sanitizing the user-defined names
+        export_names[frame._export_name] = export_names.get(frame._export_name, 0) + 1
     for frame in frames:
-        if frame_names[frame.name] > 1:
+        if export_names[frame._export_name] > 1:
             # Duplicate detected, use _idN suffix for uniqueness
-            frame._export_name = AppFrame._sanitize_c_ident(f"{frame.name}_id{frame.id}")
+            frame._export_name = f"{frame._export_name}_id{frame.id}"
             logger.debug(f"Duplicate name '{frame.name}' -> '{frame._export_name}'")
-        else:
-            frame._export_name = AppFrame._sanitize_c_ident(frame.name or f"frame_{frame.id}")
 
     # Check if we're in animations mode
     animations = payload.get('animations') if payload else None
