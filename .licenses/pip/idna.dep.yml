@@ -1,6 +1,6 @@
 ---
 name: idna
-version: '3.18'
+version: '3.19'
 type: pip
 summary: Internationalized Domain Names in Applications (IDNA)
 homepage: ''
