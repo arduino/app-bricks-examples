@@ -1,0 +1,5 @@
+name: TPS Device Location API - Periodic
+description: Determines device location using nearby Wi‑Fi access points using TPS Location API Brick
+icon: 📍
+bricks:
+  - arduino:tps_location_api
