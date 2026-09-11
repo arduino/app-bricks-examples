@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from arduino.app_utils import App
-from arduino.app_bricks.pose_estimation import POSE_NAMES, PoseEstimation
+from arduino.app_bricks.pose_estimation import BUILTIN_POSE_NAMES, PoseEstimation
 from arduino.app_bricks.web_ui import WebUI
 
 ui = WebUI()
@@ -16,7 +16,7 @@ pose_estimation = PoseEstimation(
     out_of_frame_tolerance=0.05
 )
 
-for pose_name in POSE_NAMES:
+for pose_name in BUILTIN_POSE_NAMES:
     pose_estimation.on_pose(pose_name, lambda pose: ui.send_message("pose", {"name": pose.name, "event": pose.event}))
 
 pose_estimation.on_count_change(lambda count: ui.send_message("people", {"count": count}))

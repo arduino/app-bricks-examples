@@ -85,10 +85,12 @@ def save_frame(frame: AppFrame) -> int:
     db.store("frames", record, create_table=False)
 
     last = db.execute_sql("SELECT last_insert_rowid() as id")
-    new_id = last[0].get("id") if last else None
+    if not last or last[0].get("id") is None:
+        raise RuntimeError("Failed to retrieve the id assigned to the saved frame")
+    new_id = int(last[0]["id"])
 
     # Backend responsibility: assign progressive name if empty
-    if new_id and (not frame.name or frame.name.strip() == ''):
+    if not frame.name or frame.name.strip() == '':
         frame.name = f'Frame {new_id}'
         frame.id = new_id
         db.update("frames", {"name": frame.name}, condition=f"id = {new_id}")
@@ -143,7 +145,7 @@ def delete_frame(fid: int) -> bool:
     # Recompact positions
     rows = db.read("frames", order_by="position ASC, id ASC") or []
     for pos, r in enumerate(rows, start=1):
-        db.update("frames", {"position": pos}, condition=f"id = {int(r.get('id'))}")
+        db.update("frames", {"position": pos}, condition=f"id = {int(r['id'])}")
     return True
 
 
@@ -167,7 +169,7 @@ def delete_frames(fids: list[int]) -> bool:
     # Recompact positions
     rows = db.read("frames", order_by="position ASC, id ASC") or []
     for pos, r in enumerate(rows, start=1):
-        db.update("frames", {"position": pos}, condition=f"id = {int(r.get('id'))}")
+        db.update("frames", {"position": pos}, condition=f"id = {int(r['id'])}")
     return True
 
 

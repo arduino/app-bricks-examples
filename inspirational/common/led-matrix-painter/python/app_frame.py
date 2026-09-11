@@ -63,9 +63,9 @@ class AppFrame(Frame):
     """
     def __init__(
             self,
-            id: int,
+            id: int | None,
             name: str,
-            position: int,
+            position: int | None,
             duration_ms: int,
             arr,
             brightness_levels: int = 256
@@ -77,9 +77,9 @@ class AppFrame(Frame):
             brightness_levels (int): Number of brightness levels (default 256).
 
         Attributes:
-            id (int): database ID of the frame.
-            name (str): user-defined name of the frame.
-            position (int): user-defined position/order of the frame.
+            id (int | None): database ID of the frame, None until the frame is saved.
+            name (str): user-defined name of the frame, empty until the backend assigns one.
+            position (int | None): user-defined position/order of the frame, None to append it.
             duration_ms (int): duration in milliseconds for animated frames.
         """
         super().__init__(arr, brightness_levels=brightness_levels)  # Initialize base Frame attributes
@@ -99,11 +99,11 @@ class AppFrame(Frame):
         for DB records.
         """
         id = data.get('id')
-        name = data.get('name')
+        name = data.get('name') or ""
         position = data.get('position')
-        duration_ms = data.get('duration_ms')
-        rows = data.get('rows')
-        brightness_levels = data.get('brightness_levels')
+        duration_ms = int(data.get('duration_ms') or 1000)
+        rows = data['rows']
+        brightness_levels = int(data.get('brightness_levels') or 256)
         return cls.from_rows(id, name, position, duration_ms, rows, brightness_levels=brightness_levels)
 
     def to_json(self) -> dict:
@@ -122,12 +122,12 @@ class AppFrame(Frame):
     @classmethod
     def from_record(cls, record: dict) -> "AppFrame":
         """Reconstruct an AppFrame from a database record dict."""
-        id = record.get('id')
-        name = record.get('name')
-        position = record.get('position')
-        duration_ms = record.get('duration_ms')
-        rows = json.loads(record.get('rows'))
-        brightness_levels = record.get('brightness_levels')
+        id = record['id']
+        name = record['name'] or ""
+        position = record['position']
+        duration_ms = int(record['duration_ms'] or 1000)
+        rows = json.loads(record['rows'])
+        brightness_levels = int(record['brightness_levels'] or 256)
         return cls.from_rows(id, name, position, duration_ms, rows, brightness_levels=brightness_levels)
 
     def to_record(self) -> dict:
@@ -228,18 +228,18 @@ class AppFrame(Frame):
     @classmethod
     def create_empty(
         cls,
-        id: int,
+        id: int | None,
         name: str,
-        position: int,
+        position: int | None,
         duration_ms: int,
         brightness_levels: int = 256,
     ) -> "AppFrame":
         """Create an empty AppFrame with all pixels set to 0.
 
         Args:
-            id (int): database ID of the frame.
+            id (int | None): database ID of the frame, None until the frame is saved.
             name (str): user-defined name of the frame.
-            position (int): user-defined position/order of the frame.
+            position (int | None): user-defined position/order of the frame, None to append it.
             duration_ms (int): duration in milliseconds for animated frames.
             width (int): width of the frame in pixels.
             height (int): height of the frame in pixels.
@@ -333,11 +333,11 @@ class AppFrame(Frame):
 
     # -- Frame.from_rows override (for subclass construction only) ---------------------------
     @classmethod
-    def from_rows(
+    def from_rows(  # type: ignore[override]
         cls,
-        id: int,
+        id: int | None,
         name: str,
-        position: int,
+        position: int | None,
         duration_ms: int,
         rows: list[list[int]] | list[str],
         brightness_levels: int = 256,
@@ -362,9 +362,9 @@ class AppFrame(Frame):
             brightness_levels (int): number of brightness levels (default 256).
 
         Attributes:
-            id (int): database ID of the frame.
+            id (int | None): database ID of the frame, None until the frame is saved.
             name (str): user-defined name of the frame.
-            position (int): user-defined position/order of the frame.
+            position (int | None): user-defined position/order of the frame, None to append it.
             duration_ms (int): duration in milliseconds for animated frames.
 
         Returns:

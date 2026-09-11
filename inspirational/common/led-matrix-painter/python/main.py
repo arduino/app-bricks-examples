@@ -84,7 +84,7 @@ def bulk_update_frame_duration(payload) -> bool:
     return True
 
 
-def load_frame(payload: dict = None):
+def load_frame(payload: dict | None = None):
     """Load a frame for editing or create empty if none exist.
 
     Optional payload: {id: int} to load specific frame
@@ -121,6 +121,8 @@ def list_frames():
 def get_frame(payload: dict):
     """Get single frame by ID."""
     fid = payload.get('id')
+    if fid is None:
+        return {'error': 'missing id'}
     record = store.get_frame_by_id(fid)
 
     if not record:
@@ -193,7 +195,7 @@ def transform_frame(payload: dict):
     return {'ok': True, 'frame': frame.to_json(), 'vector': frame.to_c_string()}
 
 
-def export_frames(payload: dict = None):
+def export_frames(payload: dict | None = None):
     """Export multiple frames into a single C header string.
 
     Payload (optional): {frames: [id,...], animations: [{name, frames}]}
@@ -212,25 +214,18 @@ def export_frames(payload: dict = None):
 
     logger.debug(f"Exporting {len(records)} frames to C header")
 
-    # Build frame objects and check for duplicate names
+    # Build frame objects and make their C identifiers unique. Duplicates are counted on the
+    # sanitized names (AppFrame computes them from the user-defined ones), so names that differ
+    # only by case or punctuation, e.g. "My Frame" and "my-frame", are disambiguated as well.
     frames = [AppFrame.from_record(r) for r in records]
-    frame_names = {}  # name -> count
+    export_names = {}  # sanitized name -> count
     for frame in frames:
-        frame_names[frame.name] = frame_names.get(frame.name, 0) + 1
-
-    # Assign unique names if duplicates exist
-    name_counters = {}  # name -> current index
+        export_names[frame._export_name] = export_names.get(frame._export_name, 0) + 1
     for frame in frames:
-        if frame_names[frame.name] > 1:
-            # Duplicate detected, add suffix
-            if frame.name not in name_counters:
-                name_counters[frame.name] = 0
-            # Use _idN suffix for uniqueness
-            frame._export_name = f"{frame.name}_id{frame.id}"
+        if export_names[frame._export_name] > 1:
+            # Duplicate detected, use _idN suffix for uniqueness
+            frame._export_name = f"{frame._export_name}_id{frame.id}"
             logger.debug(f"Duplicate name '{frame.name}' -> '{frame._export_name}'")
-        else:
-            # Unique name, use as-is
-            frame._export_name = frame.name
 
     # Check if we're in animations mode
     animations = payload.get('animations') if payload else None
