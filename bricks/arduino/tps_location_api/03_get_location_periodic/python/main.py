@@ -13,7 +13,7 @@ logging.basicConfig(
 logger = logging.getLogger("TPSLocationAPI")
 
 
-client = TPSLocationAPI()
+loc_api = TPSLocationAPI()
 device_id = "14:b5:cd:e8:7d:43"  # MAC Address
 
 def log_location(result, error, mode="sync"):
@@ -34,7 +34,7 @@ def log_location(result, error, mode="sync"):
 
 # --- Periodic version (brick handles periodic scheduler) ---
 
-stop_periodic = client.periodic_locate(
+stop_periodic = loc_api.periodic_locate(
     callback=lambda result, error: log_location(result, error, mode="periodic"),
     period_sec=30,
     street_address=True,
