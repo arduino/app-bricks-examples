@@ -692,6 +692,16 @@ body {
   }
 }
 
+.disclaimer {
+  width: 100%;
+  text-align: center;
+  color: white;
+  font-family: 'Open Sans';
+  font-size: 12px;
+  font-weight: 400;
+  margin-top: 16px;
+}
+
 .error-message {
   background-color: #f8d7da;
   color: #721c24;

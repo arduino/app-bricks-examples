@@ -4,6 +4,8 @@ The **Cloud AI Assistant** example demonstrates how to build a generative AI cha
 
 ![Cloud AI Assistant Example](assets/docs_assets/thumbnail.png)
 
+> **AI Usage Disclaimer:** This application is meant to demonstrate the capabilities of different LLM models as they are, hence your prompt and the LLM answer are unfiltered. Use AI responsibly. Applications meant for final usage are recommended to include guardrails to filter unwanted prompts and answers.
+
 ## Description
 
 This App transforms the board into an AI assistant. It uses the `cloud_llm` Brick to connect to a cloud-based AI model and the `web_ui` Brick to provide a rich configuration interface.

@@ -2,6 +2,8 @@
 
 The **Edge AI Assistant** example demonstrates how to build a generative AI chatbot using the Arduino® UNO Q. It uses a Large Language Model (LLM) to create a chatbot that helps you in your daily life. The board exploits its own hardware features to run the model locally, preserving the confidentiality of your data.
 
+> **AI Usage Disclaimer:** This application is meant to demonstrate the capabilities of different LLM models as they are, hence your prompt and the LLM answer are unfiltered. Use AI responsibly. Applications meant for final usage are recommended to include guardrails to filter unwanted prompts and answers.
+
 ## Description
 
 This App transforms the UNO Q into an AI assistant. It uses the `llm` Brick to connect to a local AI model and the `web_ui` Brick to provide a chat-like interface.
