@@ -1,51 +1,25 @@
-import time
-import uuid
-import logging
+# SPDX-FileCopyrightText: Copyright (C) Arduino s.r.l. and/or its affiliated companies
+#
+# SPDX-License-Identifier: MPL-2.0
 
 from arduino.app_utils import App
 from arduino.app_bricks.tps_location_api import TPSLocationAPI
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s.%(msecs)03d %(levelname)s - [%(threadName)s] %(name)s:  %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S"
-)
-logger = logging.getLogger("TPSLocationAPI")
+location_api = TPSLocationAPI()
 
 
-loc_api = TPSLocationAPI()
-device_id = "14:b5:cd:e8:7d:43"  # MAC Address
-
-def log_location(result, error, mode="sync"):
-    """Log location result or error."""
+def on_location(result, error):
+    """Receive the location once the background lookup completes."""
     if error:
-        logger.error(f"[{mode}] Locate failed: {error}")
+        print(f"Location lookup failed: {error}")
         return
-    
-    loc = result.get("location", {})
-    response_token = result.get("request_token", "N/A")
-    elapsed_ms = result.get("elapsed_ms", "?")
-    logger.info(f"[{mode}] Location: lat={loc.get('lat')}, lng={loc.get('lng')} | "
-                f"Accuracy: {result.get('accuracy')}m | "
-                f"APs used: {result.get('nap')} | "
-                f"Token: {response_token} | "
-                f"Elapsed: {elapsed_ms}ms")
+
+    location = result["location"]
+    print(f"Location: lat={location['lat']}, lng={location['lng']}")
+    print(f"Accuracy: {result['accuracy']}m from {result['nap']} access points (took {result['elapsed_ms']}ms)")
 
 
+# Non-blocking lookup: returns immediately, the callback gets the result
+location_api.async_locate(on_location)
 
-# --- Async version (non-blocking with callback) ---
-
-def loop_async():
-    """Non-blocking version: fires locate in background, callback delivers result."""
-    request_token = str(uuid.uuid4())
-    loc_api.async_locate(
-        callback=lambda result, error: log_location(result, error, mode="async"),
-        request_token=request_token,
-        street_address=True,
-        device_id=device_id,
-        opt_in=True
-    )
-    time.sleep(30)
-
-
-App.run(user_loop=loop_async)
+App.run()
