@@ -1,0 +1,238 @@
+name: Check bricks alignment
+
+# Mirror of the check-examples-alignment workflow of app-bricks-py, run on the
+# examples side: pyright analyzes the Python code of the examples, resolving the
+# library from a source checkout of app-bricks-py, and compares the PR base and
+# head. New errors mean the PR uses the library in a way its API contract does
+# not support, and they fail the job: here the analyzed files are the PR's own,
+# so blocking is the point. The library-side check stays informative, which is
+# what keeps a coordinated library/examples change from deadlocking: merge the
+# library change first, then the examples one.
+#
+# Pull requests are always checked against the main branch of app-bricks-py, so
+# main of the two repositories stays coherent. The manual run accepts another
+# library ref to verify an examples change ahead of the library merge; it
+# reports every error of the selected examples ref, as there is no base to
+# compare with.
+#
+# No path filter on purpose: a required status check that does not run leaves
+# the PR waiting forever, so the job runs on every PR and simply reports zero
+# when no Python changed.
+#
+# The report also reaches the PR as a sticky comment plus a label while new
+# errors exist. On PRs from branches of this repository that happens in this
+# job. On PRs from forks the token is read-only, so this job only uploads the
+# report as an artifact and comment-bricks-alignment.yml, running on
+# workflow_run with a write token and never touching the PR code, posts it.
+
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      bricks-ref:
+        description: "app-bricks-py branch, tag or commit to check the examples against"
+        required: false
+        default: "main"
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: bricks-alignment-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.13"
+  NODE_VERSION: "22"
+  BRICKS_REF: ${{ github.event_name == 'workflow_dispatch' && inputs.bricks-ref || 'main' }}
+
+jobs:
+  bricks-alignment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout examples head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          path: head
+
+      - name: Checkout examples base
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: base
+
+      - name: Checkout app-bricks-py
+        uses: actions/checkout@v4
+        with:
+          repository: arduino/app-bricks-py
+          ref: ${{ env.BRICKS_REF }}
+          path: bricks
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install system build dependencies
+        # Headers needed to compile the audio C extensions (pyalsaaudio, pyaudio),
+        # same packages installed by 'task install:deps' in app-bricks-py.
+        run: sudo apt-get update -q && sudo apt-get install -y -q --no-install-recommends libasound2-dev portaudio19-dev
+
+      - name: Build check venv
+        run: |
+          python -m venv checkenv
+          # Library dependencies (core + [all] extra), without the library itself:
+          # pyright resolves the library from the app-bricks-py sources.
+          python bricks/scripts/check_examples_alignment.py deps --pyproject bricks/pyproject.toml > library-deps.txt
+          # Runtime baseline of the app container + library dependencies.
+          # Tolerant per-package install: a package that still fails to build on
+          # the runner only degrades the affected types to Unknown, it must not
+          # fail the job.
+          cat bricks/containers/base/python-base/requirements-base.txt library-deps.txt | while IFS= read -r pkg; do
+            pkg="${pkg%%#*}"
+            [ -z "${pkg// /}" ] && continue
+            ./checkenv/bin/pip install -q "$pkg" < /dev/null || echo "::notice::package not installed in the check venv: $pkg"
+          done
+          # Per-example dependencies, from both sides of the PR.
+          find head base -path '*/python/requirements.txt' 2>/dev/null -exec ./checkenv/bin/pip install -q -r {} \;
+
+      - name: Run pyright on the base
+        if: github.event_name == 'pull_request'
+        run: python bricks/scripts/check_examples_alignment.py run --examples-dir base --library-src bricks/src --python checkenv/bin/python --out base.json
+
+      - name: Use an empty base for the manual run
+        # Without a PR base every error of the selected ref is reported as new.
+        if: github.event_name != 'pull_request'
+        run: |
+          echo '{"generalDiagnostics": []}' > base.json
+
+      - name: Run pyright on the head
+        run: python bricks/scripts/check_examples_alignment.py run --examples-dir head --library-src bricks/src --python checkenv/bin/python --out head.json
+
+      - name: Upload run outputs
+        id: reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: bricks-alignment-reports
+          path: |
+            base.json
+            head.json
+          retention-days: 15
+
+      - name: Report alignment diff
+        id: diff
+        # The verdict is recorded here and enforced by the last step, so the
+        # coverage report and the PR comment are produced even when the check
+        # fails. The report goes to a file first: it feeds both the job summary
+        # and the PR comment. Values reach the shell through env, never by
+        # interpolating expressions into the script (a ref name is user input).
+        env:
+          EXAMPLES_LABEL: ${{ github.event_name == 'pull_request' && 'this PR' || github.ref_name }}
+          REPORTS_URL: ${{ steps.reports.outputs.artifact-url }}
+        run: |
+          script=bricks/scripts/check_examples_alignment.py
+          options=()
+          # These options exist in the script only from a given app-bricks-py
+          # revision: keep working against older refs without them.
+          if python "$script" diff --help | grep -q -- --examples-label; then
+            options+=(
+              --examples-label "$EXAMPLES_LABEL"
+              --library-label "[app-bricks-py](https://github.com/arduino/app-bricks-py)@$BRICKS_REF"
+            )
+          fi
+          if python "$script" diff --help | grep -q -- --fail-on-new; then
+            options+=(--fail-on-new --annotate-files)
+          fi
+          status=passed
+          python "$script" diff --base base.json --head head.json --summary report.md "${options[@]}" \
+            --reports-url "$REPORTS_URL" || status=failed
+          # Older scripts never fail: derive the verdict from the report itself.
+          if [ "$status" = passed ] && ! grep -q '(\*\*0 new\*\*' report.md; then
+            status=failed
+          fi
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          cat report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Report bricks example coverage
+        run: |
+          python bricks/scripts/check_examples_alignment.py coverage --examples-dir head --head-src bricks/src --summary coverage.md
+          cat coverage.md >> "$GITHUB_STEP_SUMMARY"
+          cat coverage.md >> report.md
+
+      - name: Save the report for the PR comment
+        # Consumed by comment-bricks-alignment.yml for PRs from forks, where this
+        # job cannot write. The metadata lets that workflow identify the PR and
+        # verify it against the head SHA of this run before posting anything.
+        if: github.event_name == 'pull_request'
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          STATUS: ${{ steps.diff.outputs.status }}
+        run: |
+          jq -n --arg pr "$PR_NUMBER" --arg sha "$HEAD_SHA" --arg repo "$HEAD_REPO" --arg status "$STATUS" \
+            '{pr_number: ($pr | tonumber), head_sha: $sha, head_repo: $repo, status: $status}' > metadata.json
+
+      - name: Upload the report
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: bricks-alignment-report
+          path: |
+            report.md
+            metadata.json
+          retention-days: 3
+
+      - name: Post the report on the PR
+        # Only for PRs from this repository: on a fork PR the token cannot write,
+        # so the step is skipped and comment-bricks-alignment.yml takes over. Any
+        # other hiccup (API error, missing label permission) must not change the
+        # verdict either, hence continue-on-error: the job summary always carries
+        # the same report.
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          STATUS: ${{ steps.diff.outputs.status }}
+          LABEL: bricks-misaligned
+        run: |
+          marker='<!-- bricks-alignment -->'
+          { echo "$marker"; cat report.md; } > comment.md
+          # GitHub caps comment bodies at 65536 characters.
+          if [ "$(wc -c < comment.md)" -gt 60000 ]; then
+            head -c 60000 comment.md > comment.trimmed.md
+            printf '\n\n… report truncated, the complete one is in the job summary.\n' >> comment.trimmed.md
+            mv comment.trimmed.md comment.md
+          fi
+          # One sticky comment per PR, updated in place at every run.
+          comment_id=$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/comments" --paginate \
+            --jq "first(.[] | select(.body | startswith(\"$marker\")) | .id)")
+          if [ -n "$comment_id" ]; then
+            gh api -X PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$comment_id" -F body=@comment.md > /dev/null
+          else
+            gh api -X POST "repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/comments" -F body=@comment.md > /dev/null
+          fi
+          # The label flags the PR while it introduces new errors, and goes away once they are gone.
+          if [ "$STATUS" = failed ]; then
+            gh label create "$LABEL" --color D93F0B --force \
+              --description "Uses the app-bricks library in a way its API contract does not support (see the alignment report comment)"
+            gh pr edit "$PR_NUMBER" --add-label "$LABEL"
+          else
+            gh pr edit "$PR_NUMBER" --remove-label "$LABEL" || true
+          fi
+
+      - name: Fail on new errors
+        if: steps.diff.outputs.status == 'failed'
+        run: |
+          echo "::error::the examples introduce errors against app-bricks-py@$BRICKS_REF: see the alignment report in the job summary"
+          exit 1
