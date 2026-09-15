@@ -5,6 +5,7 @@ vars:
   REUSE_VERSION: '5.0.2'
   LICENSE_VENV_DIR: '.venv'
   REUSE_VENV_DIR: '.reuse-venv'
+  BRICKS_DIR: '../app-bricks-py'
 
 tasks:
   fmt:
@@ -56,6 +57,21 @@ tasks:
     desc: Fail when examples.json does not match the filesystem
     cmds:
       - python3 scripts/examples_manifest.py --check
+
+  check:bricks-alignment:
+    desc: "Check the examples alignment against the app-bricks-py checkout in {{.BRICKS_DIR}} (see its scripts/check_examples_alignment.py --help)"
+    cmds:
+      - python3 "{{.BRICKS_DIR}}/scripts/check_examples_alignment.py" {{.CLI_ARGS}}
+
+  check:bricks-alignment:run:
+    desc: Run pyright over the examples code against the app-bricks-py checkout
+    cmds:
+      - python3 "{{.BRICKS_DIR}}/scripts/check_examples_alignment.py" run --examples-dir . --library-src "{{.BRICKS_DIR}}/src" --python "{{.BRICKS_DIR}}/.venv/bin/python" {{.CLI_ARGS}}
+
+  check:bricks-alignment:coverage:
+    desc: Report the app-bricks-py bricks that have no examples in this repository
+    cmds:
+      - python3 "{{.BRICKS_DIR}}/scripts/check_examples_alignment.py" coverage --examples-dir . --head-src "{{.BRICKS_DIR}}/src" {{.CLI_ARGS}}
 
   install-bricks:
     desc: Install a specific bricks version (e.g. task install-bricks -- 0.8.0rc2)
