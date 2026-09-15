@@ -20,9 +20,10 @@ name: Check bricks alignment
 # when no Python changed.
 #
 # The report also reaches the PR as a sticky comment plus a label while new
-# errors exist, but only for PRs opened from branches of this repository: on
-# PRs from forks the token is read-only, so that step is skipped and the job
-# summary and the inline annotations remain the places to look.
+# errors exist. On PRs from branches of this repository that happens in this
+# job. On PRs from forks the token is read-only, so this job only uploads the
+# report as an artifact and comment-bricks-alignment.yml, running on
+# workflow_run with a write token and never touching the PR code, posts it.
 
 on:
   pull_request:
@@ -132,7 +133,11 @@ jobs:
         # The verdict is recorded here and enforced by the last step, so the
         # coverage report and the PR comment are produced even when the check
         # fails. The report goes to a file first: it feeds both the job summary
-        # and the PR comment.
+        # and the PR comment. Values reach the shell through env, never by
+        # interpolating expressions into the script (a ref name is user input).
+        env:
+          EXAMPLES_LABEL: ${{ github.event_name == 'pull_request' && 'this PR' || github.ref_name }}
+          REPORTS_URL: ${{ steps.reports.outputs.artifact-url }}
         run: |
           script=bricks/scripts/check_examples_alignment.py
           options=()
@@ -140,8 +145,8 @@ jobs:
           # revision: keep working against older refs without them.
           if python "$script" diff --help | grep -q -- --examples-label; then
             options+=(
-              --examples-label "${{ github.event_name == 'pull_request' && 'this PR' || github.ref_name }}"
-              --library-label "[app-bricks-py](https://github.com/arduino/app-bricks-py)@${{ env.BRICKS_REF }}"
+              --examples-label "$EXAMPLES_LABEL"
+              --library-label "[app-bricks-py](https://github.com/arduino/app-bricks-py)@$BRICKS_REF"
             )
           fi
           if python "$script" diff --help | grep -q -- --fail-on-new; then
@@ -149,7 +154,7 @@ jobs:
           fi
           status=passed
           python "$script" diff --base base.json --head head.json --summary report.md "${options[@]}" \
-            --reports-url "${{ steps.reports.outputs.artifact-url }}" || status=failed
+            --reports-url "$REPORTS_URL" || status=failed
           # Older scripts never fail: derive the verdict from the report itself.
           if [ "$status" = passed ] && ! grep -q '(\*\*0 new\*\*' report.md; then
             status=failed
@@ -163,11 +168,36 @@ jobs:
           cat coverage.md >> "$GITHUB_STEP_SUMMARY"
           cat coverage.md >> report.md
 
+      - name: Save the report for the PR comment
+        # Consumed by comment-bricks-alignment.yml for PRs from forks, where this
+        # job cannot write. The metadata lets that workflow identify the PR and
+        # verify it against the head SHA of this run before posting anything.
+        if: github.event_name == 'pull_request'
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          STATUS: ${{ steps.diff.outputs.status }}
+        run: |
+          jq -n --arg pr "$PR_NUMBER" --arg sha "$HEAD_SHA" --arg repo "$HEAD_REPO" --arg status "$STATUS" \
+            '{pr_number: ($pr | tonumber), head_sha: $sha, head_repo: $repo, status: $status}' > metadata.json
+
+      - name: Upload the report
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: bricks-alignment-report
+          path: |
+            report.md
+            metadata.json
+          retention-days: 3
+
       - name: Post the report on the PR
         # Only for PRs from this repository: on a fork PR the token cannot write,
-        # so the step is skipped rather than failed. Any other hiccup (API error,
-        # missing label permission) must not change the verdict either, hence
-        # continue-on-error: the job summary always carries the same report.
+        # so the step is skipped and comment-bricks-alignment.yml takes over. Any
+        # other hiccup (API error, missing label permission) must not change the
+        # verdict either, hence continue-on-error: the job summary always carries
+        # the same report.
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
         continue-on-error: true
         env:
@@ -204,5 +234,5 @@ jobs:
       - name: Fail on new errors
         if: steps.diff.outputs.status == 'failed'
         run: |
-          echo "::error::the examples introduce errors against app-bricks-py@${BRICKS_REF}: see the alignment report in the job summary"
+          echo "::error::the examples introduce errors against app-bricks-py@$BRICKS_REF: see the alignment report in the job summary"
           exit 1

@@ -22,7 +22,7 @@ To list the bricks that have no examples yet:
 task check:bricks-alignment:coverage
 ```
 
-On pull requests the `check-bricks-alignment.yml` workflow runs the same analysis against the `main` branch of app-bricks-py and **fails when the PR introduces new errors** (errors already on `main` are reported but tolerated). It runs on every PR, from forks too, and is meant to be a required status check. The report goes to the job summary, inline on the changed files, and, for PRs opened from branches of this repository, to a sticky comment with the `bricks-misaligned` label while new errors exist.
+On pull requests the `check-bricks-alignment.yml` workflow runs the same analysis against the `main` branch of app-bricks-py and **fails when the PR introduces new errors** (errors already on `main` are reported but tolerated). It runs on every PR, from forks too, and is meant to be a required status check. The report goes to the job summary, inline on the changed files, and to a sticky comment on the PR with the `bricks-misaligned` label while new errors exist. On PRs from forks the analysis job runs with a read-only token, so the comment is posted by `comment-bricks-alignment.yml`, which runs afterwards with a write token and never executes code from the PR.
 
 When an example depends on a library change, merge that change in app-bricks-py first, then rebase: the library-side check is informative and never blocks, which is what keeps the two repositories from waiting on each other. The workflow can also be run manually against another app-bricks-py ref to verify an examples branch ahead of that merge. See `task check:bricks-alignment -- --help` for the other modes of the check script (JSON output, base/head diff).
 
