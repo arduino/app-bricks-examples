@@ -2,13 +2,15 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+from typing import Any
+
 from arduino.app_utils import App
 from arduino.app_bricks.tps_location_api import TPSLocationAPI
 
 location_api = TPSLocationAPI()
 
 
-def on_location(result, error):
+def on_location(result: dict[str, Any] | None, error: Exception | None) -> None:
     """Receive the location once the background lookup completes."""
     if error:
         print(f"Location lookup failed: {error}")
