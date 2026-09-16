@@ -1,0 +1,6 @@
+name: Get device location
+icon: 📍
+description: "Get device location using the TPS Device Location API. Requires the AUTH_KEY and AUTH_USER brick variables."
+
+bricks:
+  - arduino:tps_location_api

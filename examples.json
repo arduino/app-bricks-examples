@@ -447,6 +447,20 @@
       ]
     },
     {
+      "brick": "arduino:tps_location_api",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/tps_location_api/01_get_location_sync"
+        },
+        {
+          "id": "examples:bricks/arduino/tps_location_api/02_get_location_async"
+        },
+        {
+          "id": "examples:bricks/arduino/tps_location_api/03_get_location_periodic"
+        }
+      ]
+    },
+    {
       "brick": "arduino:tts",
       "examples": [
         {
