@@ -16,6 +16,10 @@ def on_location(result: dict[str, Any] | None, error: Exception | None) -> None:
         print(f"Location lookup failed: {error}")
         return
 
+    if result is None:
+        print("Location result is None")
+        return
+
     location = result["location"]
     print(f"Location: lat={location['lat']}, lng={location['lng']}")
     print(f"Accuracy: {result['accuracy']}m from {result['nap']} access points (took {result['elapsed_ms']}ms)")
