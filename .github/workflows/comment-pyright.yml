@@ -1,12 +1,11 @@
-name: Comment bricks alignment
+name: Comment pyright checks
 
-# Posts the bricks alignment report on pull requests opened from forks. The
-# analysis runs in check-bricks-alignment.yml on the pull_request event, where
-# the token is read-only on fork PRs (that job installs the requirements of the
-# examples in the PR, i.e. code coming from the PR, so it must stay
-# unprivileged). This workflow runs afterwards on workflow_run, in the context
-# of this repository with a write token, and posts the report the analysis
-# uploaded as an artifact.
+# Posts the pyright report on pull requests opened from forks. The analysis runs
+# in check-pyright.yml on the pull_request event, where the token is read-only on
+# fork PRs (that job installs the requirements of the examples in the PR, i.e.
+# code coming from the PR, so it must stay unprivileged). This workflow runs
+# afterwards on workflow_run, in the context of this repository with a write
+# token, and posts the report the analysis uploaded as an artifact.
 #
 # Safety invariants, since the artifact was produced by a run that installed the
 # PR's dependencies and every byte of it is untrusted:
@@ -24,7 +23,7 @@ name: Comment bricks alignment
 
 on:
   workflow_run:
-    workflows: ["Check bricks alignment"]
+    workflows: ["Pyright checks"]
     types: [completed]
 
 permissions:
@@ -47,7 +46,7 @@ jobs:
         continue-on-error: true
         uses: actions/download-artifact@v4
         with:
-          name: bricks-alignment-report
+          name: pyright-report
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ github.token }}
           path: report
@@ -63,19 +62,21 @@ jobs:
           pr_number=$(jq -r '.pr_number' report/metadata.json)
           status=$(jq -r '.status' report/metadata.json)
           if ! [[ "$pr_number" =~ ^[0-9]+$ && "$status" =~ ^(passed|failed)$ ]]; then
-            echo "::warning::bricks alignment: malformed metadata in the report artifact, not posting"
+            echo "::warning::pyright checks: malformed metadata in the report artifact, not posting"
             exit 0
           fi
           # The artifact could name any PR: trust it only if that PR's head is the
           # very commit the analysis run checked out.
           read -r pr_sha pr_repo < <(gh api "repos/$GITHUB_REPOSITORY/pulls/$pr_number" --jq '"\(.head.sha) \(.head.repo.full_name)"')
           if [ "$pr_sha" != "$RUN_HEAD_SHA" ] || [ "$pr_repo" != "$RUN_HEAD_REPO" ]; then
-            echo "::warning::bricks alignment: PR #$pr_number head ($pr_repo@$pr_sha) does not match the analyzed head ($RUN_HEAD_REPO@$RUN_HEAD_SHA), not posting"
+            echo "::warning::pyright checks: PR #$pr_number head ($pr_repo@$pr_sha) does not match the analyzed head ($RUN_HEAD_REPO@$RUN_HEAD_SHA), not posting"
             exit 0
           fi
-          echo "pr_number=$pr_number" >> "$GITHUB_OUTPUT"
-          echo "status=$status" >> "$GITHUB_OUTPUT"
-          echo "verified=true" >> "$GITHUB_OUTPUT"
+          {
+            echo "pr_number=$pr_number"
+            echo "status=$status"
+            echo "verified=true"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Post the report on the PR
         if: steps.verify.outputs.verified == 'true'
@@ -85,7 +86,7 @@ jobs:
           STATUS: ${{ steps.verify.outputs.status }}
           LABEL: bricks-misaligned
         run: |
-          marker='<!-- bricks-alignment -->'
+          marker='<!-- pyright-checks -->'
           { echo "$marker"; cat report/report.md; } > comment.md
           # GitHub caps comment bodies at 65536 characters.
           if [ "$(wc -c < comment.md)" -gt 60000 ]; then
@@ -104,7 +105,7 @@ jobs:
           # The label flags the PR while it introduces new errors, and goes away once they are gone.
           if [ "$STATUS" = failed ]; then
             gh label create "$LABEL" --color D93F0B --force \
-              --description "Uses the app-bricks library in a way its API contract does not support (see the alignment report comment)"
+              --description "Uses the app-bricks library in a way its API contract does not support (see the pyright report comment)"
             gh pr edit "$PR_NUMBER" --add-label "$LABEL"
           else
             gh pr edit "$PR_NUMBER" --remove-label "$LABEL" || true

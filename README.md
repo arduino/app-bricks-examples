@@ -8,23 +8,19 @@ You can find all the learn articles in the [learn-docs folder](./learn-docs/).
 
 To learn more about Arduino App Lab, what it can do, and all its features, go to [docs.arduino.cc/software/app-lab](https://docs.arduino.cc/software/app-lab/).
 
-## Check the alignment with app-bricks-py
+## Type-check the examples against app-bricks-py
 
-The examples must use the bricks library as its API contract allows. Pyright analyzes the examples' Python sources resolving the library from a source checkout of [app-bricks-py](https://github.com/arduino/app-bricks-py): clone that repository next to this one, install its dependencies in its venv (`pip install -e ".[dev]"` from that checkout) and run:
-
-```sh
-task check:bricks-alignment:run
-```
-
-To list the bricks that have no examples yet:
+The examples must use the bricks library as its API contract allows. Pyright analyzes their Python sources resolving the library from a source checkout of [app-bricks-py](https://github.com/arduino/app-bricks-py), with the rules the library ships in its `pyright-rules.json` (profile `api-user`, the one App Lab applies to user apps too). Clone that repository next to this one, install its dependencies in its venv (`pip install -e ".[dev]"` from that checkout) and run:
 
 ```sh
-task check:bricks-alignment:coverage
+task check:typing
 ```
 
-On pull requests the `check-bricks-alignment.yml` workflow runs the same analysis against the `main` branch of app-bricks-py and **fails when the PR introduces new errors** (errors already on `main` are reported but tolerated). It runs on every PR, from forks too, and is meant to be a required status check. The report goes to the job summary, inline on the changed files, and to a sticky comment on the PR with the `bricks-misaligned` label while new errors exist. On PRs from forks the analysis job runs with a read-only token, so the comment is posted by `comment-bricks-alignment.yml`, which runs afterwards with a write token and never executes code from the PR.
+It analyzes the examples, then reports the bricks that have no examples yet. Extra arguments go to the analysis (`task check:typing -- --details`); see `python3 ../app-bricks-py/scripts/check_pyright.py --help` for the other modes, including the PR base/head `diff` the workflow uses.
 
-When an example depends on a library change, merge that change in app-bricks-py first, then rebase: the library-side check is informative and never blocks, which is what keeps the two repositories from waiting on each other. The workflow can also be run manually against another app-bricks-py ref to verify an examples branch ahead of that merge. See `task check:bricks-alignment -- --help` for the other modes of the check script (JSON output, base/head diff).
+On pull requests the `check-pyright.yml` workflow runs the same analysis against the `main` branch of app-bricks-py and **fails when the PR introduces new errors** (errors already on `main` are reported but tolerated; new pyright warnings are reported as a warning, never as a failure). It runs on every PR, from forks too, and is meant to be a required status check. One report for the analysis and the coverage goes to the job summary, inline on the changed files, and to a sticky comment on the PR with the `bricks-misaligned` label while new errors exist. On PRs from forks the analysis job runs with a read-only token, so the comment is posted by `comment-pyright.yml`, which runs afterwards with a write token and never executes code from the PR.
+
+When an example depends on a library change, merge that change in app-bricks-py first, then rebase: the library-side check is informative and never blocks, which is what keeps the two repositories from waiting on each other. The workflow can also be run manually against another app-bricks-py ref to verify an examples branch ahead of that merge.
 
 ## Update licenses
 
