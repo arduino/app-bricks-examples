@@ -22,6 +22,15 @@ On pull requests the `check-pyright.yml` workflow runs the same analysis against
 
 When an example depends on a library change, merge that change in app-bricks-py first, then rebase: the library-side check is informative and never blocks, which is what keeps the two repositories from waiting on each other. The workflow can also be run manually against another app-bricks-py ref to verify an examples branch ahead of that merge.
 
+## Release
+
+Releases are published by the `release.yml` workflow, from `main` only, as in app-bricks-py: push a version tag (`0.13.0`, `0.13.0rc3`, PEP 440 like the app-bricks-py tags) or run the workflow by hand from `main` giving the version, in which case the tag is created by the release itself. A version containing `rc` is published as a pre-release. The release ships `app-bricks-examples-<version>.tar.gz` and `.zip` (with `SHA256SUMS`): the `core-and-foundational`, `inspirational` and `bricks` trees, `examples.json`, `requirements.txt`, the `.licenses/` records and the license texts. `task build VERSION=<version>` builds the same archive locally in `dist/`.
+
+Each release pins one app-bricks-py release in `requirements.txt` and is type-checked (pyright, profile `api-user`, the same analysis as on pull requests) against the sources of that release, with `examples.json` verified as well. Both checks block the release; the `skip-checks` input of the manual run bypasses them and the release notes say so. The `main` branch of app-bricks-py is never used as a reference.
+
+- **Stable release**: the pin on `main` must be the latest stable app-bricks-py, where the daily `update-bricks-file.yml` workflow keeps it through a PR. When it is not, the release opens that PR and stops: merge it, then release again.
+- **Pre-release**: `requirements.txt` is pinned in the release workspace only, to the app-bricks-py version given as `bricks-version` or to its latest pre-release by default, and the license records are refreshed (`task bricks:pin -- <version>`). Nothing is committed: `main` keeps the stable pin, which the license checks require.
+
 ## Update licenses
 
 ### Requirements

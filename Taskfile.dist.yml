@@ -58,6 +58,55 @@ tasks:
     cmds:
       - python3 scripts/examples_manifest.py --check
 
+  build:
+    desc: "Build the release archive in dist/ (task build VERSION=0.13.0rc3): the trees the board tooling installs, the manifest, requirements.txt and the license records"
+    requires:
+      vars: [VERSION]
+    vars:
+      DIST_NAME: app-bricks-examples-{{.VERSION}}
+    cmds:
+      - rm -rf dist
+      - mkdir -p dist
+      # Tracked files only, from HEAD: no local leftovers (__pycache__, .DS_Store, *.db) end up in the package.
+      - git archive --format=tar --prefix=app-bricks-examples/ HEAD core-and-foundational inspirational bricks examples.json LICENSE.txt LICENSES | tar -x -C dist
+      # From the working tree, not HEAD: a pre-release pins them to an app-bricks-py pre-release
+      # in the workspace only (task bricks:pin), main keeps the stable pin.
+      - cp requirements.txt dist/app-bricks-examples/
+      - cp -r .licenses dist/app-bricks-examples/
+      - tar -C dist -czf dist/{{.DIST_NAME}}.tar.gz app-bricks-examples
+      - cd dist && zip -qr {{.DIST_NAME}}.zip app-bricks-examples
+      - cd dist && sha256sum {{.DIST_NAME}}.tar.gz {{.DIST_NAME}}.zip > SHA256SUMS
+      - rm -rf dist/app-bricks-examples
+      - ls -la dist
+
+  bricks:pin:
+    desc: "Pin requirements.txt to an app-bricks-py release and refresh the dependency license records (task bricks:pin -- 0.13.0rc3)"
+    cmds:
+      - |
+        VERSION={{.CLI_ARGS}}
+        if [ -z "$VERSION" ]; then
+          echo "Usage: task bricks:pin -- <version>"
+          exit 1
+        fi
+        BASE="https://github.com/arduino/app-bricks-py/releases/download"
+        WHEEL="arduino_app_bricks-${VERSION}-py3-none-any.whl"
+        URL=""
+        # bricks/* is the current library release tag prefix, release/* the historical one.
+        for PREFIX in bricks release; do
+          CANDIDATE="${BASE}/${PREFIX}%2F${VERSION}/${WHEEL}"
+          if curl -sfIL -o /dev/null "$CANDIDATE"; then
+            URL="$CANDIDATE"
+            break
+          fi
+        done
+        if [ -z "$URL" ]; then
+          echo "No app-bricks-py release ${VERSION} found (looked for bricks/${VERSION} and release/${VERSION})"
+          exit 1
+        fi
+        sed -i -E "s|^arduino_app_bricks @ .*|arduino_app_bricks @ ${URL}|" requirements.txt
+        echo "requirements.txt pinned to ${URL}"
+      - task: license:deps
+
   check:typing:
     desc: "Type-check the examples against the app-bricks-py checkout in {{.BRICKS_DIR}} (pyright, profile api-user), then report the bricks without examples. Extra args go to the run mode, see {{.BRICKS_DIR}}/scripts/check_pyright.py --help"
     cmds:
