@@ -364,10 +364,13 @@
       "brick": "arduino:ocr",
       "examples": [
         {
-          "id": "examples:bricks/arduino/ocr/01_simple_ocr"
+          "id": "examples:bricks/arduino/ocr/01_simple_text_extraction"
         },
         {
-          "id": "examples:bricks/arduino/ocr/02_ocr_text_orientation"
+          "id": "examples:bricks/arduino/ocr/02_text_orientation"
+        },
+        {
+          "id": "examples:bricks/arduino/ocr/03_show_detection_areas"
         }
       ]
     },
