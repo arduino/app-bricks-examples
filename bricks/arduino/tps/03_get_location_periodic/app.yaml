@@ -3,4 +3,4 @@ icon: 📍
 description: "Get device location at a regular interval using the TPS Device Location API. Requires the AUTH_KEY and AUTH_USER brick variables."
 
 bricks:
-  - arduino:tps_location_api
+  - arduino:tps

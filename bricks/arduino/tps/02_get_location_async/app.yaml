@@ -3,4 +3,4 @@ icon: 📍
 description: "Get device location asynchronously with a callback using the TPS Device Location API. Requires the AUTH_KEY and AUTH_USER brick variables."
 
 bricks:
-  - arduino:tps_location_api
+  - arduino:tps
