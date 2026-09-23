@@ -16,7 +16,7 @@ published) with the previous release:
 "Previous" is by version order, not by date: the greatest existing tag lower than
 the version being released, so a re-run for an existing version compares with the
 release before it. The notes hold the table of the examples added, fixed and
-removed (an example is a directory holding an app.yaml), the commits in between,
+renamed and removed (an example is a directory holding an app.yaml), the commits in between,
 and the link to the full diff. Links point at the version tag, which exists once
 the release is published.
 
@@ -74,31 +74,73 @@ def example_of(path: str, examples: set[str]) -> str | None:
     return max(matches, key=len) if matches else None
 
 
+def example_changes(previous: str, head: str, examples: set[str]) -> tuple[dict[str, str], set[str]]:
+    """Renames and content changes between two refs, at the example level.
+
+    Git rename detection runs on every file of the examples trees: an old example
+    whose files were mostly renamed into one new example is that example renamed,
+    however much its app.yaml changed. The second value holds the examples (by
+    their head path, or their previous path when removed) with any content change:
+    a modified, added or deleted file, or a renamed file that is not identical.
+    """
+    votes: dict[str, dict[str, int]] = {}
+    touched: set[str] = set()
+    for line in git("diff", "-M", "--name-status", previous, head, "--", *EXAMPLES_ROOTS).split("\n"):
+        if not line:
+            continue
+        status, *paths = line.split("\t")
+        owners = [example_of(path, examples) for path in paths]
+        if status.startswith("R") and owners[0] and owners[1]:
+            votes.setdefault(owners[0], {}).setdefault(owners[1], 0)
+            votes[owners[0]][owners[1]] += 1
+            if status != "R100":
+                touched.add(owners[1])
+        else:
+            touched.update(owner for owner in owners if owner)
+    renamed: dict[str, str] = {}
+    taken: set[str] = set()
+    for old in sorted(votes):
+        for new, _ in sorted(votes[old].items(), key=lambda item: -item[1]):
+            if new != old and new not in taken:
+                renamed[old] = new
+                taken.add(new)
+                break
+    return renamed, touched
+
+
 def examples_table(previous: str | None, head: str, repo: str, version: str) -> list[str]:
-    """Three columns, one list of examples each: new, fixed (any file changed), removed."""
+    """One column per kind of change, each listing its examples: new, fixed, renamed, removed."""
     head_examples = examples_at(head)
     if previous is None:
-        new, fixed, removed = sorted(head_examples), [], []
+        new, fixed, renamed, removed = sorted(head_examples), [], [], []
     else:
         prev_examples = examples_at(previous)
-        changed = git("diff", "--name-only", previous, head, "--", *EXAMPLES_ROOTS).split("\n")
-        touched = {example_of(f, head_examples | prev_examples) for f in changed if f}
-        new = sorted(head_examples - prev_examples)
-        fixed = sorted(e for e in head_examples & prev_examples if e in touched)
-        removed = sorted(prev_examples - head_examples)
-    if not (new or fixed or removed):
-        return ["No example added, fixed or removed.", ""]
+        renames, touched = example_changes(previous, head, head_examples | prev_examples)
+        # A renamed example is neither new nor removed; it is fixed too when its
+        # content changed, which the new name in app.yaml alone already does.
+        renames = {old: new for old, new in renames.items() if old in prev_examples - head_examples and new in head_examples - prev_examples}
+        new = sorted(head_examples - prev_examples - set(renames.values()))
+        fixed = sorted(e for e in (head_examples & prev_examples) | set(renames.values()) if e in touched)
+        renamed = [f"`{old}` → {link(new, repo, version)}" for old, new in sorted(renames.items())]
+        removed = sorted(prev_examples - head_examples - set(renames))
+    if not (new or fixed or renamed or removed):
+        return ["No example added, fixed, renamed or removed.", ""]
 
-    def cell(examples: list[str], i: int, ref: str) -> str:
-        if i >= len(examples):
-            return ""
-        return f"[`{examples[i]}`](https://github.com/{repo}/tree/{ref}/{examples[i]})"
-
-    rows = [
-        f"| {cell(new, i, version)} | {cell(fixed, i, version)} | {cell(removed, i, previous or version)} |"
-        for i in range(max(len(new), len(fixed), len(removed)))
+    columns = [
+        [link(e, repo, version) for e in new],
+        [link(e, repo, version) for e in fixed],
+        renamed,
+        [link(e, repo, previous or version) for e in removed],
     ]
-    return ["| New examples | Examples fixed | Examples removed |", "|---|---|---|", *rows, ""]
+    rows = [
+        "| " + " | ".join(column[i] if i < len(column) else "" for column in columns) + " |"
+        for i in range(max(len(column) for column in columns))
+    ]
+    return ["| New examples | Examples fixed | Examples renamed | Examples removed |", "|---|---|---|---|", *rows, ""]
+
+
+def link(example: str, repo: str, ref: str) -> str:
+    return f"[`{example}`](https://github.com/{repo}/tree/{ref}/{example})"
 
 
 def commits_list(previous: str | None, head: str, repo: str) -> list[str]:
