@@ -254,6 +254,14 @@ jobs:
         # the library itself, which pyright resolves from the app-bricks-py sources.
         if: env.SKIP_CHECKS != 'true'
         run: |
+          # The script, its rules and the runtime baseline ship with app-bricks-py
+          # since 0.13.0rc1: an older release cannot be checked.
+          for f in scripts/check_pyright.py pyright-rules.json containers/base/python-base/requirements-base.txt; do
+            if [[ ! -f "app-bricks-py/$f" ]]; then
+              echo "::error::app-bricks-py@$BRICKS_REF has no $f: releases before 0.13.0 predate the pyright tooling and cannot be checked"
+              exit 1
+            fi
+          done
           python -m venv checkenv
           python app-bricks-py/scripts/check_pyright.py deps --pyproject app-bricks-py/pyproject.toml > library-deps.txt
           cat app-bricks-py/containers/base/python-base/requirements-base.txt library-deps.txt | while IFS= read -r pkg; do
