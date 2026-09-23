@@ -320,14 +320,12 @@ jobs:
             CHECKS="passed"
           fi
           if [[ "$PRERELEASE" == "true" ]]; then
-            PIN_NOTE="pre-release, pinned in the package only: main keeps the stable pin"
+            PIN_NOTE="pre-release, pinned in the package only"
           else
             PIN_NOTE="latest stable"
           fi
           cat > ../header.md <<EOF
           ## Package
-
-          \`app-bricks-examples-$VERSION.tar.gz\` and \`.zip\` (checksums in \`SHA256SUMS\`) hold \`core-and-foundational/\`, \`inspirational/\`, \`bricks/\`, \`learn-docs/\`, \`examples.json\`, \`requirements.txt\` and the licensing files (\`.licenses/\`, \`.licensed.yml\`, \`LICENSE.txt\`, \`LICENSES/\`, \`REUSE.toml\`).
 
           - app-bricks-py pinned in \`requirements.txt\`: **$BRICKS_VERSION** ($PIN_NOTE)
           - API check (pyright, profile api-user) against [app-bricks-py@$BRICKS_REF]($SERVER_URL/arduino/app-bricks-py/releases/tag/${BRICKS_REF/\//%2F}): $CHECKS
