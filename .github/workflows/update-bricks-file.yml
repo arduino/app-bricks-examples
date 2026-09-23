@@ -1,9 +1,18 @@
 name: Update bricks dependency to the latest stable version
+
+# Keeps requirements.txt on main pinned to the latest stable app-bricks-py
+# release, with the dependency license records refreshed for it, through a pull
+# request. Runs daily, by hand, and from release.yml when a stable release of the
+# examples finds the pin on main stale. Pre-releases never reach main: release.yml
+# pins them in the released package only (task bricks:pin in its workspace).
+
 on:
   workflow_dispatch:
+  workflow_call:
   schedule:
     # Run every day at 8:00 AM UTC
     - cron: '0 8 * * *'
+
 permissions:
   contents: write
   pull-requests: write
@@ -39,79 +48,61 @@ jobs:
             echo "::error::Invalid version format: $LATEST_RELEASE (expected X.Y.Z)"
             exit 1
           fi
-          echo "LATEST_TAG_ENCODED=${LATEST_TAG/\//%2F}" >> $GITHUB_OUTPUT
           echo "LATEST_RELEASE=$LATEST_RELEASE" >> $GITHUB_OUTPUT
 
-      - name: Check if there is an existing branch for the latest version
-        id: check-branch
+      - name: Decide whether an update PR is needed
+        id: plan
+        env:
+          LATEST_RELEASE: ${{ steps.get-latest-version.outputs.LATEST_RELEASE }}
         run: |
-          LATEST_RELEASE=${{ steps.get-latest-version.outputs.LATEST_RELEASE }}
-          if git ls-remote --heads origin update-bricks-${LATEST_RELEASE} | grep -q update-bricks-${LATEST_RELEASE}; then
-            echo "Branch update-bricks-${LATEST_RELEASE} already exists."
-            echo "branch_exists=true" >> $GITHUB_OUTPUT
+          if git ls-remote --heads origin "update-bricks-${LATEST_RELEASE}" | grep -q "update-bricks-${LATEST_RELEASE}"; then
+            echo "Branch update-bricks-${LATEST_RELEASE} already exists: the PR is pending."
+            echo "update=false" >> $GITHUB_OUTPUT
+            exit 0
           fi
-
-      - name: Check if current version is up to date
-        if: steps.check-branch.outputs.branch_exists != 'true'
-        id: check-update
-        run: |
-          LATEST_RELEASE=${{ steps.get-latest-version.outputs.LATEST_RELEASE }}
           CURRENT_VERSION=$(grep 'arduino_app_bricks' requirements.txt | sed -E 's/.*%2F([^/]+)\/.*/\1/')
           echo "CURRENT_VERSION=$CURRENT_VERSION"
           if [ "$CURRENT_VERSION" = "$LATEST_RELEASE" ]; then
             echo "No update needed. Current version is up to date."
-            echo "update_needed=false" >> $GITHUB_OUTPUT
+            echo "update=false" >> $GITHUB_OUTPUT
+            exit 0
           fi
-
-      - name: Update requirements.txt
-        if: steps.check-branch.outputs.branch_exists != 'true' && steps.check-update.outputs.update_needed != 'false'
-        run: |
-          LATEST_RELEASE=${{ steps.get-latest-version.outputs.LATEST_RELEASE }}
-          LATEST_TAG_ENCODED=${{ steps.get-latest-version.outputs.LATEST_TAG_ENCODED }}
-          sed -i "s|arduino_app_bricks @ .*|arduino_app_bricks @ https://github.com/arduino/app-bricks-py/releases/download/${LATEST_TAG_ENCODED}/arduino_app_bricks-${LATEST_RELEASE}-py3-none-any.whl|" requirements.txt
-
-      - name: Create Pull Request
-        if: steps.check-branch.outputs.branch_exists != 'true' && steps.check-update.outputs.update_needed != 'false'
-        uses: peter-evans/create-pull-request@v8
-        with:
-          base: main
-          branch: update-bricks-${{ steps.get-latest-version.outputs.LATEST_RELEASE }}
-          title: "Update bricks to ${{ steps.get-latest-version.outputs.LATEST_RELEASE }}"
-          body: "This PR updates the Arduino App Bricks dependency to the latest stable version ${{ steps.get-latest-version.outputs.LATEST_RELEASE }}."
-          commit-message: "chore: update bricks to ${{ steps.get-latest-version.outputs.LATEST_RELEASE }}"
-          add-paths: |
-            requirements.txt
-
-      - name: Checkout PR branch
-        if: steps.check-branch.outputs.branch_exists != 'true' && steps.check-update.outputs.update_needed != 'false'
-        uses: actions/checkout@v4
-        with:
-          ref: update-bricks-${{ steps.get-latest-version.outputs.LATEST_RELEASE }}
+          echo "update=true" >> $GITHUB_OUTPUT
 
       - name: Set up Python
-        if: steps.check-branch.outputs.branch_exists != 'true' && steps.check-update.outputs.update_needed != 'false'
+        if: steps.plan.outputs.update == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Set up Ruby
-        if: steps.check-branch.outputs.branch_exists != 'true' && steps.check-update.outputs.update_needed != 'false'
+        if: steps.plan.outputs.update == 'true'
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ruby
 
-      - name: Update license
-        if: steps.check-branch.outputs.branch_exists != 'true' && steps.check-update.outputs.update_needed != 'false'
+      - name: Install Taskfile
+        if: steps.plan.outputs.update == 'true'
         run: |
           which task || curl -sSfL https://taskfile.dev/install.sh | sh -s -- -b ${{ env.TASKFILE_PATH }} ${{ env.TASKFILE_VERSION }}
-          export PATH="${{ env.TASKFILE_PATH }}:$PATH"
-          task license
+          echo "${{ env.TASKFILE_PATH }}" >> "$GITHUB_PATH"
 
-      - name: Commit and push changes
-        if: steps.check-branch.outputs.branch_exists != 'true' && steps.check-update.outputs.update_needed != 'false'
+      - name: Pin requirements.txt and refresh the license records
+        if: steps.plan.outputs.update == 'true'
+        env:
+          LATEST_RELEASE: ${{ steps.get-latest-version.outputs.LATEST_RELEASE }}
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add .
-          git commit -m "chore: update license files" || echo "No changes to commit"
-          git push origin update-bricks-${{ steps.get-latest-version.outputs.LATEST_RELEASE }}
+          task bricks:pin -- "$LATEST_RELEASE"
+          task license:headers
+
+      - name: Create Pull Request
+        if: steps.plan.outputs.update == 'true'
+        uses: peter-evans/create-pull-request@v8
+        with:
+          base: main
+          branch: update-bricks-${{ steps.get-latest-version.outputs.LATEST_RELEASE }}
+          title: "Update bricks to ${{ steps.get-latest-version.outputs.LATEST_RELEASE }}"
+          body: "This PR updates the Arduino App Bricks dependency to the latest stable version ${{ steps.get-latest-version.outputs.LATEST_RELEASE }} and refreshes the dependency license records."
+          commit-message: "chore: update bricks to ${{ steps.get-latest-version.outputs.LATEST_RELEASE }}"
+          committer: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+          author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"

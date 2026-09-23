@@ -1,0 +1,360 @@
+name: Release examples
+
+run-name: "Release ${{ inputs.version || github.ref_name }}"
+
+# Publishes a GitHub release of the examples from a commit on main, with the
+# archive the board tooling installs. Two triggers, as in docker-publish.yml of
+# app-bricks-py: the push of a version tag, or a manual run that names the
+# version. In the manual run the tag does not exist yet: the release step
+# creates it on the checked-out commit, which must be the head of main.
+#
+# The released package pins one app-bricks-py release in requirements.txt and
+# ships the dependency license records computed for it (.licenses/):
+#   - stable release (X.Y.Z): the pin on main must already be the latest stable
+#     app-bricks-py, where update-bricks-file.yml keeps it. When it is not, this
+#     run opens that bump PR and stops: merge it, then release again.
+#   - pre-release (X.Y.ZrcN): requirements.txt is pinned in the workspace only,
+#     to the app-bricks-py version given as input or to its latest pre-release,
+#     and the license records are refreshed with `task bricks:pin`. Nothing is
+#     committed: main keeps the stable pin.
+# The examples are then type-checked (pyright, profile api-user, as on pull
+# requests) against the sources of the pinned app-bricks-py release, and the
+# manifest is verified. Both checks block the release. `skip-checks` bypasses
+# them and is recorded in the release notes. The main branch of app-bricks-py
+# is never used as a reference.
+
+on:
+  push:
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release, PEP 440 (e.g. 0.13.0 or 0.13.0rc3). The tag is created on the selected branch, which must be main"
+        type: string
+        required: true
+      bricks-version:
+        description: "app-bricks-py version to pin in the package (pre-releases only; default: the latest app-bricks-py pre-release)"
+        type: string
+        required: false
+        default: ""
+      skip-checks:
+        description: "Skip the pyright and manifest checks (recorded in the release notes)"
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: release-${{ inputs.version || github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  PYTHON_VERSION: "3.13"
+  NODE_VERSION: "22"
+  TASKFILE_VERSION: "v3.44.0"
+  TASKFILE_PATH: "/home/runner/go/bin"
+
+jobs:
+  resolve:
+    name: Resolve version and app-bricks-py reference
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      prerelease: ${{ steps.version.outputs.prerelease }}
+      bricks_version: ${{ steps.bricks.outputs.version }}
+      bricks_ref: ${{ steps.bricks.outputs.ref }}
+      latest_stable: ${{ steps.bricks.outputs.latest_stable }}
+      pin_fresh: ${{ steps.bricks.outputs.pin_fresh }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve the version
+        id: version
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          REF_NAME: ${{ github.ref_name }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            VERSION="$INPUT_VERSION"
+          else
+            VERSION="$REF_NAME"
+          fi
+          # Same version grammar as the tag_regex of app-bricks-py: X.Y.Z with an optional rcN.
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(rc[0-9]+)?$ ]]; then
+            echo "::error::invalid version '$VERSION': expected X.Y.Z or X.Y.ZrcN"
+            exit 1
+          fi
+          if [[ "$VERSION" =~ rc ]]; then
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          fi
+          # Releases come from main only.
+          if ! git merge-base --is-ancestor HEAD origin/main; then
+            echo "::error::commit $GITHUB_SHA is not on main"
+            exit 1
+          fi
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            if [[ "$REF_NAME" != "main" ]]; then
+              echo "::error::run this workflow from main (selected branch: $REF_NAME)"
+              exit 1
+            fi
+            # The tag is created by the release step: an existing one must already point here.
+            if git rev-parse -q --verify "refs/tags/$VERSION^{commit}" > /dev/null; then
+              TAGGED=$(git rev-parse "refs/tags/$VERSION^{commit}")
+              if [[ "$TAGGED" != "$GITHUB_SHA" ]]; then
+                echo "::error::tag $VERSION already exists on $TAGGED, not on $GITHUB_SHA"
+                exit 1
+              fi
+            fi
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Releasing $VERSION from $GITHUB_SHA"
+
+      - name: Resolve the app-bricks-py release to pin
+        id: bricks
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PRERELEASE: ${{ steps.version.outputs.prerelease }}
+          INPUT_BRICKS: ${{ inputs.bricks-version }}
+        run: |
+          set -euo pipefail
+          # Published releases, newest first: "<tag> <prerelease>".
+          gh api --paginate repos/arduino/app-bricks-py/releases \
+            --jq '.[] | select(.draft == false) | "\(.tag_name) \(.prerelease)"' > releases.txt
+          LATEST_STABLE=$(awk '$2 == "false" && $1 ~ /^(bricks|release)\/[0-9]+\.[0-9]+\.[0-9]+$/ { sub(/^[^\/]+\//, "", $1); print $1; exit }' releases.txt)
+          LATEST_PRE=$(awk '$2 == "true" && $1 ~ /^bricks\/[0-9]+\.[0-9]+\.[0-9]+rc[0-9]+$/ { sub(/^[^\/]+\//, "", $1); print $1; exit }' releases.txt)
+          if [[ -z "$LATEST_STABLE" ]]; then
+            echo "::error::no stable app-bricks-py release found"
+            exit 1
+          fi
+          echo "latest_stable=$LATEST_STABLE" >> "$GITHUB_OUTPUT"
+          PINNED=$(grep 'arduino_app_bricks' requirements.txt | sed -E 's/.*%2F([^/]+)\/.*/\1/')
+          echo "Latest stable app-bricks-py: $LATEST_STABLE; latest pre-release: ${LATEST_PRE:-none}; pinned on main: $PINNED"
+
+          if [[ "$PRERELEASE" == "false" ]]; then
+            if [[ -n "$INPUT_BRICKS" ]]; then
+              echo "::error::bricks-version applies to pre-releases only: a stable release pins the latest stable app-bricks-py ($LATEST_STABLE)"
+              exit 1
+            fi
+            VERSION="$LATEST_STABLE"
+            if [[ "$PINNED" == "$LATEST_STABLE" ]]; then
+              echo "pin_fresh=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "pin_fresh=false" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            VERSION="${INPUT_BRICKS:-${LATEST_PRE:-$LATEST_STABLE}}"
+            echo "pin_fresh=true" >> "$GITHUB_OUTPUT"
+          fi
+
+          # Source checkout reference for the API check: the release tag of that version.
+          REF=""
+          for PREFIX in bricks release; do
+            if git ls-remote --exit-code --tags https://github.com/arduino/app-bricks-py "refs/tags/$PREFIX/$VERSION" > /dev/null; then
+              REF="$PREFIX/$VERSION"
+              break
+            fi
+          done
+          if [[ -z "$REF" ]]; then
+            echo "::error::no app-bricks-py release tag found for version $VERSION (bricks/$VERSION or release/$VERSION)"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "ref=$REF" >> "$GITHUB_OUTPUT"
+          echo "Package pins app-bricks-py $VERSION (tag $REF)"
+
+  # Stable release with a stale pin on main: open the bump PR (same workflow as
+  # the daily schedule) and stop. The release is re-run once the PR is merged.
+  bump-bricks:
+    name: Open the app-bricks-py bump PR
+    needs: [resolve]
+    if: needs.resolve.outputs.pin_fresh == 'false'
+    uses: ./.github/workflows/update-bricks-file.yml
+    permissions:
+      contents: write
+      pull-requests: write
+
+  stale-pin:
+    name: Stop, the pin on main is stale
+    needs: [resolve, bump-bricks]
+    if: needs.resolve.outputs.pin_fresh == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          LATEST_STABLE: ${{ needs.resolve.outputs.latest_stable }}
+        run: |
+          echo "::error::requirements.txt on main does not pin the latest stable app-bricks-py ($LATEST_STABLE): merge the PR 'Update bricks to $LATEST_STABLE', then release again (delete the tag first if it was pushed)"
+          exit 1
+
+  release:
+    name: Check, package and publish
+    needs: [resolve]
+    if: needs.resolve.outputs.pin_fresh == 'true'
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.resolve.outputs.version }}
+      PRERELEASE: ${{ needs.resolve.outputs.prerelease }}
+      BRICKS_VERSION: ${{ needs.resolve.outputs.bricks_version }}
+      BRICKS_REF: ${{ needs.resolve.outputs.bricks_ref }}
+      SKIP_CHECKS: ${{ inputs.skip-checks == true }}
+    steps:
+      - name: Checkout examples
+        uses: actions/checkout@v4
+        with:
+          path: examples
+
+      - name: Checkout app-bricks-py at the pinned release
+        uses: actions/checkout@v4
+        with:
+          repository: arduino/app-bricks-py
+          ref: ${{ env.BRICKS_REF }}
+          path: app-bricks-py
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Set up Ruby
+        # licensed (gem) refreshes the dependency license records of a pre-release pin.
+        if: env.PRERELEASE == 'true'
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ruby
+
+      - name: Install Taskfile
+        run: |
+          which task || curl -sSfL https://taskfile.dev/install.sh | sh -s -- -b ${{ env.TASKFILE_PATH }} ${{ env.TASKFILE_VERSION }}
+          echo "${{ env.TASKFILE_PATH }}" >> "$GITHUB_PATH"
+
+      - name: Pin the pre-release app-bricks-py in the package
+        # Workspace only: requirements.txt and .licenses/ enter the archive, main is untouched.
+        if: env.PRERELEASE == 'true'
+        working-directory: examples
+        run: task bricks:pin -- "$BRICKS_VERSION"
+
+      - name: Install system build dependencies
+        # Headers needed to compile the audio C extensions (pyalsaaudio, pyaudio),
+        # same packages installed by 'task install:deps' in app-bricks-py.
+        if: env.SKIP_CHECKS != 'true'
+        run: sudo apt-get update -q && sudo apt-get install -y -q --no-install-recommends libasound2-dev portaudio19-dev
+
+      - name: Build check venv
+        # Same environment as check-pyright.yml: the library dependencies without
+        # the library itself, which pyright resolves from the app-bricks-py sources.
+        if: env.SKIP_CHECKS != 'true'
+        run: |
+          python -m venv checkenv
+          python app-bricks-py/scripts/check_pyright.py deps --pyproject app-bricks-py/pyproject.toml > library-deps.txt
+          cat app-bricks-py/containers/base/python-base/requirements-base.txt library-deps.txt | while IFS= read -r pkg; do
+            pkg="${pkg%%#*}"
+            [ -z "${pkg// /}" ] && continue
+            ./checkenv/bin/pip install -q "$pkg" < /dev/null || echo "::notice::package not installed in the check venv: $pkg"
+          done
+          find examples -path '*/python/requirements.txt' -exec ./checkenv/bin/pip install -q -r {} \;
+
+      - name: Typing against app-bricks-py
+        id: typing
+        if: env.SKIP_CHECKS != 'true'
+        # Every error is new here (empty base): the released examples must be
+        # clean against the release they are pinned to. The report goes to the
+        # job summary in every case, the verdict is enforced below.
+        run: |
+          status=passed
+          python app-bricks-py/scripts/check_pyright.py run --examples-dir examples --library-src app-bricks-py/src --python checkenv/bin/python --out head.json
+          echo '{"generalDiagnostics": []}' > base.json
+          python app-bricks-py/scripts/check_pyright.py diff --base base.json --head head.json \
+            --title "Typing against app-bricks-py" --fail-on-new --result typing.json --no-summary \
+            --examples-label "release $VERSION" \
+            --library-label "[app-bricks-py](https://github.com/arduino/app-bricks-py)@$BRICKS_REF" \
+            --guidance "The examples use the pinned app-bricks-py release in a way its API contract does not support: fix them, or pin the app-bricks-py release they were written for (bricks-version input)." \
+            || status=failed
+          python app-bricks-py/scripts/check_pyright.py coverage --examples-dir examples --head-src app-bricks-py/src \
+            --title "Examples coverage" --result coverage.json --no-summary
+          python app-bricks-py/scripts/check_pyright.py report typing.json coverage.json --summary report.md
+          cat report.md >> "$GITHUB_STEP_SUMMARY"
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+
+      - name: Check the examples manifest
+        id: manifest
+        if: env.SKIP_CHECKS != 'true'
+        working-directory: examples
+        run: |
+          if task examples:check-manifest; then
+            echo "status=passed" >> "$GITHUB_OUTPUT"
+          else
+            echo "status=failed" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Fail on check errors
+        if: env.SKIP_CHECKS != 'true' && (steps.typing.outputs.status != 'passed' || steps.manifest.outputs.status != 'passed')
+        env:
+          TYPING: ${{ steps.typing.outputs.status }}
+          MANIFEST: ${{ steps.manifest.outputs.status }}
+        run: |
+          echo "::error::release checks failed (typing: $TYPING, manifest: $MANIFEST): see the job summary. Fix on main and release again, deleting the tag first if it was pushed"
+          exit 1
+
+      - name: Build the release archive
+        working-directory: examples
+        run: task build VERSION="$VERSION"
+
+      - name: Compose the release notes header
+        env:
+          SERVER_URL: ${{ github.server_url }}
+        run: |
+          if [[ "$SKIP_CHECKS" == "true" ]]; then
+            CHECKS="skipped by operator"
+          else
+            CHECKS="passed"
+          fi
+          if [[ "$PRERELEASE" == "true" ]]; then
+            PIN_NOTE="pre-release, pinned in the package only: main keeps the stable pin"
+          else
+            PIN_NOTE="latest stable"
+          fi
+          cat > body.md <<EOF
+          ## Package
+
+          \`app-bricks-examples-$VERSION.tar.gz\` and \`.zip\` (checksums in \`SHA256SUMS\`) hold \`core-and-foundational/\`, \`inspirational/\`, \`bricks/\`, \`examples.json\`, \`requirements.txt\`, \`.licenses/\`, \`LICENSE.txt\` and \`LICENSES/\`.
+
+          - app-bricks-py pinned in \`requirements.txt\`: **$BRICKS_VERSION** ($PIN_NOTE)
+          - API check (pyright, profile api-user) against [app-bricks-py@$BRICKS_REF]($SERVER_URL/arduino/app-bricks-py/releases/tag/${BRICKS_REF/\//%2F}): $CHECKS
+          - Manifest check: $CHECKS
+
+          EOF
+          cat body.md
+
+      - name: Publish the release
+        # On a manual run the tag does not exist yet: it is created on the
+        # checked-out commit, as docker-publish.yml does in app-bricks-py.
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.VERSION }}
+          target_commitish: ${{ github.sha }}
+          name: Release ${{ env.VERSION }}
+          prerelease: ${{ env.PRERELEASE == 'true' }}
+          body_path: body.md
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: |
+            examples/dist/app-bricks-examples-*.tar.gz
+            examples/dist/app-bricks-examples-*.zip
+            examples/dist/SHA256SUMS
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
