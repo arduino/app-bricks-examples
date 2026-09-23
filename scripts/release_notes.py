@@ -162,7 +162,7 @@ def compose(version: str, previous: str | None, head: str, repo: str, header: st
     since = f"since [{previous}](https://github.com/{repo}/releases/tag/{previous})" if previous else "first release"
     lines += [f"## Examples ({since})", ""]
     lines += examples_table(previous, head, repo, version)
-    lines += [f"## Commits ({since})", ""]
+    lines += [f"## What's Changed ({since})", ""]
     lines += commits_list(previous, head, repo)
     if previous:
         lines += [f"**Full Changelog**: https://github.com/{repo}/compare/{previous}...{version}", ""]
