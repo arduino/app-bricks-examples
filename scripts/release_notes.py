@@ -75,23 +75,30 @@ def example_of(path: str, examples: set[str]) -> str | None:
 
 
 def examples_table(previous: str | None, head: str, repo: str, version: str) -> list[str]:
+    """Three columns, one list of examples each: new, fixed (any file changed), removed."""
     head_examples = examples_at(head)
     if previous is None:
-        rows = [("New", e) for e in sorted(head_examples)]
+        new, fixed, removed = sorted(head_examples), [], []
     else:
         prev_examples = examples_at(previous)
         changed = git("diff", "--name-only", previous, head, "--", *EXAMPLES_ROOTS).split("\n")
         touched = {example_of(f, head_examples | prev_examples) for f in changed if f}
-        rows = [("New", e) for e in sorted(head_examples - prev_examples)]
-        rows += [("Fixed", e) for e in sorted(head_examples & prev_examples) if e in touched]
-        rows += [("Removed", e) for e in sorted(prev_examples - head_examples)]
-    if not rows:
+        new = sorted(head_examples - prev_examples)
+        fixed = sorted(e for e in head_examples & prev_examples if e in touched)
+        removed = sorted(prev_examples - head_examples)
+    if not (new or fixed or removed):
         return ["No example added, fixed or removed.", ""]
-    lines = ["| Change | Example |", "|---|---|"]
-    for change, example in rows:
-        ref = previous if change == "Removed" else version
-        lines.append(f"| {change} | [`{example}`](https://github.com/{repo}/tree/{ref}/{example}) |")
-    return [*lines, ""]
+
+    def cell(examples: list[str], i: int, ref: str) -> str:
+        if i >= len(examples):
+            return ""
+        return f"[`{examples[i]}`](https://github.com/{repo}/tree/{ref}/{examples[i]})"
+
+    rows = [
+        f"| {cell(new, i, version)} | {cell(fixed, i, version)} | {cell(removed, i, previous or version)} |"
+        for i in range(max(len(new), len(fixed), len(removed)))
+    ]
+    return ["| New examples | Examples fixed | Examples removed |", "|---|---|---|", *rows, ""]
 
 
 def commits_list(previous: str | None, head: str, repo: str) -> list[str]:
