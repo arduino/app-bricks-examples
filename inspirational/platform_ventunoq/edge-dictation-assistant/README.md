@@ -20,19 +20,12 @@ The Edge Dictation Assistant example uses the following Bricks:
 - Arduino VENTUNO Q (x1)
 - USB-C® cable (for power and programming) (x1)
 - USB microphone (or headset)
-- A power supply (5 V, 3 A) for the USB hub (e.g. a phone charger)
 
 ## How to Use the Example
 
 ### Hardware Setup
 
-1. Connect an USB-C® hub to the board
-
-2. Connect a USB microphone or headset to the USB-C® hub.
-
-3. Power the USB-C hub from a 5V power source (e.g. phone charger).
-
-![Setting up the USB-C® hub](assets/docs_assets/hardware-setup.png)
+1. Connect the microphone or headset to the VENTUNO Q.
 
 ### Configure & Launch App
 
