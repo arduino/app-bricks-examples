@@ -361,6 +361,17 @@
       ]
     },
     {
+      "brick": "arduino:ocr",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/ocr/01_simple_ocr"
+        },
+        {
+          "id": "examples:bricks/arduino/ocr/02_ocr_text_orientation"
+        }
+      ]
+    },
+    {
       "brick": "arduino:pose_estimation",
       "examples": [
         {

@@ -1,0 +1,6 @@
+name: Extract rotated text from an image
+description: "Extract text from an image file, also trying a 90° rotation to recognize text that is not horizontal."
+bricks:
+- arduino:ocr:
+    model: easy-ocr
+icon: 🔠

@@ -1,0 +1,6 @@
+name: Extract text from an image
+description: "Extract text from an image file using EasyOCR and print the recognized text."
+bricks:
+- arduino:ocr:
+    model: easy-ocr
+icon: 🔠

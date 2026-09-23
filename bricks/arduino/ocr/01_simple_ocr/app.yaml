@@ -1,6 +1,0 @@
-name: Simple OCR text reader
-description: "A simple OCR application using EasyOCR."
-bricks:
-- arduino:ocr:
-    model: easy-ocr
-icon: 🔠

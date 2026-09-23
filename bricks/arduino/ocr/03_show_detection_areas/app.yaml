@@ -1,0 +1,6 @@
+name: Print text detection areas
+description: "Extract text from an image file and print the detected text areas."
+bricks:
+- arduino:ocr:
+    model: easy-ocr
+icon: 🔠
