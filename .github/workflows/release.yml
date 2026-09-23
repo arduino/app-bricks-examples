@@ -3,7 +3,7 @@ name: Release examples
 run-name: "Release ${{ inputs.version }}"
 
 # Publishes a GitHub release of the examples from the head of main, with the
-# archive the board tooling installs. Manual runs only: the operator names the
+# archive of the examples, the learn docs and their licensing files. Manual runs only: the operator names the
 # version, the workflow checks and packages the commit, and the tag is created
 # only at the very end, when the release is published. Until then the release
 # is a draft, which has no tag: a failure anywhere leaves no tag and no release
@@ -327,7 +327,7 @@ jobs:
           cat > ../header.md <<EOF
           ## Package
 
-          \`app-bricks-examples-$VERSION.tar.gz\` and \`.zip\` (checksums in \`SHA256SUMS\`) hold \`core-and-foundational/\`, \`inspirational/\`, \`bricks/\`, \`examples.json\`, \`requirements.txt\`, \`.licenses/\`, \`LICENSE.txt\` and \`LICENSES/\`.
+          \`app-bricks-examples-$VERSION.tar.gz\` and \`.zip\` (checksums in \`SHA256SUMS\`) hold \`core-and-foundational/\`, \`inspirational/\`, \`bricks/\`, \`learn-docs/\`, \`examples.json\`, \`requirements.txt\` and the licensing files (\`.licenses/\`, \`.licensed.yml\`, \`LICENSE.txt\`, \`LICENSES/\`, \`REUSE.toml\`).
 
           - app-bricks-py pinned in \`requirements.txt\`: **$BRICKS_VERSION** ($PIN_NOTE)
           - API check (pyright, profile api-user) against [app-bricks-py@$BRICKS_REF]($SERVER_URL/arduino/app-bricks-py/releases/tag/${BRICKS_REF/\//%2F}): $CHECKS
