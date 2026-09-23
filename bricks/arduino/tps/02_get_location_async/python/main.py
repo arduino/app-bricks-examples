@@ -5,9 +5,9 @@
 from typing import Any
 
 from arduino.app_utils import App
-from arduino.app_bricks.tps_location_api import TPSLocationAPI
+from arduino.app_bricks.tps import TPS
 
-location_api = TPSLocationAPI()
+tps = TPS()
 
 
 def on_location(result: dict[str, Any] | None, error: Exception | None) -> None:
@@ -26,6 +26,6 @@ def on_location(result: dict[str, Any] | None, error: Exception | None) -> None:
 
 
 # Non-blocking lookup: returns immediately, the callback gets the result
-location_api.async_locate(on_location)
+tps.async_locate(on_location)
 
 App.run()
