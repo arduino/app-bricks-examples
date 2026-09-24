@@ -22,11 +22,12 @@ The example uses the following Bricks:
 ### Hardware
 
 - Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
+- USB-C® cable (for power and programming) (x1) _(only for UNO Q)_
 - Camera (USB or CSI) (x1)
 - USB-C® hub adapter with external power (x1) _(only for UNO Q)_
 - A power supply (5 V, 3 A) for the USB hub (e.g. a phone charger) _(only for UNO Q)_
 
-**Note:** You can also run this example using your board as a Single-Board Computer (SBC) using a [USB-C hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and monitor attached.
+**Note:** You can also run this example using your board as a Single-Board Computer (SBC) using a [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) _(only for UNO Q)_ with a mouse, keyboard and monitor attached.
 
 ## How to Use the Example
 

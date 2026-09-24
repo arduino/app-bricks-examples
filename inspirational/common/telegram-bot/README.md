@@ -28,7 +28,7 @@ The Telegram Bot example uses the following Bricks:
 ### Hardware
 
 - Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
-- USB-C® cable (for power and programming) (x1)
+- USB-C® cable (for power and programming) (x1) _(only for UNO Q)_
 
 ### Software
 

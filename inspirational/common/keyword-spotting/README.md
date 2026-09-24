@@ -15,6 +15,7 @@ Network mode is selected when launching the Arduino App Lab. You can read more a
 ### Hardware
 
 - Arduino® UNO Q (x1) or Arduino VENTUNO Q (x1)
+- USB-C® cable (for power and programming) (x1) _(only for UNO Q)_
 - [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) _(only for UNO Q)_
 - Microphone or headset (USB or 3.5 mm jack)
 - A power supply (5 V, 3 A) for the USB hub (e.g. a phone charger) _(only for UNO Q)_

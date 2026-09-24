@@ -14,7 +14,7 @@ The data is stored on the board, where we can view the data from the latest 24 h
 ### Hardware
 
 - Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
-- USB-C® cable
+- USB-C® cable (for power and programming) (x1) _(only for UNO Q)_
 - [Arduino Modulino® Thermo](https://store.arduino.cc/products/modulino-thermo)
 - Qwiic cable
 

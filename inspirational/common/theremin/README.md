@@ -30,6 +30,7 @@ The theremin simulator example uses the following Bricks:
 ### Hardware
 
 - Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
+- USB-C® cable (for power and programming) (x1) _(only for UNO Q)_
 - **USB-C® hub with external power (x1)** _(only for UNO Q)_
 - An **audio device** (choose one):
   - **USB speaker** (cabled)

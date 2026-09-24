@@ -28,7 +28,7 @@ To read more about the model, visit the following link:
 ### Hardware
 
 - Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
-- USB-C® cable
+- USB-C® cable (for power and programming) (x1) _(only for UNO Q)_
 - [ArduinoModulino Movement](https://store.arduino.cc/products/modulino-movement)
 - Qwiic cable
 

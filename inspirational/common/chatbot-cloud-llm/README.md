@@ -26,7 +26,7 @@ The Cloud AI Assistant example uses the following Bricks:
 ### Hardware
 
 - Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
-- USB-C® cable (for power and programming) (x1)
+- USB-C® cable (for power and programming) (x1) _(only for UNO Q)_
 
 **Note:** This example requires an active internet connection to reach the AI provider's API. You will also need a valid **API Key** for the service used (e.g., Google AI Studio API Key).
 

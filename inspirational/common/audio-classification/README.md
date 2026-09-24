@@ -23,7 +23,7 @@ The glass breaking sensor example uses the following Bricks:
 ### Hardware
 
 - Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
-- USB-C® cable (for power and programming) (x1)
+- USB-C® cable (for power and programming) (x1) _(only for UNO Q)_
 
 **Note:** This example works with pre-loaded sample audio files and uploaded audio files. No external hardware peripherals are required. The example works in [Network Mode](https://docs.arduino.cc/tutorials/uno-q/user-manual/#network-mode) as well.
 
