@@ -2,7 +2,7 @@
 
 The **Theremin Simulator** example lets you create and control a virtual theremin instrument using an interactive web interface, producing synthesized audio output through a connected **USB** audio device with low latency.
 
-**Note:** This example requires to be run using **Network Mode** or **Single-Board Computer (SBC)**, since it requires a **USB-C® hub** and a **USB speaker**.
+**Note:** This example requires to be run using **Network Mode** or **Single-Board Computer (SBC)**, since it requires a **USB-C® hub** to connect the speaker _(only for UNO Q)_.
 
 *This example is based on the Arduino UNO Q, but also works on the Arduino VENTUNO Q.*
 
@@ -36,7 +36,7 @@ The theremin simulator example uses the following Bricks:
   - **USB wireless speaker receiver/dongle** (2.4 GHz, non-Bluetooth)
 - A **power supply** (5 V, 3 A) for the USB hub (e.g. a phone charger) _(only for UNO Q)_
 
-**Important:** A **USB-C® hub is mandatory** for this example. The UNO Q's single port must be used for the hub, which provides the necessary connections for both the power supply and the USB audio device. Consequently, this example must be run in **[Network Mode](/learn/network-mode)** or **[SBC Mode](/learn/single-board-computer)**.
+**Important:** A **USB-C® hub is mandatory** for this example _(only for UNO Q)_: the UNO Q's single port must be used for the hub, which provides the necessary connections for both the power supply and the audio device, so the example must be run in **[Network Mode](/learn/network-mode)** or **[SBC Mode](/learn/single-board-computer)**.
 
 **Note:** **HDMI audio** and **Bluetooth® Speakers** are not supported by this App.
 
@@ -44,7 +44,7 @@ The theremin simulator example uses the following Bricks:
 
 1. **Hardware Setup**
 
-   Connect your **USB audio device** (e.g., USB speaker, wireless USB receiver) to a powered **USB-C® hub** attached to the UNO Q. Ensure the hub is powered.
+   Connect your audio device to the board (on the UNO Q, a USB audio device needs a powered USB-C® hub).
 
 2. **Run the App**
 
@@ -152,11 +152,9 @@ If the application fails to start and you see an error regarding the speaker:
 
 **Fix:**
 
-1. Ensure a **powered USB-C® hub** is connected to the UNO Q.
+1. Ensure the audio device is connected and turned on (on the UNO Q, through a powered USB-C® hub).
 
-2. Verify the **USB audio device** is connected to the hub and turned on.
-
-3. Restart the application.
+2. Restart the application.
 
 ### No Sound Output
 
@@ -171,7 +169,7 @@ If the interface works but there is no sound:
 ### Choppy or Crackling Audio
 
 - **CPU Load:** Close other applications running on the Arduino UNO Q.
-- **Power Supply:** Ensure you are using a stable 5 V, 3 A power supply for the USB-C® hub. Insufficient power often degrades USB audio performance.
+- **Power Supply:** Ensure you are using a stable 5 V, 3 A power supply for the USB-C® hub _(only for UNO Q)_. Insufficient power often degrades USB audio performance.
 
 ## Technical Details
 

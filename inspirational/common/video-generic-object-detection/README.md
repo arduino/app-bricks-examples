@@ -2,7 +2,7 @@
 
 The **Detect Objects on Camera** example lets you detect objects on a live feed from a USB camera and visualize bounding boxes around the detections in real-time.
 
-**Note:** This example must be run in **Network Mode** in the Arduino App Lab, since it requires a USB-C hub and a USB camera.
+**Note:** This example must be run in **Network Mode** in the Arduino App Lab, since it requires a USB-C hub to connect the camera _(only for UNO Q)_.
 
 ![Detect Objects on Camera](assets/docs_assets/video-object-detection.png)
 
@@ -29,17 +29,15 @@ The example uses the following Bricks:
 
 ## How to Use the Example
 
-1. Connect the USB-C hub to the UNO Q and the USB camera.
+1. Connect the camera to the board (on the UNO Q, a USB camera needs a powered USB-C® hub).
 
    ![Hardware setup](assets/docs_assets/hardware-setup.png)
 
-2. Attach the external power supply to the USB-C hub to power everything.
+2. Run the App from the top navigation bar.
 
-3. Run the App from the top navigation bar.
+3. The App should open automatically in the web browser. You can open it manually via `<board-name>.local:7000`.
 
-4. The App should open automatically in the web browser. You can open it manually via `<board-name>.local:7000`.
-
-5. Position any object in front of the camera and watch as the App detects and recognizes them.
+4. Position any object in front of the camera and watch as the App detects and recognizes them.
 
 Try with one of the following objects for a special reaction:
 

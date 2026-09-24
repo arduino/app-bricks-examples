@@ -1,8 +1,8 @@
 # Object Hunting
 
-The **Object Hunting Game** is an interactive scavenger hunt that uses real-time object detection. Players must locate specific physical objects in their environment using a USB camera connected to the Arduino UNO Q to win the game.
+The **Object Hunting Game** is an interactive scavenger hunt that uses real-time object detection. Players must locate specific physical objects in their environment using a USB camera connected to the board to win the game.
 
-**Note:** This example requires to be run using **Network Mode** or **Single-Board Computer (SBC) Mode**, since it requires a **USB-C® hub** and a **USB webcam**.
+**Note:** This example requires to be run using **Network Mode** or **Single-Board Computer (SBC) Mode**, since it requires a **USB-C® hub** to connect the webcam _(only for UNO Q)_.
 
 *This example is based on the Arduino UNO Q, but also works on Arduino VENTUNO Q.*
 
@@ -43,7 +43,7 @@ The object hunting game example uses the following Bricks:
 
 1. **Hardware Setup**
 
-   Connect your **USB Webcam** to a powered **USB-C® hub** attached to the UNO Q. Ensure the hub is powered to support the camera.
+   Connect your camera to the board (on the UNO Q, a USB camera needs a powered USB-C® hub).
 
    ![Hardware setup](assets/docs_assets/hardware-setup.png)
 
@@ -177,18 +177,16 @@ If the application crashes right after launching, it is likely because the **USB
 
 **Fix:**
 
-1. Ensure the camera is connected to a **powered USB-C hub**.
+1. Ensure the camera is connected (on the UNO Q, through a powered USB-C® hub with its power supply attached).
 
-2. Verify the hub has its external power supply connected (5 V, 3 A).
-
-3. Reconnect the camera and try running the App again.
+2. Reconnect the camera and try running the App again.
 
 ### Video stream is black or not loading
 
 If the game interface loads but the video area remains black or shows "Searching Webcam...":
 
 - **Browser Security:** Some browsers block mixed content or insecure frames. Ensure you are not blocking the iframe loading from port `4912`.
-- **Network:** Ensure your computer and the UNO Q are on the same network.
+- **Network:** Ensure your computer and the board are on the same network.
 - **Camera Status:** If the camera was disconnected while the App was running, you must restart the App.
 
 ### Objects are not being detected

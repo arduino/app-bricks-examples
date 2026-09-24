@@ -2,7 +2,7 @@
 
 The **QR and Barcode Scanner** example lets you detect and scan both barcodes and QR codes using a USB camera. It features a web-based interface that streams the live camera feed and displays the scanned codes content. Also, it stores the detected codes in a local database for future reference.
 
-**Note:** This example requires to be run using **Network Mode** in the Arduino App Lab or in **Single-Board Computer (SBC)** mode, since you will need a USB-C hub and a USB camera.
+**Note:** This example requires to be run using **Network Mode** in the Arduino App Lab or in **Single-Board Computer (SBC)** mode, since you will need a USB-C hub to connect the camera _(only for UNO Q)_.
 
 ![Code Detector Example](assets/docs_assets/thumbnail.png)
 
@@ -37,21 +37,19 @@ The code detector example uses the following Bricks:
 
 *Note, this example was created using the Arduino UNO Q but also works with VENTUNO Q.*
 
-1. Connect the USB-C hub to the UNO Q and the USB camera.
+1. Connect the camera to the board (on the UNO Q, a USB camera needs a powered USB-C® hub).
 
    ![Hardware setup](assets/docs_assets/hardware-setup.png)
 
-2. Attach the external power supply to the USB-C hub to power everything.
+2. Run the App by clicking the **Run** button in the top navigation bar.
 
-3. Run the App by clicking the **Run** button in the top navigation bar.
+3. The App should open automatically in the web browser. You can open it manually via `<board-name>.local:7000`.
 
-4. The App should open automatically in the web browser. You can open it manually via `<board-name>.local:7000`.
+4. Detected codes will appear in real-time on the web interface, showing their type and timestamp.
 
-5. Detected codes will appear in real-time on the web interface, showing their type and timestamp.
+5. Click *Scan another* to repeat the process
 
-6. Click *Scan another* to repeat the process
-
-7. Review the list of scanned codes directly from your browser as new codes are detected.
+6. Review the list of scanned codes directly from your browser as new codes are detected.
 
 ## How it Works
 

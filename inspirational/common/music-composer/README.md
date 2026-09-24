@@ -39,13 +39,13 @@ The Music Composer example uses the following Bricks:
 - USB-C hub with external power (x1) *(required when using a USB audio device)*  _(only for UNO Q)_
 - Power supply (5 V, 3 A) for the USB-C hub (x1) *(required when using a USB audio device)*  _(only for UNO Q)_
 
-**Note:** A **USB-C hub is mandatory** when using an external USB audio device. The UNO Q's single USB-C port must be connected to the hub, which provides the necessary connections for both the power supply and the audio device. When using external audio, this example must be run in **Network Mode** or **SBC Mode** (via a USB-C hub with a mouse, keyboard, and display attached).
+**Note:** A **USB-C hub is mandatory** when using an external USB audio device _(only for UNO Q)_: the UNO Q's single USB-C port must be connected to the hub, which provides the necessary connections for both the power supply and the audio device, so the example must be run in **Network Mode** or **SBC Mode**.
 
 ## How to Use the Example
 
 1. **Connect the Hardware (Optional External Audio)**
 
-   To use an external USB audio device, connect it to a powered **USB-C hub** attached to the UNO Q. Ensure the hub has its own power supply.
+   To use an external audio device, connect it to the board (on the UNO Q, a USB audio device needs a powered USB-C hub).
 
 2. **Run the App**
 
@@ -248,11 +248,9 @@ If the application fails to start and you see an error regarding the speaker:
 
 **Fix:**
 
-1. Ensure a **powered USB-C hub** is connected to the UNO Q.
+1. Ensure the audio device is connected and turned on (on the UNO Q, through a powered USB-C hub).
 
-2. Verify the **USB audio device** is connected to the hub and turned on.
-
-3. Restart the application.
+2. Restart the application.
 
 ### No sound output
 
@@ -266,7 +264,7 @@ If the interface works but there is no sound:
 ### Choppy or crackling audio
 
 - **CPU Load:** Close other applications running on the board.
-- **Power Supply:** Ensure you are using a stable 5 V, 3 A power supply for the USB-C hub. Insufficient power often degrades USB audio performance.
+- **Power Supply:** Ensure you are using a stable 5 V, 3 A power supply for the USB-C hub _(only for UNO Q)_. Insufficient power often degrades USB audio performance.
 
 ### Grid not expanding
 

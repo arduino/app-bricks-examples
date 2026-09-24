@@ -2,7 +2,7 @@
 
 The **Person Classifier** example lets you detect people on a live feed from a camera and visualize the model inference result on a user-friendly web interface.
 
-**Note:** This example requires to be run using **Network Mode** in the Arduino App Lab or in **Single-Board Computer (SBC)** mode. Because you will need a USB-C hub and a USB camera.
+**Note:** This example requires to be run using **Network Mode** in the Arduino App Lab or in **Single-Board Computer (SBC)** mode, since you will need a USB-C hub to connect the camera _(only for UNO Q)_.
 
 *This example is based on Arduino UNO Q, but also works on Arduino VENTUNO Q.*
 
@@ -30,17 +30,15 @@ The example uses the following Bricks:
 
 ## How to Use the Example
 
-1. Connect the USB-C hub to the UNO Q and the USB camera.
+1. Connect the camera to the board (on the UNO Q, a USB camera needs a powered USB-C® hub).
 
    ![Hardware setup](assets/docs_assets/hardware-setup.png)
 
-2. Attach the external power supply to the USB-C hub to power everything.
+2. Run the App on the top navigation bar.
 
-3. Run the App on the top navigation bar.
+3. The App should open automatically in the web browser. You can open it manually via `<board-name>.local:7000`.
 
-4. The App should open automatically in the web browser. You can open it manually via `<board-name>.local:7000`.
-
-5. Position yourself in front of the camera and watch as the App detects and recognizes a person.
+4. Position yourself in front of the camera and watch as the App detects and recognizes a person.
 
 ## How it Works
 
