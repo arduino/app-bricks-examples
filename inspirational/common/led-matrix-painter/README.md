@@ -34,7 +34,7 @@ The LED Matrix Painter example uses the following Bricks:
 ### Hardware
 
 - Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
-- USB-C® cable (for power and programming) (x1) _(only for UNO Q)_
+- [USB-C® cable](https://store.arduino.cc/products/usb-cable2in1-type-c) (for power and programming) (x1) _(only for UNO Q)_
 
 ## How to Use the Example
 

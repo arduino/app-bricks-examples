@@ -2,7 +2,7 @@
 
 The **Detect Objects on Camera** example lets you detect objects on a live feed from a camera and visualize bounding boxes around the detections in real-time.
 
-**Note:** This example must be run in **Network Mode** in the Arduino App Lab, since it requires a USB-C hub to connect the camera _(only for UNO Q)_.
+**Note:** This example must be run in **Network Mode** in the Arduino App Lab, since it requires a [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) to connect the camera _(only for UNO Q)_.
 
 ![Detect Objects on Camera](assets/docs_assets/video-object-detection.png)
 
@@ -22,15 +22,15 @@ The example uses the following Bricks:
 ### Hardware
 
 - Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
-- USB-C® cable (for power and programming) (x1) _(only for UNO Q)_
+- [USB-C® cable](https://store.arduino.cc/products/usb-cable2in1-type-c) (for power and programming) (x1) _(only for UNO Q)_
 - Camera (USB or CSI) (x1)
-- USB-C® hub adapter with external power (x1) _(only for UNO Q)_
+- [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) adapter with external power (x1) _(only for UNO Q)_
 - A power supply (5 V, 3 A) for the USB hub (e.g. a phone charger) _(only for UNO Q)_
 - Personal computer with internet access
 
 ## How to Use the Example
 
-1. Connect the camera to the board (on the UNO Q, a USB camera needs a powered USB-C® hub).
+1. Connect the camera to the board (on the UNO Q, a USB camera needs a powered [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub)).
 
    ![Hardware setup](assets/docs_assets/hardware-setup.png)
 

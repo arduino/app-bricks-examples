@@ -2,7 +2,7 @@
 
 The **Object Hunting Game** is an interactive scavenger hunt that uses real-time object detection. Players must locate specific physical objects in their environment using a camera connected to the board to win the game.
 
-**Note:** This example requires to be run using **Network Mode** or **Single-Board Computer (SBC) Mode**, since it requires a **USB-C® hub** to connect the camera _(only for UNO Q)_.
+**Note:** This example requires to be run using **Network Mode** or **Single-Board Computer (SBC) Mode**, since it requires a **[USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub)** to connect the camera _(only for UNO Q)_.
 
 *This example is based on the Arduino UNO Q, but also works on Arduino VENTUNO Q.*
 
@@ -31,12 +31,12 @@ The object hunting game example uses the following Bricks:
 ### Hardware
 
 - Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
-- USB-C® cable (for power and programming) (x1) _(only for UNO Q)_
-- **USB-C® hub with external power (x1)** _(only for UNO Q)_
+- [USB-C® cable](https://store.arduino.cc/products/usb-cable2in1-type-c) (for power and programming) (x1) _(only for UNO Q)_
+- **[USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with external power (x1)** _(only for UNO Q)_
 - A power supply (5 V, 3 A) for the USB hub (x1) _(only for UNO Q)_
 - **Camera** (USB or CSI) (x1)
 
-**Important:** A **USB-C® hub is mandatory** for this example to connect the camera when using the UNO Q.
+**Important:** A **[USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) is mandatory** for this example to connect the camera when using the UNO Q.
 
 **Note:** You must connect the camera **before** running the App. If the camera is not connected or not detected, the App will fail to start.
 
@@ -44,7 +44,7 @@ The object hunting game example uses the following Bricks:
 
 1. **Hardware Setup**
 
-   Connect your camera to the board (on the UNO Q, a USB camera needs a powered USB-C® hub).
+   Connect your camera to the board (on the UNO Q, a USB camera needs a powered [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub)).
 
    ![Hardware setup](assets/docs_assets/hardware-setup.png)
 
@@ -178,7 +178,7 @@ If the application crashes right after launching, it is likely because the **cam
 
 **Fix:**
 
-1. Ensure the camera is connected (on the UNO Q, through a powered USB-C® hub with its power supply attached).
+1. Ensure the camera is connected (on the UNO Q, through a powered [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with its power supply attached).
 
 2. Reconnect the camera and try running the App again.
 

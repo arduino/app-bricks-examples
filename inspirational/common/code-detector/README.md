@@ -2,7 +2,7 @@
 
 The **QR and Barcode Scanner** example lets you detect and scan both barcodes and QR codes using a camera. It features a web-based interface that streams the live camera feed and displays the scanned codes content. Also, it stores the detected codes in a local database for future reference.
 
-**Note:** This example requires to be run using **Network Mode** in the Arduino App Lab or in **Single-Board Computer (SBC)** mode, since you will need a USB-C hub to connect the camera _(only for UNO Q)_.
+**Note:** This example requires to be run using **Network Mode** in the Arduino App Lab or in **Single-Board Computer (SBC)** mode, since you will need a [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) to connect the camera _(only for UNO Q)_.
 
 ![Code Detector Example](assets/docs_assets/thumbnail.png)
 
@@ -26,19 +26,19 @@ The code detector example uses the following Bricks:
 ### Hardware
 
 - Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
-- USB-C® cable (for power and programming) (x1) _(only for UNO Q)_
+- [USB-C® cable](https://store.arduino.cc/products/usb-cable2in1-type-c) (for power and programming) (x1) _(only for UNO Q)_
 - Camera (USB or CSI) (x1)
-- USB-C® hub adapter with external power (x1) _(only for UNO Q)_
+- [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) adapter with external power (x1) _(only for UNO Q)_
 - A power supply (5 V, 3 A) for the USB hub (e.g. a phone charger) _(only for UNO Q)_
 - Personal computer with internet access
 
-**Note:** You can also run this example using your board as a Single Board Computer (SBC) using a [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) _(only for UNO Q)_ with a mouse, keyboard and display attached.
+**Note:** You can also run this example using your board as a Single Board Computer (SBC) with a mouse, keyboard and display attached (on the UNO Q through a [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub)).
 
 ## How to Use the Example
 
 *Note, this example was created using the Arduino UNO Q but also works with VENTUNO Q.*
 
-1. Connect the camera to the board (on the UNO Q, a USB camera needs a powered USB-C® hub).
+1. Connect the camera to the board (on the UNO Q, a USB camera needs a powered [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub)).
 
    ![Hardware setup](assets/docs_assets/hardware-setup.png)
 

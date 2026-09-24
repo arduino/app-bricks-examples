@@ -68,5 +68,5 @@ The VENTUNO Q is equipped with a wide range of connectors, making it easy to set
 - **CAN-FD screw terminal** — industrial and automotive communication
 - **RPi 40-pin header** — compatible with RPi HATs
 - **UNO Shield headers** — compatible with Arduino UNO Shields (3.3V logic)
-- **Carrier headers (JMEDIA, JMISC, JOMEGA)** — high-speed camera (MIPI CSI), display (MIPI DSI), audio, and motor control interfaces; the optional Media Carrier uses them to add CSI camera connectors and a 3.5 mm audio jack for microphones and speakers
+- **Carrier headers (JMEDIA, JMISC, JOMEGA)** — high-speed camera (MIPI CSI), display (MIPI DSI), audio, and motor control interfaces; the optional [Arduino® UNO™ Media Carrier](https://store.arduino.cc/products/uno-media-carrier) uses them to add CSI camera connectors and a 3.5 mm audio jack for microphones and speakers
 - **Qwiic connector** — connect [Modulino nodes](https://store.arduino.cc/collections/modulino) and other I2C sensors without soldering

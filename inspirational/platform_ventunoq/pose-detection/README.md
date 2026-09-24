@@ -28,7 +28,7 @@ This App turns the `pose_estimation` Brick into an interactive game. The Brick a
 - Arduino VENTUNO Q (x1)
 - Camera (USB or CSI)
 
-**Note:** You can also run this example using your Arduino VENTUNO Q as a Single Board Computer (SBC) with a mouse, keyboard and display attached.
+**Note:** You can also run this example using your Arduino VENTUNO Q as a Single Board Computer (SBC) using a [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and display attached.
 
 ## How to Use the Example
 

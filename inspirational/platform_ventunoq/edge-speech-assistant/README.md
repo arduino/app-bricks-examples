@@ -28,7 +28,7 @@ The Edge Speech Assistant example uses the following Bricks:
 ### Hardware
 
 - Arduino VENTUNO Q (x1)
-- Speaker or headset (USB or 3.5 mm jack) (x1)
+- Speaker or headset (USB or 3.5 mm jack using [Arduino® UNO™ Media Carrier](https://store.arduino.cc/products/uno-media-carrier)) (x1)
 
 **Note:** This example needs a speaker connected to the VENTUNO Q. The `tts` Brick uses the first speaker it finds by default and will fail to start if none is plugged in.
 

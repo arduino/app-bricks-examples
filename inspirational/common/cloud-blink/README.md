@@ -22,7 +22,7 @@ The Blinking LED from Arduino Cloud example uses the following Bricks:
 - Arduino App Lab
 - [Arduino Cloud](https://app.arduino.cc/)
 
-**Note:** You can run this example using your board as a Single Board Computer (SBC) using a [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) _(only for UNO Q)_ with a mouse, keyboard and display attached.
+**Note:** You can run this example using your board as a Single Board Computer (SBC) with a mouse, keyboard and display attached (on the UNO Q through a [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub)).
 
 ## How to Use the Example
 

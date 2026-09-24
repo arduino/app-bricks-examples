@@ -2,7 +2,7 @@
 
 The **Theremin Simulator** example lets you create and control a virtual theremin instrument using an interactive web interface, producing synthesized audio output through a connected audio device with low latency.
 
-**Note:** This example requires to be run using **Network Mode** or **Single-Board Computer (SBC)**, since it requires a **USB-C® hub** to connect the speaker _(only for UNO Q)_.
+**Note:** This example requires to be run using **Network Mode** or **Single-Board Computer (SBC)**, since it requires a **[USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub)** to connect the speaker _(only for UNO Q)_.
 
 *This example is based on the Arduino UNO Q, but also works on the Arduino VENTUNO Q.*
 
@@ -30,15 +30,15 @@ The theremin simulator example uses the following Bricks:
 ### Hardware
 
 - Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
-- USB-C® cable (for power and programming) (x1) _(only for UNO Q)_
-- **USB-C® hub with external power (x1)** _(only for UNO Q)_
+- [USB-C® cable](https://store.arduino.cc/products/usb-cable2in1-type-c) (for power and programming) (x1) _(only for UNO Q)_
+- **[USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with external power (x1)** _(only for UNO Q)_
 - An **audio device** (choose one):
   - **USB speaker** (cabled)
   - **USB wireless speaker receiver/dongle** (2.4 GHz, non-Bluetooth)
-  - **3.5 mm jack speaker** (via the Media Carrier)
+  - **3.5 mm jack speaker** (using [Arduino® UNO™ Media Carrier](https://store.arduino.cc/products/uno-media-carrier))
 - A **power supply** (5 V, 3 A) for the USB hub (e.g. a phone charger) _(only for UNO Q)_
 
-**Important:** A **USB-C® hub is mandatory** for this example _(only for UNO Q)_: the UNO Q's single port must be used for the hub, which provides the necessary connections for both the power supply and the audio device, so the example must be run in **[Network Mode](/learn/network-mode)** or **[SBC Mode](/learn/single-board-computer)**.
+**Important:** A **[USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) is mandatory** for this example _(only for UNO Q)_: the UNO Q's single port must be used for the hub, which provides the necessary connections for both the power supply and the audio device, so the example must be run in **[Network Mode](/learn/network-mode)** or **[SBC Mode](/learn/single-board-computer)**.
 
 **Note:** **HDMI audio** and **Bluetooth® Speakers** are not supported by this App.
 
@@ -46,7 +46,7 @@ The theremin simulator example uses the following Bricks:
 
 1. **Hardware Setup**
 
-   Connect your audio device to the board (on the UNO Q, a USB audio device needs a powered USB-C® hub).
+   Connect your audio device to the board (on the UNO Q, a USB audio device needs a powered [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub)).
 
 2. **Run the App**
 
@@ -154,7 +154,7 @@ If the application fails to start and you see an error regarding the speaker:
 
 **Fix:**
 
-1. Ensure the audio device is connected and turned on (on the UNO Q, through a powered USB-C® hub).
+1. Ensure the audio device is connected and turned on (on the UNO Q, through a powered [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub)).
 
 2. Restart the application.
 
@@ -171,7 +171,7 @@ If the interface works but there is no sound:
 ### Choppy or Crackling Audio
 
 - **CPU Load:** Close other applications running on the Arduino UNO Q.
-- **Power Supply:** Ensure you are using a stable 5 V, 3 A power supply for the USB-C® hub _(only for UNO Q)_. Insufficient power often degrades USB audio performance.
+- **Power Supply:** Ensure you are using a stable 5 V, 3 A power supply for the [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) _(only for UNO Q)_. Insufficient power often degrades USB audio performance.
 
 ## Technical Details
 
