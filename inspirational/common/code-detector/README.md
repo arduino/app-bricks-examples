@@ -59,7 +59,7 @@ Here is a brief explanation of the full-stack application:
 
 ### 🔧 Backend (main.py)
 
-- Initializes a USB camera and a QR/barcode detector (`CameraCodeDetector`).
+- Initializes a camera (`Camera`) and a QR/barcode detector (`CameraCodeDetector`).
 
 - For each frame:
   - Streams it to the frontend (`on_frame`)
@@ -89,18 +89,18 @@ Here is a brief explanation of the full-stack application:
 
 Once the application is running, you can access it from your web browser by navigating to `<UNO-Q-IP-ADDRESS>:7000`. At that point, the device begins performing the following:
 
-- **Continuously capturing frames from the connected USB camera.**
+- **Continuously capturing frames from the connected camera.**
 
     The following module provides a convenient way to integrate the camera into the application using a custom OpenCV-based class:
     
     ```python
-    from arduino.app_peripherals.usb_camera import USBCamera
+    from arduino.app_peripherals.camera import Camera
     ```
 
     To start capturing frames, initialize the camera with:
     
     ```python
-    camera = USBCamera(resolution=(640, 480), fps=60)
+    camera = Camera(resolution=(640, 480), fps=60)
     ```
 - **Searching for codes and processing the camera frames.**
     
