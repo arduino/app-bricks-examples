@@ -1,13 +1,13 @@
 # QR and Barcode Scanner
 
-The **QR and Barcode Scanner** example lets you detect and scan both barcodes and QR codes using a USB camera. It features a web-based interface that streams the live camera feed and displays the scanned codes content. Also, it stores the detected codes in a local database for future reference.
+The **QR and Barcode Scanner** example lets you detect and scan both barcodes and QR codes using a camera. It features a web-based interface that streams the live camera feed and displays the scanned codes content. Also, it stores the detected codes in a local database for future reference.
 
 **Note:** This example requires to be run using **Network Mode** in the Arduino App Lab or in **Single-Board Computer (SBC)** mode, since you will need a USB-C hub to connect the camera _(only for UNO Q)_.
 
 ![Code Detector Example](assets/docs_assets/thumbnail.png)
 
 ## Description
-The app captures video input from a connected USB camera and continuously scans for barcodes and QR codes. When a code is detected, its data is saved to a local SQL database. The web interface allows users to view a live list of all detected codes, including their type and timestamp, updating in real-time as new codes are scanned.
+The app captures video input from a connected camera and continuously scans for barcodes and QR codes. When a code is detected, its data is saved to a local SQL database. The web interface allows users to view a live list of all detected codes, including their type and timestamp, updating in real-time as new codes are scanned.
 
 The `assets` folder contains the **database** and **frontend** components of the application. Inside, you’ll find the JavaScript source files along with the HTML and CSS files that make up the web user interface. The `python` folder instead includes the application **backend**.
 
@@ -26,7 +26,7 @@ The code detector example uses the following Bricks:
 ### Hardware
 
 - Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
-- USB camera (x1)
+- Camera (USB or CSI) (x1)
 - USB-C® hub adapter with external power (x1) _(only for UNO Q)_
 - A power supply (5 V, 3 A) for the USB hub (e.g. a phone charger) _(only for UNO Q)_
 - Personal computer with internet access
@@ -76,7 +76,7 @@ Here is a brief explanation of the full-stack application:
 
 - Connects to the backend using `WebUI`.
 - Renders:
-  - Live video feed from the USB camera (`frame_detected`)
+  - Live video feed from the camera (`frame_detected`)
   - Last detected code with timestamp and copy/link icon (`code_detected`)
   - List of last 5 scans (`/list_scans` API)
 

@@ -8,7 +8,7 @@ The **Person Classifier** example lets you detect people on a live feed from a c
 
 ![Person Classifier on Camera](assets/docs_assets/person-classification.png)
 
-This example uses a pre-trained model to detect people on a live video feed from a camera. The workflow involves continuously getting the frames from a USB camera, processing it through an AI model using the `video_imageclassification` Brick, and displaying the classification along with their corresponding probabilities. The code is structured to be easily adaptable to different models.
+This example uses a pre-trained model to detect people on a live video feed from a camera. The workflow involves continuously getting the frames from a camera, processing it through an AI model using the `video_imageclassification` Brick, and displaying the classification along with their corresponding probabilities. The code is structured to be easily adaptable to different models.
 
 ## Brick Used
 
@@ -22,7 +22,7 @@ The example uses the following Bricks:
 ### Hardware
 
 - Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
-- USB camera (x1)
+- Camera (USB or CSI) (x1)
 - USB-C® hub adapter with external power (x1) _(only for UNO Q)_
 - A power supply (5 V, 3 A) for the USB hub (e.g. a phone charger) _(only for UNO Q)_
 
@@ -69,7 +69,7 @@ Here is a brief explanation of the full-stack application:
 
 - Connects to the backend using **WebUI** (`arduino.js`).
 - Renders:
-  - A **video feed iframe** with placeholder when the webcam is not yet available.
+  - A **video feed iframe** with placeholder when the camera is not yet available.
   - A **confidence control panel** with slider and numeric input to adjust detection threshold.
   - A **feedback section** that shows animated responses when detections occur.
   - A **recent detections list** displaying the latest classifications with confidence percentage and timestamp.

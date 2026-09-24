@@ -35,7 +35,7 @@ The Music Composer example uses the following Bricks:
 
 - Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
 - USB-C® cable (for power and programming) (x1)
-- USB speaker, cabled (x1)
+- Speaker (USB or 3.5 mm jack) (x1)
 - USB-C hub with external power (x1) *(required when using a USB audio device)*  _(only for UNO Q)_
 - Power supply (5 V, 3 A) for the USB-C hub (x1) *(required when using a USB audio device)*  _(only for UNO Q)_
 
@@ -242,7 +242,7 @@ gen.play_composition(composition)
 
 ## Troubleshooting
 
-### "No USB speaker found" error (when using external audio)
+### "No speaker found" error (when using external audio)
 
 If the application fails to start and you see an error regarding the speaker:
 

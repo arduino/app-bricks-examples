@@ -1,12 +1,12 @@
 # Detect Objects on Camera
 
-The **Detect Objects on Camera** example lets you detect objects on a live feed from a USB camera and visualize bounding boxes around the detections in real-time.
+The **Detect Objects on Camera** example lets you detect objects on a live feed from a camera and visualize bounding boxes around the detections in real-time.
 
 **Note:** This example must be run in **Network Mode** in the Arduino App Lab, since it requires a USB-C hub to connect the camera _(only for UNO Q)_.
 
 ![Detect Objects on Camera](assets/docs_assets/video-object-detection.png)
 
-This example uses a pre-trained model to detect objects on a live video feed from a camera. The workflow involves continuously getting the frames from a USB camera, processing it through an AI model using the `video_objectdetection` Brick, and displaying the bounding boxes around detections. The App is managed from an interactive web interface.
+This example uses a pre-trained model to detect objects on a live video feed from a camera. The workflow involves continuously getting the frames from a camera, processing it through an AI model using the `video_objectdetection` Brick, and displaying the bounding boxes around detections. The App is managed from an interactive web interface.
 
 *This example is based on the Arduino UNO Q, but also works on Arduino VENTUNO Q.*
 
@@ -22,7 +22,7 @@ The example uses the following Bricks:
 ### Hardware
 
 - Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
-- USB camera (x1)
+- Camera (USB or CSI) (x1)
 - USB-C® hub adapter with external power (x1) _(only for UNO Q)_
 - A power supply (5 V, 3 A) for the USB hub (e.g. a phone charger) _(only for UNO Q)_
 - Personal computer with internet access

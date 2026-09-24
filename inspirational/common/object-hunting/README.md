@@ -1,8 +1,8 @@
 # Object Hunting
 
-The **Object Hunting Game** is an interactive scavenger hunt that uses real-time object detection. Players must locate specific physical objects in their environment using a USB camera connected to the board to win the game.
+The **Object Hunting Game** is an interactive scavenger hunt that uses real-time object detection. Players must locate specific physical objects in their environment using a camera connected to the board to win the game.
 
-**Note:** This example requires to be run using **Network Mode** or **Single-Board Computer (SBC) Mode**, since it requires a **USB-C® hub** to connect the webcam _(only for UNO Q)_.
+**Note:** This example requires to be run using **Network Mode** or **Single-Board Computer (SBC) Mode**, since it requires a **USB-C® hub** to connect the camera _(only for UNO Q)_.
 
 *This example is based on the Arduino UNO Q, but also works on Arduino VENTUNO Q.*
 
@@ -10,7 +10,7 @@ The **Object Hunting Game** is an interactive scavenger hunt that uses real-time
 
 ## Description
 
-This App creates an interactive game that recognizes real-world objects. It utilizes the `video_objectdetection` Brick to stream video from a USB webcam and perform continuous inference using the **YoloX Nano** model. The web interface challenges the user to find five specific items: **Book, Bottle, Chair, Cup, and Cell Phone**.
+This App creates an interactive game that recognizes real-world objects. It utilizes the `video_objectdetection` Brick to stream video from a camera and perform continuous inference using the **YoloX Nano** model. The web interface challenges the user to find five specific items: **Book, Bottle, Chair, Cup, and Cell Phone**.
 
 **Key features include:**
 
@@ -24,7 +24,7 @@ This App creates an interactive game that recognizes real-world objects. It util
 The object hunting game example uses the following Bricks:
 
 - `web_ui`: Brick to create the interactive game interface and handle WebSocket communication.
-- `video_objectdetection`: Brick that manages the USB camera stream, runs the machine learning model, and provides real-time detection results.
+- `video_objectdetection`: Brick that manages the camera stream, runs the machine learning model, and provides real-time detection results.
 
 ## Hardware Requirements
 
@@ -33,11 +33,11 @@ The object hunting game example uses the following Bricks:
 - Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
 - **USB-C® hub with external power (x1)** _(only for UNO Q)_
 - A power supply (5 V, 3 A) for the USB hub (x1) _(only for UNO Q)_
-- **USB Webcam** (x1)
+- **Camera** (USB or CSI) (x1)
 
-**Important:** A **USB-C® hub is mandatory** for this example to connect the USB Webcam when using the UNO Q.
+**Important:** A **USB-C® hub is mandatory** for this example to connect the camera when using the UNO Q.
 
-**Note:** You must connect the USB camera **before** running the App. If the camera is not connected or not detected, the App will fail to start.
+**Note:** You must connect the camera **before** running the App. If the camera is not connected or not detected, the App will fail to start.
 
 ## How to Use the Example
 
@@ -50,7 +50,7 @@ The object hunting game example uses the following Bricks:
 2. **Run the App**
 
    Launch the App from Arduino App Lab.
-   *Note: If the App stops immediately after clicking Run, check your USB camera connection.*
+   *Note: If the App stops immediately after clicking Run, check your camera connection.*
 
 3. **Access the Web Interface**
 
@@ -82,7 +82,7 @@ The application relies on a continuous data pipeline between the hardware, the i
 **High-level data flow:**
 
 ```
-   USB Camera   ──►   VideoObjectDetection   ──►   Inference Model (YoloX)
+     Camera     ──►   VideoObjectDetection   ──►   Inference Model (YoloX)
                               │                           │
                               │ (MJPEG Stream)            │ (Detection Events)
                               ▼                           ▼
@@ -91,7 +91,7 @@ The application relies on a continuous data pipeline between the hardware, the i
                               └──►   WebSocket (Threshold Control)
 ```
 
-- **Video Streaming**: The `video_objectdetection` Brick captures video from the USB camera and hosts a low-latency stream on port `4912`. The frontend embeds this stream via an `<iframe>`.
+- **Video Streaming**: The `video_objectdetection` Brick captures video from the camera and hosts a low-latency stream on port `4912`. The frontend embeds this stream via an `<iframe>`.
 - **Inference**: The backend continuously runs the **YoloX Nano** object detection model on the video frames.
 - **Event Handling**: When objects are detected, the backend sends the labels to the frontend via WebSockets.
 - **Game Logic**: The frontend JavaScript compares the received labels against the target list and updates the game state.
@@ -173,7 +173,7 @@ The default model used by the `video_objectdetection` Brick is **YoloX Nano**, t
 
 ### App fails to start or stops immediately
 
-If the application crashes right after launching, it is likely because the **USB Camera** is not detected.
+If the application crashes right after launching, it is likely because the **camera** is not detected.
 
 **Fix:**
 
