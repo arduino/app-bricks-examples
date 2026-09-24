@@ -34,7 +34,7 @@ The object hunting game example uses the following Bricks:
 - [USB-C® cable](https://store.arduino.cc/products/usb-cable2in1-type-c) (for power and programming) (x1) _(only for UNO Q)_
 - **[USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with external power (x1)** _(only for UNO Q)_
 - A power supply (5 V, 3 A) for the USB hub (x1) _(only for UNO Q)_
-- **Camera** (USB or CSI) (x1)
+- **Camera** (USB, or CSI using [Arduino® UNO™ Media Carrier](https://store.arduino.cc/products/uno-media-carrier) on the UNO Q) (x1)
 
 **Important:** A **[USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) is mandatory** for this example to connect the camera when using the UNO Q.
 
