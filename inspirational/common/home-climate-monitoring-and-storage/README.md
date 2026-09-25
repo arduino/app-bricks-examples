@@ -14,13 +14,13 @@ The data is stored on the board, where we can view the data from the latest 24 h
 ### Hardware
 
 - Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
-- USB-C® cable
+- [USB-C® cable](https://store.arduino.cc/products/usb-cable2in1-type-c) (for power and programming) (x1) _(only for UNO Q)_
 - [Arduino Modulino® Thermo](https://store.arduino.cc/products/modulino-thermo)
 - Qwiic cable
 
 ## How to Use the Example
 
-1. Connect the board to a computer using a USB-C® cable.
+1. Connect the board to a computer using a [USB-C® cable](https://store.arduino.cc/products/usb-cable2in1-type-c).
 
 2. Connect the Modulino Thermo to the board using the Qwiic connector.
 

@@ -1,10 +1,10 @@
 # Smart Mirror
 
-The **Smart Mirror** example turns your Arduino VENTUNO Q into an AI-powered style advisor. Point a USB camera at yourself, tap "Scan your look", and get a real-time outfit description with a personalized styling tip — all powered by a Vision Language Model running locally on the board.
+The **Smart Mirror** example turns your Arduino VENTUNO Q into an AI-powered style advisor. Point a camera at yourself, tap "Scan your look", and get a real-time outfit description with a personalized styling tip — all powered by a Vision Language Model running locally on the board.
 
 ![Smart Mirror Example](assets/docs_assets/thumbnail.png)
 
-**Note:** This example requires Network Mode and a USB camera connected to the board.
+**Note:** This example requires a camera connected to the board.
 
 ## Description
 
@@ -31,16 +31,15 @@ The Smart Mirror example uses the following Bricks:
 ### Hardware
 
 - Arduino VENTUNO Q (x1)
-- USB-C® cable (for power) (x1)
-- USB camera (x1)
+- Camera (USB or CSI) (x1)
 
 **Note:** You can also run this example using your Arduino VENTUNO Q as a Single Board Computer (SBC) using a [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and display attached.
 
 ## How to Use the Example
 
-1. **Connect a USB camera to the board.** 
+1. **Connect a camera to the board.** 
   
-  Plug the camera into one of the available USB ports on the VENTUNO Q.
+  Plug the camera into one of the USB ports or CSI connectors of the VENTUNO Q.
 
 2. **Run the app from Arduino App Lab.** 
   
@@ -68,7 +67,7 @@ Once the application is running, the device performs the following operations:
 
 ```
 ┌────────────┐     ┌──────────────────────────┐     ┌──────────────────┐
-│ USB Camera │────▶│      Python Backend      │────▶│ Local VLM Service│
+│   Camera   │────▶│      Python Backend      │────▶│ Local VLM Service│
 │  (30 fps)  │     │                          │◀────│    (qwen3-vl)    │
 └────────────┘     │  ┌────────────────────┐  │     └──────────────────┘
                    │  │      VLM Brick     │  │        ▲
@@ -165,7 +164,7 @@ Here is a brief explanation of the App components:
 
 ### Camera not detected
 
-**Fix:** Verify the USB camera is connected and recognized by the board. Disconnect and reconnect the camera, then restart the app.
+**Fix:** Verify the camera is connected and recognized by the board. Disconnect and reconnect the camera, then restart the app.
 
 ### "Connection to the board lost" message
 

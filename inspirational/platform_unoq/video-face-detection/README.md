@@ -2,7 +2,7 @@
 
 The **Face Detector on Camera** example lets you detect objects on a live feed from a USB camera and visualize bounding boxes around the detections in real-time.
 
-**Note:** This example requires to be run using **Network Mode** in the Arduino App Lab because you will need a USB-C hub and a USB camera.
+**Note:** This example requires to be run using **Network Mode** in the Arduino App Lab because you will need a [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) and a USB camera.
 
 ![Detect Objects on Camera](assets/docs_assets/video-face-detection.png)
 
@@ -21,17 +21,17 @@ The example uses the following Bricks:
 
 - [Arduino® UNO Q](https://store.arduino.cc/products/uno-q)
 - USB camera (x1)
-- USB-C® hub adapter with external power (x1)
+- [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) adapter with external power (x1)
 - A power supply (5 V, 3 A) for the USB hub (e.g. a phone charger)
 - Personal computer with internet access
 
 ## How to Use the Example
 
-1. Connect the USB-C hub to the UNO Q and the USB camera.
+1. Connect the [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) to the UNO Q and the USB camera.
 
    ![Hardware setup](assets/docs_assets/hardware-setup.png)
 
-2. Attach the external power supply to the USB-C hub to power everything.
+2. Attach the external power supply to the [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) to power everything.
 
 3. Run the App.
 

@@ -26,7 +26,7 @@ The VENTUNO Q is designed for edge AI and robotics, and can also be used as a st
 - **STM32H5F5** Arm® Cortex®-M33 Microcontroller Unit (MCU) at 250 MHz
 - **16 GB LPDDR5 RAM** and **64 GB eMMC** storage
 - **Wi-Fi® 6** (2.4/5/6 GHz) and **Bluetooth® 5.3**
-- HDMI, USB 3.0, USB-C, Ethernet, M.2 NVMe, CAN-FD, and more (see [Connectors & Interfaces](#connectors--interfaces))
+- HDMI, USB 3.0, USB-C, Ethernet, MIPI CSI camera connectors, M.2 NVMe, CAN-FD, and more (see [Connectors & Interfaces](#connectors--interfaces))
 - A blue 13x8 LED matrix and 4x user-controllable RGB LEDs
 
 ![Arduino® VENTUNO Q overview](assets/ventuno-q.png)
@@ -62,10 +62,11 @@ The VENTUNO Q is equipped with a wide range of connectors, making it easy to set
 - **2x USB 3.0 Type-A** — connect a mouse, keyboard, USB camera, or external storage
 - **1x USB-C** — connect to a computer, or use for video output (DP Alt mode) and power delivery (9–20 VDC)
 - **1x HDMI** — connect a monitor for a full desktop experience
+- **3x MIPI CSI camera connectors** — connect CSI cameras directly to the board
 - **1x 2.5 Gbit RJ45 Ethernet** — wired network connectivity
 - **M.2 Key M (2230)** — add NVMe Gen.4 storage for large AI models and datasets
 - **CAN-FD screw terminal** — industrial and automotive communication
 - **RPi 40-pin header** — compatible with RPi HATs
 - **UNO Shield headers** — compatible with Arduino UNO Shields (3.3V logic)
-- **Carrier headers (JMEDIA, JMISC, JOMEGA)** — high-speed camera (MIPI CSI), display (MIPI DSI), audio, and motor control interfaces
+- **Carrier headers (JMEDIA, JMISC, JOMEGA)** — high-speed camera (MIPI CSI), display (MIPI DSI), audio, and motor control interfaces; the optional [Arduino® UNO™ Media Carrier](https://store.arduino.cc/products/uno-media-carrier) uses them to add CSI camera connectors and a 3.5 mm audio jack for microphones and speakers
 - **Qwiic connector** — connect [Modulino nodes](https://store.arduino.cc/collections/modulino) and other I2C sensors without soldering

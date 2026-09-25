@@ -18,8 +18,7 @@ The Edge Dictation Assistant example uses the following Bricks:
 ### Hardware
 
 - Arduino VENTUNO Q (x1)
-- USB-C® cable (for power and programming) (x1)
-- USB microphone (or headset)
+- Microphone or headset (USB or 3.5 mm jack using [Arduino® UNO™ Media Carrier](https://store.arduino.cc/products/uno-media-carrier))
 
 ## How to Use the Example
 

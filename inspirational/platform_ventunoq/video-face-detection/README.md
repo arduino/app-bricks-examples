@@ -1,12 +1,10 @@
 # Face Detector on Camera
 
-The **Face Detector on Camera** example lets you detect objects on a live feed from a USB camera and visualize bounding boxes around the detections in real-time.
-
-**Note:** This example requires to be run using **Network Mode** in the Arduino App Lab because you will need a USB-C hub and a USB camera.
+The **Face Detector on Camera** example lets you detect objects on a live feed from a camera and visualize bounding boxes around the detections in real-time.
 
 ![Detect Objects on Camera](assets/docs_assets/video-face-detection.png)
 
-This example uses a pre-trained model to detect faces on a live video feed from a camera. The workflow involves continuously getting the frames from a USB camera, processing it through an AI model using the `video_objectdetection` Brick, and displaying the bounding boxes around detected faces. The App is managed from an interactive web interface.
+This example uses a pre-trained model to detect faces on a live video feed from a camera. The workflow involves continuously getting the frames from a camera, processing it through an AI model using the `video_objectdetection` Brick, and displaying the bounding boxes around detected faces. The App is managed from an interactive web interface.
 
 ## Brick Used
 
@@ -20,26 +18,21 @@ The example uses the following Bricks:
 ### Hardware
 
 - Arduino® VENTUNO Q (x1)
-- USB camera (x1)
-- A power supply (5 V, 3 A) for the USB hub (e.g. a phone charger)
+- Camera (USB or CSI) (x1)
 
 ## How to Use the Example
 
-1. Connect the USB-C hub to the UNO Q and the USB camera.
+1. Connect the camera to the VENTUNO Q.
 
-   ![Hardware setup](assets/docs_assets/hardware-setup.png)
+2. Run the App from the top navigation bar.
 
-2. Attach the external power supply to the USB-C hub to power everything.
+3. The App should open automatically in the web browser. You can open it manually via `<board-name>.local:7000`.
 
-3. Run the App from the top navigation bar.
-
-4. The App should open automatically in the web browser. You can open it manually via `<board-name>.local:7000`.
-
-5. Position yourself in front of the camera and watch as the App detects your face and say hi.
+4. Position yourself in front of the camera and watch as the App detects your face and say hi.
 
 ## How it Works
 
-This example hosts a Web UI where we can see the video input from the camera connected via USB. The video stream is then processed using the `video_objectdetection` Brick. When a face is detected, it is logged along with the confidence score (e.g. 95% face) and show a random greeting.
+This example hosts a Web UI where we can see the video input from the connected camera. The video stream is then processed using the `video_objectdetection` Brick. When a face is detected, it is logged along with the confidence score (e.g. 95% face) and show a random greeting.
 
 Here is a brief explanation of the full-stack application:
 
@@ -72,7 +65,7 @@ Here is a brief explanation of the full-stack application:
 - **Video feed**
   - Uses an **iframe** pointing to `/embed` on port `4912`.
   - Auto-retries every second until the camera stream is available.
-  - Shows a placeholder while searching for the webcam.
+  - Shows a placeholder while searching for the camera.
 
 - **Controls**
   - A slider + numeric input + reset button adjust the **confidence threshold** in real-time.

@@ -28,13 +28,13 @@ To read more about the model, visit the following link:
 ### Hardware
 
 - Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
-- USB-C® cable
+- [USB-C® cable](https://store.arduino.cc/products/usb-cable2in1-type-c) (for power and programming) (x1) _(only for UNO Q)_
 - [ArduinoModulino Movement](https://store.arduino.cc/products/modulino-movement)
 - Qwiic cable
 
 ## How to Use the Example
 
-1. Connect the board to a computer using a USB-C® cable.
+1. Connect the board to a computer using a [USB-C® cable](https://store.arduino.cc/products/usb-cable2in1-type-c).
 
 2. Connect the Modulino Movement to the board using the Qwiic connector.
  

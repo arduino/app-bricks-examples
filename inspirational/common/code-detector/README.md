@@ -1,13 +1,13 @@
 # QR and Barcode Scanner
 
-The **QR and Barcode Scanner** example lets you detect and scan both barcodes and QR codes using a USB camera. It features a web-based interface that streams the live camera feed and displays the scanned codes content. Also, it stores the detected codes in a local database for future reference.
+The **QR and Barcode Scanner** example lets you detect and scan both barcodes and QR codes using a camera. It features a web-based interface that streams the live camera feed and displays the scanned codes content. Also, it stores the detected codes in a local database for future reference.
 
-**Note:** This example requires to be run using **Network Mode** in the Arduino App Lab or in **Single-Board Computer (SBC)** mode, since you will need a USB-C hub and a USB camera.
+**Note:** This example requires to be run using **Network Mode** in the Arduino App Lab or in **Single-Board Computer (SBC)** mode, since you will need a [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) to connect the camera _(only for UNO Q)_.
 
 ![Code Detector Example](assets/docs_assets/thumbnail.png)
 
 ## Description
-The app captures video input from a connected USB camera and continuously scans for barcodes and QR codes. When a code is detected, its data is saved to a local SQL database. The web interface allows users to view a live list of all detected codes, including their type and timestamp, updating in real-time as new codes are scanned.
+The app captures video input from a connected camera and continuously scans for barcodes and QR codes. When a code is detected, its data is saved to a local SQL database. The web interface allows users to view a live list of all detected codes, including their type and timestamp, updating in real-time as new codes are scanned.
 
 The `assets` folder contains the **database** and **frontend** components of the application. Inside, you’ll find the JavaScript source files along with the HTML and CSS files that make up the web user interface. The `python` folder instead includes the application **backend**.
 
@@ -26,32 +26,31 @@ The code detector example uses the following Bricks:
 ### Hardware
 
 - Arduino UNO Q (x1) or Arduino VENTUNO Q (x1)
-- USB camera (x1)
-- USB-C® hub adapter with external power (x1) _(only for UNO Q)_
+- [USB-C® cable](https://store.arduino.cc/products/usb-cable2in1-type-c) (for power and programming) (x1) _(only for UNO Q)_
+- Camera (USB, or CSI using [Arduino® UNO™ Media Carrier](https://store.arduino.cc/products/uno-media-carrier) on the UNO Q) (x1)
+- [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) adapter with external power (x1) _(only for UNO Q)_
 - A power supply (5 V, 3 A) for the USB hub (e.g. a phone charger) _(only for UNO Q)_
 - Personal computer with internet access
 
-**Note:** You can also run this example using your board as a Single Board Computer (SBC) using a [USB-C hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and display attached.
+**Note:** You can also run this example using your board as a Single Board Computer (SBC) with a mouse, keyboard and display attached (on the UNO Q through a [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub)).
 
 ## How to Use the Example
 
 *Note, this example was created using the Arduino UNO Q but also works with VENTUNO Q.*
 
-1. Connect the USB-C hub to the UNO Q and the USB camera.
+1. Connect the camera to the board (on the UNO Q, a USB camera needs a powered [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub)).
 
    ![Hardware setup](assets/docs_assets/hardware-setup.png)
 
-2. Attach the external power supply to the USB-C hub to power everything.
+2. Run the App by clicking the **Run** button in the top navigation bar.
 
-3. Run the App by clicking the **Run** button in the top navigation bar.
+3. The App should open automatically in the web browser. You can open it manually via `<board-name>.local:7000`.
 
-4. The App should open automatically in the web browser. You can open it manually via `<board-name>.local:7000`.
+4. Detected codes will appear in real-time on the web interface, showing their type and timestamp.
 
-5. Detected codes will appear in real-time on the web interface, showing their type and timestamp.
+5. Click *Scan another* to repeat the process
 
-6. Click *Scan another* to repeat the process
-
-7. Review the list of scanned codes directly from your browser as new codes are detected.
+6. Review the list of scanned codes directly from your browser as new codes are detected.
 
 ## How it Works
 
@@ -78,7 +77,7 @@ Here is a brief explanation of the full-stack application:
 
 - Connects to the backend using `WebUI`.
 - Renders:
-  - Live video feed from the USB camera (`frame_detected`)
+  - Live video feed from the camera (`frame_detected`)
   - Last detected code with timestamp and copy/link icon (`code_detected`)
   - List of last 5 scans (`/list_scans` API)
 

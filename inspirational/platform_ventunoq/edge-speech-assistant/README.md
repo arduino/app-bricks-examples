@@ -8,7 +8,7 @@ The **Edge Speech Assistant** example turns the Arduino VENTUNO Q into a fully o
 
 This App provides a clean web interface where you can paste or type any text and have it read aloud, with everything running locally on the board. There is no cloud round-trip, no account, and no internet connection required at inference time, which keeps your data private and the latency low.
 
-The backend uses the `tts` Brick to synthesize speech with an on-device text-to-speech model and streams the audio to a USB speaker through ALSA. The frontend, served by the `web_ui` Brick, gives you a Play/Stop control, an elapsed-time counter, and a Reset button so you can quickly iterate on the text you want to hear.
+The backend uses the `tts` Brick to synthesize speech with an on-device text-to-speech model and streams the audio to a speaker through ALSA. The frontend, served by the `web_ui` Brick, gives you a Play/Stop control, an elapsed-time counter, and a Reset button so you can quickly iterate on the text you want to hear.
 
 Key features include:
 
@@ -28,16 +28,15 @@ The Edge Speech Assistant example uses the following Bricks:
 ### Hardware
 
 - Arduino VENTUNO Q (x1)
-- USB-C® cable (for power and programming) (x1)
-- USB-A speaker or headset (x1)
+- Speaker or headset (USB or 3.5 mm jack using [Arduino® UNO™ Media Carrier](https://store.arduino.cc/products/uno-media-carrier)) (x1)
 
-**Note:** This example needs a USB speaker connected to the VENTUNO Q. The `tts` Brick targets the first USB speaker it finds (`usb:1`) by default and will fail to start if no USB speaker is plugged in.
+**Note:** This example needs a speaker connected to the VENTUNO Q. The `tts` Brick uses the first speaker it finds by default and will fail to start if none is plugged in.
 
 ## How to Use the Example
 
-1. **Connect a USB Speaker**
+1. **Connect a Speaker**
 
-   Plug a USB speaker into the VENTUNO Q before launching the App so the `tts` Brick can find it during start-up.
+   Plug a speaker into the VENTUNO Q before launching the App so the `tts` Brick can find it during start-up.
 
 2. **Launch the App**
 
@@ -71,7 +70,7 @@ Once the application is running, the device performs the following operations:
                                                        (text-to-speech on QNN DSP)
                                                                 │ PCM audio
                                                                 ▼
-                                                         ALSA  ──▶  USB Speaker
+                                                         ALSA  ──▶  Speaker
 ```
 
 1. The browser instantiates the `WebUI` helper, which opens a Socket.IO connection to the `web_ui` Brick under the hood, and calls `ui.send_message('speak', { text })` with the text typed by the user.
@@ -80,7 +79,7 @@ Once the application is running, the device performs the following operations:
 
 3. The `tts` Brick calls the local audio-analytics REST API (`http://audio-analytics-runner:8085`) which runs the text-to-speech model on the Qualcomm® DSP and returns raw PCM audio.
 
-4. The Brick writes the PCM stream to ALSA, which routes it to the USB speaker.
+4. The Brick writes the PCM stream to ALSA, which routes it to the speaker.
 
 5. The backend emits a `speaking` status message (`started` when synthesis begins, `finished` when it ends or is stopped or cancelled). The frontend listens with `ui.on_message('speaking', ...)` to drive the Play/Stop toggle and the elapsed-time counter.
 
@@ -96,7 +95,7 @@ Here is a brief explanation of the App components:
 
 The Python® backend is small: it wires the `web_ui` events to the `tts` Brick. All chunking and audio streaming is delegated to the Brick, so the App-level code stays under 30 lines.
 
-- **Initialization**: Both Bricks are created with no arguments. The `tts` Brick auto-detects the first USB speaker and connects to the audio-analytics service.
+- **Initialization**: Both Bricks are created with no arguments. The `tts` Brick auto-detects the first available speaker and connects to the audio-analytics service.
 
   ```python
   from arduino.app_bricks.tts import TextToSpeech
@@ -178,7 +177,7 @@ The page is a single-screen editor with a Play/Stop toggle button and an elapsed
 
 ### No audio comes out of the speaker
 
-**Fix:** Open a terminal on the board and run `aplay -l` to confirm that the USB speaker is connected and visible. The `tts` Brick targets `usb:1` by default and will fail with `No USB speakers found` if no USB speaker is present.
+**Fix:** Open a terminal on the board and run `aplay -l` to confirm that the speaker is connected and visible. The `tts` Brick uses the first speaker it finds by default and will fail to start if none is present.
 
 ### App start fails with "Speaker is busy"
 
