@@ -59,7 +59,7 @@ tasks:
       - python3 scripts/examples_manifest.py --check
 
   build:
-    desc: "Build the release archive in dist/ (task build VERSION=0.13.0rc3): the trees the board tooling installs, the manifest, requirements.txt and the license records"
+    desc: "Build the release archive in dist/ (task build VERSION=0.13.0rc3): the examples trees, learn-docs, the manifest, requirements.txt and the licensing files (records, texts, REUSE and licensed configuration)"
     requires:
       vars: [VERSION]
     vars:
@@ -68,7 +68,7 @@ tasks:
       - rm -rf dist
       - mkdir -p dist
       # Tracked files only, from HEAD: no local leftovers (__pycache__, .DS_Store, *.db) end up in the package.
-      - git archive --format=tar --prefix=app-bricks-examples/ HEAD core-and-foundational inspirational bricks examples.json LICENSE.txt LICENSES | tar -x -C dist
+      - git archive --format=tar --prefix=app-bricks-examples/ HEAD core-and-foundational inspirational bricks learn-docs examples.json LICENSE.txt LICENSES REUSE.toml .licensed.yml | tar -x -C dist
       # From the working tree, not HEAD: a pre-release pins them to an app-bricks-py pre-release
       # in the workspace only (task bricks:pin), main keeps the stable pin.
       - cp requirements.txt dist/app-bricks-examples/
