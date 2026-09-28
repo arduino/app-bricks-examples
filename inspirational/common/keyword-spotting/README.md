@@ -2,7 +2,7 @@
 
 The **Hey Arduino!** example triggers a LED matrix animation whenever the keyword "Hey Arduino" is detected through a microphone.
 
-To use this example, we need to use **Network Mode**, as it requires a [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) to connect the microphone _(only for UNO Q)_.
+To use this example, we need to use **Network Mode**, as it requires a [USB-C® hub](https://store.arduino.cc/products/usb-c-hub-8-in-1) to connect the microphone _(only for UNO Q)_.
 
 Network mode is selected when launching the Arduino App Lab. You can read more about this on [Arduino Docs > Network Configuration](https://docs.arduino.cc/software/app-lab/configure/network-configuration/).
 
@@ -15,8 +15,8 @@ Network mode is selected when launching the Arduino App Lab. You can read more a
 ### Hardware
 
 - Arduino® UNO Q (x1) or Arduino VENTUNO Q (x1)
-- [USB-C® cable](https://store.arduino.cc/products/usb-cable2in1-type-c) (for power and programming) (x1) _(only for UNO Q)_
-- [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) _(only for UNO Q)_
+- [USB-C® cable](https://store.arduino.cc/products/usb-c-cable-24-pin) (for power and programming) (x1) _(only for UNO Q)_
+- [USB-C® hub](https://store.arduino.cc/products/usb-c-hub-8-in-1) _(only for UNO Q)_
 - Microphone or headset (USB or 3.5 mm jack using [Arduino® UNO™ Media Carrier](https://store.arduino.cc/products/uno-media-carrier))
 - A power supply (5 V, 3 A) for the USB hub (e.g. a phone charger) _(only for UNO Q)_
 
@@ -24,7 +24,7 @@ Network mode is selected when launching the Arduino App Lab. You can read more a
 
 ### Hardware Setup
 
-1. Connect the microphone or headset to the board (on the UNO Q, a USB microphone needs a powered [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub)).
+1. Connect the microphone or headset to the board (on the UNO Q, a USB microphone needs a powered [USB-C® hub](https://store.arduino.cc/products/usb-c-hub-8-in-1)).
 
 ![Setting up the USB-C® hub (UNO Q)](assets/docs_assets/hardware-setup.png)
 
