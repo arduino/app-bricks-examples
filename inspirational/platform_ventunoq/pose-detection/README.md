@@ -1,8 +1,10 @@
 # Pose Detection
 
+![Pose Detection Example](assets/docs_assets/thumbnail.png)
+
 The **Pose Detection** game challenges you to match a list of body poses in front of the camera. The board detects your skeleton in real time, draws it on the video together with a bounding box, and marks each pose as found the moment you hold it.
 
-**Note:** This example requires a camera connected to the Arduino VENTUNO Q.
+**Note:** This example requires a camera connected to the Arduino® VENTUNO Q.
 
 ## Description
 
@@ -25,10 +27,11 @@ This App turns the `pose_estimation` Brick into an interactive game. The Brick a
 
 ### Hardware
 
-- Arduino VENTUNO Q (x1)
-- Camera (USB or CSI)
+- Arduino® VENTUNO Q (x1)
+- Camera (USB camera via USB-A or MIPI-CSI camera via CSI connector)
 
 **Note:** You can also run this example using your Arduino VENTUNO Q as a Single Board Computer (SBC) using a [USB-C® hub](https://store.arduino.cc/products/usb-c-hub-8-in-1) with a mouse, keyboard and display attached.
+
 
 ## How to Use the Example
 
