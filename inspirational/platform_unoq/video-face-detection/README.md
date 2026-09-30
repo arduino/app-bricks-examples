@@ -1,19 +1,26 @@
 # Face Detector on Camera
 
-The **Face Detector on Camera** example lets you detect objects on a live feed from a USB camera and visualize bounding boxes around the detections in real-time.
+![Face Detector on Camera Example](assets/docs_assets/video-face-detection.png)
+
+The **Face Detector on Camera** example detects faces on a live camera feed and draws a bounding box around each one in real time. When a face is found, the web interface greets you and logs the detection with its confidence score.
 
 **Note:** This example requires to be run using **Network Mode** in the Arduino App Lab because you will need a [USB-C® hub](https://store.arduino.cc/products/usb-c-hub-8-in-1) and a USB camera.
 
-![Detect Objects on Camera](assets/docs_assets/video-face-detection.png)
+## Description
 
-This example uses a pre-trained model to detect faces on a live video feed from a camera. The workflow involves continuously getting the frames from a USB camera, processing it through an AI model using the `video_objectdetection` Brick, and displaying the bounding boxes around detected faces. The App is managed from an interactive web interface.
+This App uses the `video_objectdetection` Brick with the `face-detection` model. The Brick captures frames from the USB camera, runs the model on each frame and streams the annotated video to the browser, while the `web_ui` Brick serves the interface and exchanges messages with it over WebSocket.
 
-## Brick Used
+**Key features include:**
 
-The example uses the following Bricks:
+- Live camera preview with bounding boxes and confidence scores drawn around detected faces.
+- A confidence control (slider, numeric input and reset button) that changes the detection threshold while the App is running.
+- A feedback panel that shows a waving hand and a random greeting when a face is detected.
+- A list of the last five detections, with confidence score and local time.
 
-- `web_ui`: Brick to create a web interface to display the classification results and model controls.
-- `video_objectdetection`: Brick to classify faces within a live video feed from a camera.
+## Bricks Used
+
+- `video_objectdetection`: detects faces in the camera stream and draws the bounding boxes on the video.
+- `web_ui`: serves the web interface and exchanges detection and threshold messages with the browser over WebSocket.
 
 ## Hardware Requirements
 
@@ -27,159 +34,117 @@ The example uses the following Bricks:
 
 ## How to Use the Example
 
-1. Connect the [USB-C® hub](https://store.arduino.cc/products/usb-c-hub-8-in-1) to the UNO Q and the USB camera.
+1. **Connect the camera**
+
+   Connect the [USB-C® hub](https://store.arduino.cc/products/usb-c-hub-8-in-1) to the UNO Q and the USB camera, then attach the external power supply to the hub to power everything. Make sure the camera is connected before running the App.
 
    ![Hardware setup](assets/docs_assets/hardware-setup.png)
 
-2. Attach the external power supply to the [USB-C® hub](https://store.arduino.cc/products/usb-c-hub-8-in-1) to power everything.
+2. **Run the App**
 
-3. Run the App.
+   Launch the App by clicking the **Run** button in the top right corner of Arduino App Lab. The first launch can take a few minutes, as the board downloads the container that runs the model.
 
    ![Arduino App Lab - Run App](assets/docs_assets/launch-app.png)
 
-4. The App should open automatically in the web browser. You can open it manually via `<board-name>.local:7000`.
+3. **Open the web interface**
 
-5. Position yourself in front of the camera and watch as the App detects your face and say hi.
+   The App opens automatically in your browser. You can also open it manually at `<board-ip>:7000`.
+
+4. **Show your face**
+
+   Position yourself in front of the camera. A bounding box appears around your face, the feedback panel greets you and the detection is added to the **Recent detections** list.
+
+5. **Adjust the confidence**
+
+   Use the **Confidence** slider or type a value to change the minimum score a detection needs to be shown. Click the reset button to return to the default value of `0.50`.
 
 ## How it Works
 
-This example hosts a Web UI where we can see the video input from the camera connected via USB. The video stream is then processed using the `video_objectdetection` Brick. When a face is detected, it is logged along with the confidence score (e.g. 95% face) and show a random greeting.
+```
+   Camera   ──►   video_objectdetection Brick   ──►   Model runner
+                           │                                │
+                           │ detections                     │ annotated video stream (port 4912)
+                           ▼                                ▼
+                      WebUI Brick   ───────────────►   Frontend (Browser)
+                           ▲                                │
+                           └──────── override_th ───────────┘
+```
 
-Here is a brief explanation of the full-stack application:
-
-### 🔧 Backend (`main.py`)
-
-- **Initializes the App Bricks**:
-  - **WebUI** (`ui = WebUI()`): provides realtime communication with the frontend.
-  - **VideoObjectDetection** (`detection_stream = VideoObjectDetection()`): runs face detection on the live video feed.
-
-- **Detection event wiring**:
-  - `on_detect("face", face_detected)`: prints `"Face detected!"` when a face is recognized.
-  - `on_detect_all(send_detections_to_ui)`: forwards all detections to the UI as JSON `{ content, confidence, timestamp }`.
-
-- **Controls**:
-  - Listens for the `override_th` WebSocket message → dynamically updates the detection confidence threshold.
-
-- **Realtime messaging**:
-  - Publishes face detection updates to the frontend with:
-    ```python
-    ui.send_message("detection", message=entry)
-    ```
-
-- **Execution**:
-  - Runs with `App.run()`, which maintains the detection stream, WebSocket communication, and callbacks alive.
-
----
-
-### 💻 Frontend (`index.html` + `app.js`)
-
-- **Video feed**
-  - Uses an **iframe** pointing to `/embed` on port `4912`.
-  - Auto-retries every second until the camera stream is available.
-  - Shows a placeholder while searching for the webcam.
-
-- **Controls**
-  - A slider + numeric input + reset button adjust the **confidence threshold** in real-time.
-  - Values are sent to the backend via:
-    ```javascript
-    ui.send_message('override_th', value);
-    ```
-
-- **Feedback panel**
-  - Displays an animated hand GIF and a random greeting when a face is detected.
-  - Resets to a neutral "stars" image after 3 seconds without detections.
-  - Includes an **info tooltip** explaining the feedback purpose.
-
-- **Recent detections**
-  - Shows up to the last **5 face detections** with:
-    - Confidence percentage
-    - Timestamp (localized to browser time)
-  - If no detections yet, displays a “No face detected yet” placeholder.
-
-- **Connection status**
-  - If the WebSocket disconnects, an error banner appears with `"Connection to the board lost. Please check the connection."`.
-
----
+1. The `video_objectdetection` Brick captures frames from the camera and sends them to the model runner, which runs the `face-detection` model.
+2. The model runner draws the bounding boxes on the video and serves it on port `4912`, where the web page embeds it.
+3. The Brick reports every detection above the confidence threshold to `main.py`, which forwards it to the browser as a `detection` message.
+4. The frontend updates the feedback panel and the list of recent detections, and sends an `override_th` message to the backend when you change the confidence.
 
 ## Understanding the Code
 
-Once the application is running, you can open it in your browser by navigating to `<BOARD-IP-ADDRESS>:7000`. At that point, the device begins performing the following:
+### 🔧 Backend (`main.py`)
 
-- Serving the **face detection UI** and exposing real-time transports.
+The backend initializes the two Bricks. The `VideoObjectDetection` Brick starts with a confidence threshold of `0.5` and no debounce, so every detection is reported:
 
-  The UI is hosted by the `WebUI` Brick and communicates with the backend over WebSocket.  
-  
-  The backend pushes detection messages whenever a face is found.
+```python
+ui = WebUI()
+detection_stream = VideoObjectDetection(confidence=0.5, debounce_sec=0.0)
+```
 
-  ```python
-  from arduino.app_bricks.web_ui import WebUI
-  from arduino.app_bricks.video_objectdetection import VideoObjectDetection
-  from datetime import datetime, UTC
+When the user changes the confidence in the web interface, the `override_th` message updates the threshold of the running model:
 
-  ui = WebUI()
-  detection_stream = VideoObjectDetection()
+```python
+ui.on_message("override_th", lambda sid, threshold: detection_stream.override_threshold(threshold))
+```
 
-  ui.on_message("override_th",
-                lambda sid, threshold: detection_stream.override_threshold(threshold))
+The Brick offers two kinds of callbacks. `on_detect("face", ...)` is called when a face is detected: in this example `face_detected()` is an empty placeholder where you can add your own logic, such as sending a notification. `on_detect_all(...)` receives all detections of a frame as a dictionary that maps each label to a list of detections. `send_detections_to_ui()` sends each detection to the browser with its confidence and a UTC timestamp:
 
-  def face_detected():
-      print("Face detected!")
+```python
+def send_detections_to_ui(detections: dict):
+  for key, values in detections.items():
+    for value in values:
+      entry = {
+        "content": key,
+        "confidence": value.get("confidence"),
+        "timestamp": datetime.now(UTC).isoformat()
+      }
+      ui.send_message("detection", message=entry)
 
-  detection_stream.on_detect("face", face_detected)
-  detection_stream.on_detect_all(send_detections_to_ui)
-  ```
+detection_stream.on_detect_all(send_detections_to_ui)
+```
 
-  - `face` (event): triggers the callback printing `"Face detected!"`.
-  - `detection` (WebSocket message): JSON entry with label, confidence, and timestamp sent to the UI.
-  - `override_th` (WebSocket → backend): dynamically adjusts the minimum confidence threshold.
+Finally, `App.run()` starts the Bricks and keeps the App running.
 
-- Processing detections and broadcasting updates.
+### 💻 Frontend (`index.html` + `app.js`)
 
-  When the model detects faces, the backend:
+The page embeds the annotated video from port `4912` in an `<iframe>`. Until the stream is available, it shows a placeholder and retries every second.
 
-  1. Iterates over all detected objects and their confidence scores.
+`app.js` connects to the backend through the `WebUI` library and handles each `detection` message:
 
-  2. Attaches an ISO 8601 UTC timestamp.
+```javascript
+const ui = new WebUI();
 
-  3. Publishes each detection as a JSON entry to the frontend channel `detection`.
+ui.on_message('detection', handleDetection);
+```
 
-  ```python
-  def send_detections_to_ui(detections: dict):
-      for key, value in detections.items():
-          entry = {
-              "content": key,
-              "confidence": value,
-              "timestamp": datetime.now(UTC).isoformat()
-          }
-          ui.send_message("detection", message=entry)
-  ```
+For each detection, `handleDetection()`:
 
-- Rendering and interacting on the frontend.
+- Adds the detection to the **Recent detections** list, which keeps the last five entries with their confidence and local time.
+- Shows the waving hand and a random greeting in the feedback panel, and restores the default message after 3 seconds without detections.
 
-  The **index.html + app.js** bundle defines the interface:
+The **Confidence** control sends the new threshold to the backend with `ui.send_message('override_th', value)`. Both the confidence control and the feedback panel have an info icon that explains them on hover. If the connection to the board is lost, an error banner appears at the bottom of the page.
 
-  - A **video iframe** retries `/embed` until the live camera feed is available.
-  - A **confidence control** (slider + number + reset) lets the user change the threshold on the fly.
-  - A **feedback section** shows greetings with an animated hand when a face is detected.
-  - A **recent detections list** displays up to 5 detections with confidence and timestamp.
-  - A **connection banner** warns the user if the WebSocket drops.
+### 🛠️ Customizing the Example
 
-  ```javascript
-  const ui = new WebUI();
+- Change the default threshold or add a debounce between repeated detections with the `confidence` and `debounce_sec` arguments of `VideoObjectDetection` in `main.py`.
+- Add your own logic to `face_detected()`, for example to trigger an action whenever someone appears in front of the camera.
+- Edit the `greetings` list in `app.js` to change the messages shown in the feedback panel, or `MAX_RECENT_SCANS` to show more detections.
 
-  ui.on_message('detection', (message) => {
-    printDetection(message); // update detection history
-    renderDetections(); // redraw the list
-    // updateFeedback is built into app.js
-  });
-  ```
+## Troubleshooting
 
-- Executing the event loop.
+### The App does not start and reports "No Camera Device Found"
 
-  Finally, the backend keeps the whole system alive with:
+The camera is not detected. Check that the USB camera is connected to the USB-C® hub and that the hub is powered, then run the App again.
 
-  ```python
-  App.run()
-  ```
+### The video does not appear
 
-  This maintains the detection stream, applies confidence threshold overrides, and sustains real-time WebSocket messaging with the frontend.
+The web page waits for the model runner to be ready and retries every second. On the first launch, the board also needs to download the container that runs the model, so the video can take a few minutes to appear.
+
+### Faces are not detected
+
+Face the camera with your face well lit and fully visible. If detections are still missing, lower the **Confidence** value in the web interface.
