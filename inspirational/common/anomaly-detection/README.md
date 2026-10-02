@@ -71,7 +71,7 @@ The detection system processes images through a trained model optimized for iden
 The system uses a utility function to overlay detection results:
 
 ```python
-from arduino.app_utils import draw_anomaly_markers
+from arduino.app_utils.image import draw_anomaly_markers
 
 img_with_markers = draw_anomaly_markers(pil_image, results)
 ```
