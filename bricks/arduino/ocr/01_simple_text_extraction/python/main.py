@@ -1,9 +1,17 @@
+# SPDX-FileCopyrightText: Copyright (C) Arduino s.r.l. and/or its affiliated companies
+#
+# SPDX-License-Identifier: MPL-2.0
+
 from arduino.app_bricks.ocr import OCR
 from arduino.app_utils import App
 
 ocr = OCR()
 
-result = ocr.extract_text("assets/text.png")
-print(result.text)
 
-App.run()
+def extract_text():
+    result = ocr.extract_text("assets/text.png")
+    print(result.text)
+    raise StopIteration
+
+
+App.run(user_loop=extract_text)
