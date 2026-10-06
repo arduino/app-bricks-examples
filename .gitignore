@@ -26,3 +26,6 @@ libs/*.whl
 .cache/
 __pycache__/
 **/.DS_Store
+
+# Release archive (task build)
+dist/

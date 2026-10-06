@@ -13,6 +13,7 @@ const initialListErrorElement = document.getElementById('initialListError');
 const cameraStatusElement = document.getElementById('cameraStatus');
 const scanMessageElement = document.getElementById('scanMessage');
 const rescanButtonContainer = document.getElementById('rescan-button-container');
+const rescanButton = document.getElementById('rescanButton');
 const deleteScanElement = document.getElementById('delete-scan');
 let errorContainer = document.getElementById('error-container');
 
@@ -81,13 +82,14 @@ function updateCameraStatus(action = 'show') {
 listScans();
 ui.send_message('reset_detection'); // Notify the server to reset detection
 attachIconClickHandlers(); // Attach event listeners for icon clicks
+rescanButton.addEventListener('click', rescan);
+deleteScanElement.addEventListener('click', clearRecentScans);
 
 // Function to copy text to clipboard and show tooltip feedback
 function copyToClipboard(iconWrapper, text) {
   const originalTooltip = iconWrapper.getAttribute('data-tooltip');
 
-  navigator.clipboard
-    .writeText(text)
+  writeToClipboard(text)
     .then(() => {
       // Change tooltip to "Copied!" and add success class
       iconWrapper.setAttribute('data-tooltip', 'Copied!');
@@ -102,6 +104,50 @@ function copyToClipboard(iconWrapper, text) {
     .catch(err => {
       console.error('Failed to copy text: ', err);
     });
+}
+
+// navigator.clipboard is missing over plain HTTP (board reached by IP) and can be denied by embedded browsers
+function writeToClipboard(text) {
+  if (navigator.clipboard) {
+    return navigator.clipboard.writeText(text).catch(() => copyWithTextarea(text));
+  }
+  return copyWithTextarea(text);
+}
+
+function copyWithTextarea(text) {
+  return new Promise((resolve, reject) => {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      if (document.execCommand('copy')) {
+        resolve();
+      } else {
+        reject(new Error('execCommand copy failed'));
+      }
+    } finally {
+      document.body.removeChild(textarea);
+    }
+  });
+}
+
+// Rescan button handler
+function rescan() {
+  ui.send_message('reset_detection'); // Notify the server to reset detection
+  scanInfoElement.innerHTML = ``; // Clear the scan info display
+  updateCameraStatus('show'); // Show the search status again
+
+  // Hide the "Scan another" button when starting a new scan
+  rescanButtonContainer.style.display = 'none';
+}
+
+// Clear recent scans function
+function clearRecentScans() {
+  scans = [];
+  renderScans(); // Re-render the empty list (will show "No recent scans")
 }
 
 async function listScans() {

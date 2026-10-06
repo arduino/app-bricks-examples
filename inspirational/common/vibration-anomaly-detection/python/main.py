@@ -31,7 +31,7 @@ def get_fan_status(anomaly_detected: bool):
     }
 
 # Register action to take after successful detection
-def on_detected_anomaly(anomaly_score: float, classification: dict):
+def on_detected_anomaly(anomaly_score: float, classification: dict | None):
     anomaly_payload = {
         "score": anomaly_score,
         "timestamp": datetime.now().isoformat()

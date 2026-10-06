@@ -1,9 +1,9 @@
 ---
-name: arduino_app_bricks
-version: 0.13.1
+name: arduino-router-bridge
+version: 0.5.0
 type: pip
-summary: Arduino App Bricks for Apps Lab
-homepage: https://github.com/arduino/app-bricks-py
+summary: MessagePack-RPC bridge between Python apps and Arduino microcontrollers
+homepage: https://github.com/arduino/arduino-router-bridge-py
 license: mpl-2.0
 licenses:
 - sources: LICENSE.txt

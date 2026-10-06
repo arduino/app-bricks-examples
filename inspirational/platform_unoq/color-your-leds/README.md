@@ -19,9 +19,9 @@ The example uses the following Brick:
 ### Hardware
 
 - Arduino UNO Q (x1)
-- USB-C® cable (for power and programming) (x1)
+- [USB-C® cable](https://store.arduino.cc/products/usb-c-cable-24-pin) (for power and programming) (x1)
 
-**Note:** You can run this example using your Arduino UNO Q as a Single Board Computer (SBC) using a [USB-C hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and monitor attached.
+**Note:** You can run this example using your Arduino UNO Q as a Single Board Computer (SBC) using a [USB-C® hub](https://store.arduino.cc/products/usb-c-hub-8-in-1) with a mouse, keyboard and monitor attached.
 
 ## How to Use the Example
 

@@ -23,7 +23,7 @@ The Edge AI Assistant example uses the following Bricks:
 ### Hardware
 
 - Arduino UNO Q (x1)
-- USB-C® cable (for power and programming) (x1)
+- [USB-C® cable](https://store.arduino.cc/products/usb-c-cable-24-pin) (for power and programming) (x1)
 
 ## How to Use the Example
 

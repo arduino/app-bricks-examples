@@ -5,7 +5,7 @@
 from arduino.app_utils import App
 from PIL.Image import Image
 from arduino.app_utils.app import App
-from arduino.app_peripherals.usb_camera import Camera
+from arduino.app_peripherals.camera import Camera
 from arduino.app_bricks.camera_code_detection import CameraCodeDetection, Detection
 
 

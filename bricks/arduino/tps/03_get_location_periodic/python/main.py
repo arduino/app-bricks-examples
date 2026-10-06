@@ -5,9 +5,9 @@
 from typing import Any
 
 from arduino.app_utils import App
-from arduino.app_bricks.tps_location_api import TPSLocationAPI
+from arduino.app_bricks.tps import TPS
 
-location_api = TPSLocationAPI()
+tps = TPS()
 
 
 def on_location(result: dict[str, Any] | None, error: Exception | None) -> None:
@@ -26,6 +26,6 @@ def on_location(result: dict[str, Any] | None, error: Exception | None) -> None:
 
 
 # The brick schedules the lookups in the background and calls back with each result
-location_api.periodic_locate(on_location, period_sec=30)
+tps.periodic_locate(on_location, period_sec=30)
 
 App.run()

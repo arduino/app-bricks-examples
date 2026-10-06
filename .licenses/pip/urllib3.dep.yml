@@ -1,6 +1,6 @@
 ---
 name: urllib3
-version: 2.7.0
+version: 2.8.0
 type: pip
 summary: HTTP library with thread-safe connection pooling, file post, and more.
 homepage: ''

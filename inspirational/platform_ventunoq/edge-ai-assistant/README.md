@@ -24,7 +24,6 @@ The Edge AI Assistant example uses the following Bricks:
 ### Hardware
 
 - Arduino VENTUNO Q (x1)
-- USB-C® cable (for power and programming) (x1)
 
 ## How to Use the Example
 
