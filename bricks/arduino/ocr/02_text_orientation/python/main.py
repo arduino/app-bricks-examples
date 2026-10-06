@@ -10,7 +10,7 @@ ocr = OCR()
 
 def extract_text():
     result = ocr.extract_text("assets/text.png", rotation=[0, 90])
-    print(result.text)
+    print(result.text, flush=True)
     raise StopIteration
 
 

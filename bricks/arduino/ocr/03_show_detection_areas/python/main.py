@@ -3,7 +3,9 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from arduino.app_bricks.ocr import OCR
-from arduino.app_utils import App
+from arduino.app_utils import App, Logger
+
+logger = Logger("OCR Detection")
 
 ocr = OCR()
 
@@ -11,7 +13,7 @@ ocr = OCR()
 def show_detections():
     result = ocr.extract_text("assets/text.png")
     for detection in result.detections:
-        print(f"Detected text: {detection.text} ({detection.confidence:.2f}) at {detection.bounding_box_xyxy}")
+        logger.info(f"Detected text: {detection.text} ({detection.confidence:.2f}) at {detection.bounding_box_xyxy}")
     raise StopIteration
 
 
