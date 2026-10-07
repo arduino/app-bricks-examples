@@ -1,4 +1,4 @@
-name: Visualize Smartphone Sensors
+name: Smartphone Sensor Stream
 icon: 📡
 description: This example visualizes live sensor data streamed from a smartphone in an interactive web dashboard.
 
