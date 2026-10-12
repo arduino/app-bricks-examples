@@ -12,11 +12,13 @@ The App fetches air quality data from the *AQICN API* for a specified city. It c
 
 ![Air Quality Emoji Pattern on LED Matrix](assets/docs_assets/aqm-icons.png)
 
-The Python® script handles API communication and data processing, while the Arduino sketch manages LED matrix display and polling. The Router Bridge enables communication between the Python environment and the microcontroller.
+The Python® script fetches the data through the Air Quality Monitoring Brick and converts it into an AQI level, while the Arduino sketch manages LED matrix display and polling. The Router Bridge enables communication between the Python environment and the microcontroller.
 
 ## Bricks Used
 
-**This example does not use any Bricks.** It shows direct Router Bridge communication between Python® and Arduino.
+The air quality monitoring example uses the following Bricks:
+
+- `air_quality_monitoring`: Brick to fetch air quality data (AQI) from the AQICN API and map it into categories such as `Good` or `Moderate`.
 
 ## Hardware Requirements
 
@@ -93,28 +95,22 @@ Once the application is running, the device performs the following operations:
 
 - **Fetching air quality data from the AQICN API.**
 
- The application makes direct API requests to the AQICN service:
+ The Air Quality Monitoring Brick queries the AQICN service for the configured city:
 
  ```python
-import requests
-
-endpoint = f"https://api.waqi.info/feed/{city}/?token={API_TOKEN}"
-response = requests.get(endpoint)
-response_json = response.json()
+monitor = AirQualityMonitoring(token=API_TOKEN)
+data = monitor.get_air_quality_by_city(city)
  ```
-    
- The `get_air_quality()` function handles the API communication, JSON parsing, and error checking. It extracts the AQI value from the response and converts it to a readable category using the `map_aqi_level()` function.
+
+ The `get_air_quality()` function asks the Brick for the data and handles the `AirQualityLookupError` it raises when the request fails (invalid token, unknown city, quota exceeded).
 
 - **Converting numeric values to readable categories.**
 
-The `map_aqi_level()` function converts numeric pollution measurements into standard categories:
+The Brick's `map_aqi_level()` helper converts the numeric AQI into a standard category:
 
 ```python
-def map_aqi_level(aqi_value: int) -> str:
-    for level in AQI_LEVELS:
-        if level["min"] <= aqi_value <= level["max"]:
-             return level["description"]
-    return "N/A"
+level = AirQualityMonitoring.map_aqi_level(data.aqi)
+return level.description if level else "N/A"
 ```
 
 For example, a pollution reading of 75 is labeled as *Moderate* rather than leaving users to interpret what that number means.
@@ -152,7 +148,7 @@ if (airQuality == "Good") {
 The high-level data flow looks like this:
 
 ```
-AQICN API → Python Direct Request → Router Bridge → MCU loop() → LED Matrix
+AQICN API → Air Quality Monitoring Brick → Router Bridge → MCU loop() → LED Matrix
 ```
 
 ## Understanding the Code
@@ -163,17 +159,15 @@ Here is a brief explanation of the application components:
 
 The Python® code serves as the system's data processor, handling all communication with the air quality service and converting raw information into a format that the LED matrix can use.
 
-- **`API_TOKEN`, `city`, `endpoint`**: Simple constants that you edit to target a different location and authenticate with the service.
+- **`API_TOKEN`, `city`**: Simple constants that you edit to authenticate with the service and target a different location.
 
-- **`AQI_LEVELS`**: Table defining category ranges (0-50 = Good, 51-100 = Moderate, etc.) following standard air quality guidelines.
+- **`monitor`**: The `AirQualityMonitoring` Brick instance, created with the API token.
 
-- **`map_aqi_level()`**: Looks up the textual level for a numeric AQI by checking which range the number falls into.
+- **`AirQualityMonitoring.map_aqi_level()`**: Brick helper that looks up the AQI level (`Good`, `Moderate`, etc.) for a numeric AQI, following standard air quality guidelines.
 
-- **`get_air_quality()`**: Makes a direct HTTP request to the AQICN API using the `requests` library, parses the JSON response, validates the status, extracts the AQI value, converts it to a readable level using `map_aqi_level()`, and returns the corresponding level string.
+- **`get_air_quality()`**: Asks the Brick for the air quality of the city, converts the AQI value to its level with `map_aqi_level()` and returns the level description.
 
-- **`requests.get(endpoint)`**: Performs the actual HTTP GET request to the AQICN API with the configured city and API token.
-
-- **Response validation**: Checks that the API response status is 'ok' and that data is present before processing the AQI value.
+- **Error handling**: A failed lookup raises `AirQualityLookupError`, which the function catches so the App keeps running and the matrix shows the `unknown` pattern.
 
 - **`Bridge.provide(...)`**: Makes `get_air_quality` callable from the microcontroller, creating the communication link.
 
