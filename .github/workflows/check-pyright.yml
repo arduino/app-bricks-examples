@@ -11,6 +11,10 @@ name: Pyright checks
 # deadlocking: merge the library change first, then the examples one. New
 # pyright warnings are reported as a warning, never as a failure.
 #
+# The base of the diff is the commit the PR branch starts from (the merge base
+# with the base branch), not the tip of the base branch: errors fixed on main
+# after the branch was created are neither new nor fixed for the PR.
+#
 # Pull requests are always checked against the main branch of app-bricks-py, so
 # main of the two repositories stays coherent. The manual run accepts another
 # library ref to verify an examples change ahead of the library merge; it
@@ -60,12 +64,26 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           path: head
+          # The whole history, to find the commit the PR branch starts from.
+          fetch-depth: 0
+
+      - name: Find the commit the PR branch starts from
+        id: base
+        # The merge base of the PR with its base branch: the diff compares the PR
+        # against the code it was written on, not against whatever landed on the
+        # base branch since. The SHAs reach the shell through env, never by
+        # interpolation.
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: echo "sha=$(git -C head merge-base "$BASE_SHA" "$HEAD_SHA")" >> "$GITHUB_OUTPUT"
 
       - name: Checkout examples base
         if: github.event_name == 'pull_request'
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.base.sha }}
+          ref: ${{ steps.base.outputs.sha }}
           path: base
 
       - name: Checkout app-bricks-py
@@ -93,18 +111,19 @@ jobs:
       - name: Build check venv
         run: |
           python -m venv checkenv
-          # Library dependencies (core + [all] extra), without the library itself:
-          # pyright resolves the library from the app-bricks-py sources.
-          python bricks/scripts/check_pyright.py deps --pyproject bricks/pyproject.toml > library-deps.txt
-          # Runtime baseline of the app container + library dependencies.
+          # The app runtime, without the library itself: its dependencies (core +
+          # [all] extra), the packages of the python-base container and the ones
+          # run.sh installs at app start. Pyright resolves the library from the
+          # app-bricks-py sources.
+          python bricks/scripts/check_pyright.py deps --runtime --root bricks > runtime-deps.txt
           # Tolerant per-package install: a package that still fails to build on
           # the runner only degrades the affected types to Unknown, it must not
           # fail the job.
-          cat bricks/containers/base/python-base/requirements-base.txt library-deps.txt | while IFS= read -r pkg; do
+          while IFS= read -r pkg; do
             pkg="${pkg%%#*}"
             [ -z "${pkg// /}" ] && continue
             ./checkenv/bin/pip install -q "$pkg" < /dev/null || echo "::notice::package not installed in the check venv: $pkg"
-          done
+          done < runtime-deps.txt
           # Per-example dependencies, from both sides of the PR.
           find head base -path '*/python/requirements.txt' 2>/dev/null -exec ./checkenv/bin/pip install -q -r {} \;
 
