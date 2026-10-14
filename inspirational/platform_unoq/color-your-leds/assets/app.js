@@ -88,6 +88,7 @@ function setupColorPickerLED(ledNumber) {
   switchEl.addEventListener('change', e => {
     ledState[ledNumber].isOn = e.target.checked;
     picker.disabled = !ledState[ledNumber].isOn;
+    hexInput.disabled = !ledState[ledNumber].isOn;
     if (ledState[ledNumber].isOn) {
       updateColor(ledNumber, ledState[ledNumber].color);
     } else {
@@ -128,7 +129,9 @@ function updateColor(ledNumber, newColor, updateStateColor = true) {
   if (ledNumber === 3) {
     const hexInput = document.getElementById(`led3-hex`);
     const trigger = document.getElementById(`led3-color-trigger`);
+    const picker = document.getElementById(`led3-color`);
     hexInput.value = newColor;
+    picker.value = newColor;
     trigger.style.backgroundColor = newColor;
   }
 

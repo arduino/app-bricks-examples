@@ -261,6 +261,11 @@ input:checked + .slider:before {
   cursor: pointer;
 }
 
+.color-picker-trigger:focus-within {
+  outline: 2px solid #008184;
+  outline-offset: 2px;
+}
+
 .color-picker-trigger input[type='color']:disabled {
   cursor: not-allowed;
 }
