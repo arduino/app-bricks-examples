@@ -81,13 +81,13 @@ function setupPaletteLED(ledNumber) {
 
 function setupColorPickerLED(ledNumber) {
   const switchEl = document.getElementById(`led${ledNumber}-switch`);
-  const trigger = document.getElementById(`led${ledNumber}-color-trigger`);
   const picker = document.getElementById(`led${ledNumber}-color`);
   const hexInput = document.getElementById(`led${ledNumber}-hex`);
   const circle = document.getElementById(`led${ledNumber}-circle`);
 
   switchEl.addEventListener('change', e => {
     ledState[ledNumber].isOn = e.target.checked;
+    picker.disabled = !ledState[ledNumber].isOn;
     if (ledState[ledNumber].isOn) {
       updateColor(ledNumber, ledState[ledNumber].color);
     } else {
@@ -96,12 +96,6 @@ function setupColorPickerLED(ledNumber) {
         color: { r: 0, g: 0, b: 0 },
       });
       circle.style.backgroundColor = OFF_COLOR;
-    }
-  });
-
-  trigger.addEventListener('click', () => {
-    if (ledState[ledNumber].isOn) {
-      picker.click();
     }
   });
 
