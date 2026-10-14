@@ -245,6 +245,31 @@ input:checked + .slider:before {
   cursor: pointer;
 }
 
+/* The native input covers the square: WebKit ignores a scripted click on a hidden color input */
+.color-picker-trigger {
+  position: relative;
+}
+
+.color-picker-trigger input[type='color'] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.color-picker-trigger:focus-within {
+  outline: 2px solid #008184;
+  outline-offset: 2px;
+}
+
+.color-picker-trigger input[type='color']:disabled {
+  cursor: not-allowed;
+}
+
 .hex-input {
   font-family: 'Roboto Mono', monospace;
   font-size: 14px;
