@@ -254,21 +254,38 @@ jobs:
         # the library itself, which pyright resolves from the app-bricks-py sources.
         if: env.SKIP_CHECKS != 'true'
         run: |
-          # The script, its rules and the runtime baseline ship with app-bricks-py
-          # since 0.13.0rc1: an older release cannot be checked.
-          for f in scripts/check_pyright.py pyright-rules.json containers/base/python-base/requirements-base.txt; do
+          # The script and its rules ship with app-bricks-py since 0.13.0rc1: an
+          # older release cannot be checked.
+          for f in scripts/check_pyright.py pyright-rules.json; do
             if [[ ! -f "app-bricks-py/$f" ]]; then
               echo "::error::app-bricks-py@$BRICKS_REF has no $f: releases before 0.13.0 predate the pyright tooling and cannot be checked"
               exit 1
             fi
           done
+          # The app runtime, without the library itself: its dependencies (core +
+          # [all] extra), the packages of the python-base container and the ones
+          # run.sh installs at app start. Since 0.14.0rc1 the script lists them
+          # (deps --runtime) from the container pyproject.toml; the 0.13.x releases
+          # keep the container packages in requirements-base.txt instead.
+          container_reqs=app-bricks-py/containers/base/python-base/requirements-base.txt
+          if python app-bricks-py/scripts/check_pyright.py deps --help | grep -q -- '--runtime'; then
+            python app-bricks-py/scripts/check_pyright.py deps --runtime --root app-bricks-py > runtime-deps.txt
+          elif [[ -f "$container_reqs" ]]; then
+            python app-bricks-py/scripts/check_pyright.py deps --pyproject app-bricks-py/pyproject.toml > library-deps.txt
+            cat "$container_reqs" library-deps.txt > runtime-deps.txt
+          else
+            echo "::error::app-bricks-py@$BRICKS_REF lists its runtime packages in neither 'check_pyright.py deps --runtime' nor $container_reqs: the check venv cannot be built"
+            exit 1
+          fi
           python -m venv checkenv
-          python app-bricks-py/scripts/check_pyright.py deps --pyproject app-bricks-py/pyproject.toml > library-deps.txt
-          cat app-bricks-py/containers/base/python-base/requirements-base.txt library-deps.txt | while IFS= read -r pkg; do
+          # Tolerant per-package install: a package that still fails to build on
+          # the runner only degrades the affected types to Unknown, it must not
+          # fail the job.
+          while IFS= read -r pkg; do
             pkg="${pkg%%#*}"
             [ -z "${pkg// /}" ] && continue
             ./checkenv/bin/pip install -q "$pkg" < /dev/null || echo "::notice::package not installed in the check venv: $pkg"
-          done
+          done < runtime-deps.txt
           find examples -path '*/python/requirements.txt' -exec ./checkenv/bin/pip install -q -r {} \;
 
       - name: Typing against app-bricks-py
