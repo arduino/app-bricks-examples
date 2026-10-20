@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: MPL-2.0
 
 /* Example sketch which demonstrates how to use the Monitor class to send log messages from the microcontroller to the Arduino App Lab Serial Monitor. 
-   The sketch sends a "Hello UNO Q" message every second.
+   The sketch sends a "Hello, world!" message every second.
 */
 
 #include "Arduino_RouterBridge.h"
@@ -13,6 +13,6 @@ void setup() {
 }
 
 void loop() {
-  Monitor.println("Hello UNO Q"); // Transmit the string "Hello UNO Q" followed by a newline character
+  Monitor.println("Hello, world!"); // Transmit the string "Hello, world!" followed by a newline character
   delay(1000);
 }
