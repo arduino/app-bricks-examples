@@ -1,10 +1,10 @@
-# Visualize Smartphone Sensors
+# Smartphone Sensor Stream
 
-The **Visualize Smartphone Sensors** example turns your smartphone into a wireless multi-sensor device: pair the phone with your board and watch accelerometer, gyroscope, magnetometer, compass, GPS, barometer, brightness, sound, battery and touch data stream into a live, animated web dashboard.
+The **Smartphone Sensor Stream** example turns your smartphone into a wireless multi-sensor device: pair the phone with your board and watch accelerometer, gyroscope, magnetometer, compass, GPS, barometer, brightness, sound, battery and touch data stream into a live, animated web dashboard.
 
 **Note:** This example uses your smartphone as a remote sensor input. Both the board and your smartphone must be connected to the same network.
 
-![Visualize Smartphone Sensors](assets/docs_assets/mobile-remote-sensor.png)
+![Smartphone Sensor Stream](assets/docs_assets/smartphone-sensor-stream.png)
 
 This example receives live sensor data from the **Arduino IoT Remote** mobile app. The workflow involves pairing your phone to the board via a QR code, streaming sensor readings over the network through the `remote_sensor` peripheral (secured with a one-time password), and rendering each metric in a dedicated animated panel. The App is managed from an interactive web interface.
 
