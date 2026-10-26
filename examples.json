@@ -353,6 +353,20 @@
       ]
     },
     {
+      "brick": "arduino:multimodal_llm",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/multimodal_llm/01_image_and_audio_files"
+        },
+        {
+          "id": "examples:bricks/arduino/multimodal_llm/02_microphone_streaming_chat"
+        },
+        {
+          "id": "examples:bricks/arduino/multimodal_llm/03_camera_and_microphone"
+        }
+      ]
+    },
+    {
       "brick": "arduino:object_detection",
       "examples": [
         {
