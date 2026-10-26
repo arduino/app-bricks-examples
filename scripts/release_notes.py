@@ -15,11 +15,15 @@ published) with the previous release:
 
 "Previous" is by version order, not by date: the greatest existing tag lower than
 the version being released, so a re-run for an existing version compares with the
-release before it. The notes hold the table of the examples added, fixed, renamed
-and removed (an example is a directory holding an app.yaml), the examples whose
-only changes are documentation in a collapsed list under it, the commits in
-between, and the link to the full diff. Links point at the version tag, which
-exists once the release is published.
+release before it. The two releases need not share a history line: a release can
+come from any branch, a patch release from a branch of fixes cherry-picked from
+main for instance. The notes hold the table of the examples added, fixed, renamed
+and removed (an example is a directory holding an app.yaml, compared by content),
+the examples whose only changes are documentation in a collapsed list under it,
+the commits in between (the ones reachable from the version only, leaving out
+those the previous release holds as the same patch, cherry-picks included), and
+the link to the full diff. Links point at the version tag, which exists once the
+release is published.
 
 Usage:
   release_notes.py --version 0.13.0rc3 --print-previous
@@ -209,8 +213,12 @@ def link(example: str, repo: str, ref: str) -> str:
 
 
 def commits_list(previous: str | None, head: str, repo: str) -> list[str]:
-    rev = f"{previous}..{head}" if previous else head
-    log = git("log", "--no-merges", "--format=%H%x09%s", rev).strip()
+    """The commits of `head` the previous release does not hold: those reachable
+    from `head` only, minus the ones the previous release has as the same patch
+    (cherry-picks between a release branch and main, matched by patch-id). A
+    cherry-pick resolved with conflicts has a different patch-id and is listed."""
+    rev = [f"{previous}...{head}", "--right-only", "--cherry-pick"] if previous else [head]
+    log = git("log", "--no-merges", "--format=%H%x09%s", *rev).strip()
     if not log:
         return ["No commits.", ""]
     lines = []
