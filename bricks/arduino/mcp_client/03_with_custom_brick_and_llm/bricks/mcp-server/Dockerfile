@@ -4,7 +4,7 @@
 
 FROM python:3.13-slim
 
-RUN pip install --no-cache-dir "mcp>=1.10" tzdata
+RUN pip install --no-cache-dir "mcp>=1.10,<2" tzdata
 
 WORKDIR /app
 COPY server.py .
