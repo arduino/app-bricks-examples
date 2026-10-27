@@ -1,0 +1,6 @@
+name: Count objects crossing a line
+icon: 🎯
+description: "Count the objects crossing a line drawn on the video, in each direction. Requires a connected camera"
+
+bricks:
+  - arduino:video_object_tracking

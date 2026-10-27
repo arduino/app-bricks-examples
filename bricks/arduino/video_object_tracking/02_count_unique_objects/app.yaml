@@ -1,0 +1,6 @@
+name: Count distinct tracked objects
+icon: 🎯
+description: "Count how many distinct people passed in front of the camera. Requires a connected camera"
+
+bricks:
+  - arduino:video_object_tracking
