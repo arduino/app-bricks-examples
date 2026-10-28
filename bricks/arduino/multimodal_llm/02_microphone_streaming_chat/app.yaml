@@ -1,0 +1,6 @@
+name: Talk to a local multimodal LLM
+icon: 🗣️
+description: "Record a spoken request from the microphone and stream the answer of a local multimodal LLM. Requires a microphone device and a locally available model."
+
+bricks:
+  - arduino:multimodal_llm
