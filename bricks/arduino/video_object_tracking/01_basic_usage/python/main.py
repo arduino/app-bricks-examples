@@ -5,8 +5,8 @@
 from arduino.app_utils import App
 from arduino.app_bricks.video_object_tracking import VideoObjectTracking
 
-# Initialize the tracker with custom confidence and debounce settings
-tracker = VideoObjectTracking(confidence=0.4, debounce_sec=1.5)
+# Initialize the tracker with a custom confidence threshold
+tracker = VideoObjectTracking(confidence=0.4)
 
 
 # Callback when a "person" is tracked: one dict argument with the details of the person, once per person in the frame

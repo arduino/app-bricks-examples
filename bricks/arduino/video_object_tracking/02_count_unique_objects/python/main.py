@@ -6,7 +6,8 @@ from arduino.app_utils import App
 from arduino.app_bricks.video_object_tracking import VideoObjectTracking
 
 # Track only people: every other label is left out of the callbacks, the counters and the video
-tracker = VideoObjectTracking(confidence=0.4, labels_to_track=["person"])
+# The debounce runs the callback at most once a second; the counters are updated on every frame anyway
+tracker = VideoObjectTracking(confidence=0.4, debounce_sec=1.0, labels_to_track=["person"])
 
 
 # Callback for all tracked objects of a frame (must take one dict argument)
