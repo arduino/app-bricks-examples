@@ -4,6 +4,7 @@
 
 FROM python:3.13-slim
 
+# Pinned below 2 because mcp 2 renames FastMCP to mcp.server.mcpserver.MCPServer and server.py uses the 1.x API
 RUN pip install --no-cache-dir "mcp>=1.10,<2" tzdata
 
 WORKDIR /app
