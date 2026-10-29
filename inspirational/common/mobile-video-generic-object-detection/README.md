@@ -85,7 +85,7 @@ Here is a brief explanation of the full-stack application:
   - **VideoObjectDetection**: Initialized with the `camera` object (`VideoObjectDetection(camera, ...)`) to run the object detection on the phone camera stream.
 
 - **Event Handling**:
-  - **Status Updates**: Wires camera status changes (connected, streaming) to the UI.
+  - **Status Updates**: Forwards every camera status change (connected, disconnected, streaming, paused) to the UI.
   - **UI Connection**: When a user opens the browser (`ui.on_connect`), the backend sends the connection details (IP, port, secret) so the frontend can generate the pairing QR code.
   - **Detections**: Uses `on_detect_all` to send classification results (`content`, `confidence`, `timestamp`) to the UI.
 
@@ -101,7 +101,7 @@ Here is a brief explanation of the full-stack application:
   - Generates a **QR Code** using `qrcode.min.js`. This code contains the credentials required for the mobile app to connect.
 
 - **Video Feed**:
-  - Once the phone connects, the interface switches from the QR code view to a live video iframe (`/embed`).
+  - Once the phone starts streaming, the interface switches from the QR code view to a live video iframe (`/embed`).
 
 - **Feedback & Controls**:
   - **Confidence Slider**: Adjusts the sensitivity of the AI model.
@@ -126,7 +126,8 @@ Once the application is running, you can open it in your browser. At that point,
   secret = generate_secret()
   ui = WebUI()
   resolution = (480, 640)  # Portrait resolution for mobile devices
-  camera = WebSocketCamera(resolution=resolution, secret=secret, encrypt=True, adjustments=resized(resolution, maintain_ratio=True))
+  camera = WebSocketCamera(secret=secret, encrypt=True, resolution=resolution)
+  camera.on_status_changed(lambda evt_type, data: ui.send_message(evt_type, data))
 
   # Send connection details to UI so it can draw the QR code
   ui.on_connect(lambda sid: ui.send_message("welcome", {
@@ -148,13 +149,14 @@ Once the application is running, you can open it in your browser. At that point,
 
   # Register a callback for when all objects are detected
   def send_detections_to_ui(detections: dict):
-    for key, value in detections.items():
-      entry = {
-        "content": key,
-        "confidence": value.get("confidence"),
-        "timestamp": datetime.now(UTC).isoformat()
-      }
-      ui.send_message("detection", entry)
+    for key, values in detections.items():
+      for value in values:
+        entry = {
+          "content": key,
+          "confidence": value.get("confidence"),
+          "timestamp": datetime.now(UTC).isoformat()
+        }
+        ui.send_message("detection", entry)
 
   detection.on_detect_all(send_detections_to_ui)
   ```
@@ -164,25 +166,26 @@ Once the application is running, you can open it in your browser. At that point,
   In `app.js`, the frontend waits for the `welcome` message to generate the QR code that bridges the phone and the board.
 
   ```javascript
-  ui.on_message('welcome', async (message) => {
+  ui.on_message('welcome', onWelcome);
+
+  async function onWelcome(message) {
+    webcamState.status = message.status;
     webcamState.secret = message.secret;
-    // ... update state ...
+    // ... protocol, ip, port and client name ...
     updateDisplay();
-  });
+  }
 
   function updateDisplay() {
-    if (webcamState.status != 'connected') {
-      // Webcam is not connected yet - show QR code
+    if (webcamState.status == 'streaming') {
+      // Webcam is streaming - show video iframe
+      dynamicIframe.src = streamUrl;
+      // ... resize the iframe and show the client name ...
+    } else if (webcamState.status != 'connected') {
+      // No webcam is connected - show QR code
       if (webcamState.secret) {
-        generateQRCode(
-          webcamState.secret,
-          webcamState.protocol,
-          webcamState.ip,
-          webcamState.port,
-        );
+        generateQRCode(webcamState.secret, webcamState.protocol, webcamState.ip, webcamState.port);
       }
     }
-    // ... else show video iframe ...
   }
   ```
 
