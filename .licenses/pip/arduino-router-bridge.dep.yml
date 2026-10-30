@@ -1,6 +1,6 @@
 ---
 name: arduino-router-bridge
-version: 0.5.0
+version: 0.5.1
 type: pip
 summary: MessagePack-RPC bridge between Python apps and Arduino microcontrollers
 homepage: https://github.com/arduino/arduino-router-bridge-py
