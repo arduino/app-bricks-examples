@@ -1,0 +1,6 @@
+name: Watch objects entering and leaving an area
+icon: 🎯
+description: "Watch an area of the video and count the objects entering and leaving it. Requires a connected camera"
+
+bricks:
+  - arduino:video_object_tracking
