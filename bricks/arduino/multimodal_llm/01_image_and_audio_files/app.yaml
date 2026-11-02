@@ -1,0 +1,6 @@
+name: Ask a spoken question about an image
+icon: 🗣️
+description: "Send an image and a recorded question to a local multimodal LLM. Models must be downloaded and available locally."
+
+bricks:
+  - arduino:multimodal_llm
