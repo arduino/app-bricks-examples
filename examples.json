@@ -522,6 +522,23 @@
       ]
     },
     {
+      "brick": "arduino:video_object_tracking",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/video_object_tracking/01_basic_usage"
+        },
+        {
+          "id": "examples:bricks/arduino/video_object_tracking/02_count_unique_objects"
+        },
+        {
+          "id": "examples:bricks/arduino/video_object_tracking/03_line_crossing"
+        },
+        {
+          "id": "examples:bricks/arduino/video_object_tracking/04_area_enter_exit"
+        }
+      ]
+    },
+    {
       "brick": "arduino:visual_anomaly_detection",
       "examples": [
         {
