@@ -1,0 +1,7 @@
+name: Feed the Mascot
+icon: 🐣
+description: Bring objects into the feed zone to make the mascot grow
+
+bricks:
+  - arduino:video_object_tracking
+  - arduino:web_ui

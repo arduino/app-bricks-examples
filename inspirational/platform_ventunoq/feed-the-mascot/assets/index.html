@@ -1,0 +1,170 @@
+<!--
+SPDX-FileCopyrightText: Copyright (C) Arduino s.r.l. and/or its affiliated companies
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Feed the Mascot</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body data-state="loading">
+    <img id="stream" alt="Camera stream with the tracked objects and the feed zone" />
+
+    <div id="feed-area" data-stage="baby" data-mouth="normal">
+      <div id="mascot">
+        <img class="mascot baby normal" src="img/mascot/baby-normal.svg" alt="" />
+        <img class="mascot baby open" src="img/mascot/baby-open.svg" alt="" />
+        <img class="mascot young normal" src="img/mascot/young-normal.svg" alt="" />
+        <img class="mascot young open" src="img/mascot/young-open.svg" alt="" />
+        <img class="mascot adult normal" src="img/mascot/adult-normal.svg" alt="" />
+        <img class="mascot adult open" src="img/mascot/adult-open.svg" alt="" />
+      </div>
+      <span id="feed-label">FEED ZONE</span>
+    </div>
+
+    <div id="loading-overlay" class="overlay">
+      <span class="icon loading"><img src="img/icons/loading.svg" alt="" /></span>
+      <h2>Starting camera&hellip;</h2>
+    </div>
+
+    <div id="win-overlay" class="overlay">
+      <img class="win-mascot" src="img/mascot/adult-normal.svg" alt="" />
+      <h2>Fully grown!</h2>
+      <p>
+        It ate <strong><span id="eaten">9</span> objects</strong> in <strong id="grown-in">0:00</strong>
+      </p>
+      <button id="play-again" class="btn-primary" type="button">Play again</button>
+    </div>
+
+    <div id="header-shade"></div>
+    <header>
+      <h1>Feed the Mascot</h1>
+      <span class="icon logo"><img src="img/logo.svg" alt="Arduino logo" /></span>
+    </header>
+
+    <main id="panels">
+      <section id="progress-panel" class="panel">
+        <div class="panel-head">
+          <h2>Feed the mascot</h2>
+          <span class="pill"><strong id="bites">0</strong>/<span id="bites-goal">9</span> eaten</span>
+        </div>
+        <p class="panel-text">Bring objects into its area to feed it. Every 3 bites it grows. People don't count</p>
+        <div id="tips-accordion">
+          <button id="tips-toggle" type="button" aria-expanded="false" aria-controls="tips-content">
+            <span class="icon info"><img src="img/icons/info.svg" alt="" /></span>
+            <span class="tips-title">Tips for better detection</span>
+            <span class="icon chevron-down"><img src="img/icons/chevron-down.svg" alt="" /></span>
+            <span class="icon chevron-up"><img src="img/icons/chevron-up.svg" alt="" /></span>
+          </button>
+          <div id="tips-content" class="tips small" hidden>
+            <div class="tip">
+              <span class="tip-icon"
+                ><span class="icon tip-background"><img src="img/icons/tip-background.svg" alt="" /></span
+              ></span>
+              <span>Use a plain, light background behind the objects</span>
+            </div>
+            <div class="tip">
+              <span class="tip-icon"
+                ><span class="icon tip-light"><img src="img/icons/tip-light.svg" alt="" /></span
+              ></span>
+              <span>Make sure the room is well lit</span>
+            </div>
+          </div>
+        </div>
+        <div id="levels">
+          <div class="level">
+            <span class="level-name"
+              >LEVEL 1<span class="icon checkmark"><img src="img/icons/checkmark.svg" alt="Done" /></span
+            ></span>
+            <span class="slots"><span class="slot"></span><span class="slot"></span><span class="slot"></span></span>
+          </div>
+          <div class="level">
+            <span class="level-name"
+              >LEVEL 2<span class="icon checkmark"><img src="img/icons/checkmark.svg" alt="Done" /></span
+            ></span>
+            <span class="slots"><span class="slot"></span><span class="slot"></span><span class="slot"></span></span>
+          </div>
+          <div class="level">
+            <span class="level-name"
+              >LEVEL 3<span class="icon checkmark"><img src="img/icons/checkmark.svg" alt="Done" /></span
+            ></span>
+            <span class="slots"><span class="slot"></span><span class="slot"></span><span class="slot"></span></span>
+          </div>
+        </div>
+      </section>
+
+      <section id="confidence-panel" class="panel">
+        <div class="confidence-head">
+          <div>
+            <h2>Confidence level</h2>
+            <p class="panel-text">Set lower to detect more objects, higher to improve accuracy</p>
+          </div>
+          <div class="confidence-input">
+            <div id="confidence-field">
+              <input
+                id="confidence-number"
+                type="number"
+                min="1"
+                max="100"
+                step="1"
+                value="30"
+                aria-label="Confidence level" />
+              <button id="confidence-reset" type="button" title="Back to the default">
+                <span class="icon reset"><img src="img/icons/reset.svg" alt="Reset" /></span>
+              </button>
+            </div>
+            <p id="confidence-error" hidden>
+              <span class="icon attention"><img src="img/icons/attention.svg" alt="" /></span>
+              <span id="confidence-error-text">Only numbers</span>
+            </p>
+          </div>
+        </div>
+        <div id="confidence-value">30</div>
+        <div class="slider-row">
+          <span>1</span>
+          <input
+            id="confidence-slider"
+            type="range"
+            min="1"
+            max="100"
+            step="1"
+            value="30"
+            aria-label="Confidence level" />
+          <span>100</span>
+        </div>
+      </section>
+    </main>
+
+    <div id="tips-overlay" class="overlay">
+      <div class="tips-dialog">
+        <h2>For better detection</h2>
+        <div class="tips">
+          <div class="tip">
+            <span class="tip-icon"
+              ><span class="icon tip-background"><img src="img/icons/tip-background.svg" alt="" /></span
+            ></span>
+            <span>Use a plain, light background behind the objects</span>
+          </div>
+          <div class="tip">
+            <span class="tip-icon"
+              ><span class="icon tip-light"><img src="img/icons/tip-light.svg" alt="" /></span
+            ></span>
+            <span>Make sure the room is well lit</span>
+          </div>
+        </div>
+        <button id="tips-close" class="btn-primary" type="button">Got it</button>
+      </div>
+    </div>
+
+    <div id="error-container" class="hidden">Connection to the board lost. Please check the connection.</div>
+
+    <script src="libs/socket.io.min.js"></script>
+    <script src="libs/arduino.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
