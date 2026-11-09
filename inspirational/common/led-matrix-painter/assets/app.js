@@ -286,6 +286,7 @@ async function persistFrame() {
     );
 
     if (data && data.ok && data.frame) {
+      if (data.board === false) showError('Frame saved, but the board is not responding.');
       // Update loaded frame reference
       loadedFrame = data.frame;
       loadedFrameId = data.frame.id;

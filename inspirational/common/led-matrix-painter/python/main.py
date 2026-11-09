@@ -11,6 +11,7 @@ import store  # user module for DB operations
 
 BRIGHTNESS_LEVELS = 8  # must match the frontend slider range (0..BRIGHTNESS_LEVELS-1)
 MAX_FRAMES = 300  # must match MAX_FRAMES in sketch.ino (animation buffer limit)
+BOARD_TIMEOUT_S = 2  # a draw takes a few ms: waiting longer only delays the answer to the page
 
 logger = Logger("led-matrix-painter")
 ui = WebUI()
@@ -41,12 +42,20 @@ def parse_frame(payload: dict) -> AppFrame:
     return frame
 
 
-def apply_frame_to_board(frame: AppFrame):
-    """Send frame bytes to the Arduino board."""
+def apply_frame_to_board(frame: AppFrame) -> bool:
+    """Send frame bytes to the Arduino board.
+
+    A board that does not answer must not fail the request that triggered the draw: the frame is
+    already saved, so the error is logged and reported to the page as `board: false`.
+    """
     frame_bytes = frame.to_board_bytes()
-    Bridge.call("draw", frame_bytes)
-    frame_label = f"name={frame.name}, id={frame.id if frame.id else 'None (preview)'}"
-    logger.debug(f"Frame sent to board: {frame_label}, bytes_len={len(frame_bytes)}")
+    try:
+        Bridge.call("draw", frame_bytes, timeout=BOARD_TIMEOUT_S)
+    except Exception as e:
+        logger.warning(f"Board did not draw frame id={frame.id}: {e}")
+        return False
+    logger.debug(f"Frame sent to board: id={frame.id}, bytes_len={len(frame_bytes)}")
+    return True
 
 
 def update_board(payload: dict):
@@ -56,9 +65,9 @@ def update_board(payload: dict):
     Expected payload: {rows, name, id, position, duration_ms, brightness_levels}
     """
     frame = parse_frame(payload)
-    apply_frame_to_board(frame)
-    vector_text = frame.to_c_string()
-    return {'ok': True, 'vector': vector_text}
+    if not apply_frame_to_board(frame):
+        raise HTTPException(status_code=503, detail="The board is not responding")
+    return {'ok': True, 'vector': frame.to_c_string()}
 
 
 def persist_frame(payload: dict):
@@ -85,9 +94,8 @@ def persist_frame(payload: dict):
         if not store.update_frame(frame):
             raise HTTPException(status_code=404, detail=f"Frame {frame.id} not found")
 
-    apply_frame_to_board(frame)
-    vector_text = frame.to_c_string()
-    return {'ok': True, 'frame': frame.to_json(), 'vector': vector_text}
+    board = apply_frame_to_board(frame)
+    return {'ok': True, 'board': board, 'frame': frame.to_json(), 'vector': frame.to_c_string()}
 
 
 def bulk_update_frame_duration(payload) -> bool:
@@ -120,9 +128,8 @@ def load_frame(payload: dict | None = None):
         frame = store.get_or_create_active_frame(brightness_levels=BRIGHTNESS_LEVELS)
         logger.info(f"Active frame ready: id={frame.id}, name={frame.name}")
 
-    apply_frame_to_board(frame)
-    vector_text = frame.to_c_string()
-    return {'ok': True, 'frame': frame.to_json(), 'vector': vector_text}
+    board = apply_frame_to_board(frame)
+    return {'ok': True, 'board': board, 'frame': frame.to_json(), 'vector': frame.to_c_string()}
 
 
 def list_frames():
