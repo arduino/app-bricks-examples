@@ -3,106 +3,103 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import struct
+from collections import Counter
 
 from fastapi import HTTPException
 
 from arduino.app_bricks.web_ui import WebUI
-from arduino.app_utils import App, Bridge, FrameDesigner, Logger
-from app_frame import AppFrame  # user module defining AppFrame
-import store  # user module for DB operations
+from arduino.app_utils import App, Bridge, Logger
+from arduino.app_utils.ledmatrix import UNO_Q_MATRIX, Frame, FrameDesigner, sequence_to_c, to_c_array
+from stored_frame import StoredFrame
+import store
 
-BRIGHTNESS_LEVELS = 8  # must match the frontend slider range (0..BRIGHTNESS_LEVELS-1)
+BRIGHTNESS_LEVELS = 8  # must match matrix.setGrayscaleBits(3) in sketch.ino
 MAX_FRAMES = 300  # must match MAX_FRAMES in sketch.ino (animation buffer limit)
 BOARD_TIMEOUT_S = 2  # a draw takes a few ms: waiting longer only delays the answer to the page
 ANIMATION_CHUNK_FRAMES = 10  # 10 x 20 bytes per call, below the 256-byte RPC message limit of the sketch
 
+# The matrix the app draws on: every frame is validated against it, and the page reads it from /config
+template = FrameDesigner(*UNO_Q_MATRIX, brightness_levels=BRIGHTNESS_LEVELS)
+
+TRANSFORMATIONS = {
+    'invert': Frame.invert,
+    'invert_not_null': Frame.invert_not_null,
+    'rotate180': Frame.rotate180,
+    'flip_h': Frame.flip_horizontally,
+    'flip_v': Frame.flip_vertically,
+}
+
 logger = Logger("led-matrix-painter")
 ui = WebUI()
-designer = FrameDesigner()
-
-logger.info("Initializing LED matrix tool")
-store.init_db()
-logger.info(f"Database initialized, brightness_levels={BRIGHTNESS_LEVELS}")
+store.init_db(template)
+logger.info(f"Database initialized, matrix={template.width}x{template.height}, brightness_levels={BRIGHTNESS_LEVELS}")
 
 
 def get_config():
     """Expose runtime configuration for the frontend."""
-    return {
-        'brightness_levels': BRIGHTNESS_LEVELS,
-        'width': designer.width,
-        'height': designer.height,
-    }
+    return {'brightness_levels': template.brightness_levels, 'width': template.width, 'height': template.height}
 
 
-def parse_frame(payload: dict) -> AppFrame:
+def parse_frame(payload: dict) -> StoredFrame:
     """Build a frame from a request payload, answering 400 to malformed input."""
     try:
-        frame = AppFrame.from_json(payload)
+        sf = StoredFrame.from_payload(payload, template)
     except (KeyError, TypeError, ValueError) as e:
         raise HTTPException(status_code=400, detail=f"Invalid frame: {e}") from e
-    if frame.duration_ms < 0:
+    if sf.duration_ms < 0:
         raise HTTPException(status_code=400, detail="Invalid frame: duration_ms must not be negative")
-    return frame
+    return sf
 
 
-def apply_frame_to_board(frame: AppFrame) -> bool:
-    """Send frame bytes to the Arduino board.
+def draw(sf: StoredFrame) -> bool:
+    """Show a frame on the board, one byte per LED (the format of Arduino_LED_Matrix::draw).
 
     A board that does not answer must not fail the request that triggered the draw: the frame is
     already saved, so the error is logged and reported to the page as `board: false`.
     """
-    frame_bytes = frame.to_board_bytes()
     try:
-        Bridge.call("draw", frame_bytes, timeout=BOARD_TIMEOUT_S)
+        Bridge.call("draw", sf.frame.to_bytes(), timeout=BOARD_TIMEOUT_S)
     except Exception as e:
-        logger.warning(f"Board did not draw frame id={frame.id}: {e}")
+        logger.warning(f"Board did not draw frame id={sf.id}: {e}")
         return False
-    logger.debug(f"Frame sent to board: id={frame.id}, bytes_len={len(frame_bytes)}")
     return True
 
 
-def update_board(payload: dict):
-    """Update board display in real-time without persisting to DB.
+def frame_response(sf: StoredFrame, board: bool | None = None) -> dict:
+    """The answer of the endpoints that return a frame: the frame and its C code for the code panel."""
+    response = {'ok': True, 'frame': sf.to_payload(), 'vector': to_c_array(sf.frame, sf.c_name)}
+    if board is not None:
+        response['board'] = board
+    return response
 
-    Used for live preview during editing.
-    Expected payload: {rows, name, id, position, duration_ms, brightness_levels}
+
+def update_board(payload: dict):
+    """Show a frame on the board without saving it (live preview while drawing).
+
+    Expected payload: {rows, brightness_levels}
     """
-    frame = parse_frame(payload)
-    if not apply_frame_to_board(frame):
+    sf = parse_frame(payload)
+    if not draw(sf):
         raise HTTPException(status_code=503, detail="The board is not responding")
-    return {'ok': True, 'vector': frame.to_c_string()}
+    return {'ok': True, 'vector': to_c_array(sf.frame, sf.c_name)}
 
 
 def persist_frame(payload: dict):
-    """Persist frame to DB (insert new or update existing).
-
-    Backend (store.save_frame) is responsible for assigning progressive names.
+    """Save a frame (insert without id, update with id) and show it on the board.
 
     Expected payload: {rows, name, id, position, duration_ms, brightness_levels}
     """
-    frame = parse_frame(payload)
-
-    if frame.id is None:
-        # Insert new frame - backend assigns name if empty
-        logger.debug(f"Creating new frame: name='{frame.name}'")
-        frame.id = store.save_frame(frame)
-        # Reload frame to get backend-assigned name
-        record = store.get_frame_by_id(frame.id)
-        if record:
-            frame = AppFrame.from_record(record)
-        logger.info(f"New frame created: id={frame.id}, name={frame.name}")
-    else:
-        # Update existing frame
-        logger.debug(f"Updating frame: id={frame.id}, name={frame.name}")
-        if not store.update_frame(frame):
-            raise HTTPException(status_code=404, detail=f"Frame {frame.id} not found")
-
-    board = apply_frame_to_board(frame)
-    return {'ok': True, 'board': board, 'frame': frame.to_json(), 'vector': frame.to_c_string()}
+    sf = parse_frame(payload)
+    try:
+        store.save(sf)
+    except LookupError as e:
+        raise HTTPException(status_code=404, detail=str(e)) from e
+    logger.debug(f"Frame saved: id={sf.id}, name={sf.name}")
+    return frame_response(sf, board=draw(sf))
 
 
 def bulk_update_frame_duration(payload: dict):
-    """Update the duration of all frames with a single statement.
+    """Set the same duration on all frames.
 
     Payload: {duration_ms: int}
     """
@@ -112,42 +109,29 @@ def bulk_update_frame_duration(payload: dict):
         raise HTTPException(status_code=400, detail="duration_ms must be an integer") from None
     if duration < 0:
         raise HTTPException(status_code=400, detail="duration_ms must not be negative")
-    logger.debug(f"Bulk updating frame duration: duration={duration}")
-    store.bulk_update_frame_duration(duration)
+    store.set_all_durations(duration or 1000)  # 0 means the default duration, as for a single frame
     return {'ok': True}
 
 
 def load_frame(payload: dict | None = None):
-    """Load a frame for editing or create empty if none exist.
+    """Load a frame for editing and show it on the board.
 
-    Optional payload: {id: int} to load specific frame
-    If no ID provided, loads last frame or creates empty
+    Optional payload: {id: int}. Without an id, loads the last frame, creating an empty one if there are none.
     """
     fid = payload.get('id') if payload else None
-
     if fid is not None:
-        logger.debug(f"Loading frame by id: {fid}")
-        record = store.get_frame_by_id(fid)
-        if not record:
-            logger.warning(f"Frame not found: id={fid}")
+        sf = store.get(fid)
+        if sf is None:
             raise HTTPException(status_code=404, detail=f"Frame {fid} not found")
-        frame = AppFrame.from_record(record)
-        logger.info(f"Frame loaded: id={frame.id}, name={frame.name}")
     else:
-        # Get last frame or create empty
-        logger.debug("Loading last frame or creating empty")
-        frame = store.get_or_create_active_frame(brightness_levels=BRIGHTNESS_LEVELS)
-        logger.info(f"Active frame ready: id={frame.id}, name={frame.name}")
-
-    board = apply_frame_to_board(frame)
-    return {'ok': True, 'board': board, 'frame': frame.to_json(), 'vector': frame.to_c_string()}
+        sf = store.first_or_create()
+    logger.info(f"Frame loaded: id={sf.id}, name={sf.name}")
+    return frame_response(sf, board=draw(sf))
 
 
 def list_frames():
-    """Return list of frames for sidebar."""
-    records = store.list_frames(order_by='position ASC, id ASC')
-    frames = [AppFrame.from_record(r).to_json() for r in records]
-    return {'frames': frames}
+    """Return list of frames for the bottom panel."""
+    return {'frames': [sf.to_payload() for sf in store.list_frames()]}
 
 
 def delete_frames(payload: dict):
@@ -156,7 +140,7 @@ def delete_frames(payload: dict):
     if not fids:
         raise HTTPException(status_code=400, detail="no frame ids provided")
     logger.info(f"Deleting frames: ids={fids}")
-    store.delete_frames(fids)
+    store.delete(fids)
     return {'ok': True}
 
 
@@ -164,186 +148,110 @@ def reorder_frames(payload: dict):
     """Reorder frames to match provided id list order."""
     order = payload.get('order', [])
     logger.info(f"Reordering frames: new order={order}")
-    store.reorder_frames(order)
+    store.reorder(order)
     return {'ok': True}
 
 
 def transform_frame(payload: dict):
-    """Apply transformation operation to a frame.
+    """Apply a transformation to the frame being edited or to a saved frame.
 
-    Payload: {op: str, rows: list OR id: int}
+    Payload: {op: str, rows: list} or {op: str, id: int}
     Operations: invert, invert_not_null, rotate180, flip_h, flip_v
     """
     op = payload.get('op')
-    if not op:
-        raise HTTPException(status_code=400, detail="op required")
-
-    # Load frame from rows or by ID
-    rows = payload.get('rows')
-    if rows is not None:
-        frame = AppFrame.from_json({'rows': rows, 'brightness_levels': BRIGHTNESS_LEVELS})
-        logger.debug(f"Transforming frame from rows: op={op}")
-    else:
-        fid = payload.get('id')
-        if fid is None:
-            raise HTTPException(status_code=400, detail="id or rows required")
-        record = store.get_frame_by_id(fid)
-        if not record:
-            raise HTTPException(status_code=404, detail=f"Frame {fid} not found")
-        frame = AppFrame.from_record(record)
-        logger.debug(f"Transforming frame by id: id={fid}, op={op}")
-
-    # Apply transformation
-    operations = {
-        'invert': designer.invert,
-        'invert_not_null': designer.invert_not_null,
-        'rotate180': designer.rotate180,
-        'flip_h': designer.flip_horizontally,
-        'flip_v': designer.flip_vertically,
-    }
-    if op not in operations:
-        logger.warning(f"Unsupported transform operation: {op}")
+    if op not in TRANSFORMATIONS:
         raise HTTPException(status_code=400, detail=f"unsupported op: {op}")
-
-    options = payload.get('options', {})
-    operations[op](frame, **options)
+    if payload.get('rows') is not None:
+        sf = parse_frame({'rows': payload['rows'], 'brightness_levels': payload.get('brightness_levels')})
+    elif payload.get('id') is not None:
+        sf = store.get(payload['id'])
+        if sf is None:
+            raise HTTPException(status_code=404, detail=f"Frame {payload['id']} not found")
+    else:
+        raise HTTPException(status_code=400, detail="id or rows required")
+    TRANSFORMATIONS[op](sf.frame)
     logger.info(f"Transform applied: op={op}")
-
-    # Return transformed frame (frontend will handle board update via persist)
-    return {'ok': True, 'frame': frame.to_json(), 'vector': frame.to_c_string()}
+    # The page saves the transformed frame, which also shows it on the board
+    return frame_response(sf)
 
 
 def export_frames(payload: dict | None = None):
-    """Export multiple frames into a single C header string.
+    """Export frames into a single C header string.
 
     Payload (optional): {frames: [id,...], animations: [{name, frames}]}
-    - If no animations: exports frames as individual arrays (Frames mode)
-    - If animations present: exports as animation sequences (Animations mode)
+    - without animations: one uint8_t array per frame, for matrix.draw()
+    - with animations: one uint32_t sequence per animation, for matrix.loadSequence()
     """
-    # Get frame IDs to export
-    if payload and payload.get('frames'):
-        frame_ids = [int(fid) for fid in payload['frames']]
-        logger.info(f"Exporting selected frames: ids={frame_ids}")
-        records = [store.get_frame_by_id(fid) for fid in frame_ids]
-        records = [r for r in records if r is not None]
-    else:
-        logger.info("Exporting all frames")
-        records = store.list_frames(order_by='position ASC, id ASC')
+    payload = payload or {}
+    frames = store.get_many(payload['frames']) if payload.get('frames') else store.list_frames()
+    logger.info(f"Exporting {len(frames)} frames")
 
-    logger.debug(f"Exporting {len(records)} frames to C header")
+    # Names that become the same C identifier, e.g. "My Frame" and "my-frame", get an _id<N> suffix
+    counts = Counter(sf.c_name for sf in frames)
+    labels = {sf.id: sf.c_name if counts[sf.c_name] == 1 else f"{sf.c_name}_id{sf.id}" for sf in frames}
 
-    # Build frame objects and make their C identifiers unique. Duplicates are counted on the
-    # sanitized names (AppFrame computes them from the user-defined ones), so names that differ
-    # only by case or punctuation, e.g. "My Frame" and "my-frame", are disambiguated as well.
-    frames = [AppFrame.from_record(r) for r in records]
-    export_names = {}  # sanitized name -> count
-    for frame in frames:
-        export_names[frame._export_name] = export_names.get(frame._export_name, 0) + 1
-    for frame in frames:
-        if export_names[frame._export_name] > 1:
-            # Duplicate detected, use _idN suffix for uniqueness
-            frame._export_name = f"{frame._export_name}_id{frame.id}"
-            logger.debug(f"Duplicate name '{frame.name}' -> '{frame._export_name}'")
-
-    # Check if we're in animations mode
-    animations = payload.get('animations') if payload else None
-
+    parts = []
+    animations = payload.get('animations')
     if animations:
-        # Animation mode: export as animation sequences
-        logger.info(f"Animation mode: {len(animations)} animation(s)")
-        header_parts = []
-
         for anim in animations:
             anim_name = anim.get('name', 'Animation')
-            anim_frame_ids = anim.get('frames', [])
-
-            # Get frames for this animation
-            anim_frames = [f for f in frames if f.id in anim_frame_ids]
-
-            if not anim_frames:
-                continue
-
-            # Build animation array (delegated to AppFrame exporter)
-            header_parts.append(f"// Animation: {anim_name}")
-            header_parts.append(AppFrame.frames_to_c_animation_array(anim_frames, anim_name))
-
-        header = "\n".join(header_parts).strip() + "\n"
-        return {'header': header}
+            anim_frames = [sf for sf in frames if sf.id in anim.get('frames', [])]
+            if anim_frames:
+                parts.append(f"// Animation: {anim_name}")
+                parts.append(sequence_to_c([(sf.frame, sf.duration_ms, labels[sf.id]) for sf in anim_frames], anim_name))
     else:
-        # Frames mode: export individual frame arrays
-        header_parts = []
-        for frame in frames:
-            header_parts.append(f"// {frame._export_name} (id {frame.id})")
-            header_parts.append(frame.to_c_string())
-
-        header = "\n".join(header_parts).strip() + "\n"
-        return {'header': header}
+        for sf in frames:
+            parts.append(f"// {labels[sf.id]} (id {sf.id})")
+            parts.append(to_c_array(sf.frame, labels[sf.id]))
+    return {'header': "\n".join(parts).strip() + "\n"}
 
 
 def play_animation(payload: dict):
-    """Play animation sequence on the board.
+    """Play frames as an animation on the board.
 
-    Payload: {frames: [id,...], loop: bool}
-    - frames: list of frame IDs to play in sequence
+    Payload: {frames: [id,...]}
     """
     frame_ids = payload.get("frames", [])
-
     if not frame_ids:
-        logger.warning("play_animation called with no frames")
         raise HTTPException(status_code=400, detail="no frames provided")
-
-    # Check frame count against sketch buffer limit
     if len(frame_ids) > MAX_FRAMES:
-        logger.error(f"Too many frames for animation: {len(frame_ids)} > {MAX_FRAMES}")
         raise HTTPException(
             status_code=400,
             detail=f"Animation exceeds maximum frame limit ({MAX_FRAMES} frames). Please reduce the number of frames.",
         )
-
-    records = [store.get_frame_by_id(fid) for fid in frame_ids]
-    frames = [AppFrame.from_record(r) for r in records if r is not None]
+    frames = store.get_many(frame_ids)
     if not frames:
-        logger.warning("No valid frames found for animation")
         raise HTTPException(status_code=404, detail="no valid frames found")
     logger.info(f"Playing animation: frame_count={len(frames)}")
 
-    # Each frame is 4 pixel words + its duration, packed as 5 little-endian uint32 (the layout of the
-    # sketch's animation buffer). Frames go in chunks through calls, not one notify per frame: every
-    # chunk is acknowledged with the number of frames buffered so far, which paces the transfer to
-    # the board and tells us whether all of them arrived.
-    entries = [[int(word, 16) for word in f.to_animation_hex()[:4]] + [int(f.duration_ms)] for f in frames]
+    # Each frame is its pixel words (the format of Arduino_LED_Matrix::loadSequence) followed by the
+    # duration, packed as little-endian uint32 like the sketch's animation buffer. Frames go in chunks
+    # through calls: every chunk is acknowledged with the number of frames buffered so far, which paces
+    # the transfer to the board and tells us whether all of them arrived.
+    entries = [[*sf.frame.to_words(), sf.duration_ms] for sf in frames]
     try:
         Bridge.call("stop_animation", timeout=BOARD_TIMEOUT_S)  # also empties the animation buffer
         loaded = 0
         for i in range(0, len(entries), ANIMATION_CHUNK_FRAMES):
-            chunk = entries[i:i + ANIMATION_CHUNK_FRAMES]
-            loaded = Bridge.call("load_frames", struct.pack(f"<{5 * len(chunk)}I", *(v for e in chunk for v in e)), timeout=BOARD_TIMEOUT_S)
+            words = [w for entry in entries[i:i + ANIMATION_CHUNK_FRAMES] for w in entry]
+            loaded = Bridge.call("load_frames", struct.pack(f"<{len(words)}I", *words), timeout=BOARD_TIMEOUT_S)
         if loaded != len(entries):
             raise RuntimeError(f"the board buffered {loaded} of {len(entries)} frames")
         Bridge.call("play_animation", timeout=BOARD_TIMEOUT_S)
     except Exception as e:
         logger.warning(f"Failed to play the animation: {e}")
         raise HTTPException(status_code=503, detail=f"The board could not play the animation: {e}") from e
-    logger.info(f"Animation started on board: frames={loaded}")
     return {"ok": True, "frames_played": len(frames), "loaded": loaded}
 
 
 def stop_animation():
-    """Stop any running animation on the board.
-
-    This endpoint calls the sketch provider `stop_animation`. No payload
-    required.
-
-    Returns:
-        dict: {'ok': True} on success, {'error': str} on failure.
-    """
+    """Stop any running animation on the board."""
     try:
-        Bridge.call("stop_animation")
-        logger.info("stop_animation called on board")
-        return {'ok': True}
+        Bridge.call("stop_animation", timeout=BOARD_TIMEOUT_S)
     except Exception as e:
         logger.warning(f"Failed to request stop_animation: {e}")
-        return {'error': str(e)}
+        raise HTTPException(status_code=503, detail=f"The board could not stop the animation: {e}") from e
+    return {'ok': True}
 
 
 ui.expose_api('POST', '/update_board', update_board)
