@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+import struct
+
 from fastapi import HTTPException
 
 from arduino.app_bricks.web_ui import WebUI
@@ -12,6 +14,7 @@ import store  # user module for DB operations
 BRIGHTNESS_LEVELS = 8  # must match the frontend slider range (0..BRIGHTNESS_LEVELS-1)
 MAX_FRAMES = 300  # must match MAX_FRAMES in sketch.ino (animation buffer limit)
 BOARD_TIMEOUT_S = 2  # a draw takes a few ms: waiting longer only delays the answer to the page
+ANIMATION_CHUNK_FRAMES = 10  # 10 x 20 bytes per call, below the 256-byte RPC message limit of the sketch
 
 logger = Logger("led-matrix-painter")
 ui = WebUI()
@@ -301,50 +304,42 @@ def play_animation(payload: dict):
 
     if not frame_ids:
         logger.warning("play_animation called with no frames")
-        return {"error": "no frames provided"}
+        raise HTTPException(status_code=400, detail="no frames provided")
 
     # Check frame count against sketch buffer limit
     if len(frame_ids) > MAX_FRAMES:
         logger.error(f"Too many frames for animation: {len(frame_ids)} > {MAX_FRAMES}")
-        return {"error": f"Animation exceeds maximum frame limit ({MAX_FRAMES} frames). Please reduce the number of frames."}
+        raise HTTPException(
+            status_code=400,
+            detail=f"Animation exceeds maximum frame limit ({MAX_FRAMES} frames). Please reduce the number of frames.",
+        )
 
-    logger.info(f"Playing animation: frame_count={len(frame_ids)}")
-
-    # Load frames from DB
     records = [store.get_frame_by_id(fid) for fid in frame_ids]
-    records = [r for r in records if r is not None]
-
-    if not records:
+    frames = [AppFrame.from_record(r) for r in records if r is not None]
+    if not frames:
         logger.warning("No valid frames found for animation")
-        return {"error": "no valid frames found"}
+        raise HTTPException(status_code=404, detail="no valid frames found")
+    logger.info(f"Playing animation: frame_count={len(frames)}")
 
-    frames = [AppFrame.from_record(r) for r in records]
-    logger.debug(f"Loaded {len(frames)} frames for animation")
-
+    # Each frame is 4 pixel words + its duration, packed as 5 little-endian uint32 (the layout of the
+    # sketch's animation buffer). Frames go in chunks through calls, not one notify per frame: every
+    # chunk is acknowledged with the number of frames buffered so far, which paces the transfer to
+    # the board and tells us whether all of them arrived.
+    entries = [[int(word, 16) for word in f.to_animation_hex()[:4]] + [int(f.duration_ms)] for f in frames]
     try:
-        for f in frames:
-            logger.debug(
-                f"Frame id={f.id}, name='{f.name}', duration={f.duration_ms}ms"
-            )
-            [hex1, hex2, hex3, hex4, duration] = f.to_animation_hex()
-            Bridge.notify(
-                "load_frame",
-                [
-                    int(hex1, 16),
-                    int(hex2, 16),
-                    int(hex3, 16),
-                    int(hex4, 16),
-                    int(duration),
-                ],
-            )
-
-        Bridge.call("play_animation")
-        logger.info("play_animation called on board")
-
+        Bridge.call("stop_animation", timeout=BOARD_TIMEOUT_S)  # also empties the animation buffer
+        loaded = 0
+        for i in range(0, len(entries), ANIMATION_CHUNK_FRAMES):
+            chunk = entries[i:i + ANIMATION_CHUNK_FRAMES]
+            loaded = Bridge.call("load_frames", struct.pack(f"<{5 * len(chunk)}I", *(v for e in chunk for v in e)), timeout=BOARD_TIMEOUT_S)
+        if loaded != len(entries):
+            raise RuntimeError(f"the board buffered {loaded} of {len(entries)} frames")
+        Bridge.call("play_animation", timeout=BOARD_TIMEOUT_S)
     except Exception as e:
-        logger.warning(f"Failed to request play_animation: {e}")
-
-    return {"ok": True, "frames_played": len(frames)}
+        logger.warning(f"Failed to play the animation: {e}")
+        raise HTTPException(status_code=503, detail=f"The board could not play the animation: {e}")
+    logger.info(f"Animation started on board: frames={loaded}")
+    return {"ok": True, "frames_played": len(frames), "loaded": loaded}
 
 
 def stop_animation():
