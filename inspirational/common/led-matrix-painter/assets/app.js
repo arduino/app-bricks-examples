@@ -1339,27 +1339,21 @@ if (applyDurationBtn) {
       return;
     }
     durationModal.style.display = 'none';
-    const updatePromises = sessionFrames.map(frame => {
-      const fullFrame = sessionFrames.find(f => f.id === frame.id);
-      if (fullFrame) {
-        const payload = { ...fullFrame, duration_ms: newDuration };
-        return fetchWithHandling(
-          '/persist_frame',
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-          },
-          'json',
-          `update duration for frame ${frame.id}`
-        ).catch(err => {
-          console.error(`[ui] Failed to update duration for frame ${frame.id}`, err);
-          return Promise.resolve();
-        });
-      }
-      return Promise.resolve();
-    });
-    await Promise.all(updatePromises);
+    try {
+      await fetchWithHandling(
+        '/bulk_update_duration',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ duration_ms: newDuration }),
+        },
+        'json',
+        'update the duration of all frames'
+      );
+    } catch (err) {
+      console.error('[ui] Failed to update the duration of all frames', err);
+    }
+    if (loadedFrame) loadedFrame.duration_ms = newDuration;
     await refreshFrames();
   });
 }

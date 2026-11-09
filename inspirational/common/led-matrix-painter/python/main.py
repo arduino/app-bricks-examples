@@ -98,12 +98,20 @@ def persist_frame(payload: dict):
     return {'ok': True, 'board': board, 'frame': frame.to_json(), 'vector': frame.to_c_string()}
 
 
-def bulk_update_frame_duration(payload) -> bool:
-    """Update the duration of all frames."""
-    duration = payload.get('duration_ms', 1000)
+def bulk_update_frame_duration(payload: dict):
+    """Update the duration of all frames with a single statement.
+
+    Payload: {duration_ms: int}
+    """
+    try:
+        duration = int(payload.get('duration_ms'))
+    except (TypeError, ValueError):
+        raise HTTPException(status_code=400, detail="duration_ms must be an integer")
+    if duration < 0:
+        raise HTTPException(status_code=400, detail="duration_ms must not be negative")
     logger.debug(f"Bulk updating frame duration: duration={duration}")
     store.bulk_update_frame_duration(duration)
-    return True
+    return {'ok': True}
 
 
 def load_frame(payload: dict | None = None):
@@ -366,6 +374,7 @@ ui.expose_api('POST', '/delete_frames', delete_frames)
 ui.expose_api('POST', '/transform_frame', transform_frame)
 ui.expose_api('POST', '/export_frames', export_frames)
 ui.expose_api('POST', '/reorder_frames', reorder_frames)
+ui.expose_api('POST', '/bulk_update_duration', bulk_update_frame_duration)
 ui.expose_api('POST', '/play_animation', play_animation)
 ui.expose_api('POST', '/stop_animation', stop_animation)
 ui.expose_api('GET', '/config', get_config)

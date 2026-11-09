@@ -123,7 +123,7 @@ def bulk_update_frame_duration(duration) -> bool:
     Returns:
         bool: True if update succeeded
     """
-    if duration < 1:
+    if duration < 0:
         raise ValueError("Valid duration must be provided for bulk update")
     db.update("frames", {"duration_ms": int(duration)})
     return True
