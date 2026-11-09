@@ -19,6 +19,10 @@ def init_db():
     separated from module import so the application controls lifecycle).
     """
     db.start()
+    # Write-ahead logging: a commit appends to a log instead of rewriting the database file,
+    # so saving a frame costs one sequential write instead of several synchronous ones.
+    db.execute_sql("PRAGMA journal_mode=WAL")
+    db.execute_sql("PRAGMA synchronous=NORMAL")
     db.create_table(
         "frames",
         {
