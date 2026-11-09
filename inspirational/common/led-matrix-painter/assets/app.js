@@ -254,6 +254,32 @@ function schedulePersist() {
   }, AUTO_PERSIST_DELAY_MS);
 }
 
+// Live preview: draw on the board while the stroke is still in progress, without saving.
+// At most one request is in flight; changes made meanwhile are coalesced into the next one,
+// so a fast stroke never queues a backlog of draws. Saving still happens on the debounce.
+let previewInFlight = false;
+let previewPending = false;
+function schedulePreview() {
+  if (previewInFlight) {
+    previewPending = true;
+    return;
+  }
+  previewInFlight = true;
+  fetch('/update_board', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ rows: collectGridBrightness(), brightness_levels: BRIGHTNESS_LEVELS }),
+  })
+    .catch(err => console.debug('[ui] live preview failed', err))
+    .finally(() => {
+      previewInFlight = false;
+      if (previewPending) {
+        previewPending = false;
+        schedulePreview();
+      }
+    });
+}
+
 async function persistFrame() {
   const grid = collectGridBrightness();
   // Backend is responsible for naming - send empty if no value
@@ -1092,6 +1118,7 @@ document.addEventListener('DOMContentLoaded', () => {
       cell.dataset.b = String(strokeMode.brightness);
     }
     strokeChanged = true;
+    schedulePreview();
   }
 
   // Bresenham, so a fast drag can't skip the cells the pointer flew over
@@ -1231,7 +1258,6 @@ if (copyAnimBtn) {
         rows: frameToCopy.rows,
         duration_ms: frameToCopy.duration_ms,
         brightness_levels: frameToCopy.brightness_levels,
-        position: frameToCopy.position,
       };
       await fetchWithHandling(
         '/persist_frame',
