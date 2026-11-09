@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+from fastapi import HTTPException
+
 from arduino.app_bricks.web_ui import WebUI
 from arduino.app_utils import App, Bridge, FrameDesigner, Logger
 from app_frame import AppFrame  # user module defining AppFrame
@@ -28,6 +30,17 @@ def get_config():
     }
 
 
+def parse_frame(payload: dict) -> AppFrame:
+    """Build a frame from a request payload, answering 400 to malformed input."""
+    try:
+        frame = AppFrame.from_json(payload)
+    except (KeyError, TypeError, ValueError) as e:
+        raise HTTPException(status_code=400, detail=f"Invalid frame: {e}")
+    if frame.duration_ms < 0:
+        raise HTTPException(status_code=400, detail="Invalid frame: duration_ms must not be negative")
+    return frame
+
+
 def apply_frame_to_board(frame: AppFrame):
     """Send frame bytes to the Arduino board."""
     frame_bytes = frame.to_board_bytes()
@@ -42,7 +55,7 @@ def update_board(payload: dict):
     Used for live preview during editing.
     Expected payload: {rows, name, id, position, duration_ms, brightness_levels}
     """
-    frame = AppFrame.from_json(payload)
+    frame = parse_frame(payload)
     apply_frame_to_board(frame)
     vector_text = frame.to_c_string()
     return {'ok': True, 'vector': vector_text}
@@ -55,7 +68,7 @@ def persist_frame(payload: dict):
 
     Expected payload: {rows, name, id, position, duration_ms, brightness_levels}
     """
-    frame = AppFrame.from_json(payload)
+    frame = parse_frame(payload)
 
     if frame.id is None:
         # Insert new frame - backend assigns name if empty
@@ -69,7 +82,8 @@ def persist_frame(payload: dict):
     else:
         # Update existing frame
         logger.debug(f"Updating frame: id={frame.id}, name={frame.name}")
-        store.update_frame(frame)
+        if not store.update_frame(frame):
+            raise HTTPException(status_code=404, detail=f"Frame {frame.id} not found")
 
     apply_frame_to_board(frame)
     vector_text = frame.to_c_string()
@@ -97,7 +111,7 @@ def load_frame(payload: dict | None = None):
         record = store.get_frame_by_id(fid)
         if not record:
             logger.warning(f"Frame not found: id={fid}")
-            return {'error': 'frame not found'}
+            raise HTTPException(status_code=404, detail=f"Frame {fid} not found")
         frame = AppFrame.from_record(record)
         logger.info(f"Frame loaded: id={frame.id}, name={frame.name}")
     else:
@@ -122,11 +136,11 @@ def get_frame(payload: dict):
     """Get single frame by ID."""
     fid = payload.get('id')
     if fid is None:
-        return {'error': 'missing id'}
+        raise HTTPException(status_code=400, detail="missing id")
     record = store.get_frame_by_id(fid)
 
     if not record:
-        return {'error': 'not found'}
+        raise HTTPException(status_code=404, detail=f"Frame {fid} not found")
 
     frame = AppFrame.from_record(record)
     return {'frame': frame.to_json()}
@@ -136,7 +150,7 @@ def delete_frames(payload: dict):
     """Delete multiple frames by ID."""
     fids = payload.get('ids', [])
     if not fids:
-        return {'error': 'no frame ids provided'}
+        raise HTTPException(status_code=400, detail="no frame ids provided")
     logger.info(f"Deleting frames: ids={fids}")
     store.delete_frames(fids)
     return {'ok': True}
@@ -158,7 +172,7 @@ def transform_frame(payload: dict):
     """
     op = payload.get('op')
     if not op:
-        return {'error': 'op required'}
+        raise HTTPException(status_code=400, detail="op required")
 
     # Load frame from rows or by ID
     rows = payload.get('rows')
@@ -168,10 +182,10 @@ def transform_frame(payload: dict):
     else:
         fid = payload.get('id')
         if fid is None:
-            return {'error': 'id or rows required'}
+            raise HTTPException(status_code=400, detail="id or rows required")
         record = store.get_frame_by_id(fid)
         if not record:
-            return {'error': 'frame not found'}
+            raise HTTPException(status_code=404, detail=f"Frame {fid} not found")
         frame = AppFrame.from_record(record)
         logger.debug(f"Transforming frame by id: id={fid}, op={op}")
 
@@ -185,7 +199,7 @@ def transform_frame(payload: dict):
     }
     if op not in operations:
         logger.warning(f"Unsupported transform operation: {op}")
-        return {'error': 'unsupported op'}
+        raise HTTPException(status_code=400, detail=f"unsupported op: {op}")
 
     options = payload.get('options', {})
     operations[op](frame, **options)

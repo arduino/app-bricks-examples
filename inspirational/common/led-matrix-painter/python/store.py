@@ -100,17 +100,18 @@ def update_frame(frame: AppFrame) -> bool:
         frame (AppFrame): frame to update (must have valid id)
 
     Returns:
-        bool: True if update succeeded
+        bool: True if the frame exists and was updated, False if no frame has that id
     """
     if frame.id is None:
         raise ValueError("Cannot update frame without id")
 
     record = frame.to_record()
-    # Remove id from update dict (used in WHERE clause)
-    fid = record.pop('id')
-
-    db.update("frames", record, condition=f"id = {int(fid)}")
-    return True
+    res = db.execute_sql(
+        "UPDATE frames SET name = ?, duration_ms = ?, position = COALESCE(?, position), brightness_levels = ?, rows = ?"
+        " WHERE id = ? RETURNING id",
+        (record['name'], record['duration_ms'], record['position'], record['brightness_levels'], record['rows'], int(frame.id)),
+    )
+    return bool(res)
 
 
 def bulk_update_frame_duration(duration) -> bool:

@@ -71,7 +71,7 @@ async function fetchWithHandling(url, options, responseType = 'json', context = 
     const response = await fetch(url, options);
     if (!response.ok) {
       const error = await response.json().catch(() => ({ message: 'An unknown error occurred.' }));
-      throw new Error(error.message || `HTTP error! status: ${response.status}`);
+      throw new Error(error.detail || error.message || `HTTP error! status: ${response.status}`);
     }
     hideError(); // Hide error on successful communication
     if (responseType === 'json') {
