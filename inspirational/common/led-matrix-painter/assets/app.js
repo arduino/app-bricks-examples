@@ -471,20 +471,25 @@ async function playAnimation() {
     } else {
       console.debug('[ui] Animation played successfully, frames=', data.frames_played);
       showVectorText('Animation played: ' + data.frames_played + ' frames');
-      // Start frontend animation simulation
+      // Start frontend animation simulation. Each frame is due at a fixed offset from the start, like
+      // on the board: chaining one timeout per frame would add every timer delay and redraw to the next
+      // frame, and the page would fall behind the board as the animation goes on.
+      const frames = sessionFrames.slice();
+      const startedAt = performance.now();
       let currentFrameIndex = 0;
+      let dueAt = 0;
       const animateNextFrame = () => {
-        if (currentFrameIndex >= sessionFrames.length) {
+        if (currentFrameIndex >= frames.length) {
           // Animation finished
           playAnimationBtn.disabled = false;
           animationTimeout = null;
           return;
         }
-        const frame = sessionFrames[currentFrameIndex];
+        const frame = frames[currentFrameIndex];
         displayFrame(frame);
-        const duration = frame.duration_ms || 1000;
+        dueAt += frame.duration_ms || 1000;
         currentFrameIndex++;
-        animationTimeout = setTimeout(animateNextFrame, duration);
+        animationTimeout = setTimeout(animateNextFrame, Math.max(0, startedAt + dueAt - performance.now()));
       };
       animateNextFrame();
     }
