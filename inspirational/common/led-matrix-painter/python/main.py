@@ -107,8 +107,8 @@ def bulk_update_frame_duration(payload: dict):
     Payload: {duration_ms: int}
     """
     try:
-        duration = int(payload.get('duration_ms'))
-    except (TypeError, ValueError):
+        duration = int(payload['duration_ms'])
+    except (KeyError, TypeError, ValueError):
         raise HTTPException(status_code=400, detail="duration_ms must be an integer") from None
     if duration < 0:
         raise HTTPException(status_code=400, detail="duration_ms must not be negative")
