@@ -36,7 +36,6 @@ def init_db():
             "rows": "TEXT",  # JSON string encoding of 2D array
         }
     )
-    print("[db_frames] SQLStore started for frames persistence")
 
 
 def list_frames(order_by: str = "position ASC, id ASC") -> list[dict[str, Any]]:

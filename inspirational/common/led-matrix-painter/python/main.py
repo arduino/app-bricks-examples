@@ -39,7 +39,7 @@ def parse_frame(payload: dict) -> AppFrame:
     try:
         frame = AppFrame.from_json(payload)
     except (KeyError, TypeError, ValueError) as e:
-        raise HTTPException(status_code=400, detail=f"Invalid frame: {e}")
+        raise HTTPException(status_code=400, detail=f"Invalid frame: {e}") from e
     if frame.duration_ms < 0:
         raise HTTPException(status_code=400, detail="Invalid frame: duration_ms must not be negative")
     return frame
@@ -109,7 +109,7 @@ def bulk_update_frame_duration(payload: dict):
     try:
         duration = int(payload.get('duration_ms'))
     except (TypeError, ValueError):
-        raise HTTPException(status_code=400, detail="duration_ms must be an integer")
+        raise HTTPException(status_code=400, detail="duration_ms must be an integer") from None
     if duration < 0:
         raise HTTPException(status_code=400, detail="duration_ms must not be negative")
     logger.debug(f"Bulk updating frame duration: duration={duration}")
@@ -148,20 +148,6 @@ def list_frames():
     records = store.list_frames(order_by='position ASC, id ASC')
     frames = [AppFrame.from_record(r).to_json() for r in records]
     return {'frames': frames}
-
-
-def get_frame(payload: dict):
-    """Get single frame by ID."""
-    fid = payload.get('id')
-    if fid is None:
-        raise HTTPException(status_code=400, detail="missing id")
-    record = store.get_frame_by_id(fid)
-
-    if not record:
-        raise HTTPException(status_code=404, detail=f"Frame {fid} not found")
-
-    frame = AppFrame.from_record(record)
-    return {'frame': frame.to_json()}
 
 
 def delete_frames(payload: dict):
@@ -337,7 +323,7 @@ def play_animation(payload: dict):
         Bridge.call("play_animation", timeout=BOARD_TIMEOUT_S)
     except Exception as e:
         logger.warning(f"Failed to play the animation: {e}")
-        raise HTTPException(status_code=503, detail=f"The board could not play the animation: {e}")
+        raise HTTPException(status_code=503, detail=f"The board could not play the animation: {e}") from e
     logger.info(f"Animation started on board: frames={loaded}")
     return {"ok": True, "frames_played": len(frames), "loaded": loaded}
 
@@ -364,7 +350,6 @@ ui.expose_api('POST', '/update_board', update_board)
 ui.expose_api('POST', '/persist_frame', persist_frame)
 ui.expose_api('POST', '/load_frame', load_frame)
 ui.expose_api('GET', '/list_frames', list_frames)
-ui.expose_api('POST', '/get_frame', get_frame)
 ui.expose_api('POST', '/delete_frames', delete_frames)
 ui.expose_api('POST', '/transform_frame', transform_frame)
 ui.expose_api('POST', '/export_frames', export_frames)
