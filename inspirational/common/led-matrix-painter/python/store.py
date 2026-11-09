@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+import json
+
 from arduino.app_bricks.dbstorage_sqlstore import SQLStore
 from app_frame import AppFrame
 from typing import Any
@@ -125,21 +127,13 @@ def bulk_update_frame_duration(duration) -> bool:
     db.update("frames", {"duration_ms": int(duration)})
     return True
 
-def delete_frame(fid: int) -> bool:
-    """Delete a frame and recompact positions.
-
-    Args:
-        fid (int): frame id to delete
-
-    Returns:
-        bool: True if deletion succeeded
-    """
-    db.delete("frames", condition=f"id = {int(fid)}")
-    # Recompact positions
-    rows = db.read("frames", order_by="position ASC, id ASC") or []
-    for pos, r in enumerate(rows, start=1):
-        db.update("frames", {"position": pos}, condition=f"id = {int(r['id'])}")
-    return True
+def _compact_positions() -> None:
+    """Renumber positions 1..N following the current order, in a single statement."""
+    db.execute_sql(
+        "UPDATE frames SET position = ranked.pos FROM"
+        " (SELECT id, ROW_NUMBER() OVER (ORDER BY position, id) AS pos FROM frames) AS ranked"
+        " WHERE frames.id = ranked.id AND frames.position IS NOT ranked.pos"
+    )
 
 
 def delete_frames(fids: list[int]) -> bool:
@@ -153,18 +147,9 @@ def delete_frames(fids: list[int]) -> bool:
     """
     if not fids:
         return True
-
-    id_list_str = ', '.join(map(str, map(int, fids)))
-    condition = f"id IN ({id_list_str})"
-
-    db.delete("frames", condition=condition)
-
-    # Recompact positions
-    rows = db.read("frames", order_by="position ASC, id ASC") or []
-    for pos, r in enumerate(rows, start=1):
-        db.update("frames", {"position": pos}, condition=f"id = {int(r['id'])}")
+    db.execute_sql("DELETE FROM frames WHERE id IN (SELECT value FROM json_each(?))", (json.dumps([int(f) for f in fids]),))
+    _compact_positions()
     return True
-
 
 
 def reorder_frames(order: list[int]) -> bool:
@@ -176,8 +161,11 @@ def reorder_frames(order: list[int]) -> bool:
     Returns:
         bool: True if reorder succeeded
     """
-    for idx, fid in enumerate(order, start=1):
-        db.update("frames", {"position": idx}, condition=f"id = {int(fid)}")
+    # json_each yields the list index as "key": one statement updates every listed frame
+    db.execute_sql(
+        "UPDATE frames SET position = ordered.key + 1 FROM json_each(?) AS ordered WHERE frames.id = ordered.value",
+        (json.dumps([int(f) for f in order]),),
+    )
     return True
 
 
