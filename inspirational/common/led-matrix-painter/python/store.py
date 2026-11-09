@@ -73,33 +73,22 @@ def save_frame(frame: AppFrame) -> int:
     Returns:
         int: newly assigned frame ID
     """
-    # Calculate next position
-    mx_rows = db.read("frames", columns=["MAX(position) as maxpos"]) or []
-    maxpos = mx_rows[0].get("maxpos") if mx_rows and len(mx_rows) > 0 else None
-    next_position = (int(maxpos) if maxpos is not None else 0) + 1
-
-    # Use frame.position if set, otherwise use next_position
-    position = frame.position if frame.position is not None else next_position
-
     record = frame.to_record()
-    record['position'] = position
-    # Remove id from record (will be auto-assigned)
-    record.pop('id', None)
-
-    db.store("frames", record, create_table=False)
-
-    last = db.execute_sql("SELECT last_insert_rowid() as id")
-    if not last or last[0].get("id") is None:
+    # A single statement, so concurrent requests cannot interleave: the default position (after the
+    # last frame) and the default name ("Frame <id>") are computed while the row is inserted. The id of
+    # an INTEGER PRIMARY KEY is MAX(id) + 1, which is what the name subquery reads.
+    res = db.execute_sql(
+        "INSERT INTO frames (name, duration_ms, position, brightness_levels, rows) VALUES ("
+        " CASE WHEN TRIM(?1) = '' THEN 'Frame ' || (SELECT COALESCE(MAX(id), 0) + 1 FROM frames) ELSE ?1 END,"
+        " ?2, COALESCE(?3, (SELECT COALESCE(MAX(position), 0) + 1 FROM frames)), ?4, ?5"
+        ") RETURNING id, name",
+        (record['name'], record['duration_ms'], frame.position, record['brightness_levels'], record['rows']),
+    )
+    if not res:
         raise RuntimeError("Failed to retrieve the id assigned to the saved frame")
-    new_id = int(last[0]["id"])
-
-    # Backend responsibility: assign progressive name if empty
-    if not frame.name or frame.name.strip() == '':
-        frame.name = f'Frame {new_id}'
-        frame.id = new_id
-        db.update("frames", {"name": frame.name}, condition=f"id = {new_id}")
-
-    return new_id
+    frame.id = int(res[0]["id"])
+    frame.name = res[0]["name"]
+    return frame.id
 
 
 def update_frame(frame: AppFrame) -> bool:
@@ -219,21 +208,17 @@ def get_or_create_active_frame(brightness_levels: int = 8) -> AppFrame:
     if last is not None:
         return last
 
-    # Create empty frame with empty name (backend will assign Frame{id})
-    frame = AppFrame.create_empty(
-        id=None,
-        name="",
-        position=1,
-        duration_ms=1000,
-        brightness_levels=brightness_levels
+    # Insert the first frame only if the table is still empty: two pages opening at the same time
+    # (e.g. the App Lab preview and a browser tab) must not create two frames.
+    empty = AppFrame.create_empty(id=None, name="", position=1, duration_ms=1000, brightness_levels=brightness_levels)
+    record = empty.to_record()
+    db.execute_sql(
+        "INSERT INTO frames (name, duration_ms, position, brightness_levels, rows)"
+        " SELECT 'Frame ' || (SELECT COALESCE(MAX(id), 0) + 1 FROM frames), ?, 1, ?, ?"
+        " WHERE NOT EXISTS (SELECT 1 FROM frames)",
+        (record['duration_ms'], record['brightness_levels'], record['rows']),
     )
-
-    # Backend assigns ID and name automatically
-    frame.id = save_frame(frame)
-
-    # Reload from DB to get the assigned name
-    record = get_frame_by_id(frame.id)
-    if record:
-        return AppFrame.from_record(record)
-
-    return frame
+    last = get_last_frame()
+    if last is None:
+        raise RuntimeError("Failed to create the first frame")
+    return last
