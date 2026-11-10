@@ -1,6 +1,6 @@
 name: Decision Model - Receipt Photo
 icon: 🧾
-description: "VENTUNO Q only. An image with the state: the photo of a receipt a customer attached (assets/receipt.jpg), which team handles the request, whether the receipt lists the blender and how the order was paid."
+description: "An image with the state: the photo of a receipt a customer attached (assets/receipt.jpg), which team handles the request, whether the receipt lists the blender and how the order was paid."
 
 bricks:
   - arduino:decision_model:
