@@ -270,6 +270,20 @@
       ]
     },
     {
+      "brick": "arduino:decision_model",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/decision_model/01_dehumidifier"
+        },
+        {
+          "id": "examples:bricks/arduino/decision_model/02_routing_customer_message"
+        },
+        {
+          "id": "examples:bricks/arduino/decision_model/03_receipt_photo"
+        }
+      ]
+    },
+    {
       "brick": "arduino:gesture_recognition",
       "examples": [
         {
