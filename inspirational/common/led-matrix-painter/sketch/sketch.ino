@@ -5,7 +5,7 @@
 // Example sketch using Arduino_LED_Matrix and RouterBridge. This sketch
 // exposes four providers:
 //  - "draw"            — receives pixel data and renders it on the matrix
-//  - "load_frame"      — appends one frame to the animation buffer
+//  - "load_frames"     — appends a chunk of frames to the animation buffer
 //  - "play_animation"  — starts sequential playback of buffered frames
 //  - "stop_animation"  — halts any running animation
 
@@ -37,7 +37,7 @@ void setup() {
 
   Bridge.begin();
   Bridge.provide("draw", draw);
-  Bridge.provide("load_frame", load_frame);
+  Bridge.provide("load_frames", load_frames);
   Bridge.provide("play_animation", play_animation);
   Bridge.provide("stop_animation", stop_animation);
 }
@@ -57,24 +57,18 @@ void draw(std::vector<uint8_t> frame) {
   k_mutex_unlock(&anim_mtx);
 }
 
-void load_frame(std::array<uint32_t, 5> data) {
-  if (data.empty()) return;
+// Each frame is 5 little-endian uint32: 4 words of pixels and the duration in ms.
+// Returns how many frames are buffered, so the caller knows they all arrived.
+int load_frames(std::vector<uint8_t> data) {
+  const size_t frame_size = 5 * sizeof(uint32_t);
 
   k_mutex_lock(&anim_mtx, K_FOREVER);
-
-  if (animation_frame_count >= MAX_FRAMES) {
-    k_mutex_unlock(&anim_mtx);
-    return;
+  for (size_t offset = 0; offset + frame_size <= data.size() && animation_frame_count < MAX_FRAMES; offset += frame_size) {
+    memcpy(animation_buf[animation_frame_count++], data.data() + offset, frame_size);
   }
-
-  int idx = animation_frame_count++;
-  animation_buf[idx][0] = data[0];
-  animation_buf[idx][1] = data[1];
-  animation_buf[idx][2] = data[2];
-  animation_buf[idx][3] = data[3];
-  animation_buf[idx][4] = data[4];
-
+  int count = animation_frame_count;
   k_mutex_unlock(&anim_mtx);
+  return count;
 }
 
 void play_animation() {

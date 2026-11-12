@@ -92,79 +92,69 @@ Web Browser  ──►  HTTP API  ──►  Python Backend  ──►  Router B
                                 SQLite Database                          LED Matrix Display
 ```
 
-1.  **Web Interface**: The `app.js` script captures clicks on the grid. It debounces these events and sends the pixel data to the backend via the `/persist_frame` endpoint.
+1.  **Web Interface**: The `app.js` script captures clicks on the grid. While you draw, it previews the stroke on the board through the `/update_board` endpoint; when you stop, it debounces the changes and saves them via the `/persist_frame` endpoint.
 
 2.  **Python Backend**:
 
-    *   **Data Model**: The `AppFrame` class normalizes the data, converting between frontend JSON, database records, and hardware byte arrays.
-    *   **Persistence**: The `store.py` module uses `SQLStore` to save the frame data to a `frames` table in a SQLite database.
+    *   **Data Model**: The `StoredFrame` class pairs a `Frame` from `arduino.app_utils`, which validates and encodes the pixels, with the metadata the app stores, and converts between frontend JSON and database records.
+    *   **Persistence**: The `store.py` module uses `SQLStore` to save the frame data to a `frames` table in a SQLite database. The database runs in write-ahead logging mode, and frames are created with a single `INSERT ... RETURNING` statement, so two pages open at the same time cannot create duplicate frames.
     *   **Bridge**: The `main.py` script sends the raw byte array to the board via `Bridge.call("draw", frame_bytes)`.
 
 3.  **Arduino Sketch**: The sketch receives the raw byte data and uses the `Arduino_LED_Matrix` library to render the grayscale image.
 
 ## Understanding the Code
 
-### 🔧 Backend (`main.py`, `store.py` & `app_frame.py`)
+### 🔧 Backend (`main.py`, `store.py` & `stored_frame.py`)
 
 The Python backend manages the application logic, database, and hardware communication.
 
-- **Data Model (`app_frame.py`)**: The `AppFrame` class is the core data structure that acts as a bridge between the different components. It extends the base `Frame` class to add application-specific metadata like `id`, `name`, `position`, and `duration`. It handles three distinct data contracts:
-  - **API Contract**: `to_json()` / `from_json()` formats data for the web frontend.
-  - **Database Contract**: `to_record()` / `from_record()` formats data for `SQLStore` storage.
-  - **Hardware Contract**: `to_board_bytes()` packs pixels into the specific byte format expected by the Arduino sketch.
+- **Data Model (`stored_frame.py`)**: The `StoredFrame` dataclass holds a `Frame` and adds the metadata of the app: `id`, `name`, `position` and `duration_ms`. The pixels stay in the `Frame`, which validates them against the matrix and encodes them in the formats of the `Arduino_LED_Matrix` library:
+  - **API Contract**: `from_payload()` / `to_payload()` format data for the web frontend.
+  - **Database Contract**: `from_payload()` / `to_record()` format data for `SQLStore` storage.
+  - **Hardware Contract**: `frame.to_bytes()` gives one brightness byte per LED for `matrix.draw()`, and `frame.to_words()` the pixel words of an animation frame for `matrix.loadSequence()`.
 
 ```python
-class AppFrame(Frame):
-    def to_record(self) -> dict:
-        """Convert to a database record dict for storage."""
-        return {
-            "id": self.id,
-            "name": self.name,
-            "rows": json.dumps(self.arr.tolist()), # Serialize pixels to JSON string
-            "brightness_levels": int(self.brightness_levels),
-            # ...
-        }
+@dataclass
+class StoredFrame:
+    frame: Frame
+    id: int | None = None
+    name: str = ""
+    position: int | None = None
+    duration_ms: int = 1000
 ```
 
 - **Initialization**:
-  - `designer = FrameDesigner()`: Initializes the frame designer utility from `arduino.app_utils`, which provides the logic for transformation operations (invert, rotate, flip).
+  - `template = FrameDesigner(*UNO_Q_MATRIX, brightness_levels=8)`: Describes the matrix the app draws on, 13x8 LEDs with 8 brightness levels. Every frame is validated against it, and the page reads it from `/config`. The transformations (invert, rotate, flip) are methods of `Frame`.
   - `store.init_db()`: Creates the SQLite database and tables for storing frames if they don't exist.
 
 - **API Endpoints**: The backend exposes several HTTP endpoints using `ui.expose_api` to handle frontend requests:
   - `GET /config`: Returns runtime configuration (brightness levels, matrix dimensions).
-  - `POST /update_board`: Updates board display in real-time without persisting to database (live preview).
-  - `POST /persist_frame`: Saves or updates frames in the database and updates the board.
+  - `POST /update_board`: Updates board display in real-time without persisting to database (live preview while drawing).
+  - `POST /persist_frame`: Saves or updates frames in the database and updates the board. The frame is saved even if the board does not answer: the response then reports `board: false`.
   - `POST /load_frame`: Loads a specific frame by ID or retrieves the last edited frame.
   - `GET /list_frames`: Returns all saved frames to populate the bottom panel.
-  - `POST /get_frame`: Retrieves a single frame by ID.
   - `POST /delete_frames`: Deletes multiple frames by their IDs.
   - `POST /reorder_frames`: Reorders frames to match provided ID list order.
+  - `POST /bulk_update_duration`: Sets the same duration on all frames.
   - `POST /transform_frame`: Applies geometric transformations (invert, rotate, flip) to the pixel data.
   - `POST /export_frames`: Generates the C++ header file content for frames or animations.
-  - `POST /play_animation`: Sends a sequence of frames to the Arduino to play as an animation.
+  - `POST /play_animation`: Sends a sequence of frames to the Arduino in acknowledged chunks, then starts the animation.
   - `POST /stop_animation`: Stops any running animation on the board.
 
-- **Hardware Update**: The `apply_frame_to_board` function sends the visual data to the microcontroller via the Bridge.
+- **Hardware Update**: The `draw` function sends the visual data to the microcontroller via the Bridge.
 
 ```python
 # main.py
-def apply_frame_to_board(frame: AppFrame):
-    """Send frame bytes to the Arduino board."""
-    frame_bytes = frame.to_board_bytes()
-    Bridge.call("draw", frame_bytes)
+def draw(sf: StoredFrame) -> bool:
+    try:
+        Bridge.call("draw", sf.frame.to_bytes(), timeout=BOARD_TIMEOUT_S)
+    except Exception as e:
+        logger.warning(f"Board did not draw frame id={sf.id}: {e}")
+        return False
+    return True
 ```
 
-- **Code Generation**: The `AppFrame` class generates the C++ code displayed in the UI. It formats the internal array data into `uint32_t` hex values.
-
-```python
-# app_frame.py
-def to_c_string(self) -> str:
-    c_type = "uint32_t"
-    parts = [f"const {c_type} {self.name}[] = {{"]
-     # Converts pixel brightness data to uint32_t hex format
-    parts.append("};")
-    return "\n".join(parts)
-```
+- **Code Generation**: The `to_c_array` and `sequence_to_c` functions of `arduino.app_utils.ledmatrix` generate the C++ code displayed in the UI and exported as a `.h` file. A single frame becomes a `uint8_t` array with one brightness value per LED, for `matrix.draw()`; an animation becomes a `uint32_t` array of `{word0, word1, word2, word3, duration}` entries, for `matrix.loadSequence()`.
 
 ### 🔧 Arduino Component (`sketch.ino`)
 
@@ -180,7 +170,7 @@ void setup() {
   matrix.setGrayscaleBits(3);
   Bridge.begin();
   Bridge.provide("draw", draw);
-  Bridge.provide("load_frame", load_frame);
+  Bridge.provide("load_frames", load_frames);
   Bridge.provide("play_animation", play_animation);
   Bridge.provide("stop_animation", stop_animation);
 }
@@ -188,7 +178,7 @@ void setup() {
 
 - **Providers**: The sketch exposes four Bridge providers:
   - `draw(std::vector<uint8_t>)`: Renders a single frame to the LED matrix.
-  - `load_frame(std::array<uint32_t,5>)`: Loads frame data into animation buffer (4 words + duration).
+  - `load_frames(std::vector<uint8_t>)`: Appends a chunk of frames to the animation buffer (5 little-endian `uint32_t` per frame: 4 words + duration) and returns how many frames are buffered.
   - `play_animation()`: Starts playback of loaded animation frames.
   - `stop_animation()`: Halts any running animation.
 
@@ -208,7 +198,7 @@ void play_animation() {
 
 The JavaScript frontend handles the UI logic and data synchronization.
 
-- **Auto-Persist**: To provide a responsive experience, changes are saved automatically after a short delay (debounce), updating both the database and the board simultaneously.
+- **Live preview and Auto-Persist**: While you draw, each change is sent to the board through `/update_board`, with at most one request in flight so a fast stroke never queues a backlog. When you stop, the frame is saved automatically after a short delay (debounce).
 
 ```javascript
 // Unified persist: save to DB and update board together
