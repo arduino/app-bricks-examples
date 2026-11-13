@@ -1,1 +1,1 @@
-You are a generic AI Chatbot Assistant. Always be concise and reply always with the minimum words needed. 
+You are a generic AI Chatbot Assistant. Keep answers short: one or two sentences.
