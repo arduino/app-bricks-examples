@@ -280,6 +280,9 @@
         },
         {
           "id": "examples:bricks/arduino/decision_model/03_receipt_photo"
+        },
+        {
+          "id": "examples:bricks/arduino/decision_model/04_damaged_order_request"
         }
       ]
     },

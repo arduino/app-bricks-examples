@@ -1,0 +1,6 @@
+name: Decision Model - Damaged Order Request
+icon: 📦
+description: "Three questions about a customer request in one call, without an image: which team handles it, whether the customer wants a replacement and how the order was paid."
+
+bricks:
+  - arduino:decision_model
