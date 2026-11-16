@@ -12,7 +12,6 @@ from arduino.app_utils.image import cropped_to_aspect_ratio, flipped_h
 
 FEED_ZONE = (0.744, 0.332, 0.977, 0.746)  # x1, y1, x2, y2 as fractions of the camera frame
 BITES_TO_GROW_UP = 9
-SAME_CLASS_PAUSE = 2.0  # seconds before an object of the class just eaten counts again: the tracker may see it twice
 TOO_BIG_TO_CARRY = [
     "refrigerator", "oven", "microwave", "sink", "toilet", "bed", "couch", "chair", "dining table", "tv",
     "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck", "boat",
@@ -25,7 +24,6 @@ logger = Logger("FeedTheMascot")
 bites = 0
 first_bite = 0.0
 grown_in: float | None = None  # seconds from the first bite to the last one
-last_bite_of: dict[str, float] = {}
 
 ui = WebUI()
 tracker = VideoObjectTracking(
@@ -47,20 +45,17 @@ def game_state() -> dict:
 
 
 def on_enter(event: dict) -> None:
-    """Count an object entering the feed zone as a bite, unless the mascot is fully grown or ate an object of the
-    class just now."""
+    """Count an object entering the feed zone as a bite, unless the mascot is fully grown."""
     global bites, first_bite, grown_in
-    label = event["label"]
-    now = time.monotonic()
-    if bites >= BITES_TO_GROW_UP or now - last_bite_of.get(label, -SAME_CLASS_PAUSE) < SAME_CLASS_PAUSE:
+    if bites >= BITES_TO_GROW_UP:
         return
-    last_bite_of[label] = now
+    now = time.monotonic()
     bites += 1
     if bites == 1:
         first_bite = now
     if bites == BITES_TO_GROW_UP:
         grown_in = now - first_bite
-    logger.info(f"Bite {bites}: {label} #{event['object_id']}")
+    logger.info(f"Bite {bites}: {event['label']} #{event['object_id']}")
     ui.send_message("bite", {"bites": bites})
     ui.send_message("state", game_state())
 
@@ -69,7 +64,6 @@ def on_play_again(_sid: str, _data: dict) -> None:
     global bites, grown_in
     bites = 0
     grown_in = None
-    last_bite_of.clear()
     ui.send_message("state", game_state())
 
 

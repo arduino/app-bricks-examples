@@ -85,13 +85,13 @@ tracker = VideoObjectTracking(
 tracker.set_rectangular_area(*FEED_ZONE, relative=True)
 ```
 
-Every `on_area_enter` event is a bite, with one exception: an object of the class eaten in the last two seconds does not count. The tracker sometimes loses an object for a moment and finds it again as a new one, and without this pause the mascot would eat it twice. Two objects of different classes brought in together still count as two bites.
+Every `on_area_enter` event is a bite, so an object counts each time it enters the feed zone, also when it leaves and comes straight back.
 
 The game state is sent to the page on every change and to every page as it connects, so a reloaded page picks up the game where it was.
 
 ### 💻 Frontend (index.html + app.js)
 
-The page shows the Brick's MJPEG stream in an `<img>` covering the window, and computes where the feed zone falls on the page from the zone, in fractions of the frame, and the size of the video. The mascot and the "FEED ZONE" label are placed there. A single `data-state` attribute (`loading`, `tips`, `playing`, `won`) drives what is visible via CSS. The mascot is a set of Lottie animations in `img/mascot/`, a bite and a growth for each stage, each loaded by its own `<dotlottie-player>` when the page opens. Every bite shows its animation and plays it once, the bite or the growth into the next stage, and the bites brought in together wait their turn.
+The page shows the Brick's MJPEG stream in an `<img>` covering the window, and computes where the feed zone falls on the page from the zone, in fractions of the frame, and the size of the video. The mascot and the "FEED ZONE" label are placed there. A single `data-state` attribute (`loading`, `tips`, `playing`, `won`) drives what is visible via CSS. The mascot is a set of Lottie animations in `img/mascot/`, a bite and a growth for each stage, each loaded by its own `<dotlottie-player>` when the page opens. A bite shows its animation and plays it once, the bite or the growth into the next stage. A bite that arrives while an animation is playing is part of it, except the one that makes the mascot grow, which plays right after.
 
 ### 🛠️ Customizing the Game
 

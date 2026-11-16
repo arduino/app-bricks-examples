@@ -36,7 +36,7 @@ let tipsDismissed = false;
 let confidence = Number(confidenceSlider.value); // the last valid value, the one the slider shows
 let sentConfidence = confidence;
 let playingAnimation = null;
-const waitingAnimations = [];
+const waitingGrowths = [];
 
 function setState(state) {
   const justWon = state === 'won' && document.body.dataset.state !== 'won';
@@ -129,7 +129,7 @@ function render() {
 
 ui.on_message('state', state => {
   if (game && state.bites < game.bites) {
-    waitingAnimations.length = 0;
+    waitingGrowths.length = 0;
     playingAnimation?.stop();
     playingAnimation = null;
   }
@@ -151,26 +151,29 @@ function restart(animation) {
   animation.play();
 }
 
-function animationFor(bite) {
-  const stage = STAGES[stageAfter(bite - 1)];
-  return bite % slotsPerLevel === 0 ? stage.growth : stage.bite;
+function play(animation) {
+  playingAnimation = animation;
+  showMascot(animation);
+  restart(animation);
 }
 
-function playNextBite() {
-  playingAnimation = waitingAnimations.shift() ?? null;
-  if (!playingAnimation) return;
-  showMascot(playingAnimation);
-  restart(playingAnimation);
+function playWaitingGrowth() {
+  playingAnimation = null;
+  const growth = waitingGrowths.shift();
+  if (growth) play(growth);
 }
 
-mascotAnimations.forEach(animation => animation.addEventListener('complete', playNextBite));
+mascotAnimations.forEach(animation => animation.addEventListener('complete', playWaitingGrowth));
 
 ui.on_message('bite', bite => {
-  const animation = animationFor(bite.bites);
+  const stage = STAGES[stageAfter(bite.bites - 1)];
+  const grows = bite.bites % slotsPerLevel === 0;
+  const animation = grows ? stage.growth : stage.bite;
   // The bite that wins the game plays on the win screen, and an animation still loading cannot play
-  if (!animation?.getLottie() || waitingAnimations.at(-1) === animation) return;
-  waitingAnimations.push(animation);
-  if (!playingAnimation) playNextBite();
+  if (!animation?.getLottie()) return;
+  // An animation in progress takes in the bites that arrive meanwhile, except the one that makes the mascot grow
+  if (!playingAnimation) play(animation);
+  else if (grows) waitingGrowths.push(animation);
 });
 
 document.querySelector('#play-again').addEventListener('click', () => ui.send_message('play_again'));
