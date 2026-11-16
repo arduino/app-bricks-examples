@@ -1,0 +1,46 @@
+<!--
+SPDX-FileCopyrightText: Copyright (C) Arduino s.r.l. and/or its affiliated companies
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>People Counter</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body data-state="loading">
+    <img id="stream" alt="Camera stream with the tracked people" />
+
+    <div id="header-shade"></div>
+    <header>
+      <h1>People Counter</h1>
+      <span class="icon logo"><img src="img/logo.svg" alt="Arduino logo" /></span>
+    </header>
+
+    <section id="counter" aria-label="People count" aria-live="polite">
+      <div id="counted-card" class="card">
+        <h2 class="card-title">People counted</h2>
+        <p id="counted" class="readout zero">0</p>
+      </div>
+      <div id="in-view-strip" class="card">
+        <h2 class="card-title">In view</h2>
+        <span id="in-view" class="strip-value">0</span>
+      </div>
+    </section>
+
+    <div id="loading-overlay" class="overlay">
+      <span class="icon loading"><img src="img/icons/loading.svg" alt="" /></span>
+      <h2>Starting camera&hellip;</h2>
+    </div>
+
+    <div id="error-container" class="hidden">Connection to the board lost. Please check the connection.</div>
+
+    <script src="libs/socket.io.min.js"></script>
+    <script src="libs/arduino.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
