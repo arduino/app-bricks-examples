@@ -15,14 +15,13 @@ SPDX-License-Identifier: MPL-2.0
   <body data-state="loading">
     <img id="stream" alt="Camera stream with the tracked objects and the feed zone" />
 
-    <div id="feed-area" data-stage="baby" data-mouth="normal">
+    <div id="feed-area">
       <div id="mascot">
-        <img class="mascot baby normal" src="img/mascot/baby-normal.svg" alt="" />
-        <img class="mascot baby open" src="img/mascot/baby-open.svg" alt="" />
-        <img class="mascot young normal" src="img/mascot/young-normal.svg" alt="" />
-        <img class="mascot young open" src="img/mascot/young-open.svg" alt="" />
-        <img class="mascot adult normal" src="img/mascot/adult-normal.svg" alt="" />
-        <img class="mascot adult open" src="img/mascot/adult-open.svg" alt="" />
+        <dotlottie-player id="baby-bite" src="img/mascot/baby-bite.json"></dotlottie-player>
+        <dotlottie-player id="baby-growth" src="img/mascot/baby-growth.json" hidden></dotlottie-player>
+        <dotlottie-player id="young-bite" src="img/mascot/young-bite.json" hidden></dotlottie-player>
+        <dotlottie-player id="young-growth" src="img/mascot/young-growth.json" hidden></dotlottie-player>
+        <dotlottie-player id="adult-bite" src="img/mascot/adult-bite.json" hidden></dotlottie-player>
       </div>
       <span id="feed-label">FEED ZONE</span>
     </div>
@@ -33,7 +32,7 @@ SPDX-License-Identifier: MPL-2.0
     </div>
 
     <div id="win-overlay" class="overlay">
-      <img class="win-mascot" src="img/mascot/adult-normal.svg" alt="" />
+      <dotlottie-player id="win-mascot" src="img/mascot/adult-final.json"></dotlottie-player>
       <h2>Fully grown!</h2>
       <p>
         It ate <strong><span id="eaten">9</span> objects</strong> in <strong id="grown-in">0:00</strong>
@@ -165,6 +164,7 @@ SPDX-License-Identifier: MPL-2.0
 
     <script src="libs/socket.io.min.js"></script>
     <script src="libs/arduino.js"></script>
+    <script src="libs/dotlottie-player.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

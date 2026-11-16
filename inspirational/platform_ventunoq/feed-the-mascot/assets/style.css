@@ -153,102 +153,14 @@ button {
   display: none;
 }
 
-#mascot {
+#mascot,
+#mascot dotlottie-player {
   position: absolute;
   inset: 0;
 }
 
-#mascot.boing {
-  animation: boing 650ms linear;
-}
-
-#mascot.pop {
-  animation: pop 500ms ease-out;
-}
-
-/* k = sin(t / 650 * 3pi) * (1 - t / 650), scaleX = 1 + 0.07k, scaleY = 1 - 0.07k, every 54 ms */
-@keyframes boing {
-  0% {
-    transform: scale(1, 1);
-  }
-  8.33% {
-    transform: scale(1.0454, 0.9546);
-  }
-  16.67% {
-    transform: scale(1.0583, 0.9417);
-  }
-  25% {
-    transform: scale(1.0371, 0.9629);
-  }
-  33.33% {
-    transform: scale(1, 1);
-  }
-  41.67% {
-    transform: scale(0.9711, 1.0289);
-  }
-  50% {
-    transform: scale(0.965, 1.035);
-  }
-  58.33% {
-    transform: scale(0.9794, 1.0206);
-  }
-  66.67% {
-    transform: scale(1, 1);
-  }
-  75% {
-    transform: scale(1.0124, 0.9876);
-  }
-  83.33% {
-    transform: scale(1.0117, 0.9883);
-  }
-  91.67% {
-    transform: scale(1.0041, 0.9959);
-  }
-  100% {
-    transform: scale(1, 1);
-  }
-}
-
-@keyframes pop {
-  0% {
-    transform: scale(0.65);
-  }
-  50% {
-    transform: scale(1.12);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-.mascot {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+#mascot dotlottie-player[hidden] {
   display: none;
-  height: auto;
-}
-
-.mascot.baby {
-  width: 48.8%;
-}
-
-.mascot.young {
-  width: 58.8%;
-}
-
-.mascot.adult {
-  width: 69.4%;
-}
-
-#feed-area[data-stage='baby'][data-mouth='normal'] .mascot.baby.normal,
-#feed-area[data-stage='baby'][data-mouth='open'] .mascot.baby.open,
-#feed-area[data-stage='young'][data-mouth='normal'] .mascot.young.normal,
-#feed-area[data-stage='young'][data-mouth='open'] .mascot.young.open,
-#feed-area[data-stage='adult'][data-mouth='normal'] .mascot.adult.normal,
-#feed-area[data-stage='adult'][data-mouth='open'] .mascot.adult.open {
-  display: block;
 }
 
 #feed-label {
@@ -697,9 +609,9 @@ header h1 {
   }
 }
 
-.win-mascot {
-  width: 136px;
-  height: auto;
+#win-mascot {
+  width: 190px;
+  height: 190px;
 }
 
 .tips-dialog {

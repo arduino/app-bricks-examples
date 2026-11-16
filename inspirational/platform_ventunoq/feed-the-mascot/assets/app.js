@@ -2,13 +2,17 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-const STAGES = ['baby', 'young', 'adult'];
-const MOUTH_OPEN_MS = 600;
-const BOING_MS = 650;
+// Every animation ends on the pose the next one starts from, so a finished one rests on its last frame
+const STAGES = [
+  { bite: document.querySelector('#baby-bite'), growth: document.querySelector('#baby-growth') },
+  { bite: document.querySelector('#young-bite'), growth: document.querySelector('#young-growth') },
+  { bite: document.querySelector('#adult-bite') },
+];
+const mascotAnimations = [...document.querySelectorAll('#mascot dotlottie-player')];
 
 const streamEl = document.querySelector('#stream');
 const feedArea = document.querySelector('#feed-area');
-const mascotEl = document.querySelector('#mascot');
+const winMascot = document.querySelector('#win-mascot');
 const bitesEl = document.querySelector('#bites');
 const levelEls = [...document.querySelectorAll('.level')];
 const slotsPerLevel = levelEls[0].querySelectorAll('.slot').length;
@@ -31,11 +35,13 @@ let streamReady = false;
 let tipsDismissed = false;
 let confidence = Number(confidenceSlider.value); // the last valid value, the one the slider shows
 let sentConfidence = confidence;
-let mouthTimer = null;
-let growthTimer = null;
+let playingAnimation = null;
+const waitingAnimations = [];
 
 function setState(state) {
+  const justWon = state === 'won' && document.body.dataset.state !== 'won';
   document.body.dataset.state = state;
+  if (justWon) restart(winMascot);
 }
 
 function updatePageState() {
@@ -89,7 +95,7 @@ window.addEventListener('resize', placeFeedArea);
 /* ---- Game state ---- */
 
 function stageAfter(bites) {
-  return STAGES[Math.min(Math.floor(bites / slotsPerLevel), STAGES.length - 1)];
+  return Math.min(Math.floor(bites / slotsPerLevel), STAGES.length - 1);
 }
 
 function renderLevels(bites) {
@@ -117,43 +123,54 @@ function render() {
   document.querySelector('#eaten').textContent = String(game.bites);
   document.querySelector('#grown-in').textContent = formatTime(game.elapsed);
   renderLevels(game.bites);
-  if (growthTimer === null) feedArea.dataset.stage = stageAfter(game.bites);
   placeFeedArea();
   updatePageState();
 }
 
 ui.on_message('state', state => {
+  if (game && state.bites < game.bites) {
+    waitingAnimations.length = 0;
+    playingAnimation?.stop();
+    playingAnimation = null;
+  }
   game = state;
+  if (!playingAnimation) showMascot(STAGES[stageAfter(game.bites)].bite);
   render();
 });
 
 /* ---- Bites: the mouth opens, the mascot bounces, and every few bites it grows ---- */
 
-function restartAnimation(name) {
-  mascotEl.classList.remove('boing', 'pop');
-  void mascotEl.offsetWidth; // a new bite plays the animation again from the start
-  mascotEl.classList.add(name);
+function showMascot(animation) {
+  mascotAnimations.forEach(other => {
+    other.hidden = other !== animation;
+  });
 }
 
-ui.on_message('bite', bite => {
-  clearTimeout(mouthTimer);
-  if (growthTimer !== null) {
-    clearTimeout(growthTimer);
-    growthTimer = null;
-    feedArea.dataset.stage = stageAfter(bite.bites - 1);
-  }
-  feedArea.dataset.mouth = 'open';
-  restartAnimation('boing');
-  mouthTimer = setTimeout(() => (feedArea.dataset.mouth = 'normal'), MOUTH_OPEN_MS);
+function restart(animation) {
+  animation.stop();
+  animation.play();
+}
 
-  const stage = stageAfter(bite.bites);
-  if (stage !== feedArea.dataset.stage) {
-    growthTimer = setTimeout(() => {
-      growthTimer = null;
-      feedArea.dataset.stage = stage;
-      restartAnimation('pop');
-    }, BOING_MS);
-  }
+function animationFor(bite) {
+  const stage = STAGES[stageAfter(bite - 1)];
+  return bite % slotsPerLevel === 0 ? stage.growth : stage.bite;
+}
+
+function playNextBite() {
+  playingAnimation = waitingAnimations.shift() ?? null;
+  if (!playingAnimation) return;
+  showMascot(playingAnimation);
+  restart(playingAnimation);
+}
+
+mascotAnimations.forEach(animation => animation.addEventListener('complete', playNextBite));
+
+ui.on_message('bite', bite => {
+  const animation = animationFor(bite.bites);
+  // The bite that wins the game plays on the win screen, and an animation still loading cannot play
+  if (!animation?.getLottie() || waitingAnimations.at(-1) === animation) return;
+  waitingAnimations.push(animation);
+  if (!playingAnimation) playNextBite();
 });
 
 document.querySelector('#play-again').addEventListener('click', () => ui.send_message('play_again'));

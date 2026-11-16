@@ -91,13 +91,14 @@ The game state is sent to the page on every change and to every page as it conne
 
 ### 💻 Frontend (index.html + app.js)
 
-The page shows the Brick's MJPEG stream in an `<img>` covering the window, and computes where the feed zone falls on the page from the zone, in fractions of the frame, and the size of the video. The mascot and the "FEED ZONE" label are placed there. A single `data-state` attribute (`loading`, `tips`, `playing`, `won`) drives what is visible via CSS. The bite and growth animations are CSS keyframes, restarted on every bite.
+The page shows the Brick's MJPEG stream in an `<img>` covering the window, and computes where the feed zone falls on the page from the zone, in fractions of the frame, and the size of the video. The mascot and the "FEED ZONE" label are placed there. A single `data-state` attribute (`loading`, `tips`, `playing`, `won`) drives what is visible via CSS. The mascot is a set of Lottie animations in `img/mascot/`, a bite and a growth for each stage, each loaded by its own `<dotlottie-player>` when the page opens. Every bite shows its animation and plays it once, the bite or the growth into the next stage, and the bites brought in together wait their turn.
 
 ### 🛠️ Customizing the Game
 
 - Move or resize the feed zone by changing `FEED_ZONE` in `main.py`, in fractions of the camera frame: the page follows it.
 - Change how many bites the mascot needs with `BITES_TO_GROW_UP`, and the levels shown in the panel in `index.html`.
 - Feed the mascot only some objects by passing `labels_to_track` to the Brick, for example `["cup", "bottle", "banana"]`.
+- Swap the mascot for your own Lottie animations by replacing the files in `img/mascot/`, one for each `<dotlottie-player>` in `index.html`.
 
 ## Troubleshooting
 
