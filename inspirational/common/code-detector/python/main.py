@@ -61,6 +61,12 @@ def on_list_scans():
     scans = store.read("scan_log", order_by="timestamp DESC", limit=5)
     return {"scans": scans if scans else []}
 
+def on_clear_scans(_, __):
+    """Callback function that deletes all the stored scans."""
+    # read() returns an empty list if the table does not exist yet, while delete() would raise
+    if store.read("scan_log", columns=["timestamp"], limit=1):
+        store.delete("scan_log")
+
 def reset_detection(_, __):
     """Callback function to reset the detection state."""
     global detected
@@ -80,5 +86,6 @@ detector.on_error(on_error)
 ui = WebUI()
 ui.expose_api('GET', '/list_scans', on_list_scans)
 ui.on_message('reset_detection', reset_detection)
+ui.on_message('clear_scans', on_clear_scans)
 
 App.run()
