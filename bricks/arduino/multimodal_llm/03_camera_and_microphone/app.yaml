@@ -1,0 +1,6 @@
+name: Ask about what the camera sees
+icon: 🗣️
+description: "Ask a question out loud and let a local multimodal LLM answer it looking at the camera. Requires a camera, a microphone and a locally available model."
+
+bricks:
+  - arduino:multimodal_llm
