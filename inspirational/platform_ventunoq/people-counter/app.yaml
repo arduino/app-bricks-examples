@@ -1,0 +1,7 @@
+name: People Counter
+icon: 🚶
+description: Count the people who walk past the camera. Each person in view is counted once, and the counter also shows how many there are right now.
+
+bricks:
+  - arduino:video_object_tracking
+  - arduino:web_ui

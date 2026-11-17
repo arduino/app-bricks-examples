@@ -7,14 +7,15 @@ from arduino.app_bricks.video_object_tracking import VideoObjectTracking
 
 # Track only people: every other label is left out of the callbacks, the counters and the video
 # The debounce runs the callback at most once a second; the counters are updated on every frame anyway
-tracker = VideoObjectTracking(confidence=0.4, debounce_sec=1.0, labels_to_track=["person"])
+# A person counts once seen in 5 frames, about half a second with the default camera at 10 frames per second
+tracker = VideoObjectTracking(confidence=0.4, debounce_sec=1.0, labels_to_track=["person"], min_detections_to_count=5)
 
 
 # Callback for all tracked objects of a frame (must take one dict argument)
 def on_all_tracked(objects: dict):
     # The list of a label holds its objects in the current frame, each with the ID the tracker gave it
     in_view = len(objects.get("person", []))
-    # An object is counted once, the first time its ID appears, so a person standing in view counts as one
+    # An object is counted once, after its ID has been seen in 5 frames, so a person standing in view counts as one
     distinct = tracker.get_unique_objects_count().get("person", 0)
     print(f"People in view: {in_view}, distinct people seen so far: {distinct}")
 
