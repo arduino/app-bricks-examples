@@ -1,0 +1,7 @@
+name: Decision Model - Receipt Photo
+icon: 🧾
+description: "An image with the state: the photo of a receipt a customer attached (assets/receipt.jpg) and one yes/no question, whether the receipt lists the blender."
+
+bricks:
+  - arduino:decision_model:
+      model: llamacpp:vllm-d3-edge-Q8_0-multimodal
