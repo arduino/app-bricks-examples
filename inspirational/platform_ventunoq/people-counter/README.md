@@ -72,7 +72,7 @@ tracker.set_rectangular_area(*WHOLE_FRAME, relative=True, visible=False)
 
 To know who is in view, the script sets an area as large as the camera frame and keeps it off the video. A person enters it when they are counted, and leaves it once they have been missing for 35 frames, about a second and a half. The Brick calls `on_area_enter` and `on_area_exit` on these two events. On each of them the script reads `get_unique_objects_count()` and `get_objects_in_area()` and sends both numbers to the page.
 
-The events arrive on several threads, so a lock makes sure the last message sent carries the latest numbers. The numbers are also sent to every page as it connects, so a reloaded page shows the current count at once.
+The Brick delivers these events one at a time and in order, so the last message sent carries the latest numbers. The numbers are also sent to every page as it connects, so a reloaded page shows the current count at once.
 
 ### 💻 Frontend (index.html + app.js)
 
