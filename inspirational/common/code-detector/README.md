@@ -69,7 +69,7 @@ Here is a brief explanation of the full-stack application:
     - Sends the scan result to the frontend (`code_detected`)
 
 - Exposes:
-  - **WebSocket**: reset detection (`reset_detection`) for starting a new scan.
+  - **WebSocket**: reset detection (`reset_detection`) for starting a new scan, clear scans (`clear_scans`) for deleting the stored scans.
   - **REST API**: list last 5 scans (`/list_scans`) stored in the database.
 - Runs with `App.run()` which handles the internal event loop.
 
@@ -82,6 +82,7 @@ Here is a brief explanation of the full-stack application:
   - List of last 5 scans (`/list_scans` API)
 
 - User can trigger a rescan with a button (`rescan()`).
+- User can delete the recent scans, also from the database, with the bin icon (`clearRecentScans()`).
 - Uses `<canvas>` to display images and decodes _Base64_ image data.
 
 ## Understanding the Code
@@ -134,7 +135,9 @@ Once the application is running, you can access it from your web browser by navi
   ui = WebUI()
   ui.expose_api('GET', '/list_scans', on_list_scans)
   ui.on_message('reset_detection', reset_detection)
+  ui.on_message('clear_scans', on_clear_scans)
   ```
 
   - The `on_list_scans` function, returns the database stored codes to be shown in the UI.
   - The `reset_detection` function handles the UI button to restart the code scanning process.
+  - The `on_clear_scans` function deletes the stored codes from the database when the recent scans list is cleared in the UI.
