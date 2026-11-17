@@ -21,7 +21,7 @@ tracker = VideoObjectTracking(
         adjustments=cropped_to_aspect_ratio((16, 9)) | flipped_h(),
     ),
     labels_to_track=["person"],
-    keep_grace=50,
+    keep_grace=35,
     min_detections=1,
     iou_threshold=0.05,
     min_detections_to_count=25,
