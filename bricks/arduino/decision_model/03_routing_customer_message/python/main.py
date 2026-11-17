@@ -4,7 +4,7 @@
 
 import time
 
-from arduino.app_bricks.decision_model import Choice, DecisionModel, Noul, Score
+from arduino.app_bricks.decision_model import DecisionModel, Noul, Score
 from arduino.app_utils import App
 
 decision_model = DecisionModel()
@@ -17,14 +17,6 @@ def route_message():
     answers = decision_model.decide(
         state=MESSAGE,
         questions={
-            "department": Choice(
-                instructions="Which department should handle this customer message?",
-                options={
-                    "billing": "Payments, invoices, refunds and double charges",
-                    "shipping": "Delivery status, lost or damaged parcels",
-                    "technical": "Product not working, setup and firmware problems",
-                },
-            ),
             "urgency": Score(
                 instructions="How urgent is this message?",
                 levels=["Can wait a week", "Should be handled in a few days", "Needs an answer today"],
@@ -34,10 +26,8 @@ def route_message():
     )
 
     elapsed_ms = (time.perf_counter() - started_at) * 1000
-    department = answers.choice("department")
     urgency = answers.score("urgency")
     angry = answers.noul("angry")
-    print(f"Department: {department.choice} (confidence {department.confidence:.2f})")
     print(f"Urgency: {urgency.level} (score {urgency.score:.1f} of {len(urgency.legend) - 1})")
     print(f"Angry customer: {angry.is_true} (probability {angry.probability:.2f})")
     print(f"Request time: {elapsed_ms:.0f} ms")

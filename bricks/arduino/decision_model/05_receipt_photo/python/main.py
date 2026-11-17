@@ -9,7 +9,7 @@ from arduino.app_utils import App
 
 decision_model = DecisionModel()
 
-RECEIPT = "/app/assets/receipt.jpg"
+RECEIPT = "assets/receipt.jpg"
 
 
 def check_receipt():

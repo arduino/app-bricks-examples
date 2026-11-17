@@ -1,0 +1,6 @@
+name: Decision Model - Routing a Customer Message
+icon: 📨
+description: "Two questions about a customer message in one request: how urgent it is and whether the customer is angry."
+
+bricks:
+  - arduino:decision_model
