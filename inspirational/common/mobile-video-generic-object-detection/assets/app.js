@@ -25,6 +25,14 @@ let webcamState = {
   port: 0,
 };
 
+// Before pairing, the Arduino IoT Remote app checks the board: it opens a
+// WebSocket, reads the hello message and closes it. The camera reports that
+// check as "connected" then "disconnected" within a fraction of a second, so a
+// "connected" status is held for a short grace period before it reaches the
+// UI. The first frames ("streaming") apply it immediately.
+const CONNECTED_GRACE_MS = 1000;
+let heldConnection = null;
+
 // Start the application
 ui.on_connect(onUIConnected);
 ui.on_disconnect(onUIDisconnected);
@@ -79,15 +87,19 @@ function updateDisplay() {
     dynamicIframe.src = streamUrl;
     dynamicIframe.height = Math.min(((window.innerWidth - 60) * 4) / 3 + 60, 768);
     dynamicIframe.width = Math.min(768, window.innerWidth - 60);
-    clientName.textContent = `${webcamState.clientName || 'Unknown Device'} connected`;
-    clientName.innerHTML +=
-      '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1C6.61553 1 5.26216 1.41054 4.11101 2.17971C2.95987 2.94888 2.06266 4.04213 1.53285 5.32122C1.00303 6.6003 0.86441 8.00776 1.13451 9.36563C1.4046 10.7235 2.07129 11.9708 3.05026 12.9497C4.02922 13.9287 5.2765 14.5954 6.63437 14.8655C7.99224 15.1356 9.3997 14.997 10.6788 14.4672C11.9579 13.9373 13.0511 13.0401 13.8203 11.889C14.5895 10.7378 15 9.38447 15 8C15 6.14348 14.2625 4.36301 12.9497 3.05025C11.637 1.7375 9.85652 1 8 1ZM11.855 6.355L7.355 10.855C7.30852 10.9019 7.25322 10.9391 7.19229 10.9644C7.13136 10.9898 7.06601 11.0029 7 11.0029C6.934 11.0029 6.86864 10.9898 6.80771 10.9644C6.74679 10.9391 6.69148 10.9019 6.645 10.855L4.145 8.355C4.05085 8.26085 3.99796 8.13315 3.99796 8C3.99796 7.86685 4.05085 7.73915 4.145 7.645C4.23915 7.55085 4.36685 7.49795 4.5 7.49795C4.63315 7.49795 4.76085 7.55085 4.855 7.645L7 9.795L11.145 5.645C11.2392 5.55085 11.3669 5.49795 11.5 5.49795C11.6332 5.49795 11.7609 5.55085 11.855 5.645C11.9492 5.73915 12.002 5.86685 12.002 6C12.002 6.13315 11.9492 6.26085 11.855 6.355Z" fill="#16A588"/></svg>';
-  } else if (webcamState.status != 'connected') {
+  }
+
+  if (webcamState.status == 'disconnected') {
     // No webcam is connected - show QR code
     clientName.textContent = 'No Device Connected';
     if (webcamState.secret) {
       generateQRCode(webcamState.secret, webcamState.protocol, webcamState.ip, webcamState.port);
     }
+  } else {
+    // A webcam is connected, streaming or not - show its name
+    clientName.textContent = `${webcamState.clientName || 'Unknown Device'} connected`;
+    clientName.innerHTML +=
+      '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1C6.61553 1 5.26216 1.41054 4.11101 2.17971C2.95987 2.94888 2.06266 4.04213 1.53285 5.32122C1.00303 6.6003 0.86441 8.00776 1.13451 9.36563C1.4046 10.7235 2.07129 11.9708 3.05026 12.9497C4.02922 13.9287 5.2765 14.5954 6.63437 14.8655C7.99224 15.1356 9.3997 14.997 10.6788 14.4672C11.9579 13.9373 13.0511 13.0401 13.8203 11.889C14.5895 10.7378 15 9.38447 15 8C15 6.14348 14.2625 4.36301 12.9497 3.05025C11.637 1.7375 9.85652 1 8 1ZM11.855 6.355L7.355 10.855C7.30852 10.9019 7.25322 10.9391 7.19229 10.9644C7.13136 10.9898 7.06601 11.0029 7 11.0029C6.934 11.0029 6.86864 10.9898 6.80771 10.9644C6.74679 10.9391 6.69148 10.9019 6.645 10.855L4.145 8.355C4.05085 8.26085 3.99796 8.13315 3.99796 8C3.99796 7.86685 4.05085 7.73915 4.145 7.645C4.23915 7.55085 4.36685 7.49795 4.5 7.49795C4.63315 7.49795 4.76085 7.55085 4.855 7.645L7 9.795L11.145 5.645C11.2392 5.55085 11.3669 5.49795 11.5 5.49795C11.6332 5.49795 11.7609 5.55085 11.855 5.645C11.9492 5.73915 12.002 5.86685 12.002 6C12.002 6.13315 11.9492 6.26085 11.855 6.355Z" fill="#16A588"/></svg>';
   }
 }
 
@@ -131,28 +143,64 @@ async function onDetection(message) {
   updateFeedback(message);
 }
 
-async function onWelcome(message) {
-  if (message.status !== 'disconnected') {
-    webcamState.clientName = message.client_name;
+// Hold a "connected" status: it is applied when the grace period ends, unless
+// the client disconnects or starts streaming first.
+function holdConnection(clientName, clientAddr) {
+  dropHeldConnection();
+  heldConnection = {
+    clientName,
+    clientAddr,
+    timer: setTimeout(() => {
+      applyHeldConnection();
+      webcamState.status = 'connected';
+      updateDisplay();
+    }, CONNECTED_GRACE_MS),
+  };
+}
+
+function dropHeldConnection() {
+  if (heldConnection) {
+    clearTimeout(heldConnection.timer);
+    heldConnection = null;
   }
-  webcamState.status = message.status;
+}
+
+// Copy the held client details into the webcam state.
+function applyHeldConnection() {
+  if (!heldConnection) return;
+  webcamState.clientName = heldConnection.clientName;
+  webcamState.clientAddr = heldConnection.clientAddr;
+  dropHeldConnection();
+}
+
+async function onWelcome(message) {
   webcamState.secret = message.secret;
   webcamState.protocol = message.protocol;
   webcamState.ip = message.ip;
   webcamState.port = message.port;
+  if (message.status === 'connected') {
+    // The page may open during the app's check: hold it like a live event.
+    holdConnection(message.client_name);
+  } else {
+    dropHeldConnection();
+    if (message.status !== 'disconnected') {
+      webcamState.clientName = message.client_name;
+    }
+    webcamState.status = message.status;
+  }
   updateDisplay();
 }
 
 async function onConnected(message) {
   console.log('Webcam connected!');
-  webcamState.status = 'connected';
-  webcamState.clientAddr = message.client_address;
-  webcamState.clientName = message.client_name;
-  updateDisplay();
+  holdConnection(message.client_name, message.client_address);
 }
 
 async function onDisconnected() {
   console.log('Webcam disconnected!');
+  // A connection still in its grace period never reached the UI, so the QR
+  // code is already on screen and this only redraws it.
+  dropHeldConnection();
   webcamState.status = 'disconnected';
   webcamState.clientAddr = '';
   webcamState.clientName = '';
@@ -161,6 +209,7 @@ async function onDisconnected() {
 
 async function onStreaming() {
   console.log('Webcam streaming started!');
+  applyHeldConnection();
   webcamState.status = 'streaming';
   updateDisplay();
   updateConfidenceDisplay();
