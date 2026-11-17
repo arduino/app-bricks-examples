@@ -12,6 +12,7 @@ from arduino.app_utils.image import cropped_to_aspect_ratio, flipped_h
 
 FEED_ZONE = (0.744, 0.332, 0.977, 0.746)  # x1, y1, x2, y2 as fractions of the camera frame
 BITES_TO_GROW_UP = 9
+DEFAULT_CONFIDENCE_PERCENT = 30
 TOO_BIG_TO_CARRY = [
     "refrigerator", "oven", "microwave", "sink", "toilet", "bed", "couch", "chair", "dining table", "tv",
     "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck", "boat",
@@ -24,6 +25,7 @@ logger = Logger("FeedTheMascot")
 bites = 0
 first_bite = 0.0
 grown_in: float | None = None  # seconds from the first bite to the last one
+confidence_percent = DEFAULT_CONFIDENCE_PERCENT
 
 ui = WebUI()
 tracker = VideoObjectTracking(
@@ -33,6 +35,7 @@ tracker = VideoObjectTracking(
         codec="MJPG",
         adjustments=cropped_to_aspect_ratio((16, 9)) | flipped_h(),
     ),
+    confidence=confidence_percent / 100,
     labels_to_ignore=["person", *TOO_BIG_TO_CARRY],
     keep_grace=4,
     min_detections=2,
@@ -41,7 +44,15 @@ tracker.set_rectangular_area(*FEED_ZONE, relative=True)
 
 
 def game_state() -> dict:
-    return {"bites": bites, "won": bites >= BITES_TO_GROW_UP, "elapsed": grown_in, "zone": FEED_ZONE}
+    return {
+        "bites": bites,
+        "goal": BITES_TO_GROW_UP,
+        "won": bites >= BITES_TO_GROW_UP,
+        "elapsed": grown_in,
+        "zone": FEED_ZONE,
+        "confidence": confidence_percent,
+        "default_confidence": DEFAULT_CONFIDENCE_PERCENT,
+    }
 
 
 def on_enter(event: dict) -> None:
@@ -67,8 +78,15 @@ def on_play_again(_sid: str, _data: dict) -> None:
     ui.send_message("state", game_state())
 
 
+def on_confidence(_sid: str, percent: int) -> None:
+    global confidence_percent
+    tracker.override_threshold(percent / 100)
+    confidence_percent = percent
+    ui.send_message("state", game_state())
+
+
 tracker.on_area_enter(on_enter)
-ui.on_message("confidence", lambda _sid, percent: tracker.override_threshold(percent / 100))
+ui.on_message("confidence", on_confidence)
 ui.on_message("play_again", on_play_again)
 ui.on_connect(lambda sid: ui.send_message("state", game_state(), room=sid))
 

@@ -78,6 +78,7 @@ tracker = VideoObjectTracking(
         codec="MJPG",
         adjustments=cropped_to_aspect_ratio((16, 9)) | flipped_h(),
     ),
+    confidence=confidence_percent / 100,
     labels_to_ignore=["person", *TOO_BIG_TO_CARRY],
     keep_grace=4,
     min_detections=2,
@@ -87,7 +88,7 @@ tracker.set_rectangular_area(*FEED_ZONE, relative=True)
 
 Every `on_area_enter` event is a bite, so an object counts each time it enters the feed zone, also when it leaves and comes straight back.
 
-The game state is sent to the page on every change and to every page as it connects, so a reloaded page picks up the game where it was.
+The game state is sent to the page on every change and to every page as it connects, so a reloaded page picks up the game where it was. The state also carries the confidence level and the bites the mascot needs, so every page shows the values the board holds.
 
 ### 💻 Frontend (index.html + app.js)
 
@@ -96,7 +97,8 @@ The page shows the Brick's MJPEG stream in an `<img>` covering the window, and c
 ### 🛠️ Customizing the Game
 
 - Move or resize the feed zone by changing `FEED_ZONE` in `main.py`, in fractions of the camera frame, and the page follows it.
-- Change how many bites the mascot needs with `BITES_TO_GROW_UP`, and the levels shown in the panel in `index.html`.
+- Change how many bites the mascot needs with `BITES_TO_GROW_UP` in `main.py`, and the page follows it. Use a multiple of three, because the bites are split evenly over the three levels.
+- Change the confidence level the game starts from, and the reset button goes back to, with `DEFAULT_CONFIDENCE_PERCENT` in `main.py`.
 - Feed the mascot only some objects by passing `labels_to_track` to the Brick, for example `["cup", "bottle", "banana"]`.
 - Swap the mascot for your own Lottie animations by replacing the files in `img/mascot/`, one for each `<dotlottie-player>` in `index.html`.
 

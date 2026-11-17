@@ -15,7 +15,6 @@ const feedArea = document.querySelector('#feed-area');
 const winMascot = document.querySelector('#win-mascot');
 const bitesEl = document.querySelector('#bites');
 const levelEls = [...document.querySelectorAll('.level')];
-const slotsPerLevel = levelEls[0].querySelectorAll('.slot').length;
 const errorContainer = document.querySelector('#error-container');
 const tipsToggle = document.querySelector('#tips-toggle');
 const tipsContent = document.querySelector('#tips-content');
@@ -26,15 +25,14 @@ const confidenceValue = document.querySelector('#confidence-value');
 const confidenceError = document.querySelector('#confidence-error');
 const confidenceErrorText = document.querySelector('#confidence-error-text');
 
-document.querySelector('#bites-goal').textContent = String(levelEls.length * slotsPerLevel);
-
 const ui = new WebUI();
 
 let game = null; // the last state the board sent
+let slotsPerLevel = 0;
 let streamReady = false;
 let tipsDismissed = false;
 let confidence = Number(confidenceSlider.value); // the last valid value, the one the slider shows
-let sentConfidence = confidence;
+let boardConfidence = null;
 let playingAnimation = null;
 const waitingGrowths = [];
 
@@ -105,11 +103,14 @@ function renderLevels(bites) {
     const current = !done && eaten >= 0;
     levelEl.classList.toggle('done', done);
     levelEl.classList.toggle('current', current);
-    levelEl.querySelectorAll('.slot').forEach((slot, i) => {
+    const slots = Array.from({ length: slotsPerLevel }, (_, i) => {
+      const slot = document.createElement('span');
       slot.className = 'slot';
       if (done) slot.classList.add('done');
       else if (current) slot.classList.add(i < eaten ? 'filled' : 'next');
+      return slot;
     });
+    levelEl.querySelector('.slots').replaceChildren(...slots);
   });
 }
 
@@ -120,6 +121,8 @@ function formatTime(seconds) {
 
 function render() {
   bitesEl.textContent = String(game.bites);
+  document.querySelector('#bites-goal').textContent = String(game.goal);
+  document.querySelector('#bites-per-level').textContent = String(slotsPerLevel);
   document.querySelector('#eaten').textContent = String(game.bites);
   document.querySelector('#grown-in').textContent = formatTime(game.elapsed);
   renderLevels(game.bites);
@@ -134,6 +137,8 @@ ui.on_message('state', state => {
     playingAnimation = null;
   }
   game = state;
+  slotsPerLevel = Math.ceil(game.goal / levelEls.length);
+  adoptConfidence(game.confidence);
   if (!playingAnimation) showMascot(STAGES[stageAfter(game.bites)].bite);
   render();
 });
@@ -166,6 +171,7 @@ function playWaitingGrowth() {
 mascotAnimations.forEach(animation => animation.addEventListener('complete', playWaitingGrowth));
 
 ui.on_message('bite', bite => {
+  if (!game) return;
   const stage = STAGES[stageAfter(bite.bites - 1)];
   const grows = bite.bites % slotsPerLevel === 0;
   const animation = grows ? stage.growth : stage.bite;
@@ -205,9 +211,17 @@ function showConfidence(value) {
 }
 
 function sendConfidence() {
-  if (confidence === sentConfidence) return;
-  sentConfidence = confidence;
+  if (!game || confidence === boardConfidence) return;
+  boardConfidence = confidence;
   ui.send_message('confidence', confidence);
+}
+
+// A state arrives on every bite, so only a value that changed on the board replaces what the user is setting
+function adoptConfidence(value) {
+  if (value === boardConfidence) return;
+  boardConfidence = value;
+  hideError();
+  showConfidence(value);
 }
 
 function showError(message) {
@@ -257,16 +271,13 @@ confidenceSlider.addEventListener('input', () => showConfidence(Number(confidenc
 confidenceSlider.addEventListener('change', sendConfidence);
 
 document.querySelector('#confidence-reset').addEventListener('click', () => {
+  if (!game) return;
   hideError();
-  showConfidence(Number(confidenceSlider.defaultValue));
+  showConfidence(game.default_confidence);
   sendConfidence();
 });
 
 /* ---- Connection status ---- */
 
-ui.on_connect(() => {
-  sentConfidence = confidence;
-  ui.send_message('confidence', confidence);
-  errorContainer.classList.add('hidden');
-});
+ui.on_connect(() => errorContainer.classList.add('hidden'));
 ui.on_disconnect(() => errorContainer.classList.remove('hidden'));

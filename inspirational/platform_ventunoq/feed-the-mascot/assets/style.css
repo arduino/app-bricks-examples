@@ -542,7 +542,7 @@ header h1 {
 }
 
 #confidence-slider {
-  --fill: 30%;
+  --fill: 0%;
   flex: 1;
   height: 6px;
   margin: 5px 0;

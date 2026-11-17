@@ -52,7 +52,10 @@ SPDX-License-Identifier: MPL-2.0
           <h2>Feed the mascot</h2>
           <span class="pill"><strong id="bites">0</strong>/<span id="bites-goal">9</span> eaten</span>
         </div>
-        <p class="panel-text">Bring objects into its area to feed it. Every 3 bites it grows. People don't count</p>
+        <p class="panel-text">
+          Bring objects into its area to feed it. Every <span id="bites-per-level">3</span> bites it grows. People don't
+          count
+        </p>
         <div id="tips-accordion">
           <button id="tips-toggle" type="button" aria-expanded="false" aria-controls="tips-content">
             <span class="icon info"><img src="img/icons/info.svg" alt="" /></span>
@@ -80,19 +83,19 @@ SPDX-License-Identifier: MPL-2.0
             <span class="level-name"
               >LEVEL 1<span class="icon checkmark"><img src="img/icons/checkmark.svg" alt="Done" /></span
             ></span>
-            <span class="slots"><span class="slot"></span><span class="slot"></span><span class="slot"></span></span>
+            <span class="slots"></span>
           </div>
           <div class="level">
             <span class="level-name"
               >LEVEL 2<span class="icon checkmark"><img src="img/icons/checkmark.svg" alt="Done" /></span
             ></span>
-            <span class="slots"><span class="slot"></span><span class="slot"></span><span class="slot"></span></span>
+            <span class="slots"></span>
           </div>
           <div class="level">
             <span class="level-name"
               >LEVEL 3<span class="icon checkmark"><img src="img/icons/checkmark.svg" alt="Done" /></span
             ></span>
-            <span class="slots"><span class="slot"></span><span class="slot"></span><span class="slot"></span></span>
+            <span class="slots"></span>
           </div>
         </div>
       </section>
@@ -105,14 +108,7 @@ SPDX-License-Identifier: MPL-2.0
           </div>
           <div class="confidence-input">
             <div id="confidence-field">
-              <input
-                id="confidence-number"
-                type="number"
-                min="1"
-                max="100"
-                step="1"
-                value="30"
-                aria-label="Confidence level" />
+              <input id="confidence-number" type="number" min="1" max="100" step="1" aria-label="Confidence level" />
               <button id="confidence-reset" type="button" title="Back to the default">
                 <span class="icon reset"><img src="img/icons/reset.svg" alt="Reset" /></span>
               </button>
@@ -123,17 +119,10 @@ SPDX-License-Identifier: MPL-2.0
             </p>
           </div>
         </div>
-        <div id="confidence-value">30</div>
+        <div id="confidence-value">&nbsp;</div>
         <div class="slider-row">
           <span>1</span>
-          <input
-            id="confidence-slider"
-            type="range"
-            min="1"
-            max="100"
-            step="1"
-            value="30"
-            aria-label="Confidence level" />
+          <input id="confidence-slider" type="range" min="1" max="100" step="1" aria-label="Confidence level" />
           <span>100</span>
         </div>
       </section>
