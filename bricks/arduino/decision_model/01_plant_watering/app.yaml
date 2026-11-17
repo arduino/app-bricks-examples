@@ -1,0 +1,6 @@
+name: Decision Model - Plant Watering
+icon: 🌱
+description: "A yes/no question about a plant pot: does the plant need water."
+
+bricks:
+  - arduino:decision_model

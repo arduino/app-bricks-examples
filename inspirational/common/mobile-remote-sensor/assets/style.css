@@ -156,8 +156,9 @@ body:not(.paired) .subheader-note {
 }
 .pairing-card p.muted {
   margin: 0;
-  max-width: 360px;
+  max-width: 600px;
   font-size: 16px;
+  text-wrap: balance;
 }
 .pairing.hidden {
   display: none;

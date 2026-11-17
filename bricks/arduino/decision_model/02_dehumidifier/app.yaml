@@ -1,0 +1,6 @@
+name: Decision Model - Dehumidifier
+icon: 💧
+description: "Temperature and humidity of a room: is the air too humid, and should the dehumidifier be on."
+
+bricks:
+  - arduino:decision_model

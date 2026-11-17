@@ -1,0 +1,6 @@
+name: Basic usage of the Video Object Tracking Brick
+icon: 🎯
+description: "Basic usage of the Video Object Tracking Brick. Requires a connected camera"
+
+bricks:
+  - arduino:video_object_tracking

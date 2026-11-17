@@ -1,0 +1,266 @@
+/*
+ * SPDX-FileCopyrightText: Copyright (C) Arduino s.r.l. and/or its affiliated companies
+ *
+ * SPDX-License-Identifier: MPL-2.0
+ */
+
+@import url('fonts/fonts.css');
+
+:root {
+  --bg-panel: #ecf1f1;
+  --text-default: #2c353a;
+  --text-accent: #008184;
+  --text-inverted: #ffffff;
+  --scrim: rgba(0, 0, 0, 0.5);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+  overflow: hidden;
+  background: #000000;
+  color: var(--text-default);
+  font-family: 'Open Sans', system-ui, sans-serif;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+/* ---- Icons: a glyph placed in its box as the design places it ---- */
+
+.icon {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.icon img {
+  position: absolute;
+  display: block;
+}
+
+.icon.loading {
+  width: 32px;
+  height: 32px;
+}
+
+.icon.loading img {
+  inset: 6.25%;
+  width: 87.5%;
+  height: 87.5%;
+}
+
+.icon.logo {
+  width: 48px;
+  height: 48px;
+}
+
+.icon.logo img {
+  top: 28.13%;
+  left: 3.13%;
+  width: 93.74%;
+  height: 43.74%;
+}
+
+/* ---- Video and header ---- */
+
+#stream {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+#header-shade {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 112px;
+  background: linear-gradient(to bottom, rgba(55, 65, 70, 0.8), rgba(55, 65, 70, 0) 97.107%);
+}
+
+header {
+  position: fixed;
+  top: 0;
+  left: 24px;
+  right: 24px;
+  padding: 24px 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+header h1 {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.7;
+  letter-spacing: 3px;
+  color: var(--text-inverted);
+}
+
+/* ---- Counter ---- */
+
+#counter {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  width: max-content;
+  min-width: 260px;
+  max-width: calc(100% - 48px);
+}
+
+.card {
+  background: var(--bg-panel);
+  border-radius: 8px;
+  box-shadow: 0 6px 24px rgba(20, 26, 29, 0.28);
+}
+
+#counted-card {
+  display: grid;
+  justify-items: center;
+  padding: 12px 28px;
+}
+
+#in-view-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 20px;
+  border-radius: 6px;
+}
+
+.card-title {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.7;
+  letter-spacing: 1.68px;
+}
+
+#in-view-strip .card-title {
+  font-size: 12px;
+  letter-spacing: 1.44px;
+}
+
+.readout {
+  display: inline-block;
+  font-size: 56px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 0.5px;
+  color: var(--text-accent);
+  font-variant-numeric: tabular-nums;
+  transform-origin: center;
+}
+
+.readout.zero {
+  color: var(--text-default);
+}
+
+.readout.millions {
+  font-size: 48px;
+}
+
+.strip-value {
+  display: inline-block;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+  transform-origin: center;
+}
+
+.bump {
+  animation: bump 0.35s ease-out;
+}
+
+@keyframes bump {
+  40% {
+    transform: scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bump {
+    animation: none;
+  }
+}
+
+/* ---- Overlays ---- */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: var(--scrim);
+  color: var(--text-inverted);
+  text-align: center;
+}
+
+.overlay h2 {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.7;
+  letter-spacing: 0.28px;
+}
+
+#loading-overlay .icon.loading img {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+#error-container {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ---- State machine (data-state on body) ---- */
+
+body[data-state='loading'] #stream {
+  visibility: hidden;
+}
+
+body[data-state='loading'] #loading-overlay {
+  display: flex;
+}

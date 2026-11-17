@@ -6,7 +6,8 @@ permissions:
 
 jobs:
   compile-sketches:
-    runs-on: ubuntu-latest
+    # arduino/compile-sketches@v1 pins Python 3.12.4, which has no build for ubuntu-latest (26.04)
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

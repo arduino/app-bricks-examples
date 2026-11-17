@@ -1,12 +1,12 @@
 # Smartphone Sensor Stream
 
-The **Smartphone Sensor Stream** example turns your smartphone into a wireless multi-sensor device: pair the phone with your board and watch accelerometer, gyroscope, magnetometer, compass, GPS, barometer, brightness, sound, battery and touch data stream into a live, animated web dashboard.
+The **Smartphone Sensor Stream** example turns your smartphone into a wireless multi-sensor device: pair it with your board and watch accelerometer, gyroscope, magnetometer, compass, GPS, barometer, brightness, sound, battery and touch data stream into a live, animated web dashboard.
 
 **Note:** This example uses your smartphone as a remote sensor input. Both the board and your smartphone must be connected to the same network.
 
 ![Smartphone Sensor Stream](assets/docs_assets/smartphone-sensor-stream.png)
 
-This example receives live sensor data from the **Arduino IoT Remote** mobile app. The workflow involves pairing your phone to the board via a QR code, streaming sensor readings over the network through the `remote_sensor` peripheral (secured with a one-time password), and rendering each metric in a dedicated animated panel. The App is managed from an interactive web interface.
+This example receives live sensor data from the **Arduino IoT Remote** mobile app. The workflow involves pairing your smartphone to the board via a QR code, streaming sensor readings over the network through the `remote_sensor` peripheral (secured with a one-time password), and rendering each metric in a dedicated animated panel. The App is managed from an interactive web interface.
 
 *This example is based on the Arduino UNO Q, but also works with Arduino VENTUNO Q.*
 
@@ -45,18 +45,18 @@ It also uses the `remote_sensor` **peripheral**: a WebSocket server hosted on th
 
 ### Arduino IoT Remote Setup
 
-5. Install the **Arduino IoT Remote** app on your smartphone from your app store.
+5. Install the **Arduino IoT Remote** app on your smartphone from your app store. If you already have it, make sure you update it to the latest version.
 
-6. Open the Arduino IoT Remote app on your phone and log in with your Arduino account.
+6. Open the Arduino IoT Remote app on your smartphone and log in with your Arduino account.
 
-7. Pair your phone with the board in one of two ways:
+7. Pair your smartphone with the board in one of two ways:
 
-   - Scan the QR code shown in the Web UI with your phone camera (outside the Arduino IoT Remote app), or
+   - Scan the QR code shown in the Web UI with your smartphone camera (outside the Arduino IoT Remote app), or
    - In the Arduino IoT Remote app, go to Devices, tap on the plus icon, select **Stream phone data to UNO Q or VENTUNO Q**, pick your board, then enter the **password** the Web UI reports below the QR code.
 
 8. Once connected, the pairing card collapses and the dashboard appears, with one panel per sensor:
 
-   - **Gyroscope**: a 3D wireframe cube that rotates with the phone.
+   - **Gyroscope**: a 3D wireframe cube that rotates with the smartphone.
    - **Accelerometer**: a bubble level plus a signed Z bar and linear acceleration.
    - **Magnetometer**: a field-heading needle with a signed Z bar.
    - **Compass**: a rotating compass rose with the heading in degrees.
@@ -64,22 +64,22 @@ It also uses the `remote_sensor` **peripheral**: a WebSocket server hosted on th
    - **Barometer**: a pressure gauge in hPa.
    - **Brightness**: a sun that grows and glows with ambient light.
    - **Sound**: a VU meter for level and a piano strip for pitch.
-   - **Battery**: the phone's charge level.
-   - **Touch**: the position of your finger on the phone screen.
+   - **Battery**: the smartphone's charge level.
+   - **Touch**: the position of your finger on the smartphone screen.
 
-9. Move, tilt, and play with your phone and watch every panel react in real time.
+9. Move, tilt, and play with your smartphone and watch every panel react in real time.
 
 ## How it Works
 
-This example hosts a Web UI that orchestrates a connection between your phone's sensors and the board. Sensor readings are received over the network by the `remote_sensor` peripheral and forwarded to the browser, where each metric drives an animated panel.
+This example hosts a Web UI that orchestrates a connection between your smartphone's sensors and the board. Sensor readings are received over the network by the `remote_sensor` peripheral and forwarded to the browser, where each metric drives an animated panel.
 
 Here is a brief explanation of the full-stack application:
 
 ### 🔧 Backend (main.py)
 
 - **Security & Connection**:
-  - Generates a random 6-digit **secret** (`generate_secret`) to secure the connection between the phone and the board.
-  - Initializes a **RemoteSensor** (`sensor = RemoteSensor(secret=secret)`). This object hosts the WebSocket server the phone streams to, authenticating messages with the secret (HMAC).
+  - Generates a random 6-digit **secret** (`generate_secret`) to secure the connection between the smartphone and the board.
+  - Initializes a **RemoteSensor** (`sensor = RemoteSensor(secret=secret)`). This object hosts the WebSocket server the smartphone streams to, authenticating messages with the secret (HMAC).
 
 - **App Initialization**:
   - **WebUI** (`ui = WebUI()`): Manages the frontend interface.
@@ -87,7 +87,7 @@ Here is a brief explanation of the full-stack application:
 - **Event Handling**:
   - **Status Updates**: Wires sensor lifecycle changes (connected, disconnected) to the UI.
   - **UI Connection**: When a user opens the browser (`ui.on_connect`), the backend sends the connection details (IP, port, secret) so the frontend can generate the pairing QR code, plus the recent history of datapoints so the dashboard fills up immediately.
-  - **Datapoints**: Uses `on_datapoint` to parse each JSON message from the phone and forward it to the UI.
+  - **Datapoints**: Uses `on_datapoint` to parse each JSON message from the smartphone and forward it to the UI.
 
 ---
 
@@ -98,7 +98,7 @@ Here is a brief explanation of the full-stack application:
   - Generates a **QR Code** using `qrcode.min.js`. This code contains the credentials required for the mobile app to connect.
 
 - **Live Dashboard**:
-  - Once the phone connects, the interface switches from the QR code view to the sensor grid.
+  - Once the smartphone connects, the interface switches from the QR code view to the sensor grid.
   - Each incoming datapoint updates only the panels whose fields are present, so partial payloads are fine.
 
 ---
@@ -134,7 +134,7 @@ Once the application is running, you can open it in your browser. At that point,
 
 - **Receiving sensor data and broadcasting it to the browser.**
 
-  The peripheral delivers each message from the phone as raw bytes. The callback parses the JSON payload, stores it in a small rolling history, and sends it to the browser.
+  The peripheral delivers each message from the smartphone as raw bytes. The callback parses the JSON payload, stores it in a small rolling history, and sends it to the browser.
 
   ```python
   def on_datapoint(raw: bytes):
@@ -173,7 +173,7 @@ Once the application is running, you can open it in your browser. At that point,
 
 - **Rendering the QR Code (Frontend).**
 
-  In `app.js`, the frontend waits for the `welcome` message to generate the QR code that bridges the phone and the board.
+  In `app.js`, the frontend waits for the `welcome` message to generate the QR code that bridges the smartphone and the board.
 
   ```javascript
   function showPairing(welcome) {
@@ -202,7 +202,7 @@ Once the application is running, you can open it in your browser. At that point,
 
 - **Executing the event loop.**
 
-  Finally, the backend keeps the application alive, managing the network traffic between the phone and the browser.
+  Finally, the backend keeps the application alive, managing the network traffic between the smartphone and the browser.
 
   ```python
   App.run()
@@ -221,4 +221,4 @@ If you want to manage a secure HTTPS connection:
 ui = WebUI(use_tls=True, certs_dir_path='/app/certs')
 ```
 
-The `remote_sensor` peripheral also supports TLS for the phone connection (`RemoteSensor(use_tls=True)`).
+The `remote_sensor` peripheral also supports TLS for the smartphone connection (`RemoteSensor(use_tls=True)`).

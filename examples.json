@@ -270,6 +270,26 @@
       ]
     },
     {
+      "brick": "arduino:decision_model",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/decision_model/01_plant_watering"
+        },
+        {
+          "id": "examples:bricks/arduino/decision_model/02_dehumidifier"
+        },
+        {
+          "id": "examples:bricks/arduino/decision_model/03_routing_customer_message"
+        },
+        {
+          "id": "examples:bricks/arduino/decision_model/04_damaged_order_request"
+        },
+        {
+          "id": "examples:bricks/arduino/decision_model/05_receipt_photo"
+        }
+      ]
+    },
+    {
       "brick": "arduino:gesture_recognition",
       "examples": [
         {
@@ -349,6 +369,20 @@
       "examples": [
         {
           "id": "examples:bricks/arduino/motion_detection/01_basic_usage"
+        }
+      ]
+    },
+    {
+      "brick": "arduino:multimodal_llm",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/multimodal_llm/01_image_and_audio_files"
+        },
+        {
+          "id": "examples:bricks/arduino/multimodal_llm/02_microphone_streaming_chat"
+        },
+        {
+          "id": "examples:bricks/arduino/multimodal_llm/03_camera_and_microphone"
         }
       ]
     },
@@ -518,6 +552,23 @@
         },
         {
           "id": "examples:bricks/arduino/video_object_detection/03_get_image"
+        }
+      ]
+    },
+    {
+      "brick": "arduino:video_object_tracking",
+      "examples": [
+        {
+          "id": "examples:bricks/arduino/video_object_tracking/01_basic_usage"
+        },
+        {
+          "id": "examples:bricks/arduino/video_object_tracking/02_count_unique_objects"
+        },
+        {
+          "id": "examples:bricks/arduino/video_object_tracking/03_line_crossing"
+        },
+        {
+          "id": "examples:bricks/arduino/video_object_tracking/04_area_enter_exit"
         }
       ]
     },

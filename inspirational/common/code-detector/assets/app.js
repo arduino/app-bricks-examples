@@ -148,6 +148,7 @@ function rescan() {
 function clearRecentScans() {
   scans = [];
   renderScans(); // Re-render the empty list (will show "No recent scans")
+  ui.send_message('clear_scans'); // Delete the stored scans, so they do not come back on page reload
 }
 
 async function listScans() {
