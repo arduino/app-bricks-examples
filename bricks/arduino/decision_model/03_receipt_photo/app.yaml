@@ -4,4 +4,4 @@ description: "An image with the state: the photo of a receipt a customer attache
 
 bricks:
   - arduino:decision_model:
-    model: llamacpp:vllm-d3-edge-Q8_0-multimodal
+     model: llamacpp:vllm-d3-edge-Q8_0-multimodal
