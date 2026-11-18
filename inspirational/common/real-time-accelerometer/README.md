@@ -71,7 +71,7 @@ The Real-Time Accelerometer example is a bit more advanced on the Python side, a
 The `main.py` contains several functions and integrations that make live motion detection and visualization possible.
 
 - `motion_detection = MotionDetection(confidence=CONFIDENCE)` – initializes the Brick with a confidence threshold, which controls how certain the model must be before classifying movement types such as *idle*, *snake*, *updown*, and *wave*.
-- `def on_movement_detected(classification: dict):` – this callback function receives classification results, updates a pandas data frame (`detection_df`) with the latest probabilities, and broadcasts the data to the Web UI for real-time display.
+- `def on_movement_detected(classification: dict):` – this callback function receives classification results, updates a dictionary (`detection`) with the latest probabilities, and broadcasts the data to the Web UI for real-time display.
 - `motion_detection.on_movement_detection('idle'|'snake'|'updown'|'wave', on_movement_detected)` – registers motion detection callbacks for all supported movement types, ensuring the app reacts whenever new motion is detected.
 - `Bridge.provide("record_sensor_movement", record_sensor_movement)` – data is received from the microcontroller.
 - `web_ui.expose_api("GET", "/detection", _get_detection)` and `web_ui.expose_api("GET", "/samples", _get_samples)` – exposes two **HTTP API endpoints**:

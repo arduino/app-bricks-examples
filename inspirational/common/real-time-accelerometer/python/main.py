@@ -5,7 +5,6 @@
 from arduino.app_utils import *
 from arduino.app_bricks.web_ui import WebUI
 from arduino.app_bricks.motion_detection import MotionDetection
-import pandas as pd
 from collections import deque
 import time
 
@@ -18,29 +17,25 @@ motion_detection = MotionDetection(confidence=CONFIDENCE)
 logger = Logger("real-time-accelerometer")
 logger.debug(f"MotionDetection instantiated with confidence={CONFIDENCE}")
 
-# Dataframe holding the last classification probabilities
-detection_df = pd.DataFrame(
-    {
-        'idle': [0.0],
-        'snake': [0.0],
-        'updown': [0.0],
-        'wave' : [0.0]
-    }
-)
+# Movement labels recognized by the model
+LABELS = ('idle', 'snake', 'updown', 'wave')
+
+# Last classification probabilities, one entry per label
+detection = {label: 0.0 for label in LABELS}
 
 # Instantiate WebUI brick
 web_ui = WebUI()
 
 # Expose a simple HTTP API to fetch the latest detection
 def _get_detection():
-    return detection_df.to_dict(orient='records')[0]
+    return dict(detection)
 
 web_ui.expose_api("GET", "/detection", _get_detection)
 
 # When a client connects, send the current detection immediately
 def on_client_connected(sid: str):
     logger.debug(f"Client connected: {sid} - sending current detection")
-    web_ui.send_message('movement', detection_df.to_dict(orient='records')[0])
+    web_ui.send_message('movement', dict(detection))
 
 web_ui.on_connect(on_client_connected)
 logger.debug("Registered on_connect handler for WebUI")
@@ -54,34 +49,25 @@ def on_movement_detected(classification: dict):
         return
 
     try:
-        global detection_df
-        detection_df = pd.DataFrame(
-            {
-                'idle': [classification.get('idle', 0.0)],
-                'snake': [classification.get('snake', 0.0)],
-                'updown': [classification.get('updown', 0.0)],
-                'wave' : [classification.get('wave', 0.0)]
-            }
-        )
+        global detection
+        detection = {label: classification.get(label, 0.0) for label in LABELS}
 
-        logger.debug(f"Updated detection_df: {detection_df.to_dict(orient='records')[0]}")
+        logger.debug(f"Updated detection: {detection}")
 
         # Broadcast update to connected websocket client
         try:
-            web_ui.send_message('movement', detection_df.to_dict(orient='records')[0])
+            web_ui.send_message('movement', dict(detection))
             logger.debug("Broadcasted 'movement' message to WebUI client")
         except Exception as e:
             logger.warning(f"Failed to broadcast 'movement' message: {e}")
 
     except Exception as e:
-        logger.exception(f"dataframe: Error: {e}")
+        logger.exception(f"on_movement_detected: Error: {e}")
 
 # Register movement callbacks
-motion_detection.on_movement_detection('idle', on_movement_detected)
-motion_detection.on_movement_detection('snake', on_movement_detected)
-motion_detection.on_movement_detection('updown', on_movement_detected)
-motion_detection.on_movement_detection('wave', on_movement_detected)
-logger.debug("Registered movement detection callbacks for idle,snake,updown,wave")
+for label in LABELS:
+    motion_detection.on_movement_detection(label, on_movement_detected)
+logger.debug(f"Registered movement detection callbacks for {','.join(LABELS)}")
 
 # Bridge handler: called from the sketch via Bridge.notify("record_sensor_movement", x, y, z)
 # buffer of samples for the simple time-series chart
