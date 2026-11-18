@@ -2,8 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-import threading
-
 from arduino.app_bricks.video_object_tracking import VideoObjectTracking
 from arduino.app_bricks.web_ui import WebUI
 from arduino.app_peripherals.camera import Camera
@@ -27,7 +25,6 @@ tracker = VideoObjectTracking(
     min_detections_to_count=25,
 )
 tracker.set_rectangular_area(*WHOLE_FRAME, relative=True, visible=False)
-counts_lock = threading.Lock()  # the events arrive on several threads: the last message sent carries the latest counts
 
 
 def counts() -> dict:
@@ -38,8 +35,7 @@ def counts() -> dict:
 
 
 def send_counts(_event: dict) -> None:
-    with counts_lock:
-        ui.send_message("counts", counts())
+    ui.send_message("counts", counts())
 
 
 tracker.on_area_enter(send_counts)

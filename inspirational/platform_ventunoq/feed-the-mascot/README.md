@@ -1,0 +1,117 @@
+# Feed the Mascot
+
+The **Feed the Mascot** game asks you to feed the Arduino mascot with the objects around you. Bring an object in front of the camera and into the feed zone, and the mascot eats it. Every three bites it grows, from baby to young to adult.
+
+**Note:** This example requires a camera connected to the Arduino® VENTUNO Q.
+
+## Description
+
+This App turns the `video_object_tracking` Brick into a game. The Brick runs an object detection model with object tracking on the camera stream, so every object keeps the same identity while it stays in view, and it reports each object entering an area of the video. That area is the feed zone, with the mascot drawn on it, and every object entering it is a bite. People are left out, and so are the objects too big to carry, from furniture and appliances to vehicles and large animals, so only the objects you hold count.
+
+**Key features include:**
+
+- Live video, mirrored like a webcam preview, with a box around every tracked object, in the color of its class, labelled with its class, its number and its confidence.
+- A feed zone drawn by the Brick in white dashes with a black edge, visible on any background.
+- One bite per object entering the zone, also for several objects brought in together, up to nine.
+- Three growth stages for the mascot, with a bite and a growth animation.
+- A confidence level, set with a slider or typed in, to trade more detected objects for fewer mistaken ones.
+- Tips for better detection, shown once at start and kept in the side panel.
+
+## Bricks Used
+
+- `video_object_tracking`: tracks the objects on the camera stream, reports the ones entering the feed zone and streams the video with the boxes and the zone.
+- `web_ui`: serves the game interface and streams the game state to the browser over WebSocket.
+
+## Hardware Requirements
+
+### Hardware
+
+- Arduino® VENTUNO Q (x1)
+- USB camera (x1)
+
+**Note:** You can also run this example using your Arduino VENTUNO Q as a Single Board Computer (SBC) using a [USB-C® hub](https://store.arduino.cc/products/usb-c-hub-8-in-1) with a mouse, keyboard and display attached.
+
+## How to Use the Example
+
+1. **Connect the camera**
+
+   Make sure a camera is connected to the board before running the App, because without one the App does not start.
+
+2. **Run the App**
+
+   Launch the App from Arduino App Lab and open the web interface at `<board-ip>:7000`.
+
+3. **Feed the mascot**
+
+   Hold an object in front of the camera, a cup, a bottle or a book, and move it into the feed zone. The mascot opens its mouth, and the panel on the left fills one slot. Take the object out and bring in another one, or the same one again after a couple of seconds.
+
+4. **Make it grow**
+
+   Every three bites a level is complete and the mascot grows. After nine bites it is fully grown and the game shows how long it took. Press **Play again** for another round.
+
+## How it Works
+
+```
+   Camera   ──►   video_object_tracking Brick   ──►   Edge Impulse inference service (NPU)
+                        │                │
+                        │ area entries   │ video with boxes and feed zone (port 4912)
+                        ▼                ▼
+                   main.py ──► WebUI Brick ──►  Frontend (Browser)
+```
+
+1. The Brick sends every camera frame to the inference service, which runs the model and its tracker and returns the tracked objects, each with its own number.
+2. The Brick draws the boxes and the feed zone on the video, serves it as an MJPEG stream, and calls `on_area_enter` when an object enters the zone.
+3. `main.py` keeps the game. It counts the bites, completes the levels and times the game, and sends the state to the page.
+4. The frontend shows the video, places the mascot over the feed zone and plays the animations.
+
+## Understanding the Code
+
+### 🔧 Backend (main.py)
+
+The camera is asked for 1280x720, and two camera adjustments shape every frame. The first crops it to 16:9 when the webcam delivers another shape, so the square feed zone stays square. The second mirrors the video, like a webcam preview. The Brick detects and draws on the mirrored frames, so the boxes match what the page shows and the labels read correctly. The feed zone is set in fractions of the frame with `relative=True`, so it stays in the same place of the video whatever resolution the webcam delivers. People and the classes in `TOO_BIG_TO_CARRY` are left out of everything the Brick reports and draws, because a room's furniture, seen behind you, would otherwise be eaten too.
+
+```python
+tracker = VideoObjectTracking(
+    camera=Camera(
+        resolution=(1280, 720),
+        fps=30,
+        codec="MJPG",
+        adjustments=cropped_to_aspect_ratio((16, 9)) | flipped_h(),
+    ),
+    confidence=confidence_percent / 100,
+    labels_to_ignore=["person", *TOO_BIG_TO_CARRY],
+    keep_grace=4,
+    min_detections=2,
+)
+tracker.set_rectangular_area(*FEED_ZONE, relative=True)
+```
+
+Every `on_area_enter` event is a bite, so an object counts each time it enters the feed zone, also when it leaves and comes straight back.
+
+The game state is sent to the page on every change and to every page as it connects, so a reloaded page picks up the game where it was. The state also carries the confidence level and the bites the mascot needs, so every page shows the values the board holds.
+
+### 💻 Frontend (index.html + app.js)
+
+The page shows the Brick's MJPEG stream in an `<img>` covering the window, and computes where the feed zone falls on the page from the zone, in fractions of the frame, and the size of the video. The mascot and the "FEED ZONE" label are placed there. A single `data-state` attribute (`loading`, `tips`, `playing`, `won`) drives what is visible via CSS. The mascot is a set of Lottie animations in `img/mascot/`, a bite and a growth for each stage, each loaded by its own `<dotlottie-player>` when the page opens. A bite shows its animation and plays it once, the bite or the growth into the next stage. A bite that arrives while an animation is playing is part of it, except the one that makes the mascot grow, which plays right after.
+
+### 🛠️ Customizing the Game
+
+- Move or resize the feed zone by changing `FEED_ZONE` in `main.py`, in fractions of the camera frame, and the page follows it.
+- Change how many bites the mascot needs with `BITES_TO_GROW_UP` in `main.py`, and the page follows it. Use a multiple of three, because the bites are split evenly over the three levels.
+- Change the confidence level the game starts from, and the reset button goes back to, with `DEFAULT_CONFIDENCE_PERCENT` in `main.py`.
+- Feed the mascot only some objects by passing `labels_to_track` to the Brick, for example `["cup", "bottle", "banana"]`.
+- Swap the mascot for your own Lottie animations by replacing the files in `img/mascot/`, one for each `<dotlottie-player>` in `index.html`.
+
+## Troubleshooting
+
+### The video does not appear
+
+Make sure the camera is connected before starting the App, and reload the page. The page retries every second until the Brick serves the video.
+
+### The objects are not detected
+
+Use a plain, light background behind the objects and a well lit room. Objects of medium size, held whole in the picture, are detected best; transparent or very thin objects are hard for the model. Lowering the confidence detects more objects, and more mistaken ones.
+
+### The mascot eats an object twice
+
+The model may see one object as two at the same time, with a box for each of two classes, a vase and a potted plant for example. Two boxes entering the zone are two bites. Hold the object still and in full view while it is in the feed zone.
