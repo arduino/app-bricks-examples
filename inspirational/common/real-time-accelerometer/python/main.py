@@ -49,8 +49,7 @@ def on_movement_detected(classification: dict):
         return
 
     try:
-        global detection
-        detection = {label: classification.get(label, 0.0) for label in LABELS}
+        detection.update({label: classification.get(label, 0.0) for label in LABELS})
 
         logger.debug(f"Updated detection: {detection}")
 
