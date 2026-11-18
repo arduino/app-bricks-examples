@@ -94,10 +94,171 @@ function updateAccel(d) {
 }
 
 // -------- Gyroscope cube --------
-let gyroRX = 0,
-  gyroRY = 0,
-  gyroRZ = 0,
+// The phone reports angular rates in its own frame (X right, Y up, Z out of
+// the screen, rad/s, right-handed). They are integrated into an orientation
+// quaternion, so rotations compose in the order they happen.
+//
+// The cube is drawn as a technical drawing: its 8 corners are projected with
+// a perspective camera, the faces turned towards the viewer are found, and
+// each edge is drawn solid when it borders a visible face, dashed otherwise.
+// Lines are drawn in screen space, so they keep their width at any angle.
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const DEG = Math.PI / 180;
+const CUBE_HALF = 45; // px
+const CUBE_PERSPECTIVE = 420; // px, distance of the eye from the cube centre
+const mat3Mul = (a, b) =>
+  [0, 1, 2, 3, 4, 5, 6, 7, 8].map(i => {
+    const r = Math.floor(i / 3) * 3,
+      c = i % 3;
+    return a[r] * b[c] + a[r + 1] * b[c + 3] + a[r + 2] * b[c + 6];
+  });
+const rotX = t => [1, 0, 0, 0, Math.cos(t), -Math.sin(t), 0, Math.sin(t), Math.cos(t)];
+const rotY = t => [Math.cos(t), 0, Math.sin(t), 0, 1, 0, -Math.sin(t), 0, Math.cos(t)];
+// Seen slightly from above and from the right, so its depth shows at rest.
+const GYRO_CAMERA = mat3Mul(rotX(-18 * DEG), rotY(-24 * DEG));
+
+// Screen space: X right, Y down, Z towards the viewer. Corner i has the
+// signs of bits 0 (X), 1 (Y) and 2 (Z).
+const CUBE_CORNERS = [0, 1, 2, 3, 4, 5, 6, 7].map(i => [i & 1 ? 1 : -1, i & 2 ? 1 : -1, i & 4 ? 1 : -1]);
+const CUBE_FACES = [
+  { normal: [0, 0, 1], corners: [4, 5, 7, 6] },
+  { normal: [0, 0, -1], corners: [0, 1, 3, 2] },
+  { normal: [1, 0, 0], corners: [1, 5, 7, 3] },
+  { normal: [-1, 0, 0], corners: [0, 4, 6, 2] },
+  { normal: [0, -1, 0], corners: [0, 1, 5, 4] },
+  { normal: [0, 1, 0], corners: [2, 3, 7, 6] },
+];
+// The 12 edges join corners that differ on one axis; each borders two faces.
+const CUBE_EDGES = [];
+for (let a = 0; a < 8; a++) {
+  for (const bit of [1, 2, 4]) {
+    const b = a | bit;
+    if (b === a) continue;
+    const faces = CUBE_FACES.map((f, i) => i).filter(i => {
+      const c = CUBE_FACES[i].corners;
+      return c.includes(a) && c.includes(b);
+    });
+    CUBE_EDGES.push({ a, b, faces });
+  }
+}
+
+const svgEl = (tag, cls) => {
+  const el = document.createElementNS(SVG_NS, tag);
+  if (cls) el.setAttribute('class', cls);
+  return el;
+};
+// Hidden edges go under the faces' light fill, visible edges over it.
+const cubeHiddenLines = CUBE_EDGES.map(() => $('gyro-hidden-edges').appendChild(svgEl('line', 'hidden-edge')));
+const cubePolygons = CUBE_FACES.map(() => $('gyro-faces').appendChild(svgEl('polygon')));
+const cubeLines = CUBE_EDGES.map(() => $('gyro-edges').appendChild(svgEl('line', 'edge')));
+
+// Rotation matrix of a quaternion, converted from the phone frame (Y up) to
+// screen space (Y down): the terms that mix Y with X or Z change sign.
+function quatToScreen([w, x, y, z]) {
+  return [
+    1 - 2 * (y * y + z * z),
+    -2 * (x * y - w * z),
+    2 * (x * z + w * y),
+    -2 * (x * y + w * z),
+    1 - 2 * (x * x + z * z),
+    -2 * (y * z - w * x),
+    2 * (x * z - w * y),
+    -2 * (y * z + w * x),
+    1 - 2 * (x * x + y * y),
+  ];
+}
+
+const apply = (m, v) => [
+  m[0] * v[0] + m[1] * v[1] + m[2] * v[2],
+  m[3] * v[0] + m[4] * v[1] + m[5] * v[2],
+  m[6] * v[0] + m[7] * v[1] + m[8] * v[2],
+];
+
+function drawCube(q) {
+  const m = mat3Mul(GYRO_CAMERA, quatToScreen(q));
+  const corners = CUBE_CORNERS.map(c => apply(m, c).map(v => v * CUBE_HALF));
+  const flat = corners.map(([x, y, z]) => {
+    const k = CUBE_PERSPECTIVE / (CUBE_PERSPECTIVE - z);
+    return [x * k, y * k];
+  });
+  // A face is visible when its outer side faces the eye, at (0, 0, P).
+  const visible = CUBE_FACES.map(f => {
+    const n = apply(m, f.normal);
+    const c = [0, 1, 2].map(k => f.corners.reduce((s, i) => s + corners[i][k], 0) / 4);
+    return n[0] * -c[0] + n[1] * -c[1] + n[2] * (CUBE_PERSPECTIVE - c[2]) > 0;
+  });
+  CUBE_FACES.forEach((f, i) => {
+    const p = cubePolygons[i];
+    p.style.display = visible[i] ? '' : 'none';
+    if (visible[i]) p.setAttribute('points', f.corners.map(c => flat[c].map(v => v.toFixed(2)).join(',')).join(' '));
+  });
+  CUBE_EDGES.forEach((e, i) => {
+    const shown = e.faces.some(f => visible[f]);
+    const line = shown ? cubeLines[i] : cubeHiddenLines[i];
+    cubeLines[i].style.display = shown ? '' : 'none';
+    cubeHiddenLines[i].style.display = shown ? 'none' : '';
+    line.setAttribute('x1', flat[e.a][0].toFixed(2));
+    line.setAttribute('y1', flat[e.a][1].toFixed(2));
+    line.setAttribute('x2', flat[e.b][0].toFixed(2));
+    line.setAttribute('y2', flat[e.b][1].toFixed(2));
+  });
+}
+
+let gyroQ = [1, 0, 0, 0],
   gyroLastT = null;
+
+function integrateGyro(wx, wy, wz, dt) {
+  const rate = Math.hypot(wx, wy, wz);
+  if (!(rate > 0) || !(dt > 0)) return;
+  const half = (rate * dt) / 2;
+  const k = Math.sin(half) / rate;
+  const [aw, ax, ay, az] = gyroQ;
+  const bw = Math.cos(half),
+    bx = wx * k,
+    by = wy * k,
+    bz = wz * k;
+  // q ⊗ Δq: the rates are measured in the phone's own frame.
+  const q = [
+    aw * bw - ax * bx - ay * by - az * bz,
+    aw * bx + ax * bw + ay * bz - az * by,
+    aw * by - ax * bz + ay * bw + az * bx,
+    aw * bz + ax * by - ay * bx + az * bw,
+  ];
+  const n = Math.hypot(...q);
+  gyroQ = q.map(v => v / n);
+}
+
+// The drawn orientation eases towards the integrated one on every animation
+// frame, so the cube moves smoothly between datapoints.
+const GYRO_SMOOTHING_S = 0.08;
+let shownQ = [1, 0, 0, 0],
+  gyroFrame = null,
+  gyroFrameT = 0;
+
+function stepGyro(now) {
+  const dt = Math.max(0, now - gyroFrameT) / 1000;
+  gyroFrameT = now;
+  const dot = shownQ.reduce((s, v, i) => s + v * gyroQ[i], 0);
+  const target = dot < 0 ? gyroQ.map(v => -v) : gyroQ;
+  if (1 - Math.abs(dot) < 1e-7) {
+    shownQ = target;
+    gyroFrame = null;
+  } else {
+    const k = 1 - Math.exp(-dt / GYRO_SMOOTHING_S);
+    const q = shownQ.map((v, i) => v + (target[i] - v) * k);
+    const n = Math.hypot(...q);
+    shownQ = q.map(v => v / n);
+    gyroFrame = requestAnimationFrame(stepGyro);
+  }
+  drawCube(shownQ);
+}
+
+function animateGyro() {
+  if (gyroFrame != null) return;
+  gyroFrameT = performance.now();
+  gyroFrame = requestAnimationFrame(stepGyro);
+}
+
 function updateGyro(d) {
   ['gyroscopeX', 'gyroscopeY', 'gyroscopeZ'].forEach(k => {
     const el = document.querySelector(`b[data-k="${k}"]`);
@@ -107,12 +268,18 @@ function updateGyro(d) {
   if (gyroLastT == null) gyroLastT = now;
   const dt = Math.min(0.25, now - gyroLastT);
   gyroLastT = now;
-  const RAD2DEG = 180 / Math.PI;
-  if (typeof d.gyroscopeX === 'number') gyroRX += d.gyroscopeX * dt * RAD2DEG;
-  if (typeof d.gyroscopeY === 'number') gyroRY += d.gyroscopeY * dt * RAD2DEG;
-  if (typeof d.gyroscopeZ === 'number') gyroRZ += d.gyroscopeZ * dt * RAD2DEG;
-  $('gyro-cube').style.transform = `rotateX(${gyroRX}deg) rotateY(${gyroRY}deg) rotateZ(${gyroRZ}deg)`;
+  const num = v => (typeof v === 'number' && isFinite(v) ? v : 0);
+  integrateGyro(num(d.gyroscopeX), num(d.gyroscopeY), num(d.gyroscopeZ), dt);
+  animateGyro();
 }
+
+// Click the cube to re-center it (the integrated orientation drifts).
+$('gyro-view').addEventListener('click', () => {
+  gyroQ = [1, 0, 0, 0];
+  animateGyro();
+});
+
+drawCube(shownQ);
 
 // -------- Magnetometer (heading needle + Z bar) --------
 function updateMag(d) {

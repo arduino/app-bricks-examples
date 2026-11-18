@@ -466,56 +466,39 @@ body:not(.paired) .grid {
     background 0.2s;
 }
 
-/* Cube (gyroscope) */
-.cube-wrap {
-  perspective: 600px;
+/* Gyroscope: wireframe cube driven by the integrated angular rates */
+.gyro-view {
   display: grid;
   place-items: center;
-  min-height: 130px;
+  height: 170px;
   width: 100%;
-  margin-bottom: 12px;
+  cursor: pointer;
 }
-.cube {
-  width: 90px;
-  height: 90px;
-  position: relative;
-  transform-style: preserve-3d;
-  transition: transform 0.18s linear;
-  transform: rotateX(0) rotateY(0);
+.gyro-cube {
+  width: 170px;
+  height: 170px;
+  overflow: visible;
 }
-.cube .face {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  background: rgba(0, 129, 132, 0.1);
-  border: 1px solid var(--accent);
-  color: var(--accent);
-  font-weight: 600;
-  font-size: 12px;
+.gyro-cube line {
+  stroke-linecap: round;
 }
-.cube.wire .face {
-  background: transparent;
-  border-color: var(--accent-2);
-  color: var(--accent-2);
+.gyro-cube .edge {
+  stroke: var(--accent);
+  stroke-width: 1.5;
 }
-.cube .front {
-  transform: translateZ(45px);
+.gyro-cube .hidden-edge {
+  stroke: var(--accent-2);
+  stroke-width: 1.2;
+  stroke-dasharray: 4 3;
+  opacity: 0.8;
 }
-.cube .back {
-  transform: rotateY(180deg) translateZ(45px);
+.gyro-cube polygon {
+  fill: rgba(0, 167, 172, 0.06);
 }
-.cube .right {
-  transform: rotateY(90deg) translateZ(45px);
-}
-.cube .left {
-  transform: rotateY(-90deg) translateZ(45px);
-}
-.cube .top {
-  transform: rotateX(90deg) translateZ(45px);
-}
-.cube .bottom {
-  transform: rotateX(-90deg) translateZ(45px);
+.gyro-hint {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: -6px;
 }
 
 .xyz {
