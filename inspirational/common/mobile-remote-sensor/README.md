@@ -99,7 +99,7 @@ Here is a brief explanation of the full-stack application:
 
 - **Live Dashboard**:
   - Once the smartphone connects, the interface switches from the QR code view to the sensor grid.
-  - Holds a `connected` status for about one second before showing it. Before pairing, the Arduino IoT Remote app checks the board by opening a connection, reading the hello message and closing it: the hold keeps that check from hiding the QR code. The first datapoint shows the connection right away.
+  - Holds a `connected` status for up to three seconds before showing it. Before pairing, the Arduino IoT Remote app checks the board by opening a connection, reading the hello message and closing it: the hold keeps that check from hiding the QR code. The first datapoint shows the connection right away.
   - Each incoming datapoint updates only the panels whose fields are present, so partial payloads are fine.
 
 ---
@@ -209,7 +209,7 @@ Once the application is running, you can open it in your browser. At that point,
   A `connected` status waits `CONNECTED_GRACE_MS` before it collapses the pairing card. A `disconnected` status within that time drops it, so the app's quick check never hides the QR code, while the first datapoint applies it at once.
 
   ```javascript
-  const CONNECTED_GRACE_MS = 1000;
+  const CONNECTED_GRACE_MS = 3000;
 
   function holdPairing(label) {
     dropHeldPairing();

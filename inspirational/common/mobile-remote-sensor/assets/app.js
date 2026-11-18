@@ -28,10 +28,10 @@ for (let i = 0; i < 10; i++) brightBar.appendChild(document.createElement('span'
 //
 // Before pairing, the Arduino IoT Remote app checks the board: it opens a
 // WebSocket, reads the hello message and closes it. The peripheral reports
-// that check as "connected" then "disconnected" within a fraction of a second,
-// so a "connected" status is held for a short grace period before it reaches
+// that check as "connected" then "disconnected", up to about two seconds
+// apart, so a "connected" status is held for a grace period before it reaches
 // the UI. The first datapoint applies it immediately.
-const CONNECTED_GRACE_MS = 1000;
+const CONNECTED_GRACE_MS = 3000;
 const pairingEl = $('pairing');
 const clientStatusEl = $('clientStatus');
 let heldPairing = null;

@@ -27,10 +27,10 @@ let webcamState = {
 
 // Before pairing, the Arduino IoT Remote app checks the board: it opens a
 // WebSocket, reads the hello message and closes it. The camera reports that
-// check as "connected" then "disconnected" within a fraction of a second, so a
-// "connected" status is held for a short grace period before it reaches the
-// UI. The first frames ("streaming") apply it immediately.
-const CONNECTED_GRACE_MS = 1000;
+// check as "connected" then "disconnected", up to about two seconds apart, so
+// a "connected" status is held for a grace period before it reaches the UI.
+// The first frames ("streaming") apply it immediately.
+const CONNECTED_GRACE_MS = 3000;
 let heldConnection = null;
 
 // Start the application
