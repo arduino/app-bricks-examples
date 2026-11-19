@@ -42,16 +42,15 @@ SPDX-License-Identifier: MPL-2.0
         <div class="card">
           <h3>Gyroscope (rad/s)</h3>
           <div class="card-body">
-            <div class="cube-wrap">
-              <div class="cube wire" id="gyro-cube">
-                <div class="face front"></div>
-                <div class="face back"></div>
-                <div class="face right"></div>
-                <div class="face left"></div>
-                <div class="face top"></div>
-                <div class="face bottom"></div>
-              </div>
+            <!-- Wireframe cube, drawn by app.js: visible edges solid, hidden edges dashed -->
+            <div class="gyro-view" id="gyro-view" title="Click to re-center">
+              <svg class="gyro-cube" id="gyro-cube" viewBox="-85 -85 170 170" aria-hidden="true">
+                <g id="gyro-hidden-edges"></g>
+                <g id="gyro-faces"></g>
+                <g id="gyro-edges"></g>
+              </svg>
             </div>
+            <span class="gyro-hint">click to re-center</span>
             <div class="xyz">
               <span>X <b data-k="gyroscopeX">—</b></span>
               <span>Y <b data-k="gyroscopeY">—</b></span>
