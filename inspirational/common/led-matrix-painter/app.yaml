@@ -3,6 +3,7 @@ icon: 🟦
 description:
   This example shows how to create a tool to design frames for an LED matrix using Arduino boards.
   It provides a web interface where users can design frames and animations and export them as C/C++ code.
+  A toggle switches the editor between the matrix of the board and an optional Modulino LED Matrix.
 
 bricks:
   - arduino:web_ui
