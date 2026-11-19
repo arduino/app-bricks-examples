@@ -19,7 +19,7 @@ BOARD_TIMEOUT_S = 2  # a draw takes a few ms: waiting longer only delays the ans
 ANIMATION_CHUNK_FRAMES = 10  # 10 x 20 bytes per call, below the 256-byte RPC message limit of the sketch
 
 # The matrix the app draws on: every frame is validated against it, and the page reads it from /config
-template = FrameDesigner(*UNO_Q_MATRIX, brightness_levels=BRIGHTNESS_LEVELS)
+template = FrameDesigner(UNO_Q_MATRIX, brightness_levels=BRIGHTNESS_LEVELS)
 
 TRANSFORMATIONS = {
     'invert': Frame.invert,

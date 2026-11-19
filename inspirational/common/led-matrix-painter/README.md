@@ -124,7 +124,7 @@ class StoredFrame:
 ```
 
 - **Initialization**:
-  - `template = FrameDesigner(*UNO_Q_MATRIX, brightness_levels=8)`: Describes the matrix the app draws on, 13x8 LEDs with 8 brightness levels. Every frame is validated against it, and the page reads it from `/config`. The transformations (invert, rotate, flip) are methods of `Frame`.
+  - `template = FrameDesigner(UNO_Q_MATRIX, brightness_levels=8)`: Describes the matrix the app draws on, 13x8 LEDs with 8 brightness levels. Every frame is validated against it, and the page reads it from `/config`. The transformations (invert, rotate, flip) are methods of `Frame`.
   - `store.init_db()`: Creates the SQLite database and tables for storing frames if they don't exist.
 
 - **API Endpoints**: The backend exposes several HTTP endpoints using `ui.expose_api` to handle frontend requests:
