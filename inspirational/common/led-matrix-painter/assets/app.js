@@ -34,11 +34,19 @@ const closeModalBtn = document.querySelector('#duration-modal .close-button');
 const applyDurationBtn = document.getElementById('apply-duration');
 const allFramesDurationInput = document.getElementById('all-frames-duration');
 
-const ROWS = 8,
-  COLS = 13;
+const matrixToggle = document.getElementById('matrix-toggle');
+const matrixToggleLabel = document.getElementById('matrix-toggle-label');
+
 const AUTO_PERSIST_DELAY_MS = 150; // 150ms unified delay
 
+// The matrix being drawn on: its size and brightness levels come from /config and change when
+// another matrix is selected.
+let ROWS = 8,
+  COLS = 13;
 let BRIGHTNESS_LEVELS = 8;
+let MATRIX = null; // key of the selected matrix
+let MATRIX_LABEL = 'board';
+let MATRICES = []; // the matrices the backend can draw on, [{key, label}]
 let cells = [];
 let sessionFrames = [];
 let loadedFrameId = null; // ID of the frame currently loaded in editor
@@ -123,26 +131,142 @@ function pushStateToHistory(gridState) {
   updateUndoRedoButtons();
 }
 
-async function loadConfig(brightnessSlider, brightnessValue) {
+// Color of a lit LED: the opacity grows with the brightness, up to 85% at the highest level.
+function brightnessColor(value) {
+  const levels8 = { 1: '33', 2: '4D', 3: '66', 4: '80', 5: '99', 6: 'B3', 7: 'D9' };
+  if (BRIGHTNESS_LEVELS === 8 && levels8[value]) {
+    return `#3CE2FF${levels8[value]}`;
+  }
+  const max = Math.max(1, BRIGHTNESS_LEVELS - 1);
+  const alpha = max === 1 ? 0.85 : 0.2 + (0.65 * (Math.min(value, max) - 1)) / (max - 1);
+  return `#3CE2FF${Math.round(alpha * 255)
+    .toString(16)
+    .padStart(2, '0')}`;
+}
+
+// Adapt the page to the selected matrix: grid size, brightness levels and matrix toggle.
+function applyConfig(config) {
+  if (typeof config.height === 'number' && config.height >= 1) ROWS = config.height;
+  if (typeof config.width === 'number' && config.width >= 1) COLS = config.width;
+  if (typeof config.brightness_levels === 'number' && config.brightness_levels >= 2) {
+    BRIGHTNESS_LEVELS = config.brightness_levels;
+  }
+  MATRICES = Array.isArray(config.matrices) ? config.matrices : [];
+  MATRIX = config.matrix || null;
+  const selected = MATRICES.find(m => m.key === MATRIX);
+  MATRIX_LABEL = selected ? selected.label : 'board';
+
+  // The toggle switches between the first matrix (off) and the second one (on)
+  if (matrixToggle && MATRICES.length === 2) {
+    matrixToggle.checked = MATRIX === MATRICES[1].key;
+    matrixToggle.disabled = false;
+    if (matrixToggleLabel) matrixToggleLabel.textContent = MATRICES[1].label;
+  }
+
+  // The stylesheet lays out the grid and the frame previews on --cols columns
+  document.documentElement.style.setProperty('--cols', String(COLS));
+  makeGrid();
+
+  // One rule per brightness level colors the cells holding that level
+  let levelStyles = document.getElementById('brightness-level-styles');
+  if (!levelStyles) {
+    levelStyles = document.createElement('style');
+    levelStyles.id = 'brightness-level-styles';
+    document.head.appendChild(levelStyles);
+  }
+  let rules = '';
+  for (let level = 1; level < BRIGHTNESS_LEVELS; level++) {
+    rules += `.cell[data-b='${level}']::before { background: ${brightnessColor(level)}; }\n`;
+  }
+  levelStyles.textContent = rules;
+
+  const maxValue = Math.max(0, BRIGHTNESS_LEVELS - 1);
+  const brightnessSlider = document.getElementById('brightness-alpha-slider');
+  const brightnessMaxLabel = document.getElementById('brightness-max-label');
+  if (brightnessMaxLabel) brightnessMaxLabel.textContent = String(maxValue);
+  if (brightnessSlider) {
+    // A new matrix starts with the brush at full brightness
+    brightnessSlider.max = String(maxValue);
+    brightnessSlider.value = String(maxValue);
+    brightnessSlider.dispatchEvent(new Event('input'));
+  }
+}
+
+async function loadConfig() {
   try {
-    const data = await fetchWithHandling('/config', {}, 'json', 'load config');
-    if (typeof data.brightness_levels === 'number' && data.brightness_levels >= 2) {
-      BRIGHTNESS_LEVELS = data.brightness_levels;
-    }
+    applyConfig(await fetchWithHandling('/config', {}, 'json', 'load config'));
   } catch (err) {
     console.warn('[ui] unable to load config; using defaults', err);
+    applyConfig({});
   }
-  const maxValue = Math.max(0, BRIGHTNESS_LEVELS - 1);
-  if (brightnessSlider) {
-    brightnessSlider.max = String(maxValue);
-    if (parseInt(brightnessSlider.value || '0') > maxValue) {
-      brightnessSlider.value = String(maxValue);
+}
+
+// Show the matrix described by a configuration: its grid and its own list of frames.
+async function showMatrix(config) {
+  stopPageAnimation();
+  applyConfig(config);
+  clearLoaded();
+  sessionFrames = [];
+  showVectorText('');
+  await initEditor();
+}
+
+// Select another matrix: the backend switches to its frames, the page redraws for it.
+let selectingMatrix = false;
+async function selectMatrix(key) {
+  if (selectingMatrix || key === MATRIX) return;
+  selectingMatrix = true;
+  try {
+    // Save the frame being edited before leaving its matrix
+    if (persistTimeout) {
+      clearTimeout(persistTimeout);
+      persistTimeout = null;
+      await persistFrame();
     }
+    const config = await fetchWithHandling(
+      '/select_matrix',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ matrix: key }),
+      },
+      'json',
+      'select matrix'
+    );
+    await showMatrix(config);
+  } catch (err) {
+    console.warn('[ui] selectMatrix failed', err);
+    if (matrixToggle && MATRICES.length === 2) matrixToggle.checked = MATRIX === MATRICES[1].key;
+  } finally {
+    selectingMatrix = false;
   }
-  if (brightnessValue) {
-    const current = brightnessSlider ? parseInt(brightnessSlider.value) : maxValue;
-    brightnessValue.textContent = String(Math.min(current, maxValue));
+}
+
+// Another page may have selected a different matrix: follow it instead of mixing the two.
+async function followSelectedMatrix() {
+  if (selectingMatrix) return;
+  try {
+    const config = await fetchWithHandling('/config', {}, 'json', 'load config');
+    if (config.matrix !== MATRIX) {
+      await showMatrix(config);
+    }
+  } catch (err) {
+    console.warn('[ui] followSelectedMatrix failed', err);
   }
+}
+
+if (matrixToggle) {
+  matrixToggle.addEventListener('change', () => {
+    if (MATRICES.length === 2) selectMatrix(MATRICES[matrixToggle.checked ? 1 : 0].key);
+  });
+}
+
+function stopPageAnimation() {
+  if (animationTimeout) {
+    clearTimeout(animationTimeout);
+    animationTimeout = null;
+  }
+  if (playAnimationBtn) playAnimationBtn.disabled = false;
 }
 
 function clampBrightness(v) {
@@ -240,6 +364,8 @@ function clearLoaded() {
 }
 
 function makeGrid() {
+  gridEl.innerHTML = '';
+  cells = [];
   for (let r = 0; r < ROWS; r++) {
     for (let c = 0; c < COLS; c++) {
       const el = document.createElement('div');
@@ -319,19 +445,27 @@ async function persistFrame() {
     );
 
     if (data && data.ok && data.frame) {
-      if (data.board === false) showError('Frame saved, but the board is not responding.');
       // Update loaded frame reference
       loadedFrame = data.frame;
       loadedFrameId = data.frame.id;
       // Show vector text
       if (data.vector) showVectorText(data.vector);
       // Refresh frames list to show updated version
-      refreshFrames();
+      await refreshFrames();
+      warnIfNotDrawn(data, 'Frame saved');
       console.debug('[ui] frame persisted:', data.frame.id);
     }
   } catch (err) {
     console.warn('[ui] persistFrame failed', err);
+    // A frame of this size is rejected if another page selected a different matrix
+    followSelectedMatrix();
   }
+}
+
+// The backend answers board: false when the frame could not be shown on the matrix, e.g. a
+// Modulino that is not connected. Called after the other requests, which clear the error box.
+function warnIfNotDrawn(data, what) {
+  if (data && data.board === false) showError(`${what}, but the ${MATRIX_LABEL} is not responding.`);
 }
 
 function showVectorText(txt) {
@@ -379,6 +513,7 @@ async function initEditor() {
       console.debug('[ui] initEditor loaded frame:', frame.id);
       // Refresh the frames list to show this new/loaded frame
       await refreshFrames();
+      warnIfNotDrawn(data, 'Frame loaded');
     }
   } catch (err) {
     console.warn('[ui] initEditor failed', err);
@@ -425,7 +560,6 @@ async function exportH() {
   }
 }
 
-makeGrid();
 if (exportBtn) exportBtn.addEventListener('click', exportH);
 else console.warn('[ui] export button not found');
 
@@ -580,6 +714,11 @@ if (animNameInput) {
 async function refreshFrames() {
   try {
     const data = await fetchWithHandling('/list_frames', {}, 'json', 'refresh frames');
+    if (data.matrix && MATRIX && data.matrix !== MATRIX) {
+      // These frames belong to a matrix selected from another page
+      await followSelectedMatrix();
+      return;
+    }
     sessionFrames = data.frames || [];
     renderFrames();
 
@@ -666,21 +805,7 @@ function renderFrames() {
             ? BRIGHTNESS_LEVELS - 1
             : 0;
         const dot = document.createElement('div');
-        if (brightness > 0) {
-          const alphaHex =
-            {
-              1: '33',
-              2: '4D',
-              3: '66',
-              4: '80',
-              5: '99',
-              6: 'B3',
-              7: 'D9',
-            }[brightness] || 'FF'; // Default to full opacity if out of range
-          dot.style.background = `#3CE2FF${alphaHex}`;
-        } else {
-          dot.style.background = 'transparent';
-        }
+        dot.style.background = brightness > 0 ? brightnessColor(brightness) : 'transparent';
         thumb.appendChild(dot);
       }
     }
@@ -970,6 +1095,7 @@ async function loadFrameIntoEditor(id) {
       pushStateToHistory(collectGridBrightness());
       updateUndoRedoButtons();
 
+      warnIfNotDrawn(data, 'Frame loaded');
       console.debug('[ui] loaded frame into editor:', id);
     }
   } catch (err) {
@@ -1056,8 +1182,6 @@ async function handleNewFrameClick() {
     console.warn('[ui] failed to create new frame', err);
   }
 }
-// Initialize editor on page load
-initEditor();
 
 if (clearBtn) {
   clearBtn.addEventListener('click', () => {
@@ -1091,7 +1215,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Call once to set initial state
     updateSliderBackground();
   }
-  loadConfig(brightnessAlphaSlider, brightnessAlphaValue);
+  // The grid is built from the configuration of the selected matrix, then the editor loads its last frame
+  loadConfig().then(initEditor);
   // Decided once per stroke: toggling per event made a click cancel itself as
   // soon as the pointer jittered by a pixel.
   let isDrawing = false;
