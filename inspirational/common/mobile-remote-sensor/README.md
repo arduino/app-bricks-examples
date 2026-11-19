@@ -99,6 +99,7 @@ Here is a brief explanation of the full-stack application:
 
 - **Live Dashboard**:
   - Once the smartphone connects, the interface switches from the QR code view to the sensor grid.
+  - Holds a `connected` status for up to three seconds before showing it. Before pairing, the Arduino IoT Remote app checks the board by opening a connection, reading the hello message and closing it: the hold keeps that check from hiding the QR code. The first datapoint shows the connection right away.
   - Each incoming datapoint updates only the panels whose fields are present, so partial payloads are fine.
 
 ---
@@ -197,7 +198,34 @@ Once the application is running, you can open it in your browser. At that point,
     // ... sound, battery, barometer, brightness, compass, GPS, touch ...
   }
 
-  ui.on_message('datapoint', applyDatapoint);
+  ui.on_message('datapoint', d => {
+    applyHeldPairing();
+    applyDatapoint(d);
+  });
+  ```
+
+- **Holding the connected status (Frontend).**
+
+  A `connected` status waits `CONNECTED_GRACE_MS` before it collapses the pairing card. A `disconnected` status within that time drops it, so the app's quick check never hides the QR code, while the first datapoint applies it at once.
+
+  ```javascript
+  const CONNECTED_GRACE_MS = 3000;
+
+  function holdPairing(label) {
+    dropHeldPairing();
+    heldPairing = { label, timer: setTimeout(applyHeldPairing, CONNECTED_GRACE_MS) };
+  }
+
+  ui.on_message('sensor_status', m => {
+    if (!m || typeof m.status !== 'string') return;
+    if (m.status !== 'disconnected') {
+      const name = m.info && (m.info.client_name || m.info.client_address);
+      holdPairing(name ? `Connected to ${name}` : 'Device connected');
+      return;
+    }
+    dropHeldPairing();
+    setPaired(false, 'No device connected');
+  });
   ```
 
 - **Executing the event loop.**

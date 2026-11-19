@@ -100,6 +100,9 @@ Here is a brief explanation of the full-stack application:
   - Receives the `secret`, `ip`, and `port` from the backend via WebUI.
   - Generates a **QR Code** using `qrcode.min.js`. This code contains the credentials required for the mobile app to connect.
 
+- **Connection Status**:
+  - Holds a `connected` status for up to three seconds before showing it. Before pairing, the Arduino IoT Remote app checks the board by opening a connection, reading the hello message and closing it: the hold keeps that check from hiding the QR code. The first frames show the connection right away.
+
 - **Video Feed**:
   - Once the phone starts streaming, the interface switches from the QR code view to a live video iframe (`/embed`).
 
@@ -169,9 +172,13 @@ Once the application is running, you can open it in your browser. At that point,
   ui.on_message('welcome', onWelcome);
 
   async function onWelcome(message) {
-    webcamState.status = message.status;
     webcamState.secret = message.secret;
-    // ... protocol, ip, port and client name ...
+    // ... protocol, ip and port ...
+    if (message.status === 'connected') {
+      holdConnection(message.client_name);
+    } else {
+      // ... status and client name ...
+    }
     updateDisplay();
   }
 
@@ -179,13 +186,55 @@ Once the application is running, you can open it in your browser. At that point,
     if (webcamState.status == 'streaming') {
       // Webcam is streaming - show video iframe
       dynamicIframe.src = streamUrl;
-      // ... resize the iframe and show the client name ...
-    } else if (webcamState.status != 'connected') {
+      // ... resize the iframe ...
+    }
+
+    if (webcamState.status == 'disconnected') {
       // No webcam is connected - show QR code
       if (webcamState.secret) {
         generateQRCode(webcamState.secret, webcamState.protocol, webcamState.ip, webcamState.port);
       }
+    } else {
+      // A webcam is connected, streaming or not - show its name
+      clientName.textContent = `${webcamState.clientName || 'Unknown Device'} connected`;
     }
+  }
+  ```
+
+- **Holding the connected status (Frontend).**
+
+  A `connected` status waits `CONNECTED_GRACE_MS` before it reaches the UI. A `disconnected` status within that time drops it, so the app's quick check never hides the QR code, while `streaming` applies it at once.
+
+  ```javascript
+  const CONNECTED_GRACE_MS = 3000;
+
+  function holdConnection(clientName, clientAddr) {
+    dropHeldConnection();
+    heldConnection = {
+      clientName,
+      clientAddr,
+      timer: setTimeout(() => {
+        applyHeldConnection();
+        webcamState.status = 'connected';
+        updateDisplay();
+      }, CONNECTED_GRACE_MS),
+    };
+  }
+
+  async function onConnected(message) {
+    holdConnection(message.client_name, message.client_address);
+  }
+
+  async function onDisconnected() {
+    dropHeldConnection();
+    webcamState.status = 'disconnected';
+    // ... clear the client details and update the display ...
+  }
+
+  async function onStreaming() {
+    applyHeldConnection();
+    webcamState.status = 'streaming';
+    // ... update the display ...
   }
   ```
 

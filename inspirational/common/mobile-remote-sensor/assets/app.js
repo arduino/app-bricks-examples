@@ -25,20 +25,55 @@ for (let i = 0; i < 10; i++) brightBar.appendChild(document.createElement('span'
 // event, so the UI reflects that directly instead of guessing from the
 // dashboard's own websocket connection (which is always "connected" as
 // soon as this page loads, regardless of whether a phone is paired).
+//
+// Before pairing, the Arduino IoT Remote app checks the board: it opens a
+// WebSocket, reads the hello message and closes it. The peripheral reports
+// that check as "connected" then "disconnected", up to about two seconds
+// apart, so a "connected" status is held for a grace period before it reaches
+// the UI. The first datapoint applies it immediately.
+const CONNECTED_GRACE_MS = 3000;
 const pairingEl = $('pairing');
 const clientStatusEl = $('clientStatus');
+let heldPairing = null;
 function setPaired(paired, label) {
   pairingEl.classList.toggle('paired', !!paired);
   document.body.classList.toggle('paired', !!paired);
   if (clientStatusEl) clientStatusEl.textContent = label || (paired ? 'Device connected' : 'No device connected');
 }
 
+// Hold a "connected" status: it is applied when the grace period ends, unless
+// the client disconnects or sends data first.
+function holdPairing(label) {
+  dropHeldPairing();
+  heldPairing = { label, timer: setTimeout(applyHeldPairing, CONNECTED_GRACE_MS) };
+}
+
+function dropHeldPairing() {
+  if (heldPairing) {
+    clearTimeout(heldPairing.timer);
+    heldPairing = null;
+  }
+}
+
+function applyHeldPairing() {
+  if (!heldPairing) return;
+  const { label } = heldPairing;
+  dropHeldPairing();
+  setPaired(true, label);
+}
+
 // -------- Pairing --------
 function showPairing(welcome) {
   setText('info-otp', welcome.secret || '—');
   // Collapse the pairing card if the server already reports a paired client
-  // at the moment the page is loaded.
-  setPaired(welcome.status && welcome.status !== 'disconnected');
+  // at the moment the page is loaded. The page may open during the app's
+  // check, so hold it like a live event.
+  if (welcome.status && welcome.status !== 'disconnected') {
+    holdPairing();
+  } else {
+    dropHeldPairing();
+    setPaired(false);
+  }
   const host = welcome.ip && welcome.ip !== '0.0.0.0' ? welcome.ip : window.location.hostname;
   const proto = welcome.protocol || 'remote-sensor';
   const payload = `https://cloud.arduino.cc/installmobileapp?otp=${encodeURIComponent(welcome.secret)}&protocol=${encodeURIComponent(proto)}&ip=${encodeURIComponent(host)}&port=${encodeURIComponent(welcome.port)}`;
@@ -261,13 +296,22 @@ function applyDatapoint(d) {
 
 ui.on_message('welcome', showPairing);
 ui.on_message('history', rows => (rows || []).forEach(applyDatapoint));
-ui.on_message('datapoint', applyDatapoint);
+ui.on_message('datapoint', d => {
+  applyHeldPairing();
+  applyDatapoint(d);
+});
 // sensor_status drives pairing-card collapse:
 //   disconnected → expanded (show QR + OTP)
-//   connected → collapsed (show the connected client)
+//   connected → collapsed (show the connected client) after the grace period
 ui.on_message('sensor_status', m => {
   if (!m || typeof m.status !== 'string') return;
-  const paired = m.status !== 'disconnected';
-  const name = m.info && (m.info.client_name || m.info.client_address);
-  setPaired(paired, paired ? (name ? `Connected to ${name}` : 'Device connected') : 'No device connected');
+  if (m.status !== 'disconnected') {
+    const name = m.info && (m.info.client_name || m.info.client_address);
+    holdPairing(name ? `Connected to ${name}` : 'Device connected');
+    return;
+  }
+  // A connection still in its grace period never reached the UI, so the
+  // pairing card is already expanded and this changes nothing.
+  dropHeldPairing();
+  setPaired(false, 'No device connected');
 });
