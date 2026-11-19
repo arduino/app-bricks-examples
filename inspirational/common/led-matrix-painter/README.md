@@ -141,6 +141,8 @@ class StoredFrame:
   - `POST /play_animation`: Sends a sequence of frames to the Arduino in acknowledged chunks, then starts the animation.
   - `POST /stop_animation`: Stops any running animation on the board.
 
+  When a request cannot be completed (an invalid frame, an unknown id, a board that does not answer), the endpoint returns `{"error": message}` and the page shows the message.
+
 - **Hardware Update**: The `draw` function sends the visual data to the microcontroller via the Bridge.
 
 ```python

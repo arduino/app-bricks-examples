@@ -5,8 +5,6 @@
 import struct
 from collections import Counter
 
-from fastapi import HTTPException
-
 from arduino.app_bricks.web_ui import WebUI
 from arduino.app_utils import App, Bridge, Logger
 from arduino.app_utils.ledmatrix import UNO_Q_MATRIX, Frame, FrameDesigner, sequence_to_c, to_c_array
@@ -41,13 +39,17 @@ def get_config():
 
 
 def parse_frame(payload: dict) -> StoredFrame:
-    """Build a frame from a request payload, answering 400 to malformed input."""
+    """Build a frame from a request payload.
+
+    Raises:
+        ValueError: on missing or malformed fields, with a message for the page.
+    """
     try:
         sf = StoredFrame.from_payload(payload, template)
     except (KeyError, TypeError, ValueError) as e:
-        raise HTTPException(status_code=400, detail=f"Invalid frame: {e}") from e
+        raise ValueError(f"Invalid frame: {e}") from e
     if sf.duration_ms < 0:
-        raise HTTPException(status_code=400, detail="Invalid frame: duration_ms must not be negative")
+        raise ValueError("Invalid frame: duration_ms must not be negative")
     return sf
 
 
@@ -78,9 +80,12 @@ def update_board(payload: dict):
 
     Expected payload: {rows, brightness_levels}
     """
-    sf = parse_frame(payload)
+    try:
+        sf = parse_frame(payload)
+    except ValueError as e:
+        return {'error': str(e)}
     if not draw(sf):
-        raise HTTPException(status_code=503, detail="The board is not responding")
+        return {'error': "The board is not responding"}
     return {'ok': True, 'vector': to_c_array(sf.frame, sf.c_name)}
 
 
@@ -89,11 +94,10 @@ def persist_frame(payload: dict):
 
     Expected payload: {rows, name, id, position, duration_ms, brightness_levels}
     """
-    sf = parse_frame(payload)
     try:
-        store.save(sf)
-    except LookupError as e:
-        raise HTTPException(status_code=404, detail=str(e)) from e
+        sf = store.save(parse_frame(payload))
+    except (ValueError, LookupError) as e:
+        return {'error': str(e)}
     logger.debug(f"Frame saved: id={sf.id}, name={sf.name}")
     return frame_response(sf, board=draw(sf))
 
@@ -106,9 +110,9 @@ def bulk_update_frame_duration(payload: dict):
     try:
         duration = int(payload['duration_ms'])
     except (KeyError, TypeError, ValueError):
-        raise HTTPException(status_code=400, detail="duration_ms must be an integer") from None
+        return {'error': "duration_ms must be an integer"}
     if duration < 0:
-        raise HTTPException(status_code=400, detail="duration_ms must not be negative")
+        return {'error': "duration_ms must not be negative"}
     store.set_all_durations(duration or 1000)  # 0 means the default duration, as for a single frame
     return {'ok': True}
 
@@ -122,7 +126,7 @@ def load_frame(payload: dict | None = None):
     if fid is not None:
         sf = store.get(fid)
         if sf is None:
-            raise HTTPException(status_code=404, detail=f"Frame {fid} not found")
+            return {'error': f"Frame {fid} not found"}
     else:
         sf = store.first_or_create()
     logger.info(f"Frame loaded: id={sf.id}, name={sf.name}")
@@ -138,7 +142,7 @@ def delete_frames(payload: dict):
     """Delete multiple frames by ID."""
     fids = payload.get('ids', [])
     if not fids:
-        raise HTTPException(status_code=400, detail="no frame ids provided")
+        return {'error': "no frame ids provided"}
     logger.info(f"Deleting frames: ids={fids}")
     store.delete(fids)
     return {'ok': True}
@@ -160,15 +164,18 @@ def transform_frame(payload: dict):
     """
     op = payload.get('op')
     if op not in TRANSFORMATIONS:
-        raise HTTPException(status_code=400, detail=f"unsupported op: {op}")
+        return {'error': f"unsupported op: {op}"}
     if payload.get('rows') is not None:
-        sf = parse_frame({'rows': payload['rows'], 'brightness_levels': payload.get('brightness_levels')})
+        try:
+            sf = parse_frame({'rows': payload['rows'], 'brightness_levels': payload.get('brightness_levels')})
+        except ValueError as e:
+            return {'error': str(e)}
     elif payload.get('id') is not None:
         sf = store.get(payload['id'])
         if sf is None:
-            raise HTTPException(status_code=404, detail=f"Frame {payload['id']} not found")
+            return {'error': f"Frame {payload['id']} not found"}
     else:
-        raise HTTPException(status_code=400, detail="id or rows required")
+        return {'error': "id or rows required"}
     TRANSFORMATIONS[op](sf.frame)
     logger.info(f"Transform applied: op={op}")
     # The page saves the transformed frame, which also shows it on the board
@@ -213,15 +220,12 @@ def play_animation(payload: dict):
     """
     frame_ids = payload.get("frames", [])
     if not frame_ids:
-        raise HTTPException(status_code=400, detail="no frames provided")
+        return {'error': "no frames provided"}
     if len(frame_ids) > MAX_FRAMES:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Animation exceeds maximum frame limit ({MAX_FRAMES} frames). Please reduce the number of frames.",
-        )
+        return {'error': f"Animation exceeds maximum frame limit ({MAX_FRAMES} frames). Please reduce the number of frames."}
     frames = store.get_many(frame_ids)
     if not frames:
-        raise HTTPException(status_code=404, detail="no valid frames found")
+        return {'error': "no valid frames found"}
     logger.info(f"Playing animation: frame_count={len(frames)}")
 
     # Each frame is its pixel words (the format of Arduino_LED_Matrix::loadSequence) followed by the
@@ -240,7 +244,7 @@ def play_animation(payload: dict):
         Bridge.call("play_animation", timeout=BOARD_TIMEOUT_S)
     except Exception as e:
         logger.warning(f"Failed to play the animation: {e}")
-        raise HTTPException(status_code=503, detail=f"The board could not play the animation: {e}") from e
+        return {'error': f"The board could not play the animation: {e}"}
     return {"ok": True, "frames_played": len(frames), "loaded": loaded}
 
 
@@ -250,7 +254,7 @@ def stop_animation():
         Bridge.call("stop_animation", timeout=BOARD_TIMEOUT_S)
     except Exception as e:
         logger.warning(f"Failed to request stop_animation: {e}")
-        raise HTTPException(status_code=503, detail=f"The board could not stop the animation: {e}") from e
+        return {'error': f"The board could not stop the animation: {e}"}
     return {'ok': True}
 
 

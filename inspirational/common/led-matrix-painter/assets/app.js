@@ -71,12 +71,19 @@ async function fetchWithHandling(url, options, responseType = 'json', context = 
     const response = await fetch(url, options);
     if (!response.ok) {
       const error = await response.json().catch(() => ({ message: 'An unknown error occurred.' }));
-      throw new Error(error.detail || error.message || `HTTP error! status: ${response.status}`);
+      throw new Error(error.message || `HTTP error! status: ${response.status}`);
+    }
+    if (responseType === 'json') {
+      const data = await response.json();
+      // The backend answers {error: message} when it cannot do what was asked
+      if (data && data.error) {
+        throw new Error(data.error);
+      }
+      hideError(); // Hide error on successful communication
+      return data;
     }
     hideError(); // Hide error on successful communication
-    if (responseType === 'json') {
-      return await response.json();
-    } else if (responseType === 'blob') {
+    if (responseType === 'blob') {
       return await response.blob();
     } else if (responseType === 'text') {
       return await response.text();
