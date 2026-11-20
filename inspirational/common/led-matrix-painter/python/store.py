@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-import json
+import threading
 
 from arduino.app_bricks.dbstorage_sqlstore import SQLStore
 from arduino.app_utils.ledmatrix import FrameDesigner
@@ -11,6 +11,9 @@ from stored_frame import StoredFrame
 DB_NAME = "led_matrix_frames"
 
 db = SQLStore(database_name=DB_NAME)
+# Held while a change takes more than one statement, e.g. reading the last id and adding a frame.
+# It protects the requests of this app, which is the only process that writes to the database.
+_lock = threading.RLock()
 
 
 def init_db() -> None:
@@ -31,10 +34,9 @@ def get_setting(key: str, default: str) -> str:
 
 def set_setting(key: str, value: str) -> None:
     """Save a setting, replacing its previous value."""
-    db.execute_sql(
-        "INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value",
-        (key, value),
-    )
+    with _lock:  # no other request can save the setting between the delete and the insert
+        db.execute_sql("DELETE FROM settings WHERE key = ?", (key,))
+        db.store("settings", {"key": key, "value": value}, create_table=False)
 
 
 class FrameStore:
@@ -74,89 +76,65 @@ class FrameStore:
 
     def list_frames(self) -> list[StoredFrame]:
         """All frames, in list order."""
-        return self._to_frames(db.read(self.table, order_by="position ASC, id ASC"))
+        return self._to_frames(db.read(self.table, order_by="position, id"))
 
     def get(self, fid: int) -> StoredFrame | None:
         """The frame with this id, or None."""
-        frames = self._to_frames(db.execute_sql(f"SELECT * FROM {self.table} WHERE id = ?", (int(fid),)))
+        frames = self._to_frames(db.read(self.table, condition=f"id = {int(fid)}"))
         return frames[0] if frames else None
 
     def get_many(self, fids: list[int]) -> list[StoredFrame]:
         """The frames with these ids, in the given order; unknown ids are skipped."""
-        return self._to_frames(
-            db.execute_sql(
-                f"SELECT f.* FROM json_each(?) AS wanted JOIN {self.table} AS f ON f.id = wanted.value ORDER BY wanted.key",
-                (json.dumps([int(f) for f in fids]),),
-            )
-        )
+        frames = {sf.id: sf for sf in self.list_frames()}
+        return [frames[fid] for fid in map(int, fids) if fid in frames]
 
     def save(self, sf: StoredFrame) -> StoredFrame:
         """Insert a frame without id, or update the frame with its id.
 
-        A new frame without a name is named "Frame <id>", and without a position goes after the last
-        frame. Both are computed by the INSERT itself, so concurrent requests cannot interleave: the id
-        of an INTEGER PRIMARY KEY is MAX(id) + 1, which is what the name subquery reads.
+        A new frame gets the next id, goes after the last frame and, without a name, is named
+        "Frame <id>". An update leaves the frame where it is: only reorder() moves frames.
 
         Raises:
             LookupError: if the frame has an id that is not in the table.
         """
-        record = sf.to_record()
         if sf.id is None:
-            res = db.execute_sql(
-                f"INSERT INTO {self.table} (name, duration_ms, position, brightness_levels, rows) VALUES ("
-                f" CASE WHEN TRIM(?1) = '' THEN 'Frame ' || (SELECT COALESCE(MAX(id), 0) + 1 FROM {self.table}) ELSE ?1 END,"
-                f" ?2, COALESCE(?3, (SELECT COALESCE(MAX(position), 0) + 1 FROM {self.table})), ?4, ?5"
-                ") RETURNING id, name, position",
-                (record["name"], record["duration_ms"], record["position"], record["brightness_levels"], record["rows"]),
-            )
-        else:
-            res = db.execute_sql(
-                f"UPDATE {self.table} SET name = ?, duration_ms = ?, position = COALESCE(?, position), brightness_levels = ?, rows = ?"
-                " WHERE id = ? RETURNING id, name, position",
-                (record["name"], record["duration_ms"], record["position"], record["brightness_levels"], record["rows"], sf.id),
-            )
-        if not res:
+            with _lock:  # no other frame can be created between reading the last frame and adding this one
+                last = db.read(self.table, columns=["MAX(id) AS id", "MAX(position) AS position"])[0]
+                sf.id = (last["id"] or 0) + 1
+                sf.position = (last["position"] or 0) + 1
+                if not sf.name.strip():
+                    sf.name = f"Frame {sf.id}"
+                db.store(self.table, sf.to_record(), create_table=False)
+            return sf
+
+        record = sf.to_record()
+        # RETURNING yields the updated row: nothing comes back if the id is not in the table
+        updated = db.execute_sql(
+            f"UPDATE {self.table} SET name = ?, duration_ms = ?, brightness_levels = ?, rows = ? WHERE id = ? RETURNING position",
+            (record["name"], record["duration_ms"], record["brightness_levels"], record["rows"], sf.id),
+        )
+        if not updated:
             raise LookupError(f"Frame {sf.id} not found")
-        sf.id, sf.name, sf.position = int(res[0]["id"]), res[0]["name"], res[0]["position"]
+        sf.position = updated[0]["position"]
         return sf
 
     def first_or_create(self) -> StoredFrame:
-        """The last frame of the list, creating an empty one if there are none.
-
-        The empty frame is inserted only if the table is still empty: two pages opening at the same
-        time (e.g. the App Lab preview and a browser tab) must not create two frames.
-        """
-        empty = StoredFrame(self.template.empty()).to_record()
-        db.execute_sql(
-            f"INSERT INTO {self.table} (name, duration_ms, position, brightness_levels, rows)"
-            f" SELECT 'Frame ' || (SELECT COALESCE(MAX(id), 0) + 1 FROM {self.table}), ?, 1, ?, ?"
-            f" WHERE NOT EXISTS (SELECT 1 FROM {self.table})",
-            (empty["duration_ms"], empty["brightness_levels"], empty["rows"]),
-        )
-        frames = self._to_frames(db.execute_sql(f"SELECT * FROM {self.table} ORDER BY position DESC, id DESC LIMIT 1"))
-        if not frames:
-            raise RuntimeError("Failed to create the first frame")
-        return frames[0]
+        """The last frame of the list, creating an empty one if there are none."""
+        with _lock:  # two pages opening at the same time (e.g. the App Lab preview and a browser tab) create one frame
+            frames = self.list_frames()
+            return frames[-1] if frames else self.save(StoredFrame(self.template.empty()))
 
     def set_all_durations(self, duration_ms: int) -> None:
         """Set the same duration on every frame."""
         db.update(self.table, {"duration_ms": int(duration_ms)})
 
     def delete(self, fids: list[int]) -> None:
-        """Delete frames, then renumber the positions 1..N."""
-        if not fids:
-            return
-        db.execute_sql(f"DELETE FROM {self.table} WHERE id IN (SELECT value FROM json_each(?))", (json.dumps([int(f) for f in fids]),))
-        db.execute_sql(
-            f"UPDATE {self.table} SET position = ranked.pos FROM"
-            f" (SELECT id, ROW_NUMBER() OVER (ORDER BY position, id) AS pos FROM {self.table}) AS ranked"
-            f" WHERE {self.table}.id = ranked.id AND {self.table}.position IS NOT ranked.pos"
-        )
+        """Delete frames. The others keep their positions: a gap does not change the order."""
+        ids = ", ".join(str(int(fid)) for fid in fids)
+        db.delete(self.table, condition=f"id IN ({ids})")
 
     def reorder(self, order: list[int]) -> None:
         """Give the listed frames positions 1..N in list order."""
-        # json_each yields the list index as "key": one statement updates every listed frame
-        db.execute_sql(
-            f"UPDATE {self.table} SET position = ordered.key + 1 FROM json_each(?) AS ordered WHERE {self.table}.id = ordered.value",
-            (json.dumps([int(f) for f in order]),),
-        )
+        with _lock:  # two reorders at the same time do not mix their positions
+            for position, fid in enumerate(order, start=1):
+                db.update(self.table, {"position": position}, condition=f"id = {int(fid)}")
