@@ -2,23 +2,34 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+import threading
+
 from arduino.app_bricks.dbstorage_sqlstore import SQLStore
-from app_frame import AppFrame
-from typing import Any
+from arduino.app_utils.ledmatrix import FrameDesigner
+from stored_frame import StoredFrame
 
 DB_NAME = "led_matrix_frames"
 
-# Initialize and expose a module-level SQLStore instance
 db = SQLStore(database_name=DB_NAME)
+_template = FrameDesigner()  # replaced by init_db with the app's matrix
+# Held while a change takes more than one statement, e.g. reading the last id and adding a frame.
+# It protects the requests of this app, which is the only process that writes to the database.
+_lock = threading.RLock()
 
 
-def init_db():
+def init_db(template: FrameDesigner) -> None:
     """Start SQLStore and create the frames table.
 
-    Call this from the application startup (it is intentionally
-    separated from module import so the application controls lifecycle).
+    Args:
+        template (FrameDesigner): matrix geometry and brightness levels of the stored frames.
     """
+    global _template
+    _template = template
     db.start()
+    # Write-ahead logging: a commit appends to a log instead of rewriting the database file,
+    # so saving a frame costs one sequential write instead of several synchronous ones.
+    db.execute_sql("PRAGMA journal_mode=WAL")
+    db.execute_sql("PRAGMA synchronous=NORMAL")
     db.create_table(
         "frames",
         {
@@ -28,208 +39,82 @@ def init_db():
             "position": "INTEGER",
             "brightness_levels": "INTEGER",
             "rows": "TEXT",  # JSON string encoding of 2D array
-        }
-    )
-    print("[db_frames] SQLStore started for frames persistence")
-
-
-def list_frames(order_by: str = "position ASC, id ASC") -> list[dict[str, Any]]:
-    """Return ordered list of frame records (raw DB dicts).
-
-    Returns:
-        list[dict]: list of frame records with all fields
-    """
-    res = db.read("frames", order_by=order_by) or []
-    return res
-
-
-def get_frame_by_id(fid: int) -> dict[str, Any] | None:
-    """Return the raw DB record dict for a frame id.
-
-    Args:
-        fid (int): frame id
-
-    Returns:
-        dict | None: raw DB record dict or None if not found
-    """
-    res = db.read("frames", condition=f"id = {int(fid)}") or []
-    if not res:
-        return None
-    return res[0]
-
-
-def save_frame(frame: AppFrame) -> int:
-    """Insert a new frame into DB and return assigned ID.
-
-    Backend is responsible for assigning progressive names if name is empty.
-
-    Args:
-        frame (AppFrame): frame to save (id will be ignored and assigned by DB)
-
-    Returns:
-        int: newly assigned frame ID
-    """
-    # Calculate next position
-    mx_rows = db.read("frames", columns=["MAX(position) as maxpos"]) or []
-    maxpos = mx_rows[0].get("maxpos") if mx_rows and len(mx_rows) > 0 else None
-    next_position = (int(maxpos) if maxpos is not None else 0) + 1
-
-    # Use frame.position if set, otherwise use next_position
-    position = frame.position if frame.position is not None else next_position
-
-    record = frame.to_record()
-    record['position'] = position
-    # Remove id from record (will be auto-assigned)
-    record.pop('id', None)
-
-    db.store("frames", record, create_table=False)
-
-    last = db.execute_sql("SELECT last_insert_rowid() as id")
-    if not last or last[0].get("id") is None:
-        raise RuntimeError("Failed to retrieve the id assigned to the saved frame")
-    new_id = int(last[0]["id"])
-
-    # Backend responsibility: assign progressive name if empty
-    if not frame.name or frame.name.strip() == '':
-        frame.name = f'Frame {new_id}'
-        frame.id = new_id
-        db.update("frames", {"name": frame.name}, condition=f"id = {new_id}")
-
-    return new_id
-
-
-def update_frame(frame: AppFrame) -> bool:
-    """Update an existing frame in DB.
-
-    Args:
-        frame (AppFrame): frame to update (must have valid id)
-
-    Returns:
-        bool: True if update succeeded
-    """
-    if frame.id is None:
-        raise ValueError("Cannot update frame without id")
-
-    record = frame.to_record()
-    # Remove id from update dict (used in WHERE clause)
-    fid = record.pop('id')
-
-    db.update("frames", record, condition=f"id = {int(fid)}")
-    return True
-
-
-def bulk_update_frame_duration(duration) -> bool:
-    """Update the duration of all frames.
-
-    Args:
-        duration (int): new duration in milliseconds
-
-    Returns:
-        bool: True if update succeeded
-    """
-    if duration < 1:
-        raise ValueError("Valid duration must be provided for bulk update")
-    db.update("frames", {"duration_ms": int(duration)})
-    return True
-
-def delete_frame(fid: int) -> bool:
-    """Delete a frame and recompact positions.
-
-    Args:
-        fid (int): frame id to delete
-
-    Returns:
-        bool: True if deletion succeeded
-    """
-    db.delete("frames", condition=f"id = {int(fid)}")
-    # Recompact positions
-    rows = db.read("frames", order_by="position ASC, id ASC") or []
-    for pos, r in enumerate(rows, start=1):
-        db.update("frames", {"position": pos}, condition=f"id = {int(r['id'])}")
-    return True
-
-
-def delete_frames(fids: list[int]) -> bool:
-    """Delete multiple frames and recompact positions.
-
-    Args:
-        fids (list[int]): list of frame ids to delete
-
-    Returns:
-        bool: True if deletion succeeded
-    """
-    if not fids:
-        return True
-
-    id_list_str = ', '.join(map(str, map(int, fids)))
-    condition = f"id IN ({id_list_str})"
-
-    db.delete("frames", condition=condition)
-
-    # Recompact positions
-    rows = db.read("frames", order_by="position ASC, id ASC") or []
-    for pos, r in enumerate(rows, start=1):
-        db.update("frames", {"position": pos}, condition=f"id = {int(r['id'])}")
-    return True
-
-
-
-def reorder_frames(order: list[int]) -> bool:
-    """Reorder frames by assigning new positions based on provided ID list.
-
-    Args:
-        order (list[int]): list of frame IDs in desired order
-
-    Returns:
-        bool: True if reorder succeeded
-    """
-    for idx, fid in enumerate(order, start=1):
-        db.update("frames", {"position": idx}, condition=f"id = {int(fid)}")
-    return True
-
-
-def get_last_frame() -> AppFrame | None:
-    """Get the last frame (highest position) or None if no frames exist.
-
-    Returns:
-        AppFrame | None: last frame or None
-    """
-    records = db.read("frames", order_by="position DESC, id DESC") or []
-    if not records:
-        return None
-    return AppFrame.from_record(records[0])
-
-
-def get_or_create_active_frame(brightness_levels: int = 8) -> AppFrame:
-    """Get last frame or create empty frame if none exist.
-
-    Backend is responsible for assigning progressive names via save_frame().
-
-    Args:
-        brightness_levels (int): brightness levels for new frame (default 8)
-
-    Returns:
-        AppFrame: last existing frame or newly created empty frame
-    """
-    last = get_last_frame()
-    if last is not None:
-        return last
-
-    # Create empty frame with empty name (backend will assign Frame{id})
-    frame = AppFrame.create_empty(
-        id=None,
-        name="",
-        position=1,
-        duration_ms=1000,
-        brightness_levels=brightness_levels
+        },
     )
 
-    # Backend assigns ID and name automatically
-    frame.id = save_frame(frame)
 
-    # Reload from DB to get the assigned name
-    record = get_frame_by_id(frame.id)
-    if record:
-        return AppFrame.from_record(record)
+def _to_frames(records: list[dict] | None) -> list[StoredFrame]:
+    return [StoredFrame.from_payload(r, _template) for r in records or []]
 
-    return frame
+
+def list_frames() -> list[StoredFrame]:
+    """All frames, in list order."""
+    return _to_frames(db.read("frames", order_by="position, id"))
+
+
+def get(fid: int) -> StoredFrame | None:
+    """The frame with this id, or None."""
+    frames = _to_frames(db.execute_sql("SELECT * FROM frames WHERE id = ?", (int(fid),)))
+    return frames[0] if frames else None
+
+
+def get_many(fids: list[int]) -> list[StoredFrame]:
+    """The frames with these ids, in the given order; unknown ids are skipped."""
+    frames = {sf.id: sf for sf in list_frames()}
+    return [frames[fid] for fid in map(int, fids) if fid in frames]
+
+
+def save(sf: StoredFrame) -> StoredFrame:
+    """Insert a frame without id, or update the frame with its id.
+
+    A new frame gets the next id, goes after the last frame and, without a name, is named
+    "Frame <id>". An update leaves the frame where it is: only reorder() moves frames.
+
+    Raises:
+        LookupError: if the frame has an id that is not in the database.
+    """
+    if sf.id is None:
+        with _lock:  # no other frame can be created between reading the last frame and adding this one
+            last = db.read("frames", columns=["MAX(id) AS id", "MAX(position) AS position"])[0]
+            sf.id = (last["id"] or 0) + 1
+            sf.position = (last["position"] or 0) + 1
+            if not sf.name.strip():
+                sf.name = f"Frame {sf.id}"
+            db.store("frames", sf.to_record(), create_table=False)
+        return sf
+
+    record = sf.to_record()
+    # RETURNING yields the updated row: nothing comes back if the id is not in the table
+    updated = db.execute_sql(
+        "UPDATE frames SET name = ?, duration_ms = ?, brightness_levels = ?, rows = ? WHERE id = ? RETURNING position",
+        (record["name"], record["duration_ms"], record["brightness_levels"], record["rows"], sf.id),
+    )
+    if not updated:
+        raise LookupError(f"Frame {sf.id} not found")
+    sf.position = updated[0]["position"]
+    return sf
+
+
+def first_or_create() -> StoredFrame:
+    """The last frame of the list, creating an empty one if there are none."""
+    with _lock:  # two pages opening at the same time (e.g. the App Lab preview and a browser tab) create one frame
+        frames = list_frames()
+        return frames[-1] if frames else save(StoredFrame(_template.empty()))
+
+
+def set_all_durations(duration_ms: int) -> None:
+    """Set the same duration on every frame."""
+    db.update("frames", {"duration_ms": int(duration_ms)})
+
+
+def delete(fids: list[int]) -> None:
+    """Delete frames. The others keep their positions: a gap does not change the order."""
+    ids = ", ".join(str(int(fid)) for fid in fids)
+    db.delete("frames", condition=f"id IN ({ids})")
+
+
+def reorder(order: list[int]) -> None:
+    """Give the listed frames positions 1..N in list order."""
+    with _lock:  # two reorders at the same time do not mix their positions
+        for position, fid in enumerate(order, start=1):
+            db.update("frames", {"position": position}, condition=f"id = {int(fid)}")
