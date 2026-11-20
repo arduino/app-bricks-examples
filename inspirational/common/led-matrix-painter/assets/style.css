@@ -412,14 +412,15 @@ input:checked + .slider:before {
    a 6px gap) so no click can land in dead space; ::before draws the square. */
 .grid {
   display: grid;
-  grid-template-columns: repeat(13, 46px);
+  /* --cols is the width of the selected matrix, set by app.js */
+  grid-template-columns: repeat(var(--cols, 13), 46px);
   grid-auto-rows: 46px;
   gap: 0;
   margin: 16px auto;
   background-color: #374146;
   padding: 13px;
   border-radius: 8px;
-  width: 624px;
+  width: calc(var(--cols, 13) * 46px + 26px);
   touch-action: none;
   user-select: none;
 }
@@ -559,7 +560,7 @@ input:checked + .slider:before {
   background: #374146;
   border: 1px solid #ddd;
   display: grid;
-  grid-template-columns: repeat(13, 1fr);
+  grid-template-columns: repeat(var(--cols, 13), 1fr);
   grid-auto-rows: 1fr;
   gap: 1px;
   box-sizing: border-box;
@@ -875,10 +876,10 @@ input {
 
 @media (max-width: 700px) {
   .grid {
-    grid-template-columns: repeat(13, 23px);
+    grid-template-columns: repeat(var(--cols, 13), 23px);
     grid-auto-rows: 23px;
     gap: 0;
-    width: calc(13 * 20px + 12 * 3px + 32px);
+    width: calc(var(--cols, 13) * 23px + 29px);
     padding: 14.5px;
   }
   .cell {

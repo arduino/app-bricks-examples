@@ -22,6 +22,15 @@ SPDX-License-Identifier: MPL-2.0
             <p class="arduino-text">LED Matrix Painter</p>
           </div>
           <div class="header-right">
+            <!-- Off draws on the matrix of the board, on draws on the Modulino LED Matrix -->
+            <div class="switch-container">
+              <label class="switch">
+                <input type="checkbox" id="matrix-toggle" disabled />
+                <span class="slider round"></span>
+              </label>
+              <label for="matrix-toggle" class="switch-label" id="matrix-toggle-label">Modulino LED Matrix</label>
+            </div>
+            <span class="vertical-separator"></span>
             <div class="switch-container">
               <label class="switch">
                 <input type="checkbox" id="code-panel-toggle" checked />
@@ -51,7 +60,7 @@ SPDX-License-Identifier: MPL-2.0
                   <div style="display: flex; align-items: center; gap: 8px">
                     <span class="slider-limit-label">0</span>
                     <input type="range" id="brightness-alpha-slider" min="0" max="8" value="8" style="flex-grow: 1" />
-                    <span class="slider-limit-label">7</span>
+                    <span class="slider-limit-label" id="brightness-max-label">7</span>
                   </div>
                 </div>
               </div>
