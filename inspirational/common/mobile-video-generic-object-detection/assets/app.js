@@ -30,10 +30,7 @@ ui.on_connect(onUIConnected);
 ui.on_disconnect(onUIDisconnected);
 ui.on_message('detection', onDetection);
 ui.on_message('welcome', onWelcome);
-ui.on_message('connected', onConnected);
-ui.on_message('disconnected', onDisconnected);
-ui.on_message('streaming', onStreaming);
-ui.on_message('paused', onPaused);
+ui.on_message('camera_status', onCameraStatus);
 
 initializeConfidenceSlider();
 updateFeedback(null);
@@ -143,33 +140,21 @@ async function onWelcome(message) {
   updateDisplay();
 }
 
-async function onConnected(message) {
-  console.log('Webcam connected!');
-  webcamState.status = 'connected';
-  webcamState.clientAddr = message.client_address;
-  webcamState.clientName = message.client_name;
+// Lifecycle of the phone camera: "connected", "streaming", "paused", "disconnected"
+async function onCameraStatus(message) {
+  console.log(`Webcam ${message.status}!`);
+  webcamState.status = message.status;
+  if (message.status === 'connected') {
+    webcamState.clientAddr = message.info.client_address;
+    webcamState.clientName = message.info.client_name;
+  } else if (message.status === 'disconnected') {
+    webcamState.clientAddr = '';
+    webcamState.clientName = '';
+  }
   updateDisplay();
-}
-
-async function onDisconnected() {
-  console.log('Webcam disconnected!');
-  webcamState.status = 'disconnected';
-  webcamState.clientAddr = '';
-  webcamState.clientName = '';
-  updateDisplay();
-}
-
-async function onStreaming() {
-  console.log('Webcam streaming started!');
-  webcamState.status = 'streaming';
-  updateDisplay();
-  updateConfidenceDisplay();
-}
-
-async function onPaused() {
-  console.log('Webcam streaming stopped!');
-  webcamState.status = 'paused';
-  updateDisplay();
+  if (message.status === 'streaming') {
+    updateConfidenceDisplay();
+  }
 }
 
 function updateFeedback(detection) {

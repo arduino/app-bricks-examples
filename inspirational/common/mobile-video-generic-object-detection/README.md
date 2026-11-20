@@ -85,7 +85,7 @@ Here is a brief explanation of the full-stack application:
   - **VideoObjectDetection**: Initialized with the `camera` object (`VideoObjectDetection(camera, ...)`) to run the object detection on the phone camera stream.
 
 - **Event Handling**:
-  - **Status Updates**: Forwards every camera status change (connected, disconnected, streaming, paused) to the UI.
+  - **Status Updates**: Forwards every camera status change (connected, disconnected, streaming, paused) to the UI in a `camera_status` message.
   - **UI Connection**: When a user opens the browser (`ui.on_connect`), the backend sends the connection details (IP, port, secret) so the frontend can generate the pairing QR code.
   - **Detections**: Uses `on_detect_all` to send classification results (`content`, `confidence`, `timestamp`) to the UI.
 
@@ -127,7 +127,7 @@ Once the application is running, you can open it in your browser. At that point,
   ui = WebUI()
   resolution = (480, 640)  # Portrait resolution for mobile devices
   camera = WebSocketCamera(secret=secret, encrypt=True, resolution=resolution)
-  camera.on_status_changed(lambda evt_type, data: ui.send_message(evt_type, data))
+  camera.on_status_changed(lambda status, info: ui.send_message("camera_status", {"status": status, "info": info}))
 
   # Send connection details to UI so it can draw the QR code
   ui.on_connect(lambda sid: ui.send_message("welcome", {
