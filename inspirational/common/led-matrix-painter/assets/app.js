@@ -302,7 +302,6 @@ async function persistFrame() {
 
   if (loadedFrame && loadedFrame.id) {
     payload.id = loadedFrame.id;
-    payload.position = loadedFrame.position;
   }
   console.debug('[ui] persistFrame (save to DB + update board)', payload);
 

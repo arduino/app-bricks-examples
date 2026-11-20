@@ -97,7 +97,7 @@ Web Browser  ──►  HTTP API  ──►  Python Backend  ──►  Router B
 2.  **Python Backend**:
 
     *   **Data Model**: The `StoredFrame` class pairs a `Frame` from `arduino.app_utils`, which validates and encodes the pixels, with the metadata the app stores, and converts between frontend JSON and database records.
-    *   **Persistence**: The `store.py` module uses `SQLStore` to save the frame data to a `frames` table in a SQLite database. The database runs in write-ahead logging mode, and frames are created with a single `INSERT ... RETURNING` statement, so two pages open at the same time cannot create duplicate frames.
+    *   **Persistence**: The `store.py` module uses `SQLStore` to save the frame data to a `frames` table in a SQLite database. The database runs in write-ahead logging mode, and frames are created one at a time under a lock, so two pages open at the same time cannot create duplicate frames.
     *   **Bridge**: The `main.py` script sends the raw byte array to the board via `Bridge.call("draw", frame_bytes)`.
 
 3.  **Arduino Sketch**: The sketch receives the raw byte data and uses the `Arduino_LED_Matrix` library to render the grayscale image.

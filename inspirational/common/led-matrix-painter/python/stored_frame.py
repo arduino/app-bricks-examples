@@ -18,7 +18,7 @@ class StoredFrame:
     frame: Frame
     id: int | None = None  # assigned by the database, None until the frame is saved
     name: str = ""  # empty until the database assigns "Frame <id>"
-    position: int | None = None  # order in the frame list, None to append the frame
+    position: int | None = None  # order in the frame list, assigned by the store
     duration_ms: int = 1000  # how long the frame stays on in an animation
 
     @classmethod

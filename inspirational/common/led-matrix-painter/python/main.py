@@ -92,7 +92,7 @@ def update_board(payload: dict):
 def persist_frame(payload: dict):
     """Save a frame (insert without id, update with id) and show it on the board.
 
-    Expected payload: {rows, name, id, position, duration_ms, brightness_levels}
+    Expected payload: {rows, name, id, duration_ms, brightness_levels}
     """
     try:
         sf = store.save(parse_frame(payload))
