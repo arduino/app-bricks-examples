@@ -113,10 +113,10 @@ Once the App is running, it performs the following operations:
 
 The Python script handles the logic of connecting to the AI and managing the data flow. Note that the API Key is not hardcoded; it is retrieved automatically from the Brick configuration.
 
-- **Initialization**: The `CloudLLM` is set up with a system prompt that enforces HTML formatting for the output. The `CloudModel` constants map to specific efficient model versions:
-  *   `CloudModel.GOOGLE_GEMINI` → `gemini-2.5-flash`
-  *   `CloudModel.OPENAI_GPT` → `gpt-4o-mini`
-  *   `CloudModel.ANTHROPIC_CLAUDE` → `claude-3-7-sonnet-latest`
+- **Initialization**: The `CloudLLM` is set up with a system prompt that enforces HTML formatting for the output. The `CloudModel` constants select providers. The installed Arduino App Bricks package determines which model ID each constant uses:
+  *   `CloudModel.GOOGLE_GEMINI` selects Google Gemini.
+  *   `CloudModel.OPENAI_GPT` selects OpenAI.
+  *   `CloudModel.ANTHROPIC_CLAUDE` selects Anthropic Claude.
 
 ```python
 # The API Key is loaded automatically from the Brick Configuration
