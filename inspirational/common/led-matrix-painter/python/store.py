@@ -2,19 +2,16 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-import threading
-
 from arduino.app_bricks.dbstorage_sqlstore import SQLStore
 from arduino.app_utils.ledmatrix import FrameDesigner
 from stored_frame import StoredFrame
 
 DB_NAME = "led_matrix_frames"
 
-db = SQLStore(database_name=DB_NAME)
+# The editor saves at every stroke: fast writes matter more than keeping the very last strokes
+# if the board loses power. Nothing is lost when only the app stops.
+db = SQLStore(database_name=DB_NAME, power_loss_safe=False)
 _template = FrameDesigner()  # replaced by init_db with the app's matrix
-# Held while a change takes more than one statement, e.g. reading the last id and adding a frame.
-# It protects the requests of this app, which is the only process that writes to the database.
-_lock = threading.RLock()
 
 
 def init_db(template: FrameDesigner) -> None:
@@ -26,10 +23,6 @@ def init_db(template: FrameDesigner) -> None:
     global _template
     _template = template
     db.start()
-    # Write-ahead logging: a commit appends to a log instead of rewriting the database file,
-    # so saving a frame costs one sequential write instead of several synchronous ones.
-    db.execute_sql("PRAGMA journal_mode=WAL")
-    db.execute_sql("PRAGMA synchronous=NORMAL")
     db.create_table(
         "frames",
         {
@@ -54,7 +47,7 @@ def list_frames() -> list[StoredFrame]:
 
 def get(fid: int) -> StoredFrame | None:
     """The frame with this id, or None."""
-    frames = _to_frames(db.execute_sql("SELECT * FROM frames WHERE id = ?", (int(fid),)))
+    frames = _to_frames(db.read("frames", condition="id = ?", args=(int(fid),)))
     return frames[0] if frames else None
 
 
@@ -67,37 +60,36 @@ def get_many(fids: list[int]) -> list[StoredFrame]:
 def save(sf: StoredFrame) -> StoredFrame:
     """Insert a frame without id, or update the frame with its id.
 
-    A new frame gets the next id, goes after the last frame and, without a name, is named
-    "Frame <id>". An update leaves the frame where it is: only reorder() moves frames.
+    A new frame gets its id from the database, goes after the last frame and, without a name, is
+    named "Frame <id>". An update leaves the frame where it is: only reorder() moves frames.
 
     Raises:
         LookupError: if the frame has an id that is not in the database.
     """
     if sf.id is None:
-        with _lock:  # no other frame can be created between reading the last frame and adding this one
-            last = db.read("frames", columns=["MAX(id) AS id", "MAX(position) AS position"])[0]
-            sf.id = (last["id"] or 0) + 1
+        # One transaction: no other frame can take the same position, and the frame is never
+        # saved without its name
+        with db.transaction():
+            last = db.read("frames", columns=["MAX(position) AS position"])[0]
             sf.position = (last["position"] or 0) + 1
+            sf.id = db.store("frames", sf.to_record(), create_table=False)
             if not sf.name.strip():
                 sf.name = f"Frame {sf.id}"
-            db.store("frames", sf.to_record(), create_table=False)
+                db.update("frames", {"name": sf.name}, condition="id = ?", args=(sf.id,))
         return sf
 
     record = sf.to_record()
-    # RETURNING yields the updated row: nothing comes back if the id is not in the table
-    updated = db.execute_sql(
-        "UPDATE frames SET name = ?, duration_ms = ?, brightness_levels = ?, rows = ? WHERE id = ? RETURNING position",
-        (record["name"], record["duration_ms"], record["brightness_levels"], record["rows"], sf.id),
-    )
-    if not updated:
+    changes = {key: record[key] for key in ("name", "duration_ms", "brightness_levels", "rows")}
+    if db.update("frames", changes, condition="id = ?", args=(sf.id,)) == 0:
         raise LookupError(f"Frame {sf.id} not found")
-    sf.position = updated[0]["position"]
+    sf.position = db.read("frames", columns=["position"], condition="id = ?", args=(sf.id,))[0]["position"]
     return sf
 
 
 def first_or_create() -> StoredFrame:
     """The last frame of the list, creating an empty one if there are none."""
-    with _lock:  # two pages opening at the same time (e.g. the App Lab preview and a browser tab) create one frame
+    # One transaction: two pages opening at the same time (e.g. the App Lab preview and a browser tab) create one frame
+    with db.transaction():
         frames = list_frames()
         return frames[-1] if frames else save(StoredFrame(_template.empty()))
 
@@ -109,12 +101,13 @@ def set_all_durations(duration_ms: int) -> None:
 
 def delete(fids: list[int]) -> None:
     """Delete frames. The others keep their positions: a gap does not change the order."""
-    ids = ", ".join(str(int(fid)) for fid in fids)
-    db.delete("frames", condition=f"id IN ({ids})")
+    with db.transaction():  # all the frames are deleted, or none
+        for fid in fids:
+            db.delete("frames", condition="id = ?", args=(int(fid),))
 
 
 def reorder(order: list[int]) -> None:
     """Give the listed frames positions 1..N in list order."""
-    with _lock:  # two reorders at the same time do not mix their positions
+    with db.transaction():  # the new order is saved as a whole, in one write to disk
         for position, fid in enumerate(order, start=1):
-            db.update("frames", {"position": position}, condition=f"id = {int(fid)}")
+            db.update("frames", {"position": position}, condition="id = ?", args=(int(fid),))
