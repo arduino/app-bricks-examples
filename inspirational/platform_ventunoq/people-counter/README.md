@@ -54,13 +54,14 @@ The camera is asked for 1280x720, and two camera adjustments shape every frame. 
 The Brick follows only the `person` label, and its tracker is tuned for people walking in a crowd. A track is kept through up to 35 frames without a detection, a single detection is enough to report it, and a low overlap is enough to follow a person between frames. `min_detections_to_count=25` sets in how many frames a person must be seen before they count. The frames do not have to be consecutive. A person who goes missing for a few frames and comes back with the same ID keeps the ones already seen.
 
 ```python
+camera = Camera(
+    resolution=(1280, 720),
+    fps=30,
+    codec="MJPG",
+    adjustments=cropped_to_aspect_ratio((16, 9)) | flipped_h(),
+)
 tracker = VideoObjectTracking(
-    camera=Camera(
-        resolution=(1280, 720),
-        fps=30,
-        codec="MJPG",
-        adjustments=cropped_to_aspect_ratio((16, 9)) | flipped_h(),
-    ),
+    camera=camera,
     labels_to_track=["person"],
     keep_grace=35,
     min_detections=1,
@@ -74,9 +75,11 @@ To know who is in view, the script sets an area as large as the camera frame and
 
 The Brick delivers these events one at a time and in order, so the last message sent carries the latest numbers. The numbers are also sent to every page as it connects, so a reloaded page shows the current count at once.
 
+The camera calls `on_status_changed` when it is unplugged and when it comes back, and the script tells the page whether the camera is available, on every change and to every page as it connects.
+
 ### 💻 Frontend (index.html + app.js)
 
-The page shows the Brick's MJPEG stream in an `<img>` covering the window, and asks for it again every second until the Brick serves it. Until then an overlay says that the camera is starting.
+The page shows the Brick's MJPEG stream in an `<img>` covering the window, and asks for it again every second until the Brick serves it. Until then an overlay says that the camera is starting, and another one says that the camera is not available while it is unplugged.
 
 The two numbers sit over the video, "People counted" in a card and "In view" in a strip below it. A number grows briefly when it goes up. The count is written with a dot every three digits, and from one million on it uses a smaller size to stay in its card.
 
@@ -85,6 +88,10 @@ The two numbers sit over the video, "People counted" in a card and "In view" in 
 ### The video does not appear
 
 Make sure the camera is connected before starting the App, and reload the page. The page retries every second until the Brick serves the video.
+
+### The page says Camera not available
+
+The camera was unplugged while the App was running. Plug it back in, and the App opens it again on its own.
 
 ### In view goes down a moment after a person leaves
 

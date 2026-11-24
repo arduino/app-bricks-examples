@@ -261,6 +261,7 @@ body[data-state='loading'] #stream {
   visibility: hidden;
 }
 
-body[data-state='loading'] #loading-overlay {
+body[data-state='loading'] #loading-overlay,
+body[data-state='camera-unavailable'] #camera-unavailable-overlay {
   display: flex;
 }

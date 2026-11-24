@@ -675,6 +675,7 @@ body[data-state='loading'] #stream {
 }
 
 body[data-state='loading'] #loading-overlay,
+body[data-state='camera-unavailable'] #camera-unavailable-overlay,
 body[data-state='tips'] #tips-overlay,
 body[data-state='won'] #win-overlay {
   display: flex;

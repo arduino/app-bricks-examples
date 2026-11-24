@@ -30,6 +30,7 @@ const ui = new WebUI();
 let game = null; // the last state the board sent
 let slotsPerLevel = 0;
 let streamReady = false;
+let cameraAvailable = true;
 let tipsDismissed = false;
 let confidence = Number(confidenceSlider.value); // the last valid value, the one the slider shows
 let boardConfidence = null;
@@ -43,7 +44,9 @@ function setState(state) {
 }
 
 function updatePageState() {
-  if (!streamReady) {
+  if (!cameraAvailable) {
+    setState('camera-unavailable');
+  } else if (!streamReady) {
     setState('loading');
   } else if (!tipsDismissed) {
     setState('tips');
@@ -71,6 +74,11 @@ streamEl.addEventListener('load', () => {
 });
 
 loadStream();
+
+ui.on_message('camera', camera => {
+  cameraAvailable = camera.available;
+  updatePageState();
+});
 
 // The video covers the page, cropped like object-fit: cover, so the feed zone, in fractions of the camera frame,
 // maps to the page through the size and offset of the video as shown

@@ -71,13 +71,14 @@ This App turns the `video_object_tracking` Brick into a game. The Brick runs an 
 The camera is asked for 1280x720, and two camera adjustments shape every frame. The first crops it to 16:9 when the webcam delivers another shape, so the square feed zone stays square. The second mirrors the video, like a webcam preview. The Brick detects and draws on the mirrored frames, so the boxes match what the page shows and the labels read correctly. The feed zone is set in fractions of the frame with `relative=True`, so it stays in the same place of the video whatever resolution the webcam delivers. People and the classes in `TOO_BIG_TO_CARRY` are left out of everything the Brick reports and draws, because a room's furniture, seen behind you, would otherwise be eaten too.
 
 ```python
+camera = Camera(
+    resolution=(1280, 720),
+    fps=30,
+    codec="MJPG",
+    adjustments=cropped_to_aspect_ratio((16, 9)) | flipped_h(),
+)
 tracker = VideoObjectTracking(
-    camera=Camera(
-        resolution=(1280, 720),
-        fps=30,
-        codec="MJPG",
-        adjustments=cropped_to_aspect_ratio((16, 9)) | flipped_h(),
-    ),
+    camera=camera,
     confidence=confidence_percent / 100,
     labels_to_ignore=["person", *TOO_BIG_TO_CARRY],
     keep_grace=4,
@@ -90,9 +91,11 @@ Every `on_area_enter` event is a bite, so an object counts each time it enters t
 
 The game state is sent to the page on every change and to every page as it connects, so a reloaded page picks up the game where it was. The state also carries the confidence level and the bites the mascot needs, so every page shows the values the board holds.
 
+The camera calls `on_status_changed` when it is unplugged and when it comes back, and the script tells the page whether the camera is available, on every change and to every page as it connects.
+
 ### 💻 Frontend (index.html + app.js)
 
-The page shows the Brick's MJPEG stream in an `<img>` covering the window, and computes where the feed zone falls on the page from the zone, in fractions of the frame, and the size of the video. The mascot and the "FEED ZONE" label are placed there. A single `data-state` attribute (`loading`, `tips`, `playing`, `won`) drives what is visible via CSS. The mascot is a set of Lottie animations in `img/mascot/`, a bite and a growth for each stage, each loaded by its own `<dotlottie-player>` when the page opens. A bite shows its animation and plays it once, the bite or the growth into the next stage. A bite that arrives while an animation is playing is part of it, except the one that makes the mascot grow, which plays right after.
+The page shows the Brick's MJPEG stream in an `<img>` covering the window, and computes where the feed zone falls on the page from the zone, in fractions of the frame, and the size of the video. The mascot and the "FEED ZONE" label are placed there. A single `data-state` attribute (`loading`, `camera-unavailable`, `tips`, `playing`, `won`) drives what is visible via CSS. The mascot is a set of Lottie animations in `img/mascot/`, a bite and a growth for each stage, each loaded by its own `<dotlottie-player>` when the page opens. A bite shows its animation and plays it once, the bite or the growth into the next stage. A bite that arrives while an animation is playing is part of it, except the one that makes the mascot grow, which plays right after.
 
 ### 🛠️ Customizing the Game
 
@@ -107,6 +110,10 @@ The page shows the Brick's MJPEG stream in an `<img>` covering the window, and c
 ### The video does not appear
 
 Make sure the camera is connected before starting the App, and reload the page. The page retries every second until the Brick serves the video.
+
+### The page says Camera not available
+
+The camera was unplugged while the App was running. Plug it back in, and the App opens it again on its own.
 
 ### The objects are not detected
 
