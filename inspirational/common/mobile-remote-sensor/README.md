@@ -56,7 +56,7 @@ It also uses the `remote_sensor` **peripheral**: a WebSocket server hosted on th
 
 8. Once connected, the pairing card collapses and the dashboard appears, with one panel per sensor:
 
-   - **Gyroscope**: a 3D wireframe cube that rotates with the smartphone.
+   - **Gyroscope**: a 3D wireframe cube that rotates with the smartphone, with its hidden edges dashed so you can always tell front from back. Click it to re-center.
    - **Accelerometer**: a bubble level plus a signed Z bar and linear acceleration.
    - **Magnetometer**: a field-heading needle with a signed Z bar.
    - **Compass**: a rotating compass rose with the heading in degrees.
