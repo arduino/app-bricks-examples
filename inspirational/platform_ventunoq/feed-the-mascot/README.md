@@ -1,5 +1,8 @@
 # Feed the Mascot
 
+![Feed the Mascot Example](assets/docs_assets/feed-the-mascot.png)
+
+
 The **Feed the Mascot** game asks you to feed the Arduino mascot with the objects around you. Bring an object in front of the camera and into the feed zone, and the mascot eats it. Every three bites it grows, from baby to young to adult.
 
 **Note:** This example requires a camera connected to the Arduino® VENTUNO Q.
