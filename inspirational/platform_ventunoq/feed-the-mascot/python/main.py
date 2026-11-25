@@ -26,15 +26,17 @@ bites = 0
 first_bite = 0.0
 grown_in: float | None = None  # seconds from the first bite to the last one
 confidence_percent = DEFAULT_CONFIDENCE_PERCENT
+camera_available = True
 
 ui = WebUI()
+camera = Camera(
+    resolution=(1280, 720),
+    fps=30,
+    codec="MJPG",
+    adjustments=cropped_to_aspect_ratio((16, 9)) | flipped_h(),
+)
 tracker = VideoObjectTracking(
-    camera=Camera(
-        resolution=(1280, 720),
-        fps=30,
-        codec="MJPG",
-        adjustments=cropped_to_aspect_ratio((16, 9)) | flipped_h(),
-    ),
+    camera=camera,
     confidence=confidence_percent / 100,
     labels_to_ignore=["person", *TOO_BIG_TO_CARRY],
     keep_grace=4,
@@ -85,9 +87,21 @@ def on_confidence(_sid: str, percent: int) -> None:
     ui.send_message("state", game_state())
 
 
+def on_camera_status(status: str, _data: dict) -> None:
+    global camera_available
+    camera_available = status != "disconnected"
+    ui.send_message("camera", {"available": camera_available})
+
+
+def on_connect(sid: str) -> None:
+    ui.send_message("state", game_state(), room=sid)
+    ui.send_message("camera", {"available": camera_available}, room=sid)
+
+
+camera.on_status_changed(on_camera_status)
 tracker.on_area_enter(on_enter)
 ui.on_message("confidence", on_confidence)
 ui.on_message("play_again", on_play_again)
-ui.on_connect(lambda sid: ui.send_message("state", game_state(), room=sid))
+ui.on_connect(on_connect)
 
 App.run()

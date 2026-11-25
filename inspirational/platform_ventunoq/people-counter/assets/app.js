@@ -12,6 +12,16 @@ const errorContainer = document.querySelector('#error-container');
 const ui = new WebUI();
 
 const shown = { counted: 0, in_view: 0 };
+let streamReady = false;
+let cameraAvailable = true;
+
+function updatePageState() {
+  if (!cameraAvailable) {
+    document.body.dataset.state = 'camera-unavailable';
+  } else {
+    document.body.dataset.state = streamReady ? 'live' : 'loading';
+  }
+}
 
 /* ---- Video: the brick's MJPEG stream on port 4912, retried until the brick serves it ---- */
 
@@ -20,15 +30,22 @@ function loadStream() {
 }
 
 streamEl.addEventListener('error', () => {
-  document.body.dataset.state = 'loading';
+  streamReady = false;
+  updatePageState();
   setTimeout(loadStream, 1000);
 });
 
 streamEl.addEventListener('load', () => {
-  document.body.dataset.state = 'live';
+  streamReady = true;
+  updatePageState();
 });
 
 loadStream();
+
+ui.on_message('camera', camera => {
+  cameraAvailable = camera.available;
+  updatePageState();
+});
 
 /* ---- Counter: the numbers grow briefly when they go up ---- */
 
