@@ -100,7 +100,8 @@ body > div {
   display: none;
 }
 
-[data-webcam-status='connected'] #videoPausedPlaceholder {
+[data-webcam-status='connected'] #videoPausedPlaceholder,
+[data-webcam-status='paused'] #videoPausedPlaceholder {
   display: flex;
 }
 
