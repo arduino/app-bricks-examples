@@ -21,7 +21,7 @@ secret = generate_secret()
 ui = WebUI()  # set use_tls=True to enable TLS encryption for HTTPS
 resolution = (480, 640)  # Portrait resolution for mobile devices
 camera = WebSocketCamera(secret=secret, encrypt=True, resolution=resolution)
-camera.on_status_changed(lambda evt_type, data: ui.send_message(evt_type, data))
+camera.on_status_changed(lambda status, info: ui.send_message("camera_status", {"status": status, "info": info}))
 
 detection = VideoObjectDetection(camera, confidence=0.5, debounce_sec=0.0)
 
