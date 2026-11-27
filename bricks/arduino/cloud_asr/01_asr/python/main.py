@@ -5,9 +5,7 @@
 from arduino.app_utils import App
 from arduino.app_bricks.cloud_asr import CloudASR
 
-cloud_asr = CloudASR(
-    api_key="YOUR_API_KEY",  # Replace with your actual API key
-)
+cloud_asr = CloudASR()
 
 
 def transcribe():
