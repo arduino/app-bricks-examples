@@ -14,7 +14,6 @@ mcp = MCPClient(endpoints=[HTTPEndpoint(name="clock", url="http://mcp-server:808
 
 llm = CloudLLM(
     model=CloudModel.GOOGLE_GEMINI,
-    api_key="YOUR_API_KEY",  # Replace with your actual API key
     tools=mcp.get_tools(),
 )
 

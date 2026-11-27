@@ -5,9 +5,7 @@
 from arduino.app_bricks.cloud_llm import CloudLLM
 from arduino.app_utils import App
 
-llm = CloudLLM(
-    api_key="YOUR_API_KEY",  # Replace with your actual API key
-)
+llm = CloudLLM()
 llm.with_memory(0)
 
 

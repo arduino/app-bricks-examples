@@ -7,7 +7,6 @@ from arduino.app_utils import App
 
 llm = CloudLLM(
     model=CloudModel.GOOGLE_GEMINI,
-    api_key="YOUR_API_KEY",  # Replace with your actual API key
 )
 
 

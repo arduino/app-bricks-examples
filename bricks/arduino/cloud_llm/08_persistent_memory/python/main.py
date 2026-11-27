@@ -11,7 +11,6 @@ db = SQLStore("chat_history.db")
 db.start()
 
 llm = CloudLLM(
-    api_key="YOUR_API_KEY",  # Replace with your actual API key
     system_prompt="You are a helpful assistant.",
 ).with_memory(
     max_messages=10,
