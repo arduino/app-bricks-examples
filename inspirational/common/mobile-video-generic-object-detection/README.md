@@ -179,12 +179,17 @@ Once the application is running, you can open it in your browser. At that point,
     if (webcamState.status == 'streaming') {
       // Webcam is streaming - show video iframe
       dynamicIframe.src = streamUrl;
-      // ... resize the iframe and show the client name ...
-    } else if (webcamState.status != 'connected') {
+      // ... resize the iframe ...
+    }
+
+    if (webcamState.status == 'disconnected') {
       // No webcam is connected - show QR code
       if (webcamState.secret) {
         generateQRCode(webcamState.secret, webcamState.protocol, webcamState.ip, webcamState.port);
       }
+    } else {
+      // A webcam is connected, streaming or not - show its name
+      clientName.textContent = `${webcamState.clientName || 'Unknown Device'} connected`;
     }
   }
   ```
