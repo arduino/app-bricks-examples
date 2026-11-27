@@ -20,10 +20,10 @@ cloud_asr_google = CloudASR(
 
 def transcribe():
     text = cloud_asr_openai.transcribe()
-    print(f"Detected speech: {text}")
+    print(f"[OpenAI] Detected speech: {text}")
 
     text = cloud_asr_google.transcribe()
-    print(f"Detected speech: {text}")
+    print(f"[Google] Detected speech: {text}")
     raise StopIteration
 
 
