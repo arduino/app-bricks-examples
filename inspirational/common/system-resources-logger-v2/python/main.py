@@ -21,6 +21,7 @@ import stat
 import subprocess
 import threading
 import time
+from typing import Any
 
 from arduino.app_bricks.dbstorage_tsstore import TimeSeriesStore
 from arduino.app_bricks.web_ui import WebUI
@@ -55,7 +56,7 @@ db = TimeSeriesStore()
 ui = WebUI()
 
 state_lock = threading.Lock()
-state = {"info": None, "metrics": None, "source": None, "error": None}
+state: dict[str, Any] = {"info": None, "metrics": None, "source": None, "error": None}
 
 
 def collector_path() -> str | None:
