@@ -1,0 +1,556 @@
+/*
+ * SPDX-FileCopyrightText: Copyright (C) Arduino s.r.l. and/or its affiliated companies
+ *
+ * SPDX-License-Identifier: MPL-2.0
+ */
+
+@import url('fonts/fonts.css');
+
+/* Palette of the Arduino App Lab examples */
+:root {
+  --bg: #dae3e3;
+  --card: #ecf1f1;
+  --surface: #ffffff;
+  --text: #2c353a;
+  --muted: #5d6a6b;
+  --border: #c9d2d2;
+  --teal: #008184;
+  --teal-dark: #005c5f;
+  --teal-soft: rgba(0, 129, 132, 0.14);
+  --orange: #e47128;
+  --red: #aa4335;
+  --track: #d4dddd;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 20px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Open Sans', sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  letter-spacing: 0.12px;
+}
+
+.app-container {
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+/* ---------- header ---------- */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.arduino-text {
+  color: var(--teal);
+  font-family: 'Roboto Mono', monospace;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+  line-height: 170%;
+  letter-spacing: 2.4px;
+}
+
+.arduino-logo {
+  height: 24px;
+  width: auto;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.lang-switch {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+}
+
+.lang-btn {
+  min-width: 34px;
+  height: 22px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font-family: 'Roboto Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+.lang-btn.active {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--teal);
+}
+
+.v2 {
+  font-size: 12px;
+  letter-spacing: 1px;
+  background: var(--teal);
+  color: #fff;
+  border-radius: 4px;
+  padding: 1px 6px;
+  vertical-align: middle;
+}
+
+.subtitle {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  font-weight: 600;
+}
+
+.badge {
+  border: 1px solid var(--teal);
+  color: var(--teal);
+  border-radius: 12px;
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--surface);
+}
+
+.badge.muted {
+  border-color: var(--border);
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.small {
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.error-message,
+.warning-message {
+  margin-bottom: 12px;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.error-message {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.warning-message {
+  background: #fdebd8;
+  color: #8a4a12;
+  border: 1px solid #f6cfa8;
+}
+
+/* ---------- tabs (segmented control, as in the official examples) ---------- */
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 2px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 110px;
+  height: 27px;
+  padding: 0 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--text);
+  font-family: 'Open Sans', sans-serif;
+  font-size: 12px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.tab:hover {
+  color: var(--teal);
+}
+
+.tab.active {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--teal);
+  font-weight: 700;
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.live-dot.on {
+  background: var(--red);
+  animation: flash-circle 1s infinite alternate;
+}
+
+@keyframes flash-circle {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.2;
+  }
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* ---------- KPI tiles ---------- */
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.kpi {
+  background: var(--card);
+  border-radius: 8px;
+  padding: 12px 14px 8px;
+  min-height: 118px;
+  display: flex;
+  flex-direction: column;
+}
+
+.kpi.na {
+  opacity: 0.5;
+}
+
+.kpi-label {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.kpi-value {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--teal);
+  letter-spacing: -0.5px;
+  margin-top: 2px;
+}
+
+.kpi-sub {
+  color: var(--muted);
+  font-size: 11px;
+  min-height: 16px;
+}
+
+.kpi canvas {
+  margin-top: auto;
+  height: 36px !important;
+}
+
+/* ---------- cards ---------- */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 12px;
+}
+
+.card {
+  background: var(--card);
+  border-radius: 8px;
+  padding: 16px;
+  min-width: 0;
+}
+
+.card.wide {
+  grid-column: 1 / -1;
+}
+
+.card h2 {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  margin: 0 0 14px;
+  color: var(--text);
+}
+
+.card h2 .small {
+  font-family: 'Open Sans', sans-serif;
+  letter-spacing: 0.12px;
+  margin-left: 6px;
+}
+
+/* ---------- bars ---------- */
+
+.bars {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: minmax(70px, 34%) 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.bar-row .label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.temp-sub {
+  margin: 1px 0 0;
+  padding-left: 2px;
+}
+
+.temp-details {
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.temp-details summary {
+  cursor: pointer;
+  color: var(--teal);
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.temp-details .bars {
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.bar {
+  height: 8px;
+  background: var(--track);
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+}
+
+.bar > span {
+  display: block;
+  height: 100%;
+  background: var(--teal);
+  transition: width 0.4s;
+}
+
+.bar > span.warn {
+  background: var(--orange);
+}
+
+.bar > span.danger {
+  background: var(--red);
+}
+
+.bar > span.soft {
+  background: var(--teal-soft);
+}
+
+.bar-row .value {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 12px;
+  text-align: right;
+  min-width: 100px;
+  letter-spacing: -0.3px;
+  color: var(--muted);
+}
+
+/* ---------- tables & key/values ---------- */
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.table th {
+  text-align: left;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  padding: 6px 8px;
+}
+
+.table td {
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--card);
+  word-break: break-word;
+}
+
+.table .num {
+  text-align: right;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 12px;
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+}
+
+.kv {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 14px;
+  margin: 0;
+}
+
+.kv dt {
+  color: var(--muted);
+}
+
+.kv dd {
+  margin: 0;
+  word-break: break-word;
+}
+
+.accel-block + .accel-block {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.accel-title {
+  font-family: 'Roboto Mono', monospace;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--teal);
+  margin-bottom: 8px;
+}
+
+/* ---------- history ---------- */
+
+.history-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 12px;
+}
+
+.history-grid .card canvas {
+  max-height: 220px;
+}
+
+.nodata {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 180px;
+  font-size: 12px;
+}
+
+.nodata img {
+  width: 64px;
+  height: 64px;
+}
+
+/* ---------- misc ---------- */
+
+.button {
+  background: var(--teal);
+  color: #fff;
+  border: none;
+  border-radius: 32px;
+  padding: 6px 18px;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: var(--teal-dark);
+}
+
+.pre {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px;
+  max-height: 420px;
+  overflow: auto;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 11px;
+}
+
+code {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 11px;
+}
+
+@media (max-width: 768px) {
+  body {
+    padding: 12px;
+  }
+
+  .arduino-text {
+    font-size: 14px;
+  }
+
+  .arduino-logo {
+    height: 16px;
+  }
+
+  .history-grid {
+    grid-template-columns: 1fr;
+  }
+}

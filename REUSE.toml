@@ -91,6 +91,18 @@ SPDX-FileCopyrightText = "Copyright (C) Arduino s.r.l. and/or its affiliated com
 SPDX-License-Identifier = "MPL-2.0"
 precedence = "override"
 
+# Collector built from the Rust sources of the example (binary and generated lock file),
+# and the language packs (REUSE misdetects the encoding of some CJK files).
+[[annotations]]
+path = [
+  "inspirational/common/system-resources-logger-v2/python/bin/sysmon-collector",
+  "inspirational/common/system-resources-logger-v2/collector/Cargo.lock",
+  "inspirational/common/system-resources-logger-v2/lang-packs/*.js",
+]
+SPDX-FileCopyrightText = "Copyright (C) Arduino s.r.l. and/or its affiliated companies"
+SPDX-License-Identifier = "MPL-2.0"
+precedence = "override"
+
 # Third-party JS libraries. Keep them out of automatic header rewriting and
 # cover them via annotations so their upstream headers stay untouched.
 [[annotations]]

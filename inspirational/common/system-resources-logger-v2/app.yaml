@@ -1,0 +1,6 @@
+name: System Resources Logger v2
+icon: 📊
+description: Complete board dashboard (UNO Q / VENTUNO Q) - per-core CPU, memory, grouped temperatures, GPU, NPU, network, disks, processes, kernel and firmware versions - collected in Rust and stored in a time series database.
+bricks:
+  - arduino:dbstorage_tsstore
+  - arduino:web_ui

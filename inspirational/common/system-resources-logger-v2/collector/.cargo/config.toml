@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: Copyright (C) Arduino s.r.l. and/or its affiliated companies
+#
+# SPDX-License-Identifier: MPL-2.0
+
+# Static aarch64 build linked with the lld shipped by rustup: no C cross-toolchain needed,
+# works from Windows, macOS or Linux.
+[target.aarch64-unknown-linux-musl]
+linker = "rust-lld"
+rustflags = ["-C", "link-self-contained=yes", "-C", "target-feature=+crt-static"]

@@ -1,0 +1,152 @@
+<!--
+SPDX-FileCopyrightText: Copyright (C) Arduino s.r.l. and/or its affiliated companies
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>System Resources Logger v2</title>
+    <link rel="icon" type="image/png" href="img/favicon.png" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+  </head>
+  <body>
+    <div class="app-container">
+      <header class="header">
+        <div class="title">
+          <h1 class="arduino-text">System resources logger <span class="v2">v2</span></h1>
+          <div class="subtitle">
+            <span id="board-name" data-i18n="unknown_board"></span>
+            <span id="board-family" class="badge" hidden></span>
+            <span id="source-badge" class="badge muted" data-i18n-title="data_origin">…</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <div id="lang-switch" class="lang-switch" role="group" aria-label="Language"></div>
+          <img class="arduino-logo" src="./img/RGB-Arduino-Logo_Color Inline Loop.svg" alt="Arduino" />
+        </div>
+      </header>
+
+      <div id="error-container" class="error-message" hidden></div>
+      <div id="warning-container" class="warning-message" hidden></div>
+
+      <div class="toolbar">
+        <nav class="tabs">
+          <button class="tab active" data-tab="live">
+            <span id="live-dot" class="live-dot" data-i18n-title="live_data"></span><span data-i18n="tab_live"></span>
+          </button>
+          <button class="tab" data-tab="history" data-range="-1h" data-window="1m" data-i18n="tab_1h"></button>
+          <button class="tab" data-tab="history" data-range="-1d" data-window="15m" data-i18n="tab_24h"></button>
+          <button class="tab" data-tab="history" data-range="-7d" data-window="3h" data-i18n="tab_7d"></button>
+          <button class="tab" data-tab="system" data-i18n="tab_system"></button>
+        </nav>
+        <span id="last-update" class="muted small" data-i18n="waiting"></span>
+      </div>
+
+      <main>
+        <section id="live" class="tab-content active">
+          <div id="kpis" class="kpis"></div>
+
+          <div class="grid">
+            <div class="card">
+              <h2><span data-i18n="card_cores"></span> <span id="cpu-meta" class="muted small"></span></h2>
+              <div id="cores" class="bars"></div>
+            </div>
+            <div class="card">
+              <h2 data-i18n="card_memory"></h2>
+              <div id="memory"></div>
+            </div>
+            <div class="card">
+              <h2 data-i18n="card_temps"></h2>
+              <div id="temps" class="bars"></div>
+            </div>
+            <div class="card">
+              <h2 data-i18n="card_accel"></h2>
+              <div id="accel"></div>
+            </div>
+            <div class="card">
+              <h2 data-i18n="card_storage"></h2>
+              <div id="storage"></div>
+            </div>
+            <div class="card">
+              <h2 data-i18n="card_network"></h2>
+              <div id="network"></div>
+            </div>
+            <div class="card wide">
+              <h2><span data-i18n="card_procs"></span> <span id="proc-meta" class="muted small"></span></h2>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th data-i18n="col_name"></th>
+                    <th data-i18n="col_pid"></th>
+                    <th class="num" data-i18n="col_cpu"></th>
+                    <th class="num" data-i18n="col_memory"></th>
+                  </tr>
+                </thead>
+                <tbody id="procs"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="history" class="tab-content">
+          <p class="muted small" id="history-caption"></p>
+          <div id="history-charts" class="history-grid"></div>
+        </section>
+
+        <section id="system" class="tab-content">
+          <div class="grid">
+            <div class="card">
+              <h2 data-i18n="card_board"></h2>
+              <dl id="sys-board" class="kv"></dl>
+            </div>
+            <div class="card">
+              <h2 data-i18n="card_kernel"></h2>
+              <dl id="sys-kernel" class="kv"></dl>
+            </div>
+            <div class="card wide">
+              <h2 data-i18n="card_firmware"></h2>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th data-i18n="col_component"></th>
+                    <th data-i18n="col_version"></th>
+                    <th data-i18n="col_detail"></th>
+                    <th data-i18n="col_source"></th>
+                  </tr>
+                </thead>
+                <tbody id="sys-firmware"></tbody>
+              </table>
+              <p class="muted small" id="firmware-note"></p>
+            </div>
+            <div class="card">
+              <h2 data-i18n="card_os"></h2>
+              <dl id="sys-os" class="kv"></dl>
+            </div>
+            <div class="card">
+              <h2 data-i18n="card_network"></h2>
+              <dl id="sys-net" class="kv"></dl>
+            </div>
+            <div class="card wide">
+              <h2 data-i18n="card_diag"></h2>
+              <p class="muted small">
+                <span data-i18n="diag_text"></span> <code>SYSMON_*_FILE</code> <span data-i18n="diag_vars"></span>
+              </p>
+              <button id="probe-btn" class="button" data-i18n="diag_run"></button>
+              <pre id="probe-out" class="pre" hidden></pre>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="libs/chart.umd.min.js"></script>
+    <script src="libs/socket.io.min.js"></script>
+    <script src="libs/arduino.js"></script>
+    <script src="i18n.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
